@@ -1,0 +1,15 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{110E918E-8F1B-47C6-B771-14BF6D8163C9}"
+	ProjectSection(SolutionItems) = preProject
+		SolutionItems\.editorconfig = SolutionItems\.editorconfig
+		SolutionItems\Directory.Build.props = SolutionItems\Directory.Build.props
+		SolutionItems\Lanka.sln.DotSettings = SolutionItems\Lanka.sln.DotSettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+EndGlobal
