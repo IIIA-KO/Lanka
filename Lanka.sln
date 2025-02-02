@@ -1,15 +1,44 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{110E918E-8F1B-47C6-B771-14BF6D8163C9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{198C9244-A0B5-4E35-89A6-C34A79B18F86}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{B00FFF23-DB97-41DE-A3EB-E6D0269FA107}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{B0E12094-EB0B-49E3-BE87-4F5F3B3C6E4A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{6761B499-EBA0-4890-818A-D356FAC87CC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Common.Domain", "src\Common\Lanka.Common.Domain\Lanka.Common.Domain.csproj", "{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{8496F423-47BC-474B-B084-657F3F1E25CE}"
 	ProjectSection(SolutionItems) = preProject
-		SolutionItems\.editorconfig = SolutionItems\.editorconfig
-		SolutionItems\Directory.Build.props = SolutionItems\Directory.Build.props
-		SolutionItems\Lanka.sln.DotSettings = SolutionItems\Lanka.sln.DotSettings
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+		Lanka.sln.DotSettings = Lanka.sln.DotSettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Api", "src\Api\Lanka.Api\Lanka.Api.csproj", "{ED19CC12-E951-4243-8A54-48C67C1CE9E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B00FFF23-DB97-41DE-A3EB-E6D0269FA107} = {198C9244-A0B5-4E35-89A6-C34A79B18F86}
+		{B0E12094-EB0B-49E3-BE87-4F5F3B3C6E4A} = {198C9244-A0B5-4E35-89A6-C34A79B18F86}
+		{6761B499-EBA0-4890-818A-D356FAC87CC8} = {198C9244-A0B5-4E35-89A6-C34A79B18F86}
+		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7} = {B0E12094-EB0B-49E3-BE87-4F5F3B3C6E4A}
+		{ED19CC12-E951-4243-8A54-48C67C1CE9E5} = {B00FFF23-DB97-41DE-A3EB-E6D0269FA107}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED19CC12-E951-4243-8A54-48C67C1CE9E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED19CC12-E951-4243-8A54-48C67C1CE9E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED19CC12-E951-4243-8A54-48C67C1CE9E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED19CC12-E951-4243-8A54-48C67C1CE9E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
