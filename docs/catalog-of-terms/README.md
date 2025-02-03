@@ -13,3 +13,5 @@ This catalog provides detailed explanations of the core domain concepts used in 
 4. [Value Object](./value-object/)
 
 5. [Result Pattern](./result-pattern/)
+
+6. [CQRS](./cqrs/)

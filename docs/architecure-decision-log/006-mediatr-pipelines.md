@@ -1,6 +1,6 @@
 # ADL 006 - MediatR Pipeline Behaviors
 
-**Date:** 2024-02-01  
+**Date:** 2024-02-02  
 **Status:** Accepted
 
 ## Context

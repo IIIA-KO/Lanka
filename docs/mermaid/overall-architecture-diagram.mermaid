@@ -1,0 +1,139 @@
+graph TB
+    %% User Domain
+    subgraph User Domain
+        User[User Aggregate]
+        UserCreated[UserCreatedDomainEvent]
+        InstagramLink[Link Instagram Account]
+        
+        User --> UserCreated
+        User --> InstagramLink
+    end
+
+    %% Matching Domain
+    subgraph Matching Domain
+        Match[Match Aggregate]
+        MatchRequested[MatchRequestedEvent]
+        MatchFound[MatchFoundEvent]
+        
+        Match --> MatchRequested
+        Match --> MatchFound
+    end
+
+    %% Cooperation Domain
+    subgraph Cooperation Domain
+        Cooperation[Cooperation Aggregate]
+        
+        %% Status Transitions
+        subgraph Status Transitions
+            Pending[Pending]
+            Confirmed[Confirmed]
+            Rejected[Rejected]
+            Done[Done]
+            Completed[Completed]
+            Cancelled[Cancelled]
+            
+            Pending -->|Confirm| Confirmed
+            Pending -->|Reject| Rejected
+            Confirmed -->|Mark Done| Done
+            Done -->|Complete| Completed
+            Confirmed -->|Cancel| Cancelled
+        end
+        
+        %% Domain Events
+        subgraph Domain Events
+            CoopPended[CooperationPendedEvent]
+            CoopConfirmed[CooperationConfirmedEvent]
+            CoopRejected[CooperationRejectedEvent]
+            CoopDone[CooperationDoneEvent]
+            CoopCompleted[CooperationCompletedEvent]
+            CoopCancelled[CooperationCancelledEvent]
+        end
+        
+        Cooperation --> CoopPended
+        Cooperation --> CoopConfirmed
+        Cooperation --> CoopRejected
+        Cooperation --> CoopDone
+        Cooperation --> CoopCompleted
+        Cooperation --> CoopCancelled
+    end
+
+    %% Campaign Management Domain
+    subgraph Campaign Management Domain
+        Campaign[Campaign Aggregate]
+        CampaignCreated[CampaignCreatedEvent]
+        CampaignUpdated[CampaignUpdatedEvent]
+        CampaignCancelled[CampaignCancelledEvent]
+        
+        Campaign --> CampaignCreated
+        Campaign --> CampaignUpdated
+        Campaign --> CampaignCancelled
+    end
+
+    %% Review Domain
+    subgraph Review Domain
+        Review[Review Aggregate]
+        ReviewCreated[ReviewCreatedEvent]
+        ReviewUpdated[ReviewUpdatedEvent]
+        
+        Review --> ReviewCreated
+        Review --> ReviewUpdated
+    end
+
+    %% Analytics Domain
+    subgraph Analytics Domain
+        Analytics[Analytics Aggregate]
+        DataIngested[DataIngestedEvent]
+        
+        InstagramLink --> DataIngested
+        Analytics --> DataIngested
+    end
+
+    %% Notification System
+    subgraph Notification System
+        Outbox[Outbox Messages]
+        Notifications[Notifications]
+        
+        CoopPended --> Outbox
+        CoopConfirmed --> Outbox
+        CoopRejected --> Outbox
+        CoopDone --> Outbox
+        CoopCompleted --> Outbox
+        CoopCancelled --> Outbox
+        UserCreated --> Outbox
+        CampaignCreated --> Outbox
+        CampaignCancelled --> Outbox
+        ReviewCreated --> Outbox
+        
+        Outbox --> Notifications
+    end
+
+    %% Business Rules
+    subgraph Business Rules
+        Rules1[Only Completed Cooperations Can Be Reviewed]
+        Rules2[Only Buyers Can Create Reviews]
+        Rules3[One Review Per Cooperation]
+        Rules4[Cannot Cancel After Scheduled Date]
+        
+        Review -.-> Rules1
+        Review -.-> Rules2
+        Review -.-> Rules3
+        Cooperation -.-> Rules4
+    end
+
+    %% External Systems
+    subgraph External Systems
+        Keycloak[Keycloak Auth]
+        Instagram[Instagram API]
+        
+        User -.-> Keycloak
+        InstagramLink -.-> Instagram
+    end
+
+    %% Relationships between Domains
+    User --> |Buyer| Cooperation
+    User --> |Seller| Cooperation
+    Cooperation --> |Completed| Review
+    User --> Notifications
+    User --> |Initiates| Match
+    Match --> |Leads to| Cooperation
+    Campaign --> |Drives| Cooperation
