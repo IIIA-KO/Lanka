@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant API
+    participant Dapper as Query handler Dapper
+    participant EF as Command handler DDD + EF
+    participant Repositories
+    participant Database
+    participant Domain as Domain logic
+
+    API->>Dapper: 1. Query
+    Dapper->>Database: 2. SQL
+    Database-->>Dapper: 3. Result
+    Dapper-->>API: 4. Result
+
+    API->>EF: 1. Command
+    EF->>Repositories: 2. Get entities
+    Repositories->>Database: 3. SQL
+    Database-->>Repositories: 4. Result
+    Repositories-->>EF: 5. Entities
+    EF->>Domain: 6. Invoke entity method
+    EF->>Repositories: 7. Save changes
+    Repositories->>Database: 8. SQL
+    EF-->>API: 9. Result

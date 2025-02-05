@@ -119,7 +119,7 @@ CQRS is an architectural pattern that separates read and write operations for a 
 
 ### Model
 
-To be added
+![CQRS](/docs/images/cqrs.jpg)
 
 ### Code
 

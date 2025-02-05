@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Api", "src\Api\Lanka.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Common.Application", "src\Common\Lanka.Common.Application\Lanka.Common.Application.csproj", "{EF471A13-4DE9-4E4C-849A-FF5195A65BD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docker-compose", "docker-compose.dcproj", "{C319E3E2-1F35-4E8B-83FB-348091CBBAC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,5 +49,9 @@ Global
 		{EF471A13-4DE9-4E4C-849A-FF5195A65BD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF471A13-4DE9-4E4C-849A-FF5195A65BD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF471A13-4DE9-4E4C-849A-FF5195A65BD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C319E3E2-1F35-4E8B-83FB-348091CBBAC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C319E3E2-1F35-4E8B-83FB-348091CBBAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C319E3E2-1F35-4E8B-83FB-348091CBBAC0}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{C319E3E2-1F35-4E8B-83FB-348091CBBAC0}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

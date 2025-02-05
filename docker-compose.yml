@@ -1,0 +1,37 @@
+﻿services:
+  lanka.api:
+    image: ${DOCKER_REGISTRY-}lankaapi
+    container_name: Lanka.Api
+    build:
+      context: .
+      dockerfile: src/API/Lanka.Api/Dockerfile
+    ports:
+      - "4308:4308"
+  
+  lanka.database:
+    image: postgres:latest
+    container_name: Lanka.Database
+    environment:
+      - POSTGRES_DB=lanka
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  
+  lanka.seq:
+    image: datalust/seq:latest
+    container_name: Lanka.Seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5431:5431"
+      - "8081:80"
+  
+  lanka.redis:
+    image: redis:latest
+    container_name: Lanka.Redis
+    restart: always
+    ports:
+      - "6379:6379"

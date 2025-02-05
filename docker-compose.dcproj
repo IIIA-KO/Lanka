@@ -1,0 +1,24 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+    <PropertyGroup Label="Globals">
+        <ProjectVersion>2.1</ProjectVersion>
+        <DockerTargetOS>Linux</DockerTargetOS>
+        <DockerPublishLocally>False</DockerPublishLocally>
+        <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
+        <DockerServiceName>lanka.api</DockerServiceName>
+        <DockerComposeProjectName>lanka</DockerComposeProjectName>
+  </PropertyGroup>
+
+    <PropertyGroup>
+        <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="docker-compose.yml" />
+        <None Include=".dockerignore" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="docker-composer.override.yml" />
+        <Content Include="launchSettings.json" />
+    </ItemGroup>
+</Project>
