@@ -1,7 +1,7 @@
 namespace Lanka.Modules.Users.Infrastructure.Database
 {
-    public class Schemas
+    internal static class Schemas
     {
-        
+        internal const string Users = "users";
     }
 }

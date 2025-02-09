@@ -1,39 +1,43 @@
 ﻿using System.Net.Http.Json;
 
-namespace Evently.Modules.Users.Infrastructure.Identity;
-
-internal sealed class KeyCloakClient(HttpClient httpClient)
+namespace Lanka.Modules.Users.Infrastructure.Identity
 {
-    internal async Task<string> RegisterUserAsync(UserRepresentation user, CancellationToken cancellationToken = default)
+    internal sealed class KeyCloakClient
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync(
-            "users",
-            user,
-            cancellationToken);
+        private readonly HttpClient _httpClient;
 
-        httpResponseMessage.EnsureSuccessStatusCode();
-
-        return ExtractIdentityIdFromLocationHeader(httpResponseMessage);
-    }
-
-    private static string ExtractIdentityIdFromLocationHeader(
-        HttpResponseMessage httpResponseMessage)
-    {
-        const string usersSegmentName = "users/";
-
-        string? locationHeader = httpResponseMessage.Headers.Location?.PathAndQuery;
-
-        if (locationHeader is null)
+        public KeyCloakClient(HttpClient httpClient)
         {
-            throw new InvalidOperationException("Location header is null");
+            this._httpClient = httpClient;
         }
 
-        int userSegmentValueIndex = locationHeader.IndexOf(
-            usersSegmentName,
-            StringComparison.InvariantCultureIgnoreCase);
+        internal async Task<string> RegisterUserAsync(UserRepresentation user, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage httpResponseMessage = await this._httpClient.PostAsJsonAsync(
+                "users",
+                user,
+                cancellationToken);
 
-        string identityId = locationHeader.Substring(userSegmentValueIndex + usersSegmentName.Length);
+            httpResponseMessage.EnsureSuccessStatusCode();
 
-        return identityId;
+            return ExtractIdentityIdFromLocationHeader(httpResponseMessage);
+        }
+
+        private static string ExtractIdentityIdFromLocationHeader(
+            HttpResponseMessage httpResponseMessage)
+        {
+            const string usersSegmentName = "users/";
+
+            string? locationHeader = httpResponseMessage.Headers.Location?.PathAndQuery 
+                                     ?? throw new InvalidOperationException("Location header is null");
+
+            int userSegmentValueIndex = locationHeader.IndexOf(
+                usersSegmentName,
+                StringComparison.InvariantCultureIgnoreCase);
+
+            string identityId = locationHeader.Substring(userSegmentValueIndex + usersSegmentName.Length);
+
+            return identityId;
+        }
     }
 }
