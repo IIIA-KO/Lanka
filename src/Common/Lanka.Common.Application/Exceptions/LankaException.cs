@@ -10,13 +10,10 @@ namespace Lanka.Common.Application.Exceptions
         
         public LankaException() { }
         
-        public LankaException(string message) 
-            : base(message) { }
-        
         public LankaException(string message, Exception inner)
             : base(message, inner) { }
 
-        public LankaException(string requestName, Error? error, Exception? inner)
+        public LankaException(string requestName, Error? error = null, Exception? inner = null)
             : base("Application exception", inner)
         {
             this.RequestName = requestName;

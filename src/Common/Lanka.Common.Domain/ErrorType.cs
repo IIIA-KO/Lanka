@@ -7,5 +7,6 @@ namespace Lanka.Common.Domain
         Problem = 2,
         NotFound = 3,
         Conflict = 4,
+        Unauthorized = 5,
     }
 }
