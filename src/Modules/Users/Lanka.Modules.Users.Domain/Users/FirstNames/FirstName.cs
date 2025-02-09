@@ -1,8 +1,8 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Users.Domain.Users
+namespace Lanka.Modules.Users.Domain.Users.FirstNames
 {
-    public sealed record FirstName : ValueObject
+    public sealed record FirstName
     {
         public const int MaxLength = 100;
 
