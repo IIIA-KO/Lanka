@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Common\Lanka.Common.Application\Lanka.Common.Application.csproj" />
+      <ProjectReference Include="..\Lanka.Modules.Users.Domain\Lanka.Modules.Users.Domain.csproj" />
+      <ProjectReference Include="..\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj" />
+    </ItemGroup>
+
+</Project>

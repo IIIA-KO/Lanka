@@ -1,7 +1,13 @@
-﻿using Evently.Common.Application.Messaging;
+﻿using Lanka.Common.Application.Messaging;
+using Lanka.Modules.Users.Domain.Users;
 
-namespace Evently.Modules.Users.Application.Users.RegisterUser
+namespace Lanka.Modules.Users.Application.Users.RegisterUser
 {
-    public sealed record RegisterUserCommand(string Email, string Password, string FirstName, string LastName)
-        : ICommand<Guid>;
+    public sealed record RegisterUserCommand(
+        string Email, 
+        string Password, 
+        string FirstName, 
+        string LastName,
+        DateOnly BirthDate
+    ) : ICommand<UserId>;
 }

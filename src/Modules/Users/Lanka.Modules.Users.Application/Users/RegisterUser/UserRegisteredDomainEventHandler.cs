@@ -1,34 +1,44 @@
-using Evently.Common.Application.EventBus;
-using Evently.Common.Application.Exceptions;
-using Evently.Common.Application.Messaging;
-using Evently.Common.Domain;
-using Evently.Modules.Users.Application.Users.GetUser;
-using Evently.Modules.Users.Domain.Users;
-using Evently.Modules.Users.IntegrationEvents;
+using Lanka.Common.Application.EventBus;
+using Lanka.Common.Application.Exceptions;
+using Lanka.Common.Application.Messaging;
+using Lanka.Common.Domain;
+using Lanka.Modules.Users.Application.Users.GetUser;
+using Lanka.Modules.Users.Domain.Users.DomainEvents;
+using Lanka.Modules.Users.IntegrationEvents;
 using MediatR;
 
-namespace Evently.Modules.Users.Application.Users.RegisterUser
+namespace Lanka.Modules.Users.Application.Users.RegisterUser
 {
-    internal sealed class UserRegisteredDomainEventHandler(ISender sender, IEventBus eventBus) 
-        : IDomainEventHandler<UserRegisteredDomainEvent>
+    internal sealed class UserRegisteredDomainEventHandler 
+        : IDomainEventHandler<UserCreatedDomainEvent>
     {
-        public async Task Handle(UserRegisteredDomainEvent notification, CancellationToken cancellationToken)
+        private readonly ISender _sender;
+        private readonly IEventBus _eventBus;
+
+        public UserRegisteredDomainEventHandler(ISender sender, IEventBus eventBus)
         {
-            Result<UserResponse> result = await sender.Send(new GetUserQuery(notification.UserId), cancellationToken);
+            this._sender = sender;
+            this._eventBus = eventBus;
+        }
+
+        public async Task Handle(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
+        {
+            Result<UserResponse> result = await this._sender.Send(new GetUserQuery(notification.UserId.Value), cancellationToken);
 
             if (result.IsFailure)
             {
-                throw new EventlyException(nameof(GetUserQuery), result.Error);
+                throw new LankaException(nameof(GetUserQuery), result.Error);
             }
             
-            await eventBus.PublishAsync(
+            await this._eventBus.PublishAsync(
                 new UserRegisteredIntegrationEvent(
                     notification.Id,
                     notification.OcurredOnUtc,
                     result.Value.Id,
                     result.Value.Email,
                     result.Value.FirstName,
-                    result.Value.LastName
+                    result.Value.LastName,
+                    result.Value.BirthDay
                 ),
                 cancellationToken
             );
