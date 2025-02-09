@@ -1,7 +1,24 @@
+using Lanka.Modules.Users.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+
 namespace Lanka.Api.Extensions
 {
-    public class MigrationExtensions
+    internal static class MigrationExtensions
     {
+        internal static void ApplyMigrations(this IApplicationBuilder app)
+        {
+            using IServiceScope serviceScope = app.ApplicationServices.CreateScope();
+
+            ApplyMigration<UsersDbContext>(serviceScope);
+        }
         
+        private static void ApplyMigration<TDbContext>(IServiceScope serviceScope)
+            where TDbContext : DbContext
+        {
+            using TDbContext dbContext =
+                serviceScope.ServiceProvider.GetRequiredService<TDbContext>();
+
+            dbContext.Database.Migrate();
+        }
     }
 }

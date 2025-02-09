@@ -1,2 +1,11 @@
 {
+  "Users": {
+    "KeyCloak": {
+      "AdminUrl": "http://lanka.identity:8080/admin/realms/lanka/",
+      "TokenUrl": "http://lanka.identity:8080/realms/lanka/protocol/openid-connect/token",
+      "ConfidentialClientId": "lanka-confidential-client",
+      "ConfidentialClientSecret": "kneUfmOiT7U1p1z6WCtSjS5GHkBmAscJ",
+      "PublicClientId": "lanka-public-client"
+    }
+  }
 }
