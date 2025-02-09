@@ -1,7 +1,7 @@
 namespace Lanka.Modules.Users.Presentation
 {
-    public class Tahs
+    internal static class Tags
     {
-        
+        internal const string Users = "Users";
     }
 }
