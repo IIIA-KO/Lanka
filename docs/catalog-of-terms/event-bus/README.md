@@ -44,6 +44,12 @@ An Event Bus is a messaging infrastructure that enables decoupled communication 
 - Implement proper logging
 - Consider message ordering
 
+## Examples
+
+## Model
+
+![EventBus](/docs/images/event-bus.jpg)
+
 ## Additional References
 
 1. [Enterprise Integration Patterns](https://www.enterpriseintegrationpatterns.com/patterns/messaging/PublishSubscribeChannel.html)

@@ -60,12 +60,6 @@ public interface IUnitOfWork
 - Consider performance implications
 - Plan for future patterns (Outbox/Inbox)
 
-## Examples
-
-## Model
-
-![EventBus](/docs/images/event-bus.jpg)
-
 ## Additional References
 
 1. [Unit of Work Pattern](https://martinfowler.com/eaaCatalog/unitOfWork.html)
