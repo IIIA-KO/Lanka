@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant Module A
+    participant Event Bus
+    participant Module B
+    participant Module C
+    
+    Note over Module A: User Registration
+    Module A->>Event Bus: Publish UserRegisteredIntegrationEvent
+    Event Bus->>Module B: Handle UserRegisteredIntegrationEvent
+    Event Bus->>Module C: Handle UserRegisteredIntegrationEvent
+    Note over Module B: Send Welcome Email
+    Note over Module C: Create User Profile

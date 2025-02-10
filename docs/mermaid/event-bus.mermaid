@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant Publisher
+    participant EventBus
+    participant Subscriber1
+    participant Subscriber2
+    
+    Subscriber1->>EventBus: Subscribe to EventType
+    Subscriber2->>EventBus: Subscribe to EventType
+    Publisher->>EventBus: Publish Event
+    EventBus->>Subscriber1: Handle Event
+    EventBus->>Subscriber2: Handle Event
+    Note over Subscriber1,Subscriber2: Parallel Processing

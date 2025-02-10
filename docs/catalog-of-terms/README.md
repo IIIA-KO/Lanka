@@ -15,3 +15,13 @@ This catalog provides detailed explanations of the core domain concepts used in 
 5. [Result Pattern](./result-pattern/)
 
 6. [CQRS](./cqrs/)
+
+## Event-Driven Architecture
+
+7. [Integration Event](./integration-event/)
+
+8. [Event Bus](./event-bus/)
+
+## Data Management
+
+9. [Unit of Work](./unit-of-work/)
