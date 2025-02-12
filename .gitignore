@@ -408,6 +408,7 @@ FodyWeavers.xsd
 .env.production.local
 
 appsettings.Development.json
+modules.users.Development.json
 
 # Mac files
 .DS_Store

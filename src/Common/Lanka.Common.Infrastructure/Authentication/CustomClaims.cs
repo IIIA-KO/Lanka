@@ -1,7 +1,8 @@
-﻿namespace Evently.Common.Infrastructure.Authentication;
-
-public static class CustomClaims
+﻿namespace Lanka.Common.Infrastructure.Authentication
 {
-    public const string Sub = "sub";
-    public const string Permission = "permission";
+    public static class CustomClaims
+    {
+        public const string Sub = "sub";
+        public const string Permission = "permission";
+    }
 }

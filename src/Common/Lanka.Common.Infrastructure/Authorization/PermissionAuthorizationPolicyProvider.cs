@@ -1,33 +1,34 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
-namespace Evently.Common.Infrastructure.Authorization;
-
-internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
+namespace Lanka.Common.Infrastructure.Authorization
 {
-    private readonly AuthorizationOptions _authorizationOptions;
-
-    public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
-        : base(options)
+    internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
     {
-        _authorizationOptions = options.Value;
-    }
+        private readonly AuthorizationOptions _authorizationOptions;
 
-    public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
-    {
-        AuthorizationPolicy? policy = await base.GetPolicyAsync(policyName);
-
-        if (policy is not null)
+        public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
+            : base(options)
         {
-            return policy;
+            this._authorizationOptions = options.Value;
         }
 
-        AuthorizationPolicy permissionPolicy = new AuthorizationPolicyBuilder()
-            .AddRequirements(new PermissionRequirement(policyName))
-            .Build();
+        public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+        {
+            AuthorizationPolicy? policy = await base.GetPolicyAsync(policyName);
 
-        _authorizationOptions.AddPolicy(policyName, permissionPolicy);
+            if (policy is not null)
+            {
+                return policy;
+            }
 
-        return permissionPolicy;
+            AuthorizationPolicy permissionPolicy = new AuthorizationPolicyBuilder()
+                .AddRequirements(new PermissionRequirement(policyName))
+                .Build();
+
+            this._authorizationOptions.AddPolicy(policyName, permissionPolicy);
+
+            return permissionPolicy;
+        }
     }
 }

@@ -4,6 +4,7 @@ using Lanka.Common.Application.Clock;
 using Lanka.Common.Application.Data;
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Infrastructure.Authentication;
+using Lanka.Common.Infrastructure.Authorization;
 using Lanka.Common.Infrastructure.Caching;
 using Lanka.Common.Infrastructure.Clock;
 using Lanka.Common.Infrastructure.Data;
@@ -26,6 +27,8 @@ namespace Lanka.Common.Infrastructure
         )
         {
             services.AddAuthenticationInternal();
+
+            services.AddAuthorizationInternal();
             
             services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
             

@@ -2,18 +2,19 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Evently.Common.Infrastructure.Authorization;
-
-internal static class AuthorizationExtensions
+namespace Lanka.Common.Infrastructure.Authorization
 {
-    internal static IServiceCollection AddAuthorizationInternal(this IServiceCollection services)
+    internal static class AuthorizationExtensions
     {
-        services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
+        internal static IServiceCollection AddAuthorizationInternal(this IServiceCollection services)
+        {
+            services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
 
-        services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-        services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
-        return services;
+            return services;
+        }
     }
 }

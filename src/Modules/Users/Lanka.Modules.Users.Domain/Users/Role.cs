@@ -1,18 +1,19 @@
-﻿namespace Evently.Modules.Users.Domain.Users;
-
-public sealed class Role
+﻿namespace Lanka.Modules.Users.Domain.Users
 {
-    public static readonly Role Administrator = new("Administrator");
-    public static readonly Role Member = new("Member");
-
-    private Role(string name)
+    public sealed class Role
     {
-        Name = name;
-    }
+        public static readonly Role Administrator = new("Administrator");
+        public static readonly Role Member = new("Member");
 
-    private Role()
-    {
-    }
+        private Role(string name)
+        {
+            this.Name = name;
+        }
 
-    public string Name { get; private set; }
+        private Role()
+        {
+        }
+
+        public string Name { get; private set; }
+    }
 }

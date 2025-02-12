@@ -1,8 +1,10 @@
-﻿using Lanka.Common.Infrastructure.Interceptors;
+﻿using Lanka.Common.Application.Authorization;
+using Lanka.Common.Infrastructure.Interceptors;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
+using Lanka.Modules.Users.Infrastructure.Authorization;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Identity;
 using Lanka.Modules.Users.Infrastructure.Users;
@@ -30,6 +32,8 @@ namespace Lanka.Modules.Users.Infrastructure
 
         private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IPermissionService, PermissionService>();
+            
             services.Configure<KeyCloakOptions>(configuration.GetSection("Users:KeyCloak"));
 
             services.AddTransient<KeyCloakAuthDelegatingHandler>();

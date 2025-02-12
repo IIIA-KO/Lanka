@@ -10,6 +10,8 @@ namespace Lanka.Modules.Users.Domain.Users
 {
     public class User : Entity<UserId>, IAggregateRoot
     {
+        private readonly List<Role> _roles = [];
+        
         public FirstName FirstName { get; private set; }
 
         public LastName LastName { get; private set; }
@@ -22,6 +24,8 @@ namespace Lanka.Modules.Users.Domain.Users
 
         public string IdentityId { get; private set; }
 
+        public IReadOnlyCollection<Role> Roles => this._roles;
+        
         private User() { }
 
         private User(
@@ -61,6 +65,8 @@ namespace Lanka.Modules.Users.Domain.Users
 
             var user = new User(UserId.New(), fn, ln, em, bd, identityId);
 
+            user._roles.Add(Role.Member);
+            
             user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
             return user;

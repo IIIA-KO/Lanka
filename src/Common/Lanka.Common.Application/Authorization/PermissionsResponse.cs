@@ -1,3 +1,4 @@
-﻿namespace Evently.Common.Application.Authorization;
-
-public sealed record PermissionsResponse(Guid UserId, HashSet<string> Permissions);
+﻿namespace Lanka.Common.Application.Authorization
+{
+    public sealed record PermissionsResponse(Guid UserId, HashSet<string> Permissions);
+}

@@ -8,7 +8,8 @@ namespace Lanka.Common.Presentation.Endpoints
         protected virtual string BaseRoute => string.Empty;
         protected virtual bool RequireAuthorization => true;
         protected virtual string? RateLimitingPolicy => null;
-
+        protected virtual string[]? RequiredPermissions => null;
+        
         protected string BuildRoute(string route) => 
             string.IsNullOrEmpty(route) ? this.BaseRoute : $"{this.BaseRoute}/{route}";
         
@@ -18,7 +19,14 @@ namespace Lanka.Common.Presentation.Endpoints
 
             if (this.RequireAuthorization)
             {
-                routeHandlerBuilder.RequireAuthorization();
+                if (this.RequiredPermissions is not null && this.RequiredPermissions.Length > 0)
+                {
+                    routeHandlerBuilder.RequireAuthorization(this.RequiredPermissions);
+                }
+                else
+                {
+                    routeHandlerBuilder.RequireAuthorization();
+                }
             }
 
             if (!string.IsNullOrEmpty(this.RateLimitingPolicy))

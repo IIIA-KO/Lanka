@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Evently.Common.Infrastructure.Authorization;
-
-internal sealed class PermissionRequirement : IAuthorizationRequirement
+namespace Lanka.Common.Infrastructure.Authorization
 {
-    public PermissionRequirement(string permission)
+    internal sealed class PermissionRequirement : IAuthorizationRequirement
     {
-        Permission = permission;
-    }
+        public PermissionRequirement(string permission)
+        {
+            this.Permission = permission;
+        }
 
-    public string Permission { get; }
+        public string Permission { get; }
+    }
 }

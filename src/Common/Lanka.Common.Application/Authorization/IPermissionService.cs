@@ -1,8 +1,9 @@
-﻿using Evently.Common.Domain;
+﻿using Lanka.Common.Domain;
 
-namespace Evently.Common.Application.Authorization;
-
-public interface IPermissionService
+namespace Lanka.Common.Application.Authorization
 {
-    Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId);
+    public interface IPermissionService
+    {
+        Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId);
+    }
 }

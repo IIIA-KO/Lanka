@@ -20,6 +20,11 @@ namespace Lanka.Modules.Users.Infrastructure.Users
 
         public void Add(User user)
         {
+            foreach (Role role in user.Roles)
+            {
+                this._dbContext.Attach(role);
+            }
+
             this._dbContext.Users.Add(user);
         }
     }
