@@ -1,4 +1,3 @@
-using Lanka.Modules.Users.Domain.Pacts;
 using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Domain.Users.Bios;
 using Lanka.Modules.Users.Domain.Users.BirthDates;
@@ -61,13 +60,6 @@ namespace Lanka.Modules.Users.Infrastructure.Users
                     birthDate => birthDate.Value,
                     value => BirthDate.Create(value).Value)
                 .IsRequired();
-            
-            builder
-                .HasOne(user => user.Pact)
-                .WithOne(pact => pact.User)
-                .HasForeignKey<Pact>(pact => pact.UserId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
         }
     }
 }

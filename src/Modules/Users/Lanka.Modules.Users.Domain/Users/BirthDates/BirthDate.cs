@@ -1,5 +1,4 @@
 using Lanka.Common.Domain;
-using Lanka.Modules.Users.Domain.Users.Bios;
 
 namespace Lanka.Modules.Users.Domain.Users.BirthDates
 {

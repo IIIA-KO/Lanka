@@ -12,6 +12,11 @@ namespace Lanka.Common.Domain
             ErrorType.Failure
         );
 
+        public static Error NotAuthorized => Unauthorized(
+            "General.NotAuthorized",
+            "User is not authorized to perform this action"
+        );
+        
         public Error(string code, string description, ErrorType type)
         {
             this.Code = code;

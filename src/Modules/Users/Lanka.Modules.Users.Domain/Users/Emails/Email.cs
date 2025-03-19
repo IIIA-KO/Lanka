@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Lanka.Common.Domain;
 
 namespace Lanka.Modules.Users.Domain.Users.Emails

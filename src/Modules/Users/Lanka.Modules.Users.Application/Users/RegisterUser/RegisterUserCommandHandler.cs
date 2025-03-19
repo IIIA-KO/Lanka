@@ -3,10 +3,6 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
-using Lanka.Modules.Users.Domain.Users.BirthDates;
-using Lanka.Modules.Users.Domain.Users.Emails;
-using Lanka.Modules.Users.Domain.Users.FirstNames;
-using Lanka.Modules.Users.Domain.Users.LastNames;
 
 namespace Lanka.Modules.Users.Application.Users.RegisterUser
 {

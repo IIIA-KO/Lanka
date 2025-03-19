@@ -1,3 +1,4 @@
+using Lanka.Common.Application.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lanka.Common.Infrastructure.Authentication
@@ -13,6 +14,10 @@ namespace Lanka.Common.Infrastructure.Authentication
             services.AddHttpContextAccessor();
 
             services.ConfigureOptions<JwtBearerConfigureOptions>();
+            
+            services.AddHttpContextAccessor();
+
+            services.AddScoped<IUserContext, UserContext>();
             
             return services;
         }

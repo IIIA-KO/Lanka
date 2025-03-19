@@ -1,5 +1,4 @@
 using Lanka.Common.Domain;
-using Lanka.Modules.Users.Domain.Pacts;
 using Lanka.Modules.Users.Domain.Users.Bios;
 using Lanka.Modules.Users.Domain.Users.BirthDates;
 using Lanka.Modules.Users.Domain.Users.DomainEvents;
@@ -25,7 +24,6 @@ namespace Lanka.Modules.Users.Domain.Users
 
         public string IdentityId { get; private set; }
         
-        public Pact? Pact { get; init; }
 
         public IReadOnlyCollection<Role> Roles => this._roles;
         
