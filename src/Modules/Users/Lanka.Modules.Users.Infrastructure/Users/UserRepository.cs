@@ -2,30 +2,29 @@ using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Lanka.Modules.Users.Infrastructure.Users
+namespace Lanka.Modules.Users.Infrastructure.Users;
+
+public class UserRepository : IUserRepository
 {
-    public class UserRepository : IUserRepository
+    private readonly UsersDbContext _dbContext;
+
+    public UserRepository(UsersDbContext dbContext)
     {
-        private readonly UsersDbContext _dbContext;
-
-        public UserRepository(UsersDbContext dbContext)
-        {
-            this._dbContext = dbContext;
-        }
+        this._dbContext = dbContext;
+    }
         
-        public async Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default)
+    {
+        return await this._dbContext.Users.SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+    }
+
+    public void Add(User user)
+    {
+        foreach (Role role in user.Roles)
         {
-            return await this._dbContext.Users.SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+            this._dbContext.Attach(role);
         }
 
-        public void Add(User user)
-        {
-            foreach (Role role in user.Roles)
-            {
-                this._dbContext.Attach(role);
-            }
-
-            this._dbContext.Users.Add(user);
-        }
+        this._dbContext.Users.Add(user);
     }
 }

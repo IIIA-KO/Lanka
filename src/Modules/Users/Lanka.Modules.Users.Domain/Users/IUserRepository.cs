@@ -1,9 +1,8 @@
-namespace Lanka.Modules.Users.Domain.Users
+namespace Lanka.Modules.Users.Domain.Users;
+
+public interface IUserRepository
 {
-    public interface IUserRepository
-    {
-        Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default);
+    Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default);
         
-        void Add(User user);
-    }
+    void Add(User user);
 }

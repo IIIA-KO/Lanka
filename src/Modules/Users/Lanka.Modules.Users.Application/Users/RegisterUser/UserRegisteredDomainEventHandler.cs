@@ -7,41 +7,40 @@ using Lanka.Modules.Users.Domain.Users.DomainEvents;
 using Lanka.Modules.Users.IntegrationEvents;
 using MediatR;
 
-namespace Lanka.Modules.Users.Application.Users.RegisterUser
+namespace Lanka.Modules.Users.Application.Users.RegisterUser;
+
+internal sealed class UserRegisteredDomainEventHandler 
+    : IDomainEventHandler<UserCreatedDomainEvent>
 {
-    internal sealed class UserRegisteredDomainEventHandler 
-        : IDomainEventHandler<UserCreatedDomainEvent>
+    private readonly ISender _sender;
+    private readonly IEventBus _eventBus;
+
+    public UserRegisteredDomainEventHandler(ISender sender, IEventBus eventBus)
     {
-        private readonly ISender _sender;
-        private readonly IEventBus _eventBus;
+        this._sender = sender;
+        this._eventBus = eventBus;
+    }
 
-        public UserRegisteredDomainEventHandler(ISender sender, IEventBus eventBus)
+    public async Task Handle(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
+    {
+        Result<UserResponse> result = await this._sender.Send(new GetUserQuery(notification.UserId.Value), cancellationToken);
+
+        if (result.IsFailure)
         {
-            this._sender = sender;
-            this._eventBus = eventBus;
+            throw new LankaException(nameof(GetUserQuery), result.Error);
         }
-
-        public async Task Handle(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
-        {
-            Result<UserResponse> result = await this._sender.Send(new GetUserQuery(notification.UserId.Value), cancellationToken);
-
-            if (result.IsFailure)
-            {
-                throw new LankaException(nameof(GetUserQuery), result.Error);
-            }
             
-            await this._eventBus.PublishAsync(
-                new UserRegisteredIntegrationEvent(
-                    notification.Id,
-                    notification.OcurredOnUtc,
-                    result.Value.Id,
-                    result.Value.Email,
-                    result.Value.FirstName,
-                    result.Value.LastName,
-                    result.Value.BirthDay
-                ),
-                cancellationToken
-            );
-        }
+        await this._eventBus.PublishAsync(
+            new UserRegisteredIntegrationEvent(
+                notification.Id,
+                notification.OcurredOnUtc,
+                result.Value.Id,
+                result.Value.Email,
+                result.Value.FirstName,
+                result.Value.LastName,
+                result.Value.BirthDay
+            ),
+            cancellationToken
+        );
     }
 }

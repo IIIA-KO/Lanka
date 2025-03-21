@@ -1,7 +1,6 @@
-namespace Lanka.Common.Application.Clock
+namespace Lanka.Common.Application.Clock;
+
+public interface IDateTimeProvider
 {
-    public interface IDateTimeProvider
-    {
-        public DateTimeOffset UtcNow { get; }
-    }
+    public DateTimeOffset UtcNow { get; }
 }

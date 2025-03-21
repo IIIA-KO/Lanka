@@ -1,8 +1,7 @@
-﻿namespace Lanka.Common.Infrastructure.Authentication
+﻿namespace Lanka.Common.Infrastructure.Authentication;
+
+public static class CustomClaims
 {
-    public static class CustomClaims
-    {
-        public const string Sub = "sub";
-        public const string Permission = "permission";
-    }
+    public const string Sub = "sub";
+    public const string Permission = "permission";
 }

@@ -3,28 +3,27 @@ using FluentValidation;
 using Lanka.Common.Application.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lanka.Common.Application
+namespace Lanka.Common.Application;
+
+public static class ApplicationConfiguration
 {
-    public static class ApplicationConfiguration
+    public static IServiceCollection AddApplication(
+        this IServiceCollection services,
+        Assembly[] assemblies
+    )
     {
-        public static IServiceCollection AddApplication(
-            this IServiceCollection services,
-            Assembly[] assemblies
-        )
+        services.AddMediatR(config =>
         {
-            services.AddMediatR(config =>
-            {
-                config.RegisterServicesFromAssemblies(assemblies);
+            config.RegisterServicesFromAssemblies(assemblies);
 
-                config.AddOpenBehavior(typeof(ExceptionHandlingPipelineBehavior<,>));
-                config.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>));
-                config.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
-                config.AddOpenBehavior(typeof(QueryCachingPipelineBehavior<,>));
-            });
+            config.AddOpenBehavior(typeof(ExceptionHandlingPipelineBehavior<,>));
+            config.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>));
+            config.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
+            config.AddOpenBehavior(typeof(QueryCachingPipelineBehavior<,>));
+        });
 
-            services.AddValidatorsFromAssemblies(assemblies, includeInternalTypes: true);
+        services.AddValidatorsFromAssemblies(assemblies, includeInternalTypes: true);
 
-            return services;
-        }
+        return services;
     }
 }

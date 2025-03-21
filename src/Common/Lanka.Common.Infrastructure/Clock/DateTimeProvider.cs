@@ -1,9 +1,8 @@
 using Lanka.Common.Application.Clock;
 
-namespace Lanka.Common.Infrastructure.Clock
+namespace Lanka.Common.Infrastructure.Clock;
+
+internal sealed class DateTimeProvider : IDateTimeProvider
 {
-    internal sealed class DateTimeProvider : IDateTimeProvider
-    {
-        public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
-    }
+    public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
 }

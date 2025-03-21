@@ -23,80 +23,6 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Offers.Offer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
-
-                    b.Property<DateTimeOffset?>("LastCooperatedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_cooperated_on_utc");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<Guid>("PactId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("pact_id");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id")
-                        .HasName("pk_offers");
-
-                    b.HasIndex("PactId")
-                        .HasDatabaseName("ix_offers_pact_id");
-
-                    b.ToTable("offers", "users");
-                });
-
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Pacts.Pact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTimeOffset>("LastUpdatedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_updated_on_utc");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_pacts");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_pacts_user_id");
-
-                    b.ToTable("pacts", "users");
-                });
-
             modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.Permission", b =>
                 {
                     b.Property<string>("Code")
@@ -241,52 +167,6 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                     b.ToTable("user_roles", "users");
                 });
 
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Offers.Offer", b =>
-                {
-                    b.HasOne("Lanka.Modules.Users.Domain.Pacts.Pact", "Pact")
-                        .WithMany("Offers")
-                        .HasForeignKey("PactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_offers_pacts_pact_id");
-
-                    b.OwnsOne("Lanka.Modules.Users.Domain.Offers.Monies.Money", "Price", b1 =>
-                        {
-                            b1.Property<Guid>("OfferId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("price_currency");
-
-                            b1.HasKey("OfferId");
-
-                            b1.ToTable("offers", "users");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OfferId")
-                                .HasConstraintName("fk_offers_offers_id");
-                        });
-
-                    b.Navigation("Pact");
-
-                    b.Navigation("Price")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Pacts.Pact", b =>
-                {
-                    b.HasOne("Lanka.Modules.Users.Domain.Users.User", "User")
-                        .WithOne("Pact")
-                        .HasForeignKey("Lanka.Modules.Users.Domain.Pacts.Pact", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_pacts_users_user_id");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PermissionRole", b =>
                 {
                     b.HasOne("Lanka.Modules.Users.Domain.Users.Permission", null)
@@ -319,16 +199,6 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_roles_users_user_id");
-                });
-
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Pacts.Pact", b =>
-                {
-                    b.Navigation("Offers");
-                });
-
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.User", b =>
-                {
-                    b.Navigation("Pact");
                 });
 #pragma warning restore 612, 618
         }

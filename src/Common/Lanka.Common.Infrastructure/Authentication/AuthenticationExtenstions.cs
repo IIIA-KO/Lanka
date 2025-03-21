@@ -1,20 +1,26 @@
+using Lanka.Common.Application.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lanka.Common.Infrastructure.Authentication
-{
-    internal static class AuthenticationExtenstions
-    {
-        internal static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
-        {
-            services.AddAuthorization();
-            
-            services.AddAuthentication().AddJwtBearer();
-            
-            services.AddHttpContextAccessor();
+namespace Lanka.Common.Infrastructure.Authentication;
 
-            services.ConfigureOptions<JwtBearerConfigureOptions>();
+internal static class AuthenticationExtenstions
+{
+    internal static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
+    {
+        services.AddAuthorization();
             
-            return services;
-        }
+        services.AddAuthentication().AddJwtBearer();
+            
+        services.AddHttpContextAccessor();
+
+        services.ConfigureOptions<JwtBearerConfigureOptions>();
+            
+        services.AddHttpContextAccessor();
+
+        services.AddHttpContextAccessor();
+        
+        services.AddScoped<IUserContext, UserContext>();
+            
+        return services;
     }
 }

@@ -1,8 +1,7 @@
-namespace Lanka.Common.Application.EventBus
+namespace Lanka.Common.Application.EventBus;
+
+public interface IEventBus
 {
-    public interface IEventBus
-    {
-        Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
-            where T : IIntegrationEvent;
-    }
+    Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
+        where T : IIntegrationEvent;
 }

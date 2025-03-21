@@ -1,9 +1,8 @@
-namespace Lanka.Common.Domain
+namespace Lanka.Common.Domain;
+
+public interface IEntity
 {
-    public interface IEntity
-    {
-        IReadOnlyList<IDomainEvent> GetDomainEvents();
+    IReadOnlyList<IDomainEvent> GetDomainEvents();
         
-        void ClearDomainEvents();
-    }
+    void ClearDomainEvents();
 }

@@ -1,58 +1,57 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Lanka.Common.Domain
+namespace Lanka.Common.Domain;
+
+public class Result
 {
-    public class Result
+    protected Result(bool isSuccess, Error error)
     {
-        protected Result(bool isSuccess, Error error)
+        if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
         {
-            if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
-            {
-                throw new ArgumentException("Invalid error", nameof(error));
-            }
-
-            this.IsSuccess = isSuccess;
-            this.Error = error;
+            throw new ArgumentException("Invalid error", nameof(error));
         }
 
-        public bool IsSuccess { get; }
+        this.IsSuccess = isSuccess;
+        this.Error = error;
+    }
 
-        public bool IsFailure => !this.IsSuccess;
+    public bool IsSuccess { get; }
 
-        public Error Error { get; }
+    public bool IsFailure => !this.IsSuccess;
 
-        public static Result Success() => new(true, Error.None);
+    public Error Error { get; }
 
-        protected static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
+    public static Result Success() => new(true, Error.None);
 
-        public static Result Failure(Error error) => new(false, error);
+    protected static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
 
-        public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
+    public static Result Failure(Error error) => new(false, error);
+
+    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
         
-        public static implicit operator Result(Error error) => Failure(error);
-    }
+    public static implicit operator Result(Error error) => Failure(error);
+}
 
-    public class Result<TValue> : Result
+public class Result<TValue> : Result
+{
+    private readonly TValue? _value;
+
+    public Result(TValue? value, bool isSuccess, Error error)
+        : base(isSuccess, error)
     {
-        private readonly TValue? _value;
-
-        public Result(TValue? value, bool isSuccess, Error error)
-            : base(isSuccess, error)
-        {
-            this._value = value;
-        }
-
-        [NotNull]
-        public TValue Value =>
-            this.IsSuccess
-                ? this._value!
-                : throw new InvalidOperationException(
-                    "The value of a failure result can't be accessed."
-                );
-
-        public static implicit operator Result<TValue>(TValue? value) =>
-            value is not null ? Success(value) : Failure<TValue>(Error.NullValue);
-
-        public static Result<TValue> ValidationFailure(Error error) => new(default, false, error);
+        this._value = value;
     }
+
+    [NotNull]
+    public TValue Value =>
+        this.IsSuccess
+            ? this._value!
+            : throw new InvalidOperationException(
+                "The value of a failure result can't be accessed."
+            );
+
+    public static implicit operator Result<TValue>(TValue? value) =>
+        value is not null ? Success(value) : Failure<TValue>(Error.NullValue);
+
+    public static Result<TValue> ValidationFailure(Error error) => new(default, false, error);
 }

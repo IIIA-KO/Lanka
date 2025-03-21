@@ -1,6 +1,5 @@
-namespace Lanka.Common.Domain
+namespace Lanka.Common.Domain;
+
+public interface IAggregateRoot
 {
-    public interface IAggregateRoot
-    {
-    }
 }

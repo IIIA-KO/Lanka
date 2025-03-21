@@ -1,9 +1,8 @@
 using Lanka.Common.Presentation.Endpoints;
 
-namespace Lanka.Modules.Users.Presentation
+namespace Lanka.Modules.Users.Presentation;
+
+public abstract class UsersEndpointBase : EndpointBase
 {
-    public abstract class UsersEndpointBase : EndpointBase
-    {
-        protected override string BaseRoute => "users";
-    }
+    protected override string BaseRoute => "users";
 }

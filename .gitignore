@@ -412,3 +412,14 @@ modules.users.Development.json
 
 # Mac files
 .DS_Store
+
+# Certificates and keys
+*.pfx
+*.pem
+*.csr
+*.key
+*.crt
+**/certificate.pem
+**/key.pem
+**/csr.csr
+**/localhost.pfx
