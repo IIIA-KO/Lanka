@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Campaigns.Inf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Common.Contracts", "src\Common\Lanka.Common.Contracts\Lanka.Common.Contracts.csproj", "{FBB52B79-6ACD-48A1-BC48-7A6083FEAA72}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Campaigns.IntegrationEvents", "src\Modules\Campaigns\Lanka.Modules.Campaigns.IntegrationEvents\Lanka.Modules.Campaigns.IntegrationEvents.csproj", "{4FD2EFC6-A7C8-4304-9DEC-41AA7BEE5902}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,7 @@ Global
 		{F7A9E97A-D014-447A-A277-79D1F966CF9E} = {50DA8BE3-3B11-4FE6-962B-40CB5D18BF21}
 		{1058601E-83F8-4669-83EA-6942C49091D8} = {50DA8BE3-3B11-4FE6-962B-40CB5D18BF21}
 		{FBB52B79-6ACD-48A1-BC48-7A6083FEAA72} = {B0E12094-EB0B-49E3-BE87-4F5F3B3C6E4A}
+		{4FD2EFC6-A7C8-4304-9DEC-41AA7BEE5902} = {50DA8BE3-3B11-4FE6-962B-40CB5D18BF21}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -143,5 +146,9 @@ Global
 		{FBB52B79-6ACD-48A1-BC48-7A6083FEAA72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBB52B79-6ACD-48A1-BC48-7A6083FEAA72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBB52B79-6ACD-48A1-BC48-7A6083FEAA72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FD2EFC6-A7C8-4304-9DEC-41AA7BEE5902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FD2EFC6-A7C8-4304-9DEC-41AA7BEE5902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FD2EFC6-A7C8-4304-9DEC-41AA7BEE5902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FD2EFC6-A7C8-4304-9DEC-41AA7BEE5902}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

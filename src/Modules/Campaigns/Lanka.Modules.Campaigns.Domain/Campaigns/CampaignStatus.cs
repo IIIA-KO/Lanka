@@ -1,12 +1,11 @@
-namespace Lanka.Modules.Campaigns.Domain.Campaigns
+namespace Lanka.Modules.Campaigns.Domain.Campaigns;
+
+public enum CampaignStatus
 {
-    public enum CampaignStatus
-    {
-        Pending = 0,
-        Confirmed = 1,
-        Rejected = 2,
-        Cancelled = 3,
-        Done = 4,
-        Completed = 5,
-    }
+    Pending = 0,
+    Confirmed = 1,
+    Rejected = 2,
+    Cancelled = 3,
+    Done = 4,
+    Completed = 5,
 }

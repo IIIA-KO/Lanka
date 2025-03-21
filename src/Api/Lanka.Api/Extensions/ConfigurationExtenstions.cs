@@ -1,17 +1,16 @@
-namespace Lanka.Api.Extensions
+namespace Lanka.Api.Extensions;
+
+internal static class ConfigurationExtensions
 {
-    internal static class ConfigurationExtensions
+    public static void AddModuleConfiguration(
+        this IConfigurationBuilder configurationBuilder,
+        string[] modules
+    )
     {
-        public static void AddModuleConfiguration(
-            this IConfigurationBuilder configurationBuilder,
-            string[] modules
-        )
+        foreach (string module in modules)
         {
-            foreach (string module in modules)
-            {
-                configurationBuilder.AddJsonFile($"modules.{module}.json", optional: false, reloadOnChange: true);
-                configurationBuilder.AddJsonFile($"modules.{module}.Development.json", optional: true, reloadOnChange: true);
-            }
+            configurationBuilder.AddJsonFile($"modules.{module}.json", optional: false, reloadOnChange: true);
+            configurationBuilder.AddJsonFile($"modules.{module}.Development.json", optional: true, reloadOnChange: true);
         }
     }
 }
