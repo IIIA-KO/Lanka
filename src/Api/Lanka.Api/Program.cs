@@ -5,8 +5,10 @@ using Lanka.Common.Infrastructure;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Users.Infrastructure;
 using HealthChecks.UI.Client;
+using Lanka.Modules.Campaigns.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
@@ -26,7 +28,7 @@ builder.Services.AddApplication([
 ]);
 
 string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
-string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
+string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
 
 builder.Services.AddInfrastructure(
     [],
@@ -34,7 +36,7 @@ builder.Services.AddInfrastructure(
     redisConnectionString
 );
 
-builder.Configuration.AddModuleConfiguration(["users"]);
+builder.Configuration.AddModuleConfiguration(["users","campaigns"]);
 
 builder
     .Services.AddHealthChecks()
@@ -43,6 +45,7 @@ builder
     .AddUrlGroup(new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!), HttpMethod.Get, "keycloack");
 
 builder.Services.AddUsersModule(builder.Configuration);
+builder.Services.AddCampaignsModule(builder.Configuration);
 
 WebApplication app = builder.Build();
 
