@@ -1,34 +1,33 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
-namespace Lanka.Common.Infrastructure.Authorization
+namespace Lanka.Common.Infrastructure.Authorization;
+
+internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
 {
-    internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
+    private readonly AuthorizationOptions _authorizationOptions;
+
+    public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
+        : base(options)
     {
-        private readonly AuthorizationOptions _authorizationOptions;
+        this._authorizationOptions = options.Value;
+    }
 
-        public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
-            : base(options)
+    public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+    {
+        AuthorizationPolicy? policy = await base.GetPolicyAsync(policyName);
+
+        if (policy is not null)
         {
-            this._authorizationOptions = options.Value;
+            return policy;
         }
 
-        public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
-        {
-            AuthorizationPolicy? policy = await base.GetPolicyAsync(policyName);
+        AuthorizationPolicy permissionPolicy = new AuthorizationPolicyBuilder()
+            .AddRequirements(new PermissionRequirement(policyName))
+            .Build();
 
-            if (policy is not null)
-            {
-                return policy;
-            }
+        this._authorizationOptions.AddPolicy(policyName, permissionPolicy);
 
-            AuthorizationPolicy permissionPolicy = new AuthorizationPolicyBuilder()
-                .AddRequirements(new PermissionRequirement(policyName))
-                .Build();
-
-            this._authorizationOptions.AddPolicy(policyName, permissionPolicy);
-
-            return permissionPolicy;
-        }
+        return permissionPolicy;
     }
 }

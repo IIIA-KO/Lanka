@@ -1,21 +1,20 @@
-namespace Lanka.Common.Domain
+namespace Lanka.Common.Domain;
+
+public abstract class DomainEvent : IDomainEvent
 {
-    public abstract class DomainEvent : IDomainEvent
+    protected DomainEvent()
     {
-        protected DomainEvent()
-        {
-            this.Id = Guid.NewGuid();
-            this.OcurredOnUtc = DateTime.UtcNow;
-        }
-
-        protected DomainEvent(Guid id, DateTime occurredOnUtc)
-        {
-            this.Id = id;
-            this.OcurredOnUtc = occurredOnUtc;
-        }
-
-        public Guid Id { get; init; }
-
-        public DateTime OcurredOnUtc { get; init; }
+        this.Id = Guid.NewGuid();
+        this.OcurredOnUtc = DateTime.UtcNow;
     }
+
+    protected DomainEvent(Guid id, DateTime occurredOnUtc)
+    {
+        this.Id = id;
+        this.OcurredOnUtc = occurredOnUtc;
+    }
+
+    public Guid Id { get; init; }
+
+    public DateTime OcurredOnUtc { get; init; }
 }

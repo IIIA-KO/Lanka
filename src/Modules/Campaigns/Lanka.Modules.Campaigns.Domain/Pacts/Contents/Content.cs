@@ -1,36 +1,35 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Campaigns.Domain.Pacts.Contents
+namespace Lanka.Modules.Campaigns.Domain.Pacts.Contents;
+
+public sealed record Content
 {
-    public sealed record Content
+    public string Value { get; init; }
+
+    private Content(string value)
     {
-        public string Value { get; init; }
+        this.Value = value;
+    }
 
-        private Content(string value)
+    public static Result<Content> Create(string content)
+    {
+        Result validationResult = ValidateContentString(content);
+
+        if (validationResult.IsFailure)
         {
-            this.Value = value;
+            return Result.Failure<Content>(validationResult.Error);
         }
 
-        public static Result<Content> Create(string content)
-        {
-            Result validationResult = ValidateContentString(content);
-
-            if (validationResult.IsFailure)
-            {
-                return Result.Failure<Content>(validationResult.Error);
-            }
-
-            return new Content(content);
-        }
+        return new Content(content);
+    }
         
-        private static Result ValidateContentString(string content)
+    private static Result ValidateContentString(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
         {
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                return ContentErrors.Empty;
-            }
-
-            return Result.Success();
+            return ContentErrors.Empty;
         }
+
+        return Result.Success();
     }
 }

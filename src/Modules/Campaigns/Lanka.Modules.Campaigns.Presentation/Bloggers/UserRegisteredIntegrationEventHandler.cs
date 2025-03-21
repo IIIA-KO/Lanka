@@ -5,38 +5,37 @@ using Lanka.Modules.Campaigns.Application.Bloggers.CreateBlogger;
 using Lanka.Modules.Users.IntegrationEvents;
 using MediatR;
 
-namespace Lanka.Modules.Campaigns.Presentation.Bloggers
+namespace Lanka.Modules.Campaigns.Presentation.Bloggers;
+
+internal sealed class UserRegisteredIntegrationEventHandler
+    : IntegrationEventHandler<UserRegisteredIntegrationEvent>
 {
-    internal sealed class UserRegisteredIntegrationEventHandler
-        : IntegrationEventHandler<UserRegisteredIntegrationEvent>
+    private readonly ISender _sender;
+
+    public UserRegisteredIntegrationEventHandler(ISender sender)
     {
-        private readonly ISender _sender;
+        this._sender = sender;
+    }
 
-        public UserRegisteredIntegrationEventHandler(ISender sender)
+    public override async Task Handle(
+        UserRegisteredIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default
+    )
+    {
+        Result result = await this._sender.Send(
+            new CreateBloggerCommand(
+                integrationEvent.UserId,
+                integrationEvent.Email,
+                integrationEvent.FirstName,
+                integrationEvent.LastName,
+                integrationEvent.BirthDate
+            ),
+            cancellationToken
+        );
+
+        if (result.IsFailure)
         {
-            this._sender = sender;
-        }
-
-        public override async Task Handle(
-            UserRegisteredIntegrationEvent integrationEvent,
-            CancellationToken cancellationToken = default
-        )
-        {
-            Result result = await this._sender.Send(
-                new CreateBloggerCommand(
-                    integrationEvent.UserId,
-                    integrationEvent.Email,
-                    integrationEvent.FirstName,
-                    integrationEvent.LastName,
-                    integrationEvent.BirthDate
-                ),
-                cancellationToken
-            );
-
-            if (result.IsFailure)
-            {
-                throw new LankaException(nameof(CreateBloggerCommand), result.Error);
-            }
+            throw new LankaException(nameof(CreateBloggerCommand), result.Error);
         }
     }
 }

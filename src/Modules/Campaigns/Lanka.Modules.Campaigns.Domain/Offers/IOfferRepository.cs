@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Campaigns.Domain.Offers
+namespace Lanka.Modules.Campaigns.Domain.Offers;
+
+public interface IOfferRepository
 {
-    public interface IOfferRepository
-    {
-        Task<Offer?> GetByIdAsync(OfferId id, CancellationToken cancellationToken = default);
-    }
+    Task<Offer?> GetByIdAsync(OfferId id, CancellationToken cancellationToken = default);
 }

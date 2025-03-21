@@ -1,38 +1,36 @@
-using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.CreateBlogger
+namespace Lanka.Modules.Campaigns.Application.Bloggers.CreateBlogger;
+
+internal sealed class CreateBloggerCommandHandler
+    : ICommandHandler<CreateBloggerCommand>
 {
-    internal sealed class CreateBloggerCommandHandler
-        : ICommandHandler<CreateBloggerCommand>
+    private readonly IBloggerRepository _bloggerRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateBloggerCommandHandler(IBloggerRepository bloggerRepository, IUnitOfWork unitOfWork)
     {
-        private readonly IBloggerRepository _bloggerRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        this._bloggerRepository = bloggerRepository;
+        this._unitOfWork = unitOfWork;
+    }
 
-        public CreateBloggerCommandHandler(IBloggerRepository bloggerRepository, IUnitOfWork unitOfWork)
-        {
-            this._bloggerRepository = bloggerRepository;
-            this._unitOfWork = unitOfWork;
-        }
-
-        public async Task<Result> Handle(CreateBloggerCommand request, CancellationToken cancellationToken)
-        {
-            var blogger = new Blogger(
-                request.BloggerId,
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                request.BirthDate
-            );
+    public async Task<Result> Handle(CreateBloggerCommand request, CancellationToken cancellationToken)
+    {
+        var blogger = new Blogger(
+            request.BloggerId,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.BirthDate
+        );
             
-            this._bloggerRepository.Add(blogger);
+        this._bloggerRepository.Add(blogger);
             
-            await this._unitOfWork.SaveChangesAsync(cancellationToken);
+        await this._unitOfWork.SaveChangesAsync(cancellationToken);
             
-            return Result.Success();
-        }
+        return Result.Success();
     }
 }

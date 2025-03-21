@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\Lanka.Common.Contracts\Lanka.Common.Contracts.csproj" />
       <ProjectReference Include="..\..\..\Common\Lanka.Common.Domain\Lanka.Common.Domain.csproj" />
     </ItemGroup>
 </Project>

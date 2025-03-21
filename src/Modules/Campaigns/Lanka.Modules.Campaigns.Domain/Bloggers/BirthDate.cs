@@ -1,4 +1,3 @@
-namespace Lanka.Modules.Campaigns.Domain.Bloggers
-{
-    public record BirthDate(DateOnly Value);
-}
+namespace Lanka.Modules.Campaigns.Domain.Bloggers;
+
+public record BirthDate(DateOnly Value);

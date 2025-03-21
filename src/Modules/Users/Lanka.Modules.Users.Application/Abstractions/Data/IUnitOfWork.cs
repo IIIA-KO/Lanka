@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Users.Application.Abstractions.Data
+namespace Lanka.Modules.Users.Application.Abstractions.Data;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-    }
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

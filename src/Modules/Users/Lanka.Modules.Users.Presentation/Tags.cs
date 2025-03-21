@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Users.Presentation
+namespace Lanka.Modules.Users.Presentation;
+
+internal static class Tags
 {
-    internal static class Tags
-    {
-        internal const string Users = "Users";
-    }
+    internal const string Users = "Users";
 }

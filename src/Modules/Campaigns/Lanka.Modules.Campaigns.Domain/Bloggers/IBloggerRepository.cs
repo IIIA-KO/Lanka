@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Campaigns.Domain.Bloggers
+namespace Lanka.Modules.Campaigns.Domain.Bloggers;
+
+public interface IBloggerRepository
 {
-    public interface IBloggerRepository
-    {
-        void Add(Blogger blogger);
-    }
+    void Add(Blogger blogger);
 }

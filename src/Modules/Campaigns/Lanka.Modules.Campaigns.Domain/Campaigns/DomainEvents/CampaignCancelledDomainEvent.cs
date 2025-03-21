@@ -1,6 +1,8 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Campaigns.Domain.Campaigns.DomainEvents
+namespace Lanka.Modules.Campaigns.Domain.Campaigns.DomainEvents;
+
+public sealed class CampaignCancelledDomainEvent(CampaignId campaignId) : DomainEvent
 {
-    public sealed class CampaignCancelledDomainEvent(CampaignId CampaignId) : DomainEvent;
+    public CampaignId CampaignId { get; init; } = campaignId;
 }

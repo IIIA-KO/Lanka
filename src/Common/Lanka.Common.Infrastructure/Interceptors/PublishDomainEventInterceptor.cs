@@ -4,56 +4,55 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lanka.Common.Infrastructure.Interceptors
+namespace Lanka.Common.Infrastructure.Interceptors;
+
+public sealed class PublishDomainEventsInterceptor : SaveChangesInterceptor
 {
-    public sealed class PublishDomainEventsInterceptor : SaveChangesInterceptor
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public PublishDomainEventsInterceptor(IServiceScopeFactory serviceScopeFactory)
     {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        this._serviceScopeFactory = serviceScopeFactory;
+    }
 
-        public PublishDomainEventsInterceptor(IServiceScopeFactory serviceScopeFactory)
+    public override async ValueTask<int> SavedChangesAsync(
+        SaveChangesCompletedEventData eventData,
+        int result,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(eventData);
+
+        if (eventData.Context is not null)
         {
-            this._serviceScopeFactory = serviceScopeFactory;
+            await this.PublishDomainEventsAsync(eventData.Context);
         }
 
-        public override async ValueTask<int> SavedChangesAsync(
-            SaveChangesCompletedEventData eventData,
-            int result,
-            CancellationToken cancellationToken = default
-        )
-        {
-            ArgumentNullException.ThrowIfNull(eventData);
+        return await base.SavedChangesAsync(eventData, result, cancellationToken);
+    }
 
-            if (eventData.Context is not null)
+    private async Task PublishDomainEventsAsync(DbContext context)
+    {
+        var domainEvents = context
+            .ChangeTracker.Entries<IEntity>()
+            .Select(entry => entry.Entity)
+            .SelectMany(entity =>
             {
-                await this.PublishDomainEventsAsync(eventData.Context);
-            }
+                IReadOnlyCollection<IDomainEvent> domainEvents = entity.GetDomainEvents();
 
-            return await base.SavedChangesAsync(eventData, result, cancellationToken);
-        }
+                entity.ClearDomainEvents();
 
-        private async Task PublishDomainEventsAsync(DbContext context)
+                return domainEvents;
+            })
+            .ToList();
+
+        using IServiceScope scope = this._serviceScopeFactory.CreateScope();
+
+        IPublisher publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+
+        foreach (IDomainEvent domainEvent in domainEvents)
         {
-            var domainEvents = context
-                .ChangeTracker.Entries<IEntity>()
-                .Select(entry => entry.Entity)
-                .SelectMany(entity =>
-                {
-                    IReadOnlyCollection<IDomainEvent> domainEvents = entity.GetDomainEvents();
-
-                    entity.ClearDomainEvents();
-
-                    return domainEvents;
-                })
-                .ToList();
-
-            using IServiceScope scope = this._serviceScopeFactory.CreateScope();
-
-            IPublisher publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
-
-            foreach (IDomainEvent domainEvent in domainEvents)
-            {
-                await publisher.Publish(domainEvent);
-            }
+            await publisher.Publish(domainEvent);
         }
     }
 }

@@ -1,11 +1,10 @@
-namespace Lanka.Common.Application.Authentication
-{
-    public interface IUserContext
-    {
-        Guid GetUserId();
+namespace Lanka.Common.Application.Authentication;
 
-        string GetIdentityId();
+public interface IUserContext
+{
+    Guid GetUserId();
+
+    string GetIdentityId();
         
-        string? AccessToken { get; }
-    }
+    string? AccessToken { get; }
 }

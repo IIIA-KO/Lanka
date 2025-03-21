@@ -5,6 +5,7 @@
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
         <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Https" Version="2.3.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,7 +22,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Modules\Campaigns\Lanka.Modules.Campaigns.Infrastructure\Lanka.Modules.Campaigns.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Users\Lanka.Modules.Users.Infrastructure\Lanka.Modules.Users.Infrastructure.csproj" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <None Include="localhost.pfx" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
 </Project>

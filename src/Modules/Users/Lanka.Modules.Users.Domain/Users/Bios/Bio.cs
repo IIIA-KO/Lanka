@@ -1,40 +1,39 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Users.Domain.Users.Bios
+namespace Lanka.Modules.Users.Domain.Users.Bios;
+
+public record Bio
 {
-    public record Bio
-    {
-        public const int MaxLength = 150;
+    public const int MaxLength = 150;
         
-        public string Value { get; init; }
+    public string Value { get; init; }
 
-        private Bio(string value)
+    private Bio(string value)
+    {
+        this.Value = value;
+    }
+
+    public static Result<Bio> Create(string bio)
+    {
+        ArgumentNullException.ThrowIfNull(bio);
+
+        Result validationResult = ValidateBioString(bio);
+
+        if (validationResult.IsFailure)
         {
-            this.Value = value;
+            return Result.Failure<Bio>(validationResult.Error);
         }
 
-        public static Result<Bio> Create(string bio)
+        return new Bio(bio);
+    }
+
+    private static Result ValidateBioString(string bio)
+    {
+        if (bio.Length > MaxLength)
         {
-            ArgumentNullException.ThrowIfNull(bio);
-
-            Result validationResult = ValidateBioString(bio);
-
-            if (validationResult.IsFailure)
-            {
-                return Result.Failure<Bio>(validationResult.Error);
-            }
-
-            return new Bio(bio);
+            return BioErrors.TooLong(MaxLength);
         }
 
-        private static Result ValidateBioString(string bio)
-        {
-            if (bio.Length > MaxLength)
-            {
-                return BioErrors.TooLong(MaxLength);
-            }
-
-            return Result.Success();
-        }
+        return Result.Success();
     }
 }

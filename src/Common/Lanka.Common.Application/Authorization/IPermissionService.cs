@@ -1,9 +1,8 @@
 ﻿using Lanka.Common.Domain;
 
-namespace Lanka.Common.Application.Authorization
+namespace Lanka.Common.Application.Authorization;
+
+public interface IPermissionService
 {
-    public interface IPermissionService
-    {
-        Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId);
-    }
+    Task<Result<PermissionsResponse>> GetUserPermissionsAsync(string identityId);
 }

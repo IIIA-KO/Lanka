@@ -1,9 +1,8 @@
-namespace Lanka.Common.Application.EventBus
+namespace Lanka.Common.Application.EventBus;
+
+public interface IIntegrationEvent
 {
-    public interface IIntegrationEvent
-    {
-        Guid Id { get; }
+    Guid Id { get; }
         
-        DateTime OccurredOnUtc { get; }
-    }
+    DateTime OccurredOnUtc { get; }
 }

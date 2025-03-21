@@ -1,9 +1,8 @@
 using System.Data.Common;
 
-namespace Lanka.Common.Application.Data
+namespace Lanka.Common.Application.Data;
+
+public interface IDbConnectionFactory
 {
-    public interface IDbConnectionFactory
-    {
-        ValueTask<DbConnection> OpenConnectionAsync();
-    }
+    ValueTask<DbConnection> OpenConnectionAsync();
 }

@@ -3,59 +3,58 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 
-namespace Lanka.Modules.Users.Infrastructure.Identity
+namespace Lanka.Modules.Users.Infrastructure.Identity;
+
+internal sealed class KeyCloakAuthDelegatingHandler : DelegatingHandler
 {
-    internal sealed class KeyCloakAuthDelegatingHandler : DelegatingHandler
-    {
-        private readonly KeyCloakOptions _options;
+    private readonly KeyCloakOptions _options;
         
-        public KeyCloakAuthDelegatingHandler(IOptions<KeyCloakOptions> options)
+    public KeyCloakAuthDelegatingHandler(IOptions<KeyCloakOptions> options)
+    {
+        this._options = options.Value;
+    }
+
+    protected override async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        AuthToken authorizationToken = await this.GetAuthorizationToken(cancellationToken);
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authorizationToken.AccessToken);
+
+        HttpResponseMessage httpResponseMessage = await base.SendAsync(request, cancellationToken);
+
+        httpResponseMessage.EnsureSuccessStatusCode();
+
+        return httpResponseMessage;
+    }
+
+    private async Task<AuthToken> GetAuthorizationToken(CancellationToken cancellationToken)
+    {
+        var authRequestParameters = new KeyValuePair<string, string>[]
         {
-            this._options = options.Value;
-        }
+            new("client_id", this._options.ConfidentialClientId),
+            new("client_secret", this._options.ConfidentialClientSecret),
+            new("scope", "openid"),
+            new("grant_type", "client_credentials")
+        };
 
-        protected override async Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            AuthToken authorizationToken = await this.GetAuthorizationToken(cancellationToken);
+        using var authRequestContent = new FormUrlEncodedContent(authRequestParameters);
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authorizationToken.AccessToken);
+        using var authRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(this._options.TokenUrl));
 
-            HttpResponseMessage httpResponseMessage = await base.SendAsync(request, cancellationToken);
+        authRequest.Content = authRequestContent;
 
-            httpResponseMessage.EnsureSuccessStatusCode();
+        using HttpResponseMessage authorizationResponse = await base.SendAsync(authRequest, cancellationToken);
 
-            return httpResponseMessage;
-        }
+        authorizationResponse.EnsureSuccessStatusCode();
 
-        private async Task<AuthToken> GetAuthorizationToken(CancellationToken cancellationToken)
-        {
-            var authRequestParameters = new KeyValuePair<string, string>[]
-            {
-                new("client_id", this._options.ConfidentialClientId),
-                new("client_secret", this._options.ConfidentialClientSecret),
-                new("scope", "openid"),
-                new("grant_type", "client_credentials")
-            };
+        return await authorizationResponse.Content.ReadFromJsonAsync<AuthToken>(cancellationToken);
+    }
 
-            using var authRequestContent = new FormUrlEncodedContent(authRequestParameters);
-
-            using var authRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(this._options.TokenUrl));
-
-            authRequest.Content = authRequestContent;
-
-            using HttpResponseMessage authorizationResponse = await base.SendAsync(authRequest, cancellationToken);
-
-            authorizationResponse.EnsureSuccessStatusCode();
-
-            return await authorizationResponse.Content.ReadFromJsonAsync<AuthToken>(cancellationToken);
-        }
-
-        internal sealed class AuthToken
-        {
-            [JsonPropertyName("access_token")]
-            public string AccessToken { get; init; }
-        }
+    internal sealed class AuthToken
+    {
+        [JsonPropertyName("access_token")]
+        public string AccessToken { get; init; }
     }
 }

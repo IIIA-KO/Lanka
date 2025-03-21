@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Users.Presentation
+namespace Lanka.Modules.Users.Presentation;
+
+internal static class Permissions
 {
-    internal static class Permissions
-    {
-        public const string GetUser = "users:read";
-    }
+    public const string GetUser = "users:read";
 }

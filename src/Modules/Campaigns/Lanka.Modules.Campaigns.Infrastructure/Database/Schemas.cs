@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Campaigns.Infrastructure.Database
+namespace Lanka.Modules.Campaigns.Infrastructure.Database;
+
+internal static class Schemas
 {
-    internal static class Schemas
-    {
-        internal const string Campaigns = "campaigns";
-    }
+    internal const string Campaigns = "campaigns";
 }

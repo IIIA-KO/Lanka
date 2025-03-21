@@ -10,5 +10,4 @@
     <ItemGroup>
       <ProjectReference Include="..\Lanka.Common.Application\Lanka.Common.Application.csproj" />
     </ItemGroup>
-
 </Project>

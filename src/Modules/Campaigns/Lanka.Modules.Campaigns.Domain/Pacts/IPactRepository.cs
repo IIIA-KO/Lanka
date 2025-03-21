@@ -1,7 +1,6 @@
-namespace Lanka.Modules.Campaigns.Domain.Pacts
+namespace Lanka.Modules.Campaigns.Domain.Pacts;
+
+public interface IPactRepository
 {
-    public interface IPactRepository
-    {
-        Task<Pact?> GetByIdWithOffersAsync(PactId id, CancellationToken cancellationToken = default);
-    }
+    Task<Pact?> GetByIdWithOffersAsync(PactId id, CancellationToken cancellationToken = default);
 }

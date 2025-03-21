@@ -1,43 +1,42 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Campaigns.Domain.Offers.Names
+namespace Lanka.Modules.Campaigns.Domain.Offers.Names;
+
+public sealed record Name
 {
-    public sealed record Name
-    {
-        public const int MaxLength = 100;
+    public const int MaxLength = 100;
         
-        public string Value { get; init; }
+    public string Value { get; init; }
 
-        private Name(string value)
+    private Name(string value)
+    {
+        this.Value = value;
+    }
+
+    public static Result<Name> Create(string name)
+    {
+        Result validationResult = ValidateNameString(name);
+
+        if (validationResult.IsFailure)
         {
-            this.Value = value;
+            return Result.Failure<Name>(validationResult.Error);
         }
 
-        public static Result<Name> Create(string name)
+        return new Name(name);
+    }
+
+    private static Result ValidateNameString(string name)
+    {
+        if (string.IsNullOrEmpty(name))
         {
-            Result validationResult = ValidateNameString(name);
-
-            if (validationResult.IsFailure)
-            {
-                return Result.Failure<Name>(validationResult.Error);
-            }
-
-            return new Name(name);
+            return NameErrors.Empty;
         }
 
-        private static Result ValidateNameString(string name)
+        if (name.Length > MaxLength)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return NameErrors.Empty;
-            }
-
-            if (name.Length > MaxLength)
-            {
-                return NameErrors.TooLong(MaxLength);
-            }
+            return NameErrors.TooLong(MaxLength);
+        }
             
-            return Result.Success();
-        }
+        return Result.Success();
     }
 }

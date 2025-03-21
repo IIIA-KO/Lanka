@@ -1,43 +1,42 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Users.Domain.Users.FirstNames
+namespace Lanka.Modules.Users.Domain.Users.FirstNames;
+
+public sealed record FirstName
 {
-    public sealed record FirstName
+    public const int MaxLength = 100;
+
+    public string Value { get; init; }
+
+    private FirstName(string value)
     {
-        public const int MaxLength = 100;
+        this.Value = value;
+    }
 
-        public string Value { get; init; }
+    public static Result<FirstName> Create(string firstName)
+    {
+        Result validationResult = ValidateFirstNameString(firstName);
 
-        private FirstName(string value)
+        if (validationResult.IsFailure)
         {
-            this.Value = value;
+            return Result.Failure<FirstName>(validationResult.Error);
         }
-
-        public static Result<FirstName> Create(string firstName)
-        {
-            Result validationResult = ValidateFirstNameString(firstName);
-
-            if (validationResult.IsFailure)
-            {
-                return Result.Failure<FirstName>(validationResult.Error);
-            }
             
-            return new FirstName(firstName);
-        }
+        return new FirstName(firstName);
+    }
 
-        private static Result ValidateFirstNameString(string? firstName)
+    private static Result ValidateFirstNameString(string? firstName)
+    {
+        if (string.IsNullOrWhiteSpace(firstName))
         {
-            if (string.IsNullOrWhiteSpace(firstName))
-            {
-                return FirstNameErrors.Empty;
-            }
-
-            if (firstName.Length > MaxLength)
-            {
-                return FirstNameErrors.TooLong(MaxLength);
-            }
-
-            return Result.Success();
+            return FirstNameErrors.Empty;
         }
+
+        if (firstName.Length > MaxLength)
+        {
+            return FirstNameErrors.TooLong(MaxLength);
+        }
+
+        return Result.Success();
     }
 }
