@@ -10,7 +10,7 @@ namespace Lanka.Modules.Campaigns.Domain.Campaigns;
 
 public class Campaign : Entity<CampaignId>
 {
-    public static readonly CampaignStatus[] activeCampaignStatuses =
+    public static readonly CampaignStatus[] ActiveCampaignStatuses =
     [
         CampaignStatus.Pending,
         CampaignStatus.Confirmed,
