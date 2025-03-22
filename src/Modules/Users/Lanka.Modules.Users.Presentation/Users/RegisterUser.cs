@@ -14,7 +14,7 @@ public class RegisterUser : UsersEndpointBase
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute("register"),
-                async (Request request, ISender sender) =>
+                async (RegisterUserRequest request, ISender sender) =>
                 {
                     Result<UserId> result = await sender.Send(new RegisterUserCommand(
                         request.Email,
@@ -30,7 +30,7 @@ public class RegisterUser : UsersEndpointBase
             .WithTags(Tags.Users);
     }
         
-    internal sealed class Request
+    internal sealed class RegisterUserRequest
     {
         public string Email { get; init; }
 

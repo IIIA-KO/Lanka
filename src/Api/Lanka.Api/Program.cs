@@ -24,7 +24,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddApplication([
-    Lanka.Modules.Users.Application.AssemblyReference.Assembly
+    Lanka.Modules.Users.Application.AssemblyReference.Assembly,
+    Lanka.Modules.Campaigns.Application.AssemblyReference.Assembly
 ]);
 
 string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
