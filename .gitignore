@@ -407,8 +407,15 @@ FodyWeavers.xsd
 .env.development.local
 .env.production.local
 
-appsettings.Development.json
-modules.users.Development.json
+# Environment-specific configuration files
+*.Development.json
+*.Production.json
+*.Staging.json
+modules.*.Development.json
+
+# Keep templates
+!appsettings.json
+!modules.*.json
 
 # Mac files
 .DS_Store
