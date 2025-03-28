@@ -126,7 +126,7 @@ public class Campaign : Entity<CampaignId>
             
         campaign.RaiseDomainEvent(new CampaignPendedDomainEvent(campaign.Id));
 
-        offer.UpdateOffer(utcNow);
+        offer.SetLastCooperatedOnUtc(utcNow);
             
         return campaign;
     }

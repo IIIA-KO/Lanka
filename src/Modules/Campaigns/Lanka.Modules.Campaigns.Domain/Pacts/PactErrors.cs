@@ -4,6 +4,9 @@ namespace Lanka.Modules.Campaigns.Domain.Pacts;
 
 public static class PactErrors
 {
-    public static readonly Error AlreadyPublished = 
-        Error.Conflict("Pact.AlreadyPublished", "Pact is already published.");
+    public static readonly Error Duplicate =
+        Error.Conflict("Pact.Duplicate", "Pact for specified blogger already exists.");
+
+    public static readonly Error NotFound =
+        Error.NotFound("Pact.NotFound", "Pact with specified identifier was not found.");
 }

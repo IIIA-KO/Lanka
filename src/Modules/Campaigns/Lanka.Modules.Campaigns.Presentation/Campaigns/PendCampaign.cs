@@ -6,6 +6,7 @@ using Lanka.Modules.Campaigns.Domain.Offers;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Lanka.Modules.Campaigns.Presentation.Campaigns;
@@ -15,15 +16,19 @@ internal sealed class PendCampaign : CampaignsEndpointBase
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute("pend"),
-                async (PendCampaignRequest request, ISender sender) =>
+                async (
+                    [FromBody] PendCampaignRequest request,
+                    ISender sender,
+                    CancellationToken cancellationToken) =>
                 {
                     Result<CampaignId> result = await sender.Send(new PendCampaignCommand(
-                        request.Name,
-                        request.Description,
-                        request.ScheduledOnUtc,
-                        new OfferId(request.OfferId)
-                    ));
-                    
+                            request.Name,
+                            request.Description,
+                            request.ScheduledOnUtc,
+                            new OfferId(request.OfferId)
+                        ),
+                        cancellationToken);
+
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
             .WithTags(Tags.Campaigns);
