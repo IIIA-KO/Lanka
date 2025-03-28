@@ -413,9 +413,6 @@ FodyWeavers.xsd
 *.Staging.json
 modules.*.Development.json
 
-# Keep templates
-!appsettings.json
-!modules.*.json
 
 # Mac files
 .DS_Store
