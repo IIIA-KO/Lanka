@@ -1,0 +1,37 @@
+using Lanka.Common.Domain;
+using Lanka.Common.Presentation.ApiResults;
+using Lanka.Modules.Campaigns.Application.Pacts.Edit;
+using Lanka.Modules.Campaigns.Application.Pacts.GetBloggerPact;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+
+namespace Lanka.Modules.Campaigns.Presentation.Pacts;
+
+internal sealed class EditPact : PactEndpointBase
+{
+    protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
+    {
+        return app.MapPut(this.BuildRoute("edit/{id:guid}"),
+                async (
+                    [FromBody] EditPactRequest request,
+                    ISender sender,
+                    CancellationToken cancellationToken) =>
+                {
+                    Result<PactResponse> result = await sender.Send(
+                        new EditPactCommand(request.Content),
+                        cancellationToken
+                    );
+
+                    return result.Match(Results.Ok, ApiResult.Problem);
+                })
+            .WithTags(Tags.Pacts);
+    }
+
+    internal sealed class EditPactRequest
+    {
+        public string Content { get; init; }
+    }
+}

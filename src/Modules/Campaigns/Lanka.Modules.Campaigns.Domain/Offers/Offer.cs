@@ -1,3 +1,4 @@
+using Lanka.Common.Contracts.Currencies;
 using Lanka.Common.Contracts.Monies;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Domain.Offers.Descriptions;
@@ -41,45 +42,71 @@ public class Offer : Entity<OfferId>
         PactId pactId,
         string name,
         string description,
-        Money price)
+        decimal priceAmout,
+        string priceCurrency)
     {
-        Result<(Name, Description)> validationResult = Validate(name, description);
+        Result<(Name, Description, Money)> validationResult = 
+            Validate(name, description, priceAmout, priceCurrency);
 
         if (validationResult.IsFailure)
         {
             return Result.Failure<Offer>(validationResult.Error);
         }
             
-        (Name n, Description d) = validationResult.Value;
-            
+        (Name n, Description d, Money price) = validationResult.Value;
+        
         var offer = new Offer(OfferId.New(), pactId, n, d, price);
             
         return offer;
     }
-        
-    private static Result<(Name, Description)> Validate(
+
+    public Result Update(
         string name,
-        string description
+        string description,
+        decimal priceAmout,
+        string priceCurrency
+    )
+    {
+        Result<(Name, Description, Money)> validationResult = 
+            Validate(name, description, priceAmout, priceCurrency);
+
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure(validationResult.Error);
+        }
+        
+        (this.Name, this.Description, this.Price) = validationResult.Value;
+        
+        return Result.Success();
+    }
+        
+    private static Result<(Name, Description, Money)> Validate(
+        string name,
+        string description,
+        decimal priceAmout,
+        string priceCurrency
     )
     {
         Result<Name> nameResult = Name.Create(name);
         Result<Description> descriptionResult = Description.Create(description);
-            
+        Result<Money> priceResult = Money.Create(priceAmout, Currency.FromCode(priceCurrency));
+        
         if (nameResult.IsFailure 
             || descriptionResult.IsFailure)
         {
-            return Result.Failure<(Name, Description)>(
-                ValidationError.FromResults([nameResult, descriptionResult])
+            return Result.Failure<(Name, Description, Money)>(
+                ValidationError.FromResults([nameResult, descriptionResult, priceResult])
             );
         }
 
         return (
             nameResult.Value,
-            descriptionResult.Value
+            descriptionResult.Value,
+            priceResult.Value
         );
     }
 
-    public void UpdateOffer(DateTimeOffset utcNow)
+    public void SetLastCooperatedOnUtc(DateTimeOffset utcNow)
     {
         this.LastCooperatedOnUtc = utcNow;
     }

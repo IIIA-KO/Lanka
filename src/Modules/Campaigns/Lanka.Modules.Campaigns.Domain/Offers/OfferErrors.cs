@@ -9,4 +9,10 @@ public static class OfferErrors
             "Offer.NotFound",
             "Offer with specified identifier could not be found"
         );
+
+    public static readonly Error Duplicate =
+        Error.Conflict("Offer.Duplicate", "Offer with specified name already exists");
+
+    public static readonly Error HasActiveCampaigns =
+        Error.Conflict("Offer.HasActiveCampaigns", "Offer has active campaigns");
 }

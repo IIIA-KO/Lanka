@@ -22,7 +22,11 @@ internal sealed class CampaignRepository : ICampaignRepository
         );
     }
 
-    public async Task<bool> IsAlreadyStartedAsync(Offer offer, DateTimeOffset scheduledOnUtc, CancellationToken cancellationToken = default)
+    public async Task<bool> IsAlreadyStartedAsync(
+        Offer offer, 
+        DateTimeOffset scheduledOnUtc,
+        CancellationToken cancellationToken = default
+    )
     {
         return await this._dbContext.Campaigns
             .AsNoTracking()

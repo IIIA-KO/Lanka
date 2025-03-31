@@ -38,7 +38,7 @@ public class CampaignConfiguration : IEntityTypeConfiguration<Campaign>
                 priceBuilder =>
                     priceBuilder
                         .Property(money => money.Currency)
-                        .HasConversion(currency => currency.Code, code => Currency.FromCode(code))
+                        .HasConversion(currency => currency.Code.ToString(), code => Currency.FromCode(code))
                         .IsRequired()
             );
 

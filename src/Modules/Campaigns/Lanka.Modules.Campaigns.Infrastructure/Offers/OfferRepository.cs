@@ -1,3 +1,4 @@
+using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -19,5 +20,26 @@ internal sealed class OfferRepository : IOfferRepository
             offer => offer.Id == id, 
             cancellationToken
         );
+    }
+
+    public async Task<bool> HasActiveCampaignsAsync(Offer offer, CancellationToken cancellationToken = default)
+    {
+        return await this.
+            _dbContext.Campaigns
+            .AsNoTracking()
+            .AnyAsync(campaign => campaign.OfferId == offer.Id 
+                                  && Campaign.ActiveCampaignStatuses.Contains(campaign.Status), 
+                cancellationToken
+            );
+    }
+    
+    public void Add(Offer offer)
+    {
+        this._dbContext.Offers.Add(offer);
+    }
+
+    public void Remove(Offer offer)
+    {
+        this._dbContext.Offers.Remove(offer);
     }
 }
