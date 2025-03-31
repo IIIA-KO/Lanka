@@ -216,7 +216,6 @@ internal sealed class KeycloakAdminService : IKeycloakAdminService
         CancellationToken cancellationToken = default
     )
     {
-        this._logger.LogInformation("Checking existence of user with email {Email}", email);
         string accessToken = await this.GetAdminAccessTokenAsync(cancellationToken);
 
         string requestUrl =

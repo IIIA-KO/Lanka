@@ -51,21 +51,14 @@ internal sealed class IdentityProviderService : IIdentityProviderService
         CancellationToken cancellationToken = default
     )
     {
-        this._logger.LogInformation(
-            "Attempting to get access token for email: {Email}",
-            email
-        );
-        
         Result<AccessTokenResponse> tokenResponse = await this._keycloakTokenService.GetAccessTokenAsync(
             email,
             password,
             cancellationToken
         );
-        
-        if (tokenResponse.IsFailure)
-        {
-            return Result.Failure<AccessTokenResponse>(IdentityProviderErrors.EmailIsNotUnique);
-        }
-        return tokenResponse;
+
+        return tokenResponse.IsFailure
+            ? Result.Failure<AccessTokenResponse>(IdentityProviderErrors.EmailIsNotUnique)
+            : tokenResponse;
     }
 }

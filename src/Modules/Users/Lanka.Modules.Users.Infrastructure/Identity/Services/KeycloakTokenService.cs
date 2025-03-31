@@ -37,8 +37,6 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
         CancellationToken cancellationToken = default
     )
     {
-        this._logger.LogInformation("Getting access token for {Email}", email.Value);
-
         CachedAuthorizationToken? cachedToken = await this.GetCachedAuthorizationTokenAsync(
             email.Value,
             cancellationToken
@@ -46,8 +44,6 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
 
         if (cachedToken is not null)
         {
-            this._logger.LogInformation("Found cached token for {Email}", email);
-
             return new AccessTokenResponse(
                 cachedToken.AccessToken,
                 CalculateRemainingTime(cachedToken),
@@ -73,7 +69,6 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
         }
 
         await this.CacheTokenAsync(email.Value, tokenResult, cancellationToken);
-        this._logger.LogInformation("Access token retrieved for {Email}", email);
 
         return new AccessTokenResponse(
             tokenResult.AccessToken,
