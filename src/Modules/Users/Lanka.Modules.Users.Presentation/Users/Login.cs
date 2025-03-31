@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Users.Application.Users.RegisterUser;
-using Lanka.Modules.Users.Domain.Users;
+using Lanka.Modules.Users.Application.Users.Login;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -10,24 +9,21 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Lanka.Modules.Users.Presentation.Users;
 
-public class RegisterUser : UsersEndpointBase
+internal sealed class Login : UsersEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPost(this.BuildRoute("register"),
+        return app.MapPost(this.BuildRoute("login"),
                 async (
-                    [FromBody] RegisterUserRequest request,
+                    [FromBody] LoginUserRequest request,
                     ISender sender,
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<UserId> result = await sender.Send(new RegisterUserCommand(
-                        request.Email,
-                        request.Password,
-                        request.FirstName,
-                        request.LastName,
-                        request.BirthDate
-                    ), cancellationToken);
+                    Result<AccessTokenResponse> result = await sender.Send(
+                        new LoginUserCommand(request.Email, request.Password),
+                        cancellationToken
+                    );
 
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
@@ -35,16 +31,10 @@ public class RegisterUser : UsersEndpointBase
             .WithTags(Tags.Users);
     }
 
-    internal sealed class RegisterUserRequest
+    internal sealed class LoginUserRequest
     {
         public string Email { get; init; }
 
         public string Password { get; init; }
-
-        public string FirstName { get; init; }
-
-        public string LastName { get; init; }
-
-        public DateOnly BirthDate { get; init; }
     }
 }

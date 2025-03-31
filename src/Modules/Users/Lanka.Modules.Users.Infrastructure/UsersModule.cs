@@ -7,6 +7,7 @@ using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Infrastructure.Authorization;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Identity;
+using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -34,19 +35,29 @@ public static class UsersModule
     {
         services.AddScoped<IPermissionService, PermissionService>();
             
-        services.Configure<KeyCloakOptions>(configuration.GetSection("Users:KeyCloak"));
+        services.Configure<KeycloakOptions>(configuration.GetSection("Users:KeyCloak"));
 
-        services.AddTransient<KeyCloakAuthDelegatingHandler>();
+        services.AddTransient<KeycloakAuthDelegatingHandler>();
 
         services
-            .AddHttpClient<KeyCloakClient>((serviceProvider, httpClient) =>
+            .AddHttpClient<KeycloakAdminService>((serviceProvider, httpClient) =>
             {
-                KeyCloakOptions keyCloakOptions = serviceProvider
-                    .GetRequiredService<IOptions<KeyCloakOptions>>().Value;
+                KeycloakOptions keycloakOptions = serviceProvider
+                    .GetRequiredService<IOptions<KeycloakOptions>>().Value;
 
-                httpClient.BaseAddress = new Uri(keyCloakOptions.AdminUrl);
+                httpClient.BaseAddress = new Uri(keycloakOptions.AdminUrl);
             })
-            .AddHttpMessageHandler<KeyCloakAuthDelegatingHandler>();
+            .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
+        
+        services
+            .AddHttpClient<KeycloakTokenService>((serviceProvider, httpClient) =>
+            {
+                KeycloakOptions keycloakOptions = serviceProvider
+                    .GetRequiredService<IOptions<KeycloakOptions>>().Value;
+
+                httpClient.BaseAddress = new Uri(keycloakOptions.TokenUrl);
+            })
+            .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
 
         services.AddTransient<IIdentityProviderService, IdentityProviderService>();
             

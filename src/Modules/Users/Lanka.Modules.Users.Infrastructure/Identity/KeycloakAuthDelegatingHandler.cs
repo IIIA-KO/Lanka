@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace Lanka.Modules.Users.Infrastructure.Identity;
 
-internal sealed class KeyCloakAuthDelegatingHandler : DelegatingHandler
+internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
 {
-    private readonly KeyCloakOptions _options;
+    private readonly KeycloakOptions _options;
         
-    public KeyCloakAuthDelegatingHandler(IOptions<KeyCloakOptions> options)
+    public KeycloakAuthDelegatingHandler(IOptions<KeycloakOptions> options)
     {
         this._options = options.Value;
     }

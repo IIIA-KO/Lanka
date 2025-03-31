@@ -40,7 +40,7 @@ internal sealed class GetUserPermissionsQueryHandler
 
         if (!permissions.Any())
         {
-            return Result.Failure<PermissionsResponse>(UserErrors.NotFound(request.IdentityId));
+            return Result.Failure<PermissionsResponse>(UserErrors.NotFound);
         }
 
         return new PermissionsResponse(permissions[0].UserId, permissions.Select(p => p.Permission).ToHashSet());

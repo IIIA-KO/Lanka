@@ -1,4 +1,5 @@
 using Lanka.Modules.Users.Domain.Users;
+using Lanka.Modules.Users.Domain.Users.Emails;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,10 +13,15 @@ public class UserRepository : IUserRepository
     {
         this._dbContext = dbContext;
     }
-        
+
     public async Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken = default)
     {
         return await this._dbContext.Users.SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+    }
+
+    public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
+    {
+        return await this._dbContext.Users.SingleOrDefaultAsync(user => user.Email == email, cancellationToken);
     }
 
     public void Add(User user)
