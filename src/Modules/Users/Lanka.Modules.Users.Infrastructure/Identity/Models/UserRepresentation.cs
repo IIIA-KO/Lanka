@@ -1,4 +1,4 @@
-namespace Lanka.Modules.Users.Infrastructure.Identity;
+namespace Lanka.Modules.Users.Infrastructure.Identity.Models;
 
 internal sealed record UserRepresentation(
     string Username,

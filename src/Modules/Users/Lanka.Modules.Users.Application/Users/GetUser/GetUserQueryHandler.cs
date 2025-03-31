@@ -27,7 +27,7 @@ internal sealed class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserResp
                  email AS {nameof(UserResponse.Email)},
                  first_name AS {nameof(UserResponse.FirstName)},
                  last_name AS {nameof(UserResponse.LastName)},
-                 birth_date AS {nameof(UserResponse.BirthDay)},
+                 birth_date AS {nameof(UserResponse.BirthDay)}
              FROM users.users
              WHERE id = @UserId
              """;
@@ -37,6 +37,6 @@ internal sealed class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserResp
             new { request.UserId }
         );
             
-        return user ?? Result.Failure<UserResponse>(UserErrors.NotFound(request.UserId));
+        return user ?? Result.Failure<UserResponse>(UserErrors.NotFound);
     }
 }
