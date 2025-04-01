@@ -1,5 +1,4 @@
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
-using Lanka.Modules.Campaigns.Domain.BlockedDates;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
@@ -18,8 +17,6 @@ public class CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : 
 
     internal DbSet<Pact> Pacts { get; set; }
     
-    internal DbSet<BlockedDate> BlockedDates { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Campaigns);

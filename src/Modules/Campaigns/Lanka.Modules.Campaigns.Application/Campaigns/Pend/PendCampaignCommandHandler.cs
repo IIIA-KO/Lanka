@@ -3,7 +3,6 @@ using Lanka.Common.Application.Clock;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
-using Lanka.Modules.Campaigns.Domain.BlockedDates;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
@@ -17,7 +16,6 @@ internal sealed class PendCampaignCommandHandler
     private readonly IPactRepository _pactRepository;
     private readonly ICampaignRepository _campaignRepository;
     private readonly IOfferRepository _offerRepository;
-    private readonly IBlockedDateRepository _blockedDateRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUserContext _userContext;
@@ -26,7 +24,6 @@ internal sealed class PendCampaignCommandHandler
         IPactRepository pactRepository,
         ICampaignRepository campaignRepository,
         IOfferRepository offerRepository,
-        IBlockedDateRepository blockedDateRepository,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider,
         IUserContext userContext
@@ -35,7 +32,6 @@ internal sealed class PendCampaignCommandHandler
         this._pactRepository = pactRepository;
         this._campaignRepository = campaignRepository;
         this._offerRepository = offerRepository;
-        this._blockedDateRepository = blockedDateRepository;
         this._unitOfWork = unitOfWork;
         this._dateTimeProvider = dateTimeProvider;
         this._userContext = userContext;
@@ -73,17 +69,6 @@ internal sealed class PendCampaignCommandHandler
         if (!creatorPact.HasOffer(offer.Name))
         {
             return Result.Failure<CampaignId>(OfferErrors.NotFound);
-        }
-
-        BlockedDate? creatorBlockedDate = await this._blockedDateRepository.GetByDateAndBloggerIdAsync(
-            DateOnly.FromDateTime(request.ScheduledOnUtc.DateTime),
-            creatorPact.BloggerId,
-            cancellationToken
-        );
-
-        if (creatorBlockedDate is null)
-        {
-            return Result.Failure<CampaignId>(CampaignErrors.BlockedDate);
         }
 
         if (

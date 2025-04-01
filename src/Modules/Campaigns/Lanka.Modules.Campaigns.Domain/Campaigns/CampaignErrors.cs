@@ -24,10 +24,7 @@ public static class CampaignErrors
 
     public static readonly Error NotDone =
         Error.Failure("Campaign.NotDone", "The campaign is not done");
-        
+
     public static readonly Error AlreadyStarted =
         Error.Failure("Campaign.AlreadyStarted", "The campaign has already started");
-        
-    public static readonly Error BlockedDate =
-        Error.Failure("Campaign.BlockedDate", "The selected date is blocked for campaign");
 }
