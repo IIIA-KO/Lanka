@@ -10,14 +10,14 @@ public class Blogger : Entity<BloggerId>
     public LastName LastName { get; private set; }
 
     public Email Email { get; private set; }
-        
+
     public BirthDate BirthDate { get; private set; }
-        
+
     public Pact? Pact { get; init; }
-        
+
     private Blogger() { }
-        
-    public Blogger(
+    
+    public static Blogger Create(
         Guid bloggerId,
         string firstName,
         string lastName,
@@ -25,10 +25,13 @@ public class Blogger : Entity<BloggerId>
         DateOnly birthDate
     )
     {
-        this.Id = new BloggerId(bloggerId);
-        this.FirstName = new FirstName(firstName);
-        this.LastName = new LastName(lastName);
-        this.Email = new Email(email);
-        this.BirthDate = new BirthDate(birthDate);
+        return new Blogger
+        {
+            Id = new BloggerId(bloggerId),
+            FirstName = new FirstName(firstName),
+            LastName = new LastName(lastName),
+            Email = new Email(email),
+            BirthDate = new BirthDate(birthDate)
+        };
     }
 }

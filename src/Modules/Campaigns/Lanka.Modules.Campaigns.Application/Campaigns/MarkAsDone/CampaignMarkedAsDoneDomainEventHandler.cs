@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;
 
-public class CampaignMarkedAsDoneDomainEventHandler
+internal sealed class CampaignMarkedAsDoneDomainEventHandler
     : IDomainEventHandler<CampaignMarkedAsDoneDomainEvent>
 {
     private readonly ISender _sender;

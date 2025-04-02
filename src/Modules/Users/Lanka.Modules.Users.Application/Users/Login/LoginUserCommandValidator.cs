@@ -3,9 +3,9 @@ using Lanka.Modules.Users.Domain.Users.Emails;
 
 namespace Lanka.Modules.Users.Application.Users.Login;
 
-internal sealed class LoginUserCommandValidato : AbstractValidator<LoginUserCommand>
+internal sealed class LoginUserCommandValidator : AbstractValidator<LoginUserCommand>
 {
-    public LoginUserCommandValidato()
+    public LoginUserCommandValidator()
     {
         this.RuleFor(c => c.Email)
             .EmailAddress()

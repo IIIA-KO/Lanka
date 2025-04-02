@@ -19,18 +19,18 @@ internal sealed class CreateBloggerCommandHandler
 
     public async Task<Result> Handle(CreateBloggerCommand request, CancellationToken cancellationToken)
     {
-        var blogger = new Blogger(
+        var blogger = Blogger.Create(
             request.BloggerId,
             request.FirstName,
             request.LastName,
             request.Email,
             request.BirthDate
         );
-            
+
         this._bloggerRepository.Add(blogger);
-            
+
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
-            
+
         return Result.Success();
     }
 }

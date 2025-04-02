@@ -7,7 +7,7 @@ using Lanka.Modules.Campaigns.Domain.Campaigns;
 
 namespace Lanka.Modules.Campaigns.Application.Campaigns.Confirm;
 
-public sealed class ConfirmCampaignCommandHandler
+internal sealed class ConfirmCampaignCommandHandler
     : ICommandHandler<ConfirmCampaignCommand>
 {
     private readonly ICampaignRepository _campaignRepository;

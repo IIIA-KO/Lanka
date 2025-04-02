@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Lanka.Modules.Campaigns.Application.Campaigns.Pend;
 
-public class CampaignPendedDomainEventHandler
+internal sealed class CampaignPendedDomainEventHandler
     : IDomainEventHandler<CampaignPendedDomainEvent>
 {
     private readonly ISender _sender;
