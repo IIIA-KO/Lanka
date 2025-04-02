@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Lanka.Modules.Campaigns.Application.Campaigns.Reject;
 
-public class CampaignRejectedDomainEventHandler
+internal sealed class CampaignRejectedDomainEventHandler
     : IDomainEventHandler<CampaignRejectedDomainEvent>
 {
     private readonly ISender _sender;

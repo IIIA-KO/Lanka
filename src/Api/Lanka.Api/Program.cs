@@ -33,17 +33,20 @@ string redisConnectionString = builder.Configuration.GetConnectionString("Cache"
 
 builder.Services.AddInfrastructure(
     [],
-    databaseConnectionString, 
+    databaseConnectionString,
     redisConnectionString
 );
 
-builder.Configuration.AddModuleConfiguration(["users","campaigns"]);
+builder.Configuration.AddModuleConfiguration(["users", "campaigns"]);
 
 builder
     .Services.AddHealthChecks()
     .AddNpgSql(databaseConnectionString)
     .AddRedis(redisConnectionString)
-    .AddUrlGroup(new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!), HttpMethod.Get, "keycloack");
+    .AddUrlGroup(
+        new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
+        HttpMethod.Get, "keycloak"
+    );
 
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddCampaignsModule(builder.Configuration);
@@ -53,9 +56,9 @@ WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
+
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Lanka.Api"));
-    
+
     app.ApplyMigrations();
 }
 
