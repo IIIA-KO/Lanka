@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant Entity
+    participant DBContext
+    participant OutboxTable
+    participant OutboxJob
+    participant EventBus
+    participant InboxTable
+    participant InboxJob
+    participant Consumer
+    
+    Note over Entity,DBContext: Transaction Begins
+    Entity->>Entity: Raise Domain Event
+    Entity->>DBContext: Save Changes
+    DBContext->>OutboxTable: Store Domain Event
+    Note over Entity,DBContext: Transaction Commits
+    
+    OutboxJob->>OutboxTable: Poll for Unprocessed Events
+    OutboxJob->>EventBus: Publish Events
+    OutboxJob->>OutboxTable: Mark as Processed
+    
+    EventBus->>InboxTable: Store Integration Event
+    
+    InboxJob->>InboxTable: Poll for Unprocessed Events
+    InboxJob->>Consumer: Process Event
+    InboxJob->>InboxTable: Mark as Processed/Failed
+    
+    Note over InboxJob,Consumer: If Failed, Retry Later

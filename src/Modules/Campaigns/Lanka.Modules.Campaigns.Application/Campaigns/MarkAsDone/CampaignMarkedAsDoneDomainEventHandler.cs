@@ -11,7 +11,7 @@ using MediatR;
 namespace Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;
 
 internal sealed class CampaignMarkedAsDoneDomainEventHandler
-    : IDomainEventHandler<CampaignMarkedAsDoneDomainEvent>
+    : DomainEventHandler<CampaignMarkedAsDoneDomainEvent>
 {
     private readonly ISender _sender;
     private readonly IEventBus _eventBus;
@@ -22,7 +22,10 @@ internal sealed class CampaignMarkedAsDoneDomainEventHandler
         this._eventBus = eventBus;
     }
 
-    public async Task Handle(CampaignMarkedAsDoneDomainEvent notification, CancellationToken cancellationToken)
+    public override async Task Handle(
+        CampaignMarkedAsDoneDomainEvent notification,
+        CancellationToken cancellationToken = default
+    )
     {
         Result<CampaignResponse> result =
             await this._sender.Send(new GetCampaignQuery(notification.CampaignId.Value), cancellationToken);
@@ -35,7 +38,7 @@ internal sealed class CampaignMarkedAsDoneDomainEventHandler
         await this._eventBus.PublishAsync(
             new CampaignMarkedAsDoneIntegrationEvent(
                 notification.Id,
-                notification.OcurredOnUtc,
+                notification.OccurredOnUtc,
                 notification.CampaignId.Value,
                 result.Value.OfferId,
                 result.Value.ClientId,

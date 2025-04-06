@@ -1,5 +1,6 @@
 using FluentValidation;
 using Lanka.Common.Application.Messaging;
+using Lanka.Common.Domain;
 using Lanka.Modules.Users.ArchitectureTests.Abstractions;
 using NetArchTest.Rules;
 
@@ -179,6 +180,8 @@ public class ApplicationTests : BaseTest
         Types.InAssembly(ApplicationAssembly)
             .That()
             .ImplementInterface(typeof(IDomainEventHandler<>))
+            .Or()
+            .Inherit(typeof(DomainEventHandler<>))
             .Should()
             .NotBePublic()
             .GetResult()
@@ -191,6 +194,8 @@ public class ApplicationTests : BaseTest
         Types.InAssembly(ApplicationAssembly)
             .That()
             .ImplementInterface(typeof(IDomainEventHandler<>))
+            .Or()
+            .Inherit(typeof(DomainEventHandler<>))
             .Should()
             .BeSealed()
             .GetResult()
@@ -203,6 +208,8 @@ public class ApplicationTests : BaseTest
         Types.InAssembly(ApplicationAssembly)
             .That()
             .ImplementInterface(typeof(IDomainEventHandler<>))
+            .Or()
+            .Inherit(typeof(DomainEventHandler<>))
             .Should()
             .HaveNameEndingWith("DomainEventHandler")
             .GetResult()

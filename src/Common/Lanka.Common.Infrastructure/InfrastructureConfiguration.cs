@@ -8,11 +8,12 @@ using Lanka.Common.Infrastructure.Authorization;
 using Lanka.Common.Infrastructure.Caching;
 using Lanka.Common.Infrastructure.Clock;
 using Lanka.Common.Infrastructure.Data;
-using Lanka.Common.Infrastructure.Interceptors;
+using Lanka.Common.Infrastructure.Outbox;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
+using Quartz;
 using StackExchange.Redis;
 
 namespace Lanka.Common.Infrastructure;
@@ -32,6 +33,10 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
+        services.TryAddSingleton<IEventBus, EventBus.EventBus>();
+        
+        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
+        
         NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(
             databaseConnectionString
         ).Build();
@@ -39,9 +44,18 @@ public static class InfrastructureConfiguration
 
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
+        services.AddQuartz(configurator =>
+        {
+            var scheduler = Guid.NewGuid();
+            configurator.SchedulerId = $"default-id-{scheduler}";
+            configurator.SchedulerName = $"default-name-{scheduler}";
+        });
+
+        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
-        services.TryAddSingleton<PublishDomainEventsInterceptor>();
+        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
 
         try
         {
@@ -59,8 +73,6 @@ public static class InfrastructureConfiguration
         }
 
         services.TryAddSingleton<ICacheService, CacheService>();
-
-        services.TryAddSingleton<IEventBus, EventBus.EventBus>();
 
         services.AddMassTransit(configure =>
         {

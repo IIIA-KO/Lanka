@@ -1,5 +1,13 @@
 {
   "Users": {
+    "Outbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "Inbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
     "KeyCloak": {
       "Realm": "your-realm",
       "BaseUrl": "https://identity-server-url",
@@ -9,6 +17,6 @@
       "ConfidentialClientId": "your-client-id",
       "ConfidentialClientSecret": "your-client-secret",
       "PublicClientId": "your-public-client-id"
-    }
+    } 
   }
 }
