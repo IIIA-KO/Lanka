@@ -22,6 +22,10 @@ This catalog provides detailed explanations of the core domain concepts used in 
 
 8. [Event Bus](./event-bus/)
 
+9. [Outbox Pattern](./outbox-pattern/)
+
+10. [Inbox Pattern](./inbox-pattern/)
+
 ## Data Management
 
-9. [Unit of Work](./unit-of-work/)
+11. [Unit of Work](./unit-of-work/)

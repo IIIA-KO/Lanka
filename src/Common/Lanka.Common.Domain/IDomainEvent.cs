@@ -6,5 +6,5 @@ public interface IDomainEvent : INotification
 {
     Guid Id { get; }
 
-    DateTime OcurredOnUtc { get; }
+    DateTime OccurredOnUtc { get; }
 }

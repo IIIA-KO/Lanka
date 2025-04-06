@@ -9,8 +9,8 @@ using MediatR;
 
 namespace Lanka.Modules.Users.Application.Users.RegisterUser;
 
-internal sealed class UserRegisteredDomainEventHandler 
-    : IDomainEventHandler<UserCreatedDomainEvent>
+internal sealed class UserRegisteredDomainEventHandler
+    : DomainEventHandler<UserCreatedDomainEvent>
 {
     private readonly ISender _sender;
     private readonly IEventBus _eventBus;
@@ -21,19 +21,23 @@ internal sealed class UserRegisteredDomainEventHandler
         this._eventBus = eventBus;
     }
 
-    public async Task Handle(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
+    public override async Task Handle(
+        UserCreatedDomainEvent notification,
+        CancellationToken cancellationToken = default
+    )
     {
-        Result<UserResponse> result = await this._sender.Send(new GetUserQuery(notification.UserId.Value), cancellationToken);
+        Result<UserResponse> result =
+            await this._sender.Send(new GetUserQuery(notification.UserId.Value), cancellationToken);
 
         if (result.IsFailure)
         {
             throw new LankaException(nameof(GetUserQuery), result.Error);
         }
-            
+
         await this._eventBus.PublishAsync(
             new UserRegisteredIntegrationEvent(
                 notification.Id,
-                notification.OcurredOnUtc,
+                notification.OccurredOnUtc,
                 result.Value.Id,
                 result.Value.Email,
                 result.Value.FirstName,

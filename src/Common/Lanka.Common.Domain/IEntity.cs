@@ -2,7 +2,7 @@ namespace Lanka.Common.Domain;
 
 public interface IEntity
 {
-    IReadOnlyList<IDomainEvent> GetDomainEvents();
-        
+    IReadOnlyList<IDomainEvent> DomainEvents { get; }
+
     void ClearDomainEvents();
 }

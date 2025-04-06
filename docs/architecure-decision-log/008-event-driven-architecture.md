@@ -1,70 +1,56 @@
-# Event-Driven Architecture Implementation
+# Event-Driven Architecture Implementation - Update
 
-**Date:** 2025-02-10  
+**Date:** 2025-04-06
 **Status:** Accepted
 
-## Context
+## Update Context
 
-The system needs a reliable way to handle internal communication between modules while maintaining loose coupling. It needs to support both immediate domain events and integration events across module boundaries.
+The original event-driven architecture has been enhanced with reliable messaging patterns to ensure at-least-once delivery and exactly-once processing semantics.
 
 ## Decision
 
-Implementation of a dual-event system:
+In addition to the existing dual-event system, we have implemented:
 
-1. Domain Events - for immediate, in-process communication
-2. Integration Events - for cross-module communication
+1. **Outbox Pattern** - For reliable publication of domain events
+2. **Inbox Pattern** - For reliable consumption of integration events
 
-### Implementation Details
+### Updated Implementation Details
 
-1. **Domain Events**
+1. **Domain Events with Outbox**
 
-   ```csharp
-   public interface IDomainEvent
-   {
-       Guid Id { get; }
+   Domain events are now:
+   - Captured during entity changes using an EF Core interceptor
+   - Stored in an outbox table within the same transaction
+   - Processed asynchronously by a background job
+   - Tracked for idempotent handling
 
-       DateTime OccurredOn { get; }
-   }
-   ```
+2. **Integration Events with Inbox**
 
-2. **Integration Events**
+   Integration events are now:
+   - Received by MassTransit consumers 
+   - Stored in an inbox table before processing
+   - Processed asynchronously by a background job
+   - Tracked for idempotent handling
 
-   ```csharp
-    public interface IIntegrationEvent
-    {
-        Guid Id { get; }
-        
-        DateTime OccurredOnUtc { get; }
-    }
-   
-   public abstract class IntegrationEvent : IIntegrationEvent
-   {
-       public Guid Id { get; }
-       public DateTime OccurredOn { get; }
-   }
-   ```
+3. **Reliability Features**
 
-3. **Event Bus**
+   - Retry policy with configurable attempts and backoff
+   - Dead letter queue for persistently failing messages
+   - Message cleanup for housekeeping
 
-   ```csharp
-   public interface IEventBus
-   {
-       Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
-            where T : IIntegrationEvent;
-   }
-   ```
+See the dedicated ADL on Reliable Messaging for full details.
 
-## Consequences
+## Additional Consequences
 
 ### Positive
 
-- Loose coupling between modules
-- Easy to add new event handlers
-- Clear separation between immediate and integration events
-- Testable event flow
+- Messages are never lost during processing
+- Events are processed exactly once, even in failure scenarios
+- System is resilient to temporary failures
+- Visibility into message processing state and failures
 
 ### Negative
 
-- Additional complexity in event handling
-- Need to manage event versioning
-- Potential performance overhead for event serialization
+- Additional database tables and background processes
+- Increased system complexity 
+- Eventual consistency model (asynchronous processing)

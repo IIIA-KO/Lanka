@@ -11,7 +11,7 @@ using MediatR;
 namespace Lanka.Modules.Campaigns.Application.Campaigns.Reject;
 
 internal sealed class CampaignRejectedDomainEventHandler
-    : IDomainEventHandler<CampaignRejectedDomainEvent>
+    : DomainEventHandler<CampaignRejectedDomainEvent>
 {
     private readonly ISender _sender;
     private readonly IEventBus _eventBus;
@@ -22,7 +22,10 @@ internal sealed class CampaignRejectedDomainEventHandler
         this._eventBus = eventBus;
     }
 
-    public async Task Handle(CampaignRejectedDomainEvent notification, CancellationToken cancellationToken)
+    public override async Task Handle(
+        CampaignRejectedDomainEvent notification,
+        CancellationToken cancellationToken = default
+    )
     {
         Result<CampaignResponse> result =
             await this._sender.Send(new GetCampaignQuery(notification.CampaignId.Value), cancellationToken);
@@ -35,7 +38,7 @@ internal sealed class CampaignRejectedDomainEventHandler
         await this._eventBus.PublishAsync(
             new CampaignRejectedIntegrationEvent(
                 notification.Id,
-                notification.OcurredOnUtc,
+                notification.OccurredOnUtc,
                 notification.CampaignId.Value,
                 result.Value.OfferId,
                 result.Value.ClientId,
