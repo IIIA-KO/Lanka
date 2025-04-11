@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Lanka.Common.Domain;
 
 namespace Lanka.Modules.Campaigns.Domain.Reviews.Comments;

@@ -5,7 +5,7 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Campaigns.GetCampaign;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Campaigns.DomainEvents;
-using Lanka.Modules.Campaigns.IntegrationEvents;
+using Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 using MediatR;
 
 namespace Lanka.Modules.Campaigns.Application.Campaigns.Pend;
@@ -16,10 +16,7 @@ internal sealed class CampaignPendedDomainEventHandler
     private readonly ISender _sender;
     private readonly IEventBus _eventBus;
 
-    public CampaignPendedDomainEventHandler(
-        ISender sender,
-        IEventBus eventBus
-    )
+    public CampaignPendedDomainEventHandler(ISender sender, IEventBus eventBus)
     {
         this._sender = sender;
         this._eventBus = eventBus;
@@ -30,8 +27,10 @@ internal sealed class CampaignPendedDomainEventHandler
         CancellationToken cancellationToken = default
     )
     {
-        Result<CampaignResponse> result =
-            await this._sender.Send(new GetCampaignQuery(notification.CampaignId.Value), cancellationToken);
+        Result<CampaignResponse> result = await this._sender.Send(
+            new GetCampaignQuery(notification.CampaignId.Value),
+            cancellationToken
+        );
 
         if (result.IsFailure)
         {

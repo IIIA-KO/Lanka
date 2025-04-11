@@ -1,5 +1,4 @@
 using Lanka.Common.Domain;
-using MediatR;
 
 namespace Lanka.Common.Application.Messaging;
 

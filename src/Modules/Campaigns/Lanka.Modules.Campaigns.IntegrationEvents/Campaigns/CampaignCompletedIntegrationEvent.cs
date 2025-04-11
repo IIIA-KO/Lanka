@@ -1,8 +1,8 @@
-namespace Lanka.Modules.Campaigns.IntegrationEvents;
+namespace Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 
-public class CampaignRejectedIntegrationEvent : CampaignIntegrationEvent
+public class CampaignCompletedIntegrationEvent : CampaignIntegrationEvent
 {
-    public CampaignRejectedIntegrationEvent(
+    public CampaignCompletedIntegrationEvent(
         Guid id, 
         DateTime occurredOnUtc, 
         Guid campaignId, 

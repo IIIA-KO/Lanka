@@ -41,10 +41,10 @@ public sealed class Review : Entity<ReviewId>
 
     public CampaignId CampaignId { get; init; }
 
-    public Comment Comment { get; private set; }
-
     public Rating Rating { get; private set; }
-
+    
+    public Comment Comment { get; private set; }
+    
     public DateTimeOffset CreatedOnUtc { get; private set; }
 
     public static Result<Review> Create(

@@ -13,6 +13,14 @@ public sealed class ReviewResponse
     }
 
     public Guid Id { get; init; }
+    
+    public Guid ClientId { get; init; }
+    
+    public Guid CreatorId { get; init; }
+    
+    public Guid OfferId { get; init; }
+    
+    public Guid CampaignId { get; init; }
 
     public int Rating { get; init; }
 

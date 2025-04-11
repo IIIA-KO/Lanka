@@ -4,7 +4,6 @@ using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Reviews;
 using Lanka.Modules.Campaigns.Domain.Reviews.Comments;
 using Lanka.Modules.Campaigns.Domain.Reviews.Ratings;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

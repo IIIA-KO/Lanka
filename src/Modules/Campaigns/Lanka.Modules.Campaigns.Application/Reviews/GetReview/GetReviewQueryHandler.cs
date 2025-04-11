@@ -25,6 +25,10 @@ internal sealed class GetReviewQueryHandler
             $"""
              SELECT
                  id AS {nameof(ReviewResponse.Id)},
+                 client_id AS {nameof(ReviewResponse.ClientId)},
+                 creator_id AS {nameof(ReviewResponse.CreatorId)},
+                 offer_id AS {nameof(ReviewResponse.OfferId)},
+                 campaign_id AS {nameof(ReviewResponse.CampaignId)},
                  rating AS {nameof(ReviewResponse.Rating)},
                  comment AS {nameof(ReviewResponse.Comment)},
                  crated_on_utc AS {nameof(ReviewResponse.CreatedOnUtc)}

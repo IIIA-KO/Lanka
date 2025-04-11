@@ -1,6 +1,5 @@
 using FluentValidation;
 using Lanka.Common.Application.Messaging;
-using Lanka.Common.Domain;
 using Lanka.Modules.Users.ArchitectureTests.Abstractions;
 using NetArchTest.Rules;
 

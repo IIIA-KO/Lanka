@@ -1,8 +1,8 @@
-﻿namespace Lanka.Modules.Campaigns.IntegrationEvents;
+namespace Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 
-public class CampaignPendedIntegrationEvent : CampaignIntegrationEvent
+public class CampaignCancelledIntegrationEvent : CampaignIntegrationEvent
 {
-    public CampaignPendedIntegrationEvent(
+    public CampaignCancelledIntegrationEvent(
         Guid id, 
         DateTime occurredOnUtc, 
         Guid campaignId, 
