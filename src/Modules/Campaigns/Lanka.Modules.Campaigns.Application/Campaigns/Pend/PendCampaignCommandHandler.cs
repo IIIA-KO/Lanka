@@ -1,5 +1,6 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.Clock;
+using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
@@ -36,7 +37,7 @@ internal sealed class PendCampaignCommandHandler
         this._dateTimeProvider = dateTimeProvider;
         this._userContext = userContext;
     }
-        
+
     public async Task<Result<CampaignId>> Handle(PendCampaignCommand request, CancellationToken cancellationToken)
     {
         Offer? offer = await this._offerRepository.GetByIdAsync(
@@ -58,7 +59,7 @@ internal sealed class PendCampaignCommandHandler
         {
             return Result.Failure<CampaignId>(OfferErrors.NotFound);
         }
-            
+
         var clientId = new BloggerId(this._userContext.GetUserId());
 
         if (clientId == creatorPact.BloggerId)
@@ -98,16 +99,16 @@ internal sealed class PendCampaignCommandHandler
             {
                 return Result.Failure<CampaignId>(result.Error);
             }
-                
+
             Campaign campaign = result.Value;
-                
+
             this._campaignRepository.Add(campaign);
-                
+
             await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
             return campaign.Id;
         }
-        catch (Exception) // Concurrency exception must be thrown here
+        catch (ConcurrencyException)
         {
             return Result.Failure<CampaignId>(CampaignErrors.AlreadyStarted);
         }
