@@ -5,6 +5,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Pacts;
+using Lanka.Modules.Campaigns.Domain.Reviews;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lanka.Modules.Campaigns.Infrastructure.Database;
@@ -18,6 +19,8 @@ public class CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : 
     internal DbSet<Offer> Offers { get; set; }
 
     internal DbSet<Pact> Pacts { get; set; }
+    
+    internal DbSet<Review> Reviews { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

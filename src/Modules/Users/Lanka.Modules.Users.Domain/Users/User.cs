@@ -11,7 +11,7 @@ namespace Lanka.Modules.Users.Domain.Users;
 public class User : Entity<UserId>, IAggregateRoot
 {
     private readonly List<Role> _roles = [];
-        
+
     public FirstName FirstName { get; private set; }
 
     public LastName LastName { get; private set; }
@@ -23,10 +23,10 @@ public class User : Entity<UserId>, IAggregateRoot
     public BirthDate BirthDate { get; private set; }
 
     public string IdentityId { get; private set; }
-        
+
 
     public IReadOnlyCollection<Role> Roles => this._roles;
-        
+
     private User() { }
 
     private User(
@@ -54,20 +54,20 @@ public class User : Entity<UserId>, IAggregateRoot
         string identityId
     )
     {
-        Result<(FirstName, LastName, Email, BirthDate)> validationResult = 
+        Result<(FirstName, LastName, Email, BirthDate)> validationResult =
             Validate(firstName, lastName, email, birthDate);
 
         if (validationResult.IsFailure)
         {
             return Result.Failure<User>(validationResult.Error);
         }
-            
-        (FirstName fn, LastName ln, Email em, BirthDate bd) = validationResult.Value;
 
-        var user = new User(UserId.New(), fn, ln, em, bd, identityId);
+        (FirstName _firstName, LastName _lastName, Email _email, BirthDate _birthDate) = validationResult.Value;
+
+        var user = new User(UserId.New(), _firstName, _lastName, _email, _birthDate, identityId);
 
         user._roles.Add(Role.Member);
-            
+
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         return user;
@@ -85,9 +85,9 @@ public class User : Entity<UserId>, IAggregateRoot
         Result<Email> emailResult = Email.Create(email);
         Result<BirthDate> birthDateResult = BirthDate.Create(birthDate);
 
-        if (firstNameResult.IsFailure 
-            || lastNameResult.IsFailure 
-            || emailResult.IsFailure 
+        if (firstNameResult.IsFailure
+            || lastNameResult.IsFailure
+            || emailResult.IsFailure
             || birthDateResult.IsFailure)
         {
             return Result.Failure<(FirstName, LastName, Email, BirthDate)>(
