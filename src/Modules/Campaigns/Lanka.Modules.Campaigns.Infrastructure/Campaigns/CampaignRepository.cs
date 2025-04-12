@@ -8,12 +8,12 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Campaigns;
 internal sealed class CampaignRepository : ICampaignRepository
 {
     private readonly CampaignsDbContext _dbContext;
-    
+
     public CampaignRepository(CampaignsDbContext dbContext)
     {
         this._dbContext = dbContext;
     }
-    
+
     public async Task<Campaign?> GetByIdAsync(CampaignId id, CancellationToken cancellationToken = default)
     {
         return await this._dbContext.Campaigns.FirstOrDefaultAsync(
@@ -23,16 +23,20 @@ internal sealed class CampaignRepository : ICampaignRepository
     }
 
     public async Task<bool> IsAlreadyStartedAsync(
-        Offer offer, 
+        Offer offer,
         DateTimeOffset scheduledOnUtc,
         CancellationToken cancellationToken = default
     )
     {
+        DateTimeOffset startTime = scheduledOnUtc - TimeSpan.FromMinutes(5);
+        DateTimeOffset endTime = scheduledOnUtc + TimeSpan.FromMinutes(5);
+
         return await this._dbContext.Campaigns
             .AsNoTracking()
             .AnyAsync(
                 campaign => campaign.OfferId == offer.Id
-                            && campaign.ScheduledOnUtc == scheduledOnUtc
+                            && campaign.ScheduledOnUtc >= startTime
+                            && campaign.ScheduledOnUtc <= endTime
                             && Campaign.ActiveCampaignStatuses.Contains(campaign.Status),
                 cancellationToken
             );

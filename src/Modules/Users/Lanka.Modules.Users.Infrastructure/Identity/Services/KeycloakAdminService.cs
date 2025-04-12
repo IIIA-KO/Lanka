@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.Json;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
-using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Infrastructure.Identity.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

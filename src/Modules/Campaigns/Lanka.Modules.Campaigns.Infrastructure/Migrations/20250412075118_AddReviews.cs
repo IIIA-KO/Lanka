@@ -1,0 +1,97 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddReviews : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "reviews",
+                schema: "campaigns",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    creator_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    offer_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    campaign_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    rating = table.Column<int>(type: "integer", nullable: false),
+                    comment = table.Column<string>(type: "text", nullable: false),
+                    created_on_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_reviews", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_reviews_bloggers_client_id",
+                        column: x => x.client_id,
+                        principalSchema: "campaigns",
+                        principalTable: "bloggers",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_reviews_bloggers_creator_id",
+                        column: x => x.creator_id,
+                        principalSchema: "campaigns",
+                        principalTable: "bloggers",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_reviews_campaigns_campaign_id",
+                        column: x => x.campaign_id,
+                        principalSchema: "campaigns",
+                        principalTable: "campaigns",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_reviews_offers_offer_id",
+                        column: x => x.offer_id,
+                        principalSchema: "campaigns",
+                        principalTable: "offers",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reviews_campaign_id",
+                schema: "campaigns",
+                table: "reviews",
+                column: "campaign_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reviews_client_id",
+                schema: "campaigns",
+                table: "reviews",
+                column: "client_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reviews_creator_id",
+                schema: "campaigns",
+                table: "reviews",
+                column: "creator_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reviews_id",
+                schema: "campaigns",
+                table: "reviews",
+                column: "id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reviews_offer_id",
+                schema: "campaigns",
+                table: "reviews",
+                column: "offer_id");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "reviews",
+                schema: "campaigns");
+        }
+    }
+}

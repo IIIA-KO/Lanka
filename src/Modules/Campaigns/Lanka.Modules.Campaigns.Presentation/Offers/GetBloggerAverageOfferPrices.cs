@@ -13,13 +13,13 @@ internal sealed class GetBloggerAverageOfferPrices : OfferEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapGet(this.BuildRoute("average-prices/{bloggerId:guid}"),
+        return app.MapGet(this.BuildRoute("{bloggerId:guid}"),
                 async (
                     [FromRoute] Guid bloggerId,
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<List<AveragePriceResponse>> result = await sender.Send(
+                    Result<IReadOnlyList<AveragePriceResponse>> result = await sender.Send(
                         new GetBloggerAverageOfferPricesQuery(bloggerId),
                         cancellationToken
                     );

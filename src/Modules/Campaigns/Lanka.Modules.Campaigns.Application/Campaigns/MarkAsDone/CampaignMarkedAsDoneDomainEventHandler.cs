@@ -5,7 +5,7 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Campaigns.GetCampaign;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Campaigns.DomainEvents;
-using Lanka.Modules.Campaigns.IntegrationEvents;
+using Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 using MediatR;
 
 namespace Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;

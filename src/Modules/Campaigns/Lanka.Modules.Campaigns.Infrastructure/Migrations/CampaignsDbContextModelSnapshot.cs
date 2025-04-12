@@ -311,6 +311,62 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                     b.ToTable("pacts", "campaigns");
                 });
 
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Reviews.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_utc");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("creator_id");
+
+                    b.Property<Guid>("OfferId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("offer_id");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer")
+                        .HasColumnName("rating");
+
+                    b.HasKey("Id")
+                        .HasName("pk_reviews");
+
+                    b.HasIndex("CampaignId")
+                        .HasDatabaseName("ix_reviews_campaign_id");
+
+                    b.HasIndex("ClientId")
+                        .HasDatabaseName("ix_reviews_client_id");
+
+                    b.HasIndex("CreatorId")
+                        .HasDatabaseName("ix_reviews_creator_id");
+
+                    b.HasIndex("Id")
+                        .HasDatabaseName("ix_reviews_id");
+
+                    b.HasIndex("OfferId")
+                        .HasDatabaseName("ix_reviews_offer_id");
+
+                    b.ToTable("reviews", "campaigns");
+                });
+
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Campaigns.Campaign", b =>
                 {
                     b.HasOne("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", "Client")
@@ -408,6 +464,37 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .HasConstraintName("fk_pacts_bloggers_blogger_id");
 
                     b.Navigation("Blogger");
+                });
+
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Reviews.Review", b =>
+                {
+                    b.HasOne("Lanka.Modules.Campaigns.Domain.Campaigns.Campaign", null)
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_reviews_campaigns_campaign_id");
+
+                    b.HasOne("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("fk_reviews_bloggers_client_id");
+
+                    b.HasOne("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", null)
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("fk_reviews_bloggers_creator_id");
+
+                    b.HasOne("Lanka.Modules.Campaigns.Domain.Offers.Offer", null)
+                        .WithMany()
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("fk_reviews_offers_offer_id");
                 });
 
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", b =>

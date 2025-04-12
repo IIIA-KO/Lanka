@@ -1,16 +1,19 @@
 using Lanka.Common.Application.EventBus;
 
-namespace Lanka.Modules.Campaigns.IntegrationEvents;
+namespace Lanka.Modules.Campaigns.IntegrationEvents.Reviews;
 
-public class CampaignIntegrationEvent : IntegrationEvent
+public class ReviewUpdatedIntegrationEvent : IntegrationEvent
 {
-    protected CampaignIntegrationEvent(
+    public ReviewUpdatedIntegrationEvent(
         Guid id,
         DateTime occurredOnUtc,
         Guid campaignId,
         Guid offerId,
         Guid clientId,
-        Guid creatorId
+        Guid creatorId,
+        Guid reviewId,
+        int rating,
+        string comment
     )
         : base(id, occurredOnUtc)
     {
@@ -18,10 +21,16 @@ public class CampaignIntegrationEvent : IntegrationEvent
         this.OfferId = offerId;
         this.ClientId = clientId;
         this.CreatorId = creatorId;
+        this.ReviewId = reviewId;
+        this.Rating = rating;
+        this.Comment = comment;
     }
 
     public Guid CampaignId { get; init; }
     public Guid OfferId { get; init; }
     public Guid ClientId { get; init; }
     public Guid CreatorId { get; init; }
+    public Guid ReviewId { get; init; }
+    public int Rating { get; init; }
+    public string Comment { get; init; }
 }

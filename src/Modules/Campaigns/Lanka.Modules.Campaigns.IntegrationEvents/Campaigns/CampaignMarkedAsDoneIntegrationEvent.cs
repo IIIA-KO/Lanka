@@ -1,4 +1,4 @@
-namespace Lanka.Modules.Campaigns.IntegrationEvents;
+namespace Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 
 public class CampaignMarkedAsDoneIntegrationEvent : CampaignIntegrationEvent
 {

@@ -13,9 +13,9 @@ internal sealed class GetBloggerPact : PactEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapGet(string.Empty,
+        return app.MapGet(this.BuildRoute("{bloggerId:guid}"),
                 async (
-                    [FromQuery] Guid bloggerId,
+                    [FromRoute] Guid bloggerId,
                     ISender sender,
                     CancellationToken cancellation) =>
                 {

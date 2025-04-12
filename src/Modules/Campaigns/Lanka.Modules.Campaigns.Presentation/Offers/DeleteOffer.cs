@@ -13,20 +13,20 @@ internal sealed class DeleteOffer : OfferEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapDelete("{id:guid}",
-            async (
-                [FromRoute] Guid id,
-                ISender sender,
-                CancellationToken cancellationToken) =>
-            {
-                Result result = await sender.Send(
-                    new DeleteOfferCommand(id),
-                    cancellationToken
-                );
+        return app.MapDelete(this.BuildRoute("{id:guid}"),
+                async (
+                    [FromRoute] Guid id,
+                    ISender sender,
+                    CancellationToken cancellationToken) =>
+                {
+                    Result result = await sender.Send(
+                        new DeleteOfferCommand(id),
+                        cancellationToken
+                    );
 
-                return result.Match(Results.NoContent, ApiResult.Problem);
-            }
-        )
-        .WithTags(Tags.Offers);
+                    return result.Match(Results.NoContent, ApiResult.Problem);
+                }
+            )
+            .WithTags(Tags.Offers);
     }
 }

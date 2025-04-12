@@ -10,18 +10,18 @@ namespace Lanka.Modules.Campaigns.Domain.Offers;
 public class Offer : Entity<OfferId>
 {
     public PactId PactId { get; init; }
-        
+
     public Pact? Pact { get; init; }
-        
+
     public Name Name { get; private set; }
 
     public Description Description { get; private set; }
-        
+
     public Money Price { get; private set; }
-        
+
     public DateTimeOffset? LastCooperatedOnUtc { get; private set; }
-        
-    private Offer() {}
+
+    private Offer() { }
 
     private Offer(
         OfferId id,
@@ -42,56 +42,56 @@ public class Offer : Entity<OfferId>
         PactId pactId,
         string name,
         string description,
-        decimal priceAmout,
+        decimal priceAmount,
         string priceCurrency)
     {
-        Result<(Name, Description, Money)> validationResult = 
-            Validate(name, description, priceAmout, priceCurrency);
+        Result<(Name, Description, Money)> validationResult =
+            Validate(name, description, priceAmount, priceCurrency);
 
         if (validationResult.IsFailure)
         {
             return Result.Failure<Offer>(validationResult.Error);
         }
-            
-        (Name n, Description d, Money price) = validationResult.Value;
-        
-        var offer = new Offer(OfferId.New(), pactId, n, d, price);
-            
+
+        (Name _name, Description _description, Money price) = validationResult.Value;
+
+        var offer = new Offer(OfferId.New(), pactId, _name, _description, price);
+
         return offer;
     }
 
     public Result Update(
         string name,
         string description,
-        decimal priceAmout,
+        decimal priceAmount,
         string priceCurrency
     )
     {
-        Result<(Name, Description, Money)> validationResult = 
-            Validate(name, description, priceAmout, priceCurrency);
+        Result<(Name, Description, Money)> validationResult =
+            Validate(name, description, priceAmount, priceCurrency);
 
         if (validationResult.IsFailure)
         {
             return Result.Failure(validationResult.Error);
         }
-        
+
         (this.Name, this.Description, this.Price) = validationResult.Value;
-        
+
         return Result.Success();
     }
-        
+
     private static Result<(Name, Description, Money)> Validate(
         string name,
         string description,
-        decimal priceAmout,
+        decimal priceAmount,
         string priceCurrency
     )
     {
         Result<Name> nameResult = Name.Create(name);
         Result<Description> descriptionResult = Description.Create(description);
-        Result<Money> priceResult = Money.Create(priceAmout, Currency.FromCode(priceCurrency));
-        
-        if (nameResult.IsFailure 
+        Result<Money> priceResult = Money.Create(priceAmount, Currency.FromCode(priceCurrency));
+
+        if (nameResult.IsFailure
             || descriptionResult.IsFailure)
         {
             return Result.Failure<(Name, Description, Money)>(

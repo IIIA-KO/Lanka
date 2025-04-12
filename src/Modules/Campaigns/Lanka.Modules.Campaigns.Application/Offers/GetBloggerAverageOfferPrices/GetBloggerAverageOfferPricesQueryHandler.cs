@@ -6,7 +6,7 @@ using Lanka.Modules.Campaigns.Domain.Pacts;
 namespace Lanka.Modules.Campaigns.Application.Offers.GetBloggerAverageOfferPrices;
 
 internal sealed class GetBloggerAverageOfferPricesQueryHandler
-    : IQueryHandler<GetBloggerAverageOfferPricesQuery, List<AveragePriceResponse>>
+    : IQueryHandler<GetBloggerAverageOfferPricesQuery, IReadOnlyList<AveragePriceResponse>>
 {
     private readonly IPactRepository _pactRepository;
 
@@ -15,7 +15,10 @@ internal sealed class GetBloggerAverageOfferPricesQueryHandler
         this._pactRepository = pactRepository;
     }
 
-    public async Task<Result<List<AveragePriceResponse>>> Handle(GetBloggerAverageOfferPricesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<AveragePriceResponse>>> Handle(
+        GetBloggerAverageOfferPricesQuery request,
+        CancellationToken cancellationToken
+    )
     {
         Pact? pact = await this._pactRepository.GetByBloggerIdWithOffersAsync(
             new BloggerId(request.BloggerId),
@@ -24,14 +27,14 @@ internal sealed class GetBloggerAverageOfferPricesQueryHandler
         
         if (pact is null)
         {
-            return Result.Failure<List<AveragePriceResponse>>(PactErrors.NotFound);
+            return Result.Failure<IReadOnlyList<AveragePriceResponse>>(PactErrors.NotFound);
         }
         
-        var avaragePriceResponses = new List<AveragePriceResponse>();
+        var averagePriceResponses = new List<AveragePriceResponse>();
 
         if (!pact.Offers.Any())
         {
-            return avaragePriceResponses;
+            return averagePriceResponses;
         }
 
         return pact.Offers

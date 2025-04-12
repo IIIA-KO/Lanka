@@ -14,7 +14,7 @@ internal sealed class EditOffer : OfferEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPut("{id:guid}",
+        return app.MapPut(this.BuildRoute("{id:guid}"),
             async (
                 [FromRoute] Guid id,
                 [FromBody] EditOfferRequest request,

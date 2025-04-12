@@ -13,7 +13,7 @@ internal sealed class GetOffer : OfferEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapGet("{id:guid}",
+        return app.MapGet(this.BuildRoute("{id:guid}"),
             async (
                 [FromRoute] Guid id,
                 ISender sender,
