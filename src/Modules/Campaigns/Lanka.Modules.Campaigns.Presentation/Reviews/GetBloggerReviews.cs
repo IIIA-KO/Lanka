@@ -1,32 +1,33 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Campaigns.Application.Offers.GetOffer;
+using Lanka.Modules.Campaigns.Application.Reviews.GetBloggerReviews;
+using Lanka.Modules.Campaigns.Application.Reviews.GetReview;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Lanka.Modules.Campaigns.Presentation.Offers;
+namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
-internal sealed class GetOffer : OfferEndpointBase
+internal sealed class GetBloggerReviews : ReviewEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapGet(this.BuildRoute("{id:guid}"),
+        return app.MapGet(this.BuildRoute("{bloggerId:guid}"),
             async (
-                [FromRoute] Guid id,
+                [FromRoute] Guid bloggerId,
                 ISender sender,
                 CancellationToken cancellationToken) =>
             {
-                Result<OfferResponse> result = await sender.Send(
-                    new GetOfferQuery(id),
+                Result<IReadOnlyList<ReviewResponse>> result = await sender.Send(
+                    new GetBloggerReviewsQuery(bloggerId),
                     cancellationToken
                 );
 
                 return result.Match(Results.Ok, ApiResult.Problem);
             }
         )
-        .WithTags(Tags.Offers);
+        .WithTags(Tags.Reviews);
     }
 }

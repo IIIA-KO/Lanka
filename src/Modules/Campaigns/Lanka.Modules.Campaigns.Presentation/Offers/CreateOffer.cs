@@ -14,7 +14,7 @@ internal sealed class CreateOffer : OfferEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPost(string.Empty,
+        return app.MapPost(this.BuildRoute(string.Empty),
                 async (
                     [FromBody] CreateOfferRequest request,
                     ISender sender,

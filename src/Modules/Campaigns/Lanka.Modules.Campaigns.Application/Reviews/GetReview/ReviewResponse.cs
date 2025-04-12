@@ -4,7 +4,7 @@ public sealed class ReviewResponse
 {
     public ReviewResponse() { }
 
-    public ReviewResponse(Guid id, int rating, string comment, DateTime createdOnUtc)
+    public ReviewResponse(Guid id, int rating, string comment, DateTimeOffset createdOnUtc)
     {
         this.Id = id;
         this.Rating = rating;
@@ -26,5 +26,5 @@ public sealed class ReviewResponse
 
     public string Comment { get; init; }
 
-    public DateTime CreatedOnUtc { get; init; }
+    public DateTimeOffset CreatedOnUtc { get; init; }
 }

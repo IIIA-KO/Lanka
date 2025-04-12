@@ -14,7 +14,7 @@ internal sealed class CreatePact : PactEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPost(this.BuildRoute("create"),
+        return app.MapPost(this.BuildRoute(string.Empty),
                 async (
                     [FromBody] CreatePactRequest request,
                     ISender sender,

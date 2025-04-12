@@ -14,7 +14,7 @@ internal sealed class EditPact : PactEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPut(this.BuildRoute("edit/{id:guid}"),
+        return app.MapPut(this.BuildRoute("{id:guid}/edit"),
                 async (
                     [FromBody] EditPactRequest request,
                     ISender sender,

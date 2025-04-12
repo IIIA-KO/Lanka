@@ -1,15 +1,15 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Campaigns.Application.Offers.Delete;
+using Lanka.Modules.Campaigns.Application.Reviews.Delete;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Lanka.Modules.Campaigns.Presentation.Offers;
+namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
-internal sealed class DeleteOffer : OfferEndpointBase
+internal sealed class DeleteReview : ReviewEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
@@ -20,13 +20,13 @@ internal sealed class DeleteOffer : OfferEndpointBase
                     CancellationToken cancellationToken) =>
                 {
                     Result result = await sender.Send(
-                        new DeleteOfferCommand(id),
+                        new DeleteReviewCommand(id),
                         cancellationToken
                     );
 
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Offers);
+            .WithTags(Tags.Reviews);
     }
 }
