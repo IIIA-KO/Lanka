@@ -92,7 +92,8 @@ public class Offer : Entity<OfferId>
         Result<Money> priceResult = Money.Create(priceAmount, Currency.FromCode(priceCurrency));
 
         if (nameResult.IsFailure
-            || descriptionResult.IsFailure)
+            || descriptionResult.IsFailure
+            || priceResult.IsFailure)
         {
             return Result.Failure<(Name, Description, Money)>(
                 ValidationError.FromResults([nameResult, descriptionResult, priceResult])

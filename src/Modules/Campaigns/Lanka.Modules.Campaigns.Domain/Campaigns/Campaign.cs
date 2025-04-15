@@ -8,7 +8,7 @@ using Name = Lanka.Modules.Campaigns.Domain.Campaigns.Names.Name;
 
 namespace Lanka.Modules.Campaigns.Domain.Campaigns;
 
-public class Campaign : Entity<CampaignId>
+public class Campaign : Entity<CampaignId>, IAggregateRoot
 {
     public static readonly CampaignStatus[] ActiveCampaignStatuses =
     [
@@ -16,29 +16,29 @@ public class Campaign : Entity<CampaignId>
         CampaignStatus.Confirmed,
         CampaignStatus.Done
     ];
-        
+
     public Name Name { get; private set; }
-        
+
     public Description Description { get; private set; }
 
     public Money Price { get; init; }
-        
+
     public OfferId OfferId { get; init; }
-        
+
     public Offer? Offer { get; init; }
-        
+
     public BloggerId ClientId { get; init; }
-        
+
     public Blogger? Client { get; init; }
-        
+
     public BloggerId CreatorId { get; init; }
-        
+
     public Blogger? Creator { get; init; }
-        
+
     public CampaignStatus Status { get; private set; }
 
     public DateTimeOffset ScheduledOnUtc { get; init; }
-        
+
     public DateTimeOffset PendedOnUtc { get; init; }
 
     public DateTimeOffset? ConfirmedOnUtc { get; private set; }
@@ -51,7 +51,7 @@ public class Campaign : Entity<CampaignId>
 
     public DateTimeOffset? CompletedOnUtc { get; private set; }
 
-    private Campaign() {}
+    private Campaign() { }
 
     private Campaign(
         CampaignId id,
@@ -76,7 +76,7 @@ public class Campaign : Entity<CampaignId>
         this.Status = status;
         this.PendedOnUtc = pendedOnUtc;
     }
-        
+
     public static Result<Campaign> Pend(
         string name,
         string description,
@@ -93,9 +93,9 @@ public class Campaign : Entity<CampaignId>
         {
             return Result.Failure<Campaign>(validationResult.Error);
         }
-            
+
         (Name nm, Description desc) = validationResult.Value;
-            
+
         if (clientId == creatorId)
         {
             return Result.Failure<Campaign>(CampaignErrors.SameUser);
@@ -106,11 +106,6 @@ public class Campaign : Entity<CampaignId>
             return Result.Failure<Campaign>(CampaignErrors.InvalidTime);
         }
 
-        if (offer.Price.Amount < 0)
-        {
-            return Result.Failure<Campaign>(MoneyErrors.NegativeAmount);
-        }
-            
         var campaign = new Campaign(
             CampaignId.New(),
             nm,
@@ -123,11 +118,11 @@ public class Campaign : Entity<CampaignId>
             CampaignStatus.Pending,
             utcNow
         );
-            
+
         campaign.RaiseDomainEvent(new CampaignPendedDomainEvent(campaign.Id));
 
         offer.SetLastCooperatedOnUtc(utcNow);
-            
+
         return campaign;
     }
 
@@ -142,10 +137,10 @@ public class Campaign : Entity<CampaignId>
                 ValidationError.FromResults([nameResult, descriptionResult])
             );
         }
-            
+
         return (nameResult.Value, descriptionResult.Value);
     }
-        
+
     public Result Confirm(DateTimeOffset utcNow)
     {
         if (this.Status != CampaignStatus.Pending)
