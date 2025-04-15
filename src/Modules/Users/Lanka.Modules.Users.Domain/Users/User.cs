@@ -73,6 +73,41 @@ public class User : Entity<UserId>, IAggregateRoot
         return user;
     }
 
+    public Result Update(
+        string firstName,
+        string lastName,
+        DateOnly birthDate
+    )
+    {
+        if (this.FirstName.Value == firstName
+            && this.LastName.Value == lastName
+            && this.BirthDate.Value == birthDate)
+        {
+            return Result.Success();
+        }
+
+        Result<(FirstName, LastName, Email, BirthDate)> validationResult =
+            Validate(firstName, lastName, this.Email.Value, birthDate);
+
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure<User>(validationResult.Error);
+        }
+
+        this.FirstName = validationResult.Value.Item1;
+        this.LastName = validationResult.Value.Item2;
+        this.BirthDate = validationResult.Value.Item4;
+
+        this.RaiseDomainEvent(new UserUpdatedDomainEvent(
+            this.Id,
+            this.FirstName.Value,
+            this.LastName.Value,
+            this.BirthDate.Value
+        ));
+
+        return Result.Success();
+    }
+
     private static Result<(FirstName, LastName, Email, BirthDate)> Validate(
         string firstName,
         string lastName,
