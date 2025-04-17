@@ -42,7 +42,6 @@ internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
         using var authRequestContent = new FormUrlEncodedContent(authRequestParameters);
 
         using var authRequest = new HttpRequestMessage(HttpMethod.Post, new Uri(this._options.TokenUrl));
-
         authRequest.Content = authRequestContent;
 
         using HttpResponseMessage authorizationResponse = await base.SendAsync(authRequest, cancellationToken);

@@ -4,4 +4,8 @@
       <ProjectReference Include="..\Lanka.Modules.Users.Application\Lanka.Modules.Users.Application.csproj" />
       <ProjectReference Include="..\Lanka.Modules.Users.Presentation\Lanka.Modules.Users.Presentation.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="Lanka.IntegrationTests" />
+    </ItemGroup>
 </Project>

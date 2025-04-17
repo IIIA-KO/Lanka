@@ -8,7 +8,7 @@ using Lanka.Modules.Campaigns.Domain.Reviews.DomainEvents;
 using Lanka.Modules.Campaigns.IntegrationEvents.Reviews;
 using MediatR;
 
-namespace Lanka.Modules.Campaigns.Application.Reviews.EditReview;
+namespace Lanka.Modules.Campaigns.Application.Reviews.Edit;
 
 internal sealed class ReviewUpdatedDomainEventHandler : DomainEventHandler<ReviewUpdatedDomainEvent>
 {

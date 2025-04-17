@@ -1,7 +1,7 @@
 using FluentValidation;
 using Lanka.Modules.Campaigns.Domain.Reviews.Ratings;
 
-namespace Lanka.Modules.Campaigns.Application.Reviews.EditReview;
+namespace Lanka.Modules.Campaigns.Application.Reviews.Edit;
 
 internal sealed class EditReviewCommandValidator : AbstractValidator<EditReviewCommand>
 {

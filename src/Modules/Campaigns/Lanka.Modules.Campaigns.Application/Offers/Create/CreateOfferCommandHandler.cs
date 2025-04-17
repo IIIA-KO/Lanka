@@ -21,7 +21,7 @@ internal sealed class CreateOfferCommandHandler
         IPactRepository pactRepository, 
         IUserContext userContext,
         IUnitOfWork unitOfWork
-    )
+    )   
     {
         this._offerRepository = offerRepository;
         this._pactRepository = pactRepository;

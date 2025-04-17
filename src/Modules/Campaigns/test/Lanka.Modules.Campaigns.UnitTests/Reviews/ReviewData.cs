@@ -1,6 +1,4 @@
 using Lanka.Modules.Campaigns.Domain.Campaigns;
-using Lanka.Modules.Campaigns.Domain.Reviews.Comments;
-using Lanka.Modules.Campaigns.Domain.Reviews.Ratings;
 using Lanka.Modules.Campaigns.UnitTests.Campaigns;
 
 namespace Lanka.Modules.Campaigns.UnitTests.Reviews;

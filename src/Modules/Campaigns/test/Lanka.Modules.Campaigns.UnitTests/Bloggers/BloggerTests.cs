@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.UnitTests.Abstractions;
 

@@ -1,6 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Campaigns.Application.Reviews.EditReview;
+using Lanka.Modules.Campaigns.Application.Reviews.Edit;
 using Lanka.Modules.Campaigns.Application.Reviews.GetReview;
 using MediatR;
 using Microsoft.AspNetCore.Builder;

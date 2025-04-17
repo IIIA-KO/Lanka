@@ -13,7 +13,7 @@ public class UserTests : BaseTest
     public void Create_ShouldReturnUser()
     {
         // Act
-        Result<User> user = User.Create(
+         Result<User> user = User.Create(
             UserData.FirstName,
             UserData.LastName,
             UserData.Email,

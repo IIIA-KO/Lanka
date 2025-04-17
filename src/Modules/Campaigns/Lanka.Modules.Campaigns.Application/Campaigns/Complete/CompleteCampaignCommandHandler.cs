@@ -30,7 +30,7 @@ internal sealed class CompleteCampaignCommandHandler
     public async Task<Result> Handle(CompleteCampaignCommand request, CancellationToken cancellationToken)
     {
         Campaign? campaign = await this._campaignRepository.GetByIdAsync(
-            request.CampaignId,
+            new CampaignId(request.CampaignId),
             cancellationToken
         );
 

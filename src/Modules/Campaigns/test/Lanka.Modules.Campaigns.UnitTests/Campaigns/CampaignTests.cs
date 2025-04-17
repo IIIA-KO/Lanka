@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Domain.Bloggers;

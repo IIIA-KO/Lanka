@@ -31,7 +31,7 @@ internal sealed class ConfirmCampaignCommandHandler
     public async Task<Result> Handle(ConfirmCampaignCommand request, CancellationToken cancellationToken)
     {
         Campaign? campaign = await this._campaignRepository.GetByIdAsync(
-            request.CampaignId, 
+            new CampaignId(request.CampaignId), 
             cancellationToken
         );
 

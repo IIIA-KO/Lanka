@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Common\Lanka.Common.Presentation\Lanka.Common.Presentation.csproj" />
-      <ProjectReference Include="..\..\Users\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj" />
-      <ProjectReference Include="..\Lanka.Modules.Campaigns.Application\Lanka.Modules.Campaigns.Application.csproj" />
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Presentation\Lanka.Common.Presentation.csproj"/>
+        <ProjectReference Include="..\..\Users\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Campaigns.Application\Lanka.Modules.Campaigns.Application.csproj"/>
     </ItemGroup>
-
 </Project>

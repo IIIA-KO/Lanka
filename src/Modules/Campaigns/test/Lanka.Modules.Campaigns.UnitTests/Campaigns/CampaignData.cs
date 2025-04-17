@@ -1,7 +1,5 @@
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
-using Lanka.Modules.Campaigns.Domain.Campaigns.Descriptions;
-using Lanka.Modules.Campaigns.Domain.Campaigns.Names;
 using Lanka.Modules.Campaigns.UnitTests.Abstractions;
 using Lanka.Modules.Campaigns.UnitTests.Offers;
 

@@ -60,4 +60,29 @@ internal sealed class IdentityProviderService : IIdentityProviderService
             ? Result.Failure<AccessTokenResponse>(IdentityProviderErrors.EmailIsNotUnique)
             : tokenResponse;
     }
+    
+    public async Task<Result<AccessTokenResponse>> RefreshTokenAsync(
+        string refreshToken,
+        CancellationToken cancellationToken = default
+    )
+    {
+        Result<AccessTokenResponse> tokenResponse = await this._keycloakTokenService.RefreshTokenAsync(
+            refreshToken,
+            cancellationToken
+        );
+
+        return tokenResponse.IsFailure
+            ? Result.Failure<AccessTokenResponse>(tokenResponse.Error)
+            : tokenResponse;
+    }
+
+    public async Task<Result> TerminateUserSessionAsync(string userIdentityId, CancellationToken cancellationToken = default)
+    {
+        Result result = await this._keycloakAdminService.TerminateUserSession(
+            userIdentityId,
+            cancellationToken
+        );
+
+        return result;
+    }
 }

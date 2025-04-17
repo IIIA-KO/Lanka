@@ -82,3 +82,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 await app.RunAsync();
+
+#pragma warning disable CA1515 // Type can be made internal
+public partial class Program;

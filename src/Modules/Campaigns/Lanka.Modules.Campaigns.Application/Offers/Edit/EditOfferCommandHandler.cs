@@ -76,12 +76,6 @@ internal sealed class EditOfferCommandHandler
         
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
         
-        return new OfferResponse(
-            offer.Id.Value,
-            request.Name,
-            request.PriceAmount,
-            request.PriceCurrency,
-            request.Description
-        );
+        return OfferResponse.FromOffer(offer);
     }
 }

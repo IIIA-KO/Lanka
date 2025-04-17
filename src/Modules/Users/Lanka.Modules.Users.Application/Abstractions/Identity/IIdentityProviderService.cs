@@ -13,4 +13,14 @@ public interface IIdentityProviderService
         string password,
         CancellationToken cancellationToken = default
     );
+    
+    Task<Result<AccessTokenResponse>> RefreshTokenAsync(
+        string refreshToken,
+        CancellationToken cancellationToken = default
+    );
+    
+    Task<Result> TerminateUserSessionAsync(
+        string userIdentityId,
+        CancellationToken cancellationToken = default
+    );
 }

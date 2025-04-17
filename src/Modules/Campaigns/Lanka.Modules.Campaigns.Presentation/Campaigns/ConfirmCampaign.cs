@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Campaigns.Confirm;
-using Lanka.Modules.Campaigns.Domain.Campaigns;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +20,10 @@ internal sealed class ConfirmCampaign : CampaignsEndpointBase
                     CancellationToken cancellationToken) =>
                 {
                     Result result = await sender.Send(
-                        new ConfirmCampaignCommand(new CampaignId(id)),
+                        new ConfirmCampaignCommand(id),
                         cancellationToken
                     );
-                    
+
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
             .WithTags(Tags.Campaigns);

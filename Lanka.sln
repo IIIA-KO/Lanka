@@ -69,6 +69,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Users.UnitTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Campaigns.UnitTests", "src\Modules\Campaigns\test\Lanka.Modules.Campaigns.UnitTests\Lanka.Modules.Campaigns.UnitTests.csproj", "{EF7472CC-29BE-4888-8E9A-3258EA088FA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Users.Application.UnitTests", "src\Modules\Users\test\Lanka.Modules.Users.Application.UnitTests\Lanka.Modules.Users.Application.UnitTests.csproj", "{B25C4645-B5EA-4271-807D-F1C299101674}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Campaigns.Application.UnitTests", "src\Modules\Campaigns\test\Lanka.Modules.Campaigns.Application.UnitTests\Lanka.Modules.Campaigns.Application.UnitTests.csproj", "{FC2DE968-9900-4476-BBEA-C7FAB807B902}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +107,8 @@ Global
 		{0323934D-2212-4755-8453-733C6ECBC29B} = {D9154D3F-4B7C-46B7-9A39-555F9E7EA2A2}
 		{D1C45125-54B7-4172-87AD-E0A3EEF1669D} = {5199D819-1A66-493A-9872-33BB96EB86A2}
 		{EF7472CC-29BE-4888-8E9A-3258EA088FA9} = {D9154D3F-4B7C-46B7-9A39-555F9E7EA2A2}
+		{B25C4645-B5EA-4271-807D-F1C299101674} = {5199D819-1A66-493A-9872-33BB96EB86A2}
+		{FC2DE968-9900-4476-BBEA-C7FAB807B902} = {D9154D3F-4B7C-46B7-9A39-555F9E7EA2A2}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -193,5 +199,13 @@ Global
 		{EF7472CC-29BE-4888-8E9A-3258EA088FA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF7472CC-29BE-4888-8E9A-3258EA088FA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF7472CC-29BE-4888-8E9A-3258EA088FA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B25C4645-B5EA-4271-807D-F1C299101674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B25C4645-B5EA-4271-807D-F1C299101674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B25C4645-B5EA-4271-807D-F1C299101674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B25C4645-B5EA-4271-807D-F1C299101674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC2DE968-9900-4476-BBEA-C7FAB807B902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC2DE968-9900-4476-BBEA-C7FAB807B902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC2DE968-9900-4476-BBEA-C7FAB807B902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC2DE968-9900-4476-BBEA-C7FAB807B902}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
