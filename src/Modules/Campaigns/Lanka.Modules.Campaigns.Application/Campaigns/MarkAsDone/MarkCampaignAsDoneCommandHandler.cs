@@ -31,7 +31,7 @@ internal sealed class MarkCampaignAsDoneCommandHandler
     public async Task<Result> Handle(MarkCampaignAsDoneCommand request, CancellationToken cancellationToken)
     {
         Campaign? campaign = await this._campaignRepository.GetByIdAsync(
-            request.CampaignId,
+            new CampaignId(request.CampaignId),
             cancellationToken
         );
 

@@ -47,11 +47,6 @@ internal sealed class EditPactCommandHandler
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new PactResponse(
-            pact.Id.Value,
-            pact.BloggerId.Value,
-            pact.Content.Value,
-            []
-        );
+        return PactResponse.FromPact(pact);
     }
 }

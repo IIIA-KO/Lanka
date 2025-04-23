@@ -6,7 +6,7 @@ using Lanka.Modules.Users.Domain.Users;
 
 namespace Lanka.Modules.Users.Application.Users.RegisterUser;
 
-internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, UserId>
+internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, Guid>
 {
     private readonly IIdentityProviderService _identityProviderService;
     private readonly IUserRepository _userRepository;
@@ -23,7 +23,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         this._unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<UserId>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         Result<string> result = await this._identityProviderService.RegisterUserAsync(
             new UserModel(request.Email, request.Password, request.FirstName, request.LastName),
@@ -31,7 +31,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
 
         if (result.IsFailure)
         {
-            return Result.Failure<UserId>(result.Error);
+            return Result.Failure<Guid>(result.Error);
         }
             
         Result<User> userCreateResult = User.Create(
@@ -44,7 +44,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
 
         if (userCreateResult.IsFailure)
         {
-            return Result.Failure<UserId>(userCreateResult.Error);
+            return Result.Failure<Guid>(userCreateResult.Error);
         }
             
         User user = userCreateResult.Value;
@@ -53,6 +53,6 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return user.Id;
+        return user.Id.Value;
     }
 }

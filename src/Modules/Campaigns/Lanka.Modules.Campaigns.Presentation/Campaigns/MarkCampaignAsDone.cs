@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;
-using Lanka.Modules.Campaigns.Domain.Campaigns;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +20,7 @@ internal sealed class MarkCampaignAsDone : CampaignsEndpointBase
                     CancellationToken cancellationToken) =>
                 {
                     Result result = await sender.Send(
-                        new MarkCampaignAsDoneCommand(new CampaignId(id)),
+                        new MarkCampaignAsDoneCommand(id),
                         cancellationToken
                     );
                     

@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Campaigns.Cancel;
-using Lanka.Modules.Campaigns.Domain.Campaigns;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +20,7 @@ internal sealed class CancelCampaign : CampaignsEndpointBase
                     CancellationToken cancellationToken) =>
                 {
                     Result result = await sender.Send(
-                        new CancelCampaignCommand(new CampaignId(id)),
+                        new CancelCampaignCommand(id),
                         cancellationToken
                     );
                     

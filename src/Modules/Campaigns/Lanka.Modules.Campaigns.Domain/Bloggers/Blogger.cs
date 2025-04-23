@@ -16,7 +16,7 @@ public class Blogger : Entity<BloggerId>
     public Pact? Pact { get; init; }
 
     private Blogger() { }
-    
+
     public static Blogger Create(
         Guid bloggerId,
         string firstName,
@@ -33,5 +33,16 @@ public class Blogger : Entity<BloggerId>
             Email = new Email(email),
             BirthDate = new BirthDate(birthDate)
         };
+    }
+
+    public void Update(
+        string firstName,
+        string lastName,
+        DateOnly birthDate
+    )
+    {
+        this.FirstName = new FirstName(firstName);
+        this.LastName = new LastName(lastName);
+        this.BirthDate = new BirthDate(birthDate);
     }
 }

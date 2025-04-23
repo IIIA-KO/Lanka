@@ -40,17 +40,18 @@ internal sealed class GetBloggerPactQueryHandler
              """;
 
         PactResponse? pactResponse = null;
-        
+
         await connection.QueryAsync<PactResponse, OfferResponse?, PactResponse>(
             sql,
             (pact, offer) =>
             {
-                pactResponse ??= new PactResponse(
-                    pact.Id,
-                    pact.BloggerId,
-                    pact.Content,
-                    []
-                );
+                pactResponse ??= new PactResponse
+                {
+                    Id = pact.Id,
+                    BloggerId = pact.BloggerId,
+                    Content = pact.Content,
+                    Offers = []
+                };
 
                 if (offer is not null)
                 {

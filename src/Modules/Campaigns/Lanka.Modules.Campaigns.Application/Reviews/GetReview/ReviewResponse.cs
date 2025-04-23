@@ -1,3 +1,5 @@
+using Lanka.Modules.Campaigns.Domain.Reviews;
+
 namespace Lanka.Modules.Campaigns.Application.Reviews.GetReview;
 
 public sealed class ReviewResponse
@@ -27,4 +29,14 @@ public sealed class ReviewResponse
     public string Comment { get; init; }
 
     public DateTimeOffset CreatedOnUtc { get; init; }
+    
+    public static ReviewResponse FromReview(Review review)
+    {
+        return new ReviewResponse(
+            review.Id.Value,
+            review.Rating.Value,
+            review.Comment.Value,
+            review.CreatedOnUtc
+        );
+    }
 }

@@ -15,7 +15,7 @@ internal sealed class PendCampaign : CampaignsEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPost(string.Empty,
+        return app.MapPost(this.BuildRoute(string.Empty),
                 async (
                     [FromBody] PendCampaignRequest request,
                     ISender sender,

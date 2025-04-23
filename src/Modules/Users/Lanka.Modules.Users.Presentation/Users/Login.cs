@@ -14,7 +14,7 @@ internal sealed class Login : UsersEndpointBase
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute("login"),
-                async (
+                async ( 
                     [FromBody] LoginUserRequest request,
                     ISender sender,
                     CancellationToken cancellationToken

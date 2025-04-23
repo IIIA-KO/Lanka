@@ -9,4 +9,4 @@ public sealed record RegisterUserCommand(
     string FirstName, 
     string LastName,
     DateOnly BirthDate
-) : ICommand<UserId>;
+) : ICommand<Guid>;

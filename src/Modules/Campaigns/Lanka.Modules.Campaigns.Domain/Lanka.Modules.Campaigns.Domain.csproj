@@ -10,5 +10,4 @@
       <ProjectReference Include="..\..\..\Common\Lanka.Common.Contracts\Lanka.Common.Contracts.csproj" />
       <ProjectReference Include="..\..\..\Common\Lanka.Common.Domain\Lanka.Common.Domain.csproj" />
     </ItemGroup>
-
 </Project>

@@ -21,7 +21,7 @@ public class RegisterUser : UsersEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<UserId> result = await sender.Send(new RegisterUserCommand(
+                    Result<Guid> result = await sender.Send(new RegisterUserCommand(
                         request.Email,
                         request.Password,
                         request.FirstName,
