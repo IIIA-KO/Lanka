@@ -3,7 +3,6 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Application.Users.Login;
 using Lanka.Modules.Users.Application.Users.RefreshToken;
-using Lanka.Modules.Users.Domain.Users;
 using NSubstitute;
 
 namespace Lanka.Modules.Users.Application.UnitTests.Users;

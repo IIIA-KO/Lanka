@@ -14,7 +14,7 @@ public class UpdateUser : UsersEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPost(this.BuildRoute("{id:guid}"),
+        return app.MapPut(this.BuildRoute("{id:guid}"),
             async (
                 [FromRoute] Guid id,
                 [FromBody] UpdateUserRequest request,
@@ -23,7 +23,7 @@ public class UpdateUser : UsersEndpointBase
             ) =>
             {
                 Result<UserResponse> result = await sender.Send(
-                    new UpdateUserCommand(id, request.FirstName, request.LastName, request.DateOfBirth),
+                    new UpdateUserCommand(id, request.FirstName, request.LastName, request.BirthDate),
                     cancellationToken
                 );
                 
@@ -38,6 +38,6 @@ public class UpdateUser : UsersEndpointBase
 
         public string LastName { get; init; }
 
-        public DateOnly DateOfBirth { get; init; }
+        public DateOnly BirthDate { get; init; }
     }
 }

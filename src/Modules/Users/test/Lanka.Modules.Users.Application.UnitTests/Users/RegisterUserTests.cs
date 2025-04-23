@@ -1,4 +1,3 @@
-using System.Security.AccessControl;
 using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Data;
@@ -48,11 +47,11 @@ public class RegisterUserTests
             ).Returns(UserData.IdentityId);
         
         // Act
-        Result<UserId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
+        result.Value.Should().NotBeEmpty();
     }
     
     [Fact]
@@ -65,7 +64,7 @@ public class RegisterUserTests
             ).Returns(Result.Failure<string>(IdentityProviderErrors.EmailIsNotUnique));
         
         // Act
-        Result<UserId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -90,7 +89,7 @@ public class RegisterUserTests
         );
         
         // Act
-        Result<UserId> result = await this._handler.Handle(command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
