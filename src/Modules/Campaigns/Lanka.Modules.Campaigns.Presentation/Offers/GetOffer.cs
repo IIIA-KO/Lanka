@@ -11,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Offers;
 
 internal sealed class GetOffer : OfferEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.ReadOffers];
+    
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapGet(this.BuildRoute("{id:guid}"),

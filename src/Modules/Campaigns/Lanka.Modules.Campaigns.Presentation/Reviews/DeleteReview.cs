@@ -11,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
 internal sealed class DeleteReview : ReviewEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.DeleteReview];
+    
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapDelete(this.BuildRoute("{id:guid}"),

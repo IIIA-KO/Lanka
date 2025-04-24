@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
 internal sealed class GetBloggerReviews : ReviewEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.ReadReviews];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapGet(this.BuildRoute("{bloggerId:guid}"),

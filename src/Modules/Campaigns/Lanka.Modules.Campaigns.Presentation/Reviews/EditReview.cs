@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
 internal sealed class EditReview : ReviewEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.UpdateReview];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPut(this.BuildRoute("{id:guid}"),

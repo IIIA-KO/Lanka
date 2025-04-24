@@ -11,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Offers;
 
 internal sealed class DeleteOffer : OfferEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.DeleteOffer];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapDelete(this.BuildRoute("{id:guid}"),

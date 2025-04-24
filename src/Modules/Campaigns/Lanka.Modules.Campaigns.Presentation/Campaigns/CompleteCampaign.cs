@@ -11,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Campaigns;
 
 internal sealed class CompleteCampaign : CampaignsEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.UpdateCampaign];
+    
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute("{id:guid}/complete"),

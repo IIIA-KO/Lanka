@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Lanka.Api.Extensions;
 
-public static class ApplicationExtenstions
+internal static class ApplicationExtenstions
 {
     public static WebApplicationBuilder ConfigureBasicServices(this WebApplicationBuilder builder)
     {

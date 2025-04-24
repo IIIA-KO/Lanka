@@ -12,8 +12,7 @@ namespace Lanka.Modules.Users.Presentation.Users;
 
 internal sealed class GetUser : UsersEndpointBase
 {
-    protected override string[] RequiredPermissions =>
-        [Permissions.GetUser];
+    protected override string[] RequiredPermissions => [Permissions.ReadProfile];
 
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {

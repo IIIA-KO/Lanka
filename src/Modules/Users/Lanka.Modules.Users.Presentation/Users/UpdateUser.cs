@@ -12,6 +12,8 @@ namespace Lanka.Modules.Users.Presentation.Users;
 
 public class UpdateUser : UsersEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.UpdateProfile];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPut(this.BuildRoute("{id:guid}"),

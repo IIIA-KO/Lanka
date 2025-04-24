@@ -13,6 +13,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Campaigns;
 
 internal sealed class PendCampaign : CampaignsEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreateCampaign];
+    
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),

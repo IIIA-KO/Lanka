@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Offers;
 
 internal sealed class EditOffer : OfferEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.UpdateOffer];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPut(this.BuildRoute("{id:guid}"),

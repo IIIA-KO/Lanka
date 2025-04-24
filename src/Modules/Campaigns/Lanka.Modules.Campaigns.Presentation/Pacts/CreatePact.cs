@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Pacts;
 
 internal sealed class CreatePact : PactEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreatePact];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),

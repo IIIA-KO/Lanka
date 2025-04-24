@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Offers;
 
 internal sealed class CreateOffer : OfferEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreateOffer];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),

@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
 internal sealed class CreateReview : ReviewEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreateReview];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),
