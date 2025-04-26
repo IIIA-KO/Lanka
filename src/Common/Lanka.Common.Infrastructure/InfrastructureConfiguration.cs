@@ -33,10 +33,21 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        services.TryAddSingleton<IEventBus, EventBus.EventBus>();
-        
         services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
         
+        AddPersistence(services, databaseConnectionString);
+
+        AddBackgroundJobs(services);
+
+        AddCache(services, redisConnectionString);
+        
+        AddEventBus(services, moduleConfigureConsumers);
+
+        return services;
+    }
+
+    private static void AddPersistence(IServiceCollection services, string databaseConnectionString)
+    {
         NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(
             databaseConnectionString
         ).Build();
@@ -44,6 +55,11 @@ public static class InfrastructureConfiguration
 
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
+        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+    }
+
+    private static void AddBackgroundJobs(IServiceCollection services)
+    {
         services.AddQuartz(configurator =>
         {
             var scheduler = Guid.NewGuid();
@@ -52,10 +68,11 @@ public static class InfrastructureConfiguration
         });
 
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+    }
 
-        SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-
-        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
+    private static void AddCache(IServiceCollection services, string redisConnectionString)
+    {
+        services.TryAddSingleton<ICacheService, CacheService>();
 
         try
         {
@@ -71,9 +88,11 @@ public static class InfrastructureConfiguration
         {
             services.AddDistributedMemoryCache();
         }
+    }
 
-        services.TryAddSingleton<ICacheService, CacheService>();
-
+    private static void AddEventBus(IServiceCollection services, Action<IRegistrationConfigurator>[] moduleConfigureConsumers)
+    {
+        services.TryAddSingleton<IEventBus, EventBus.EventBus>();
         services.AddMassTransit(configure =>
         {
             foreach (Action<IRegistrationConfigurator> configureConsumer in moduleConfigureConsumers)
@@ -85,7 +104,5 @@ public static class InfrastructureConfiguration
 
             configure.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
         });
-
-        return services;
     }
 }

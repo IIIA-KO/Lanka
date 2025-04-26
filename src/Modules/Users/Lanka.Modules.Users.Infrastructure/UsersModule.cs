@@ -41,6 +41,15 @@ public static class UsersModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        AddAuthentication(services, configuration);
+
+        AddPersistence(services, configuration);
+        
+        AddOutbox(services, configuration);
+    }
+
+    private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddScoped<IPermissionService, PermissionService>();
 
         services.Configure<KeycloakOptions>(configuration.GetSection("Users:KeyCloak"));
@@ -71,7 +80,10 @@ public static class UsersModule
         services.AddTransient<IKeycloakAdminService, KeycloakAdminService>();
         services.AddTransient<IKeycloakTokenService, KeycloakTokenService>();
         services.AddTransient<IIdentityProviderService, IdentityProviderService>();
+    }
 
+    private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddDbContext<UsersDbContext>((sp, options) =>
             options
                 .UseNpgsql(
@@ -82,9 +94,12 @@ public static class UsersModule
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUserRepository, UserRepository>();
-
+        
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
+    }
 
+    private static void AddOutbox(IServiceCollection services, IConfiguration configuration)
+    {
         services.Configure<OutboxOptions>(configuration.GetSection("Users:Outbox"));
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
 
