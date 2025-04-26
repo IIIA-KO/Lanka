@@ -1,4 +1,3 @@
-using System.Globalization;
 using Lanka.Modules.Users.Presentation.Users;
 
 namespace Lanka.IntegrationTests.Users;

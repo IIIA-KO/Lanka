@@ -8,6 +8,7 @@ using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Infrastructure.Authorization;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Identity;
+using Lanka.Modules.Users.Infrastructure.Identity.Interfaces;
 using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Refit;
 
 namespace Lanka.Modules.Users.Infrastructure;
 
@@ -42,11 +44,11 @@ public static class UsersModule
         services.AddScoped<IPermissionService, PermissionService>();
 
         services.Configure<KeycloakOptions>(configuration.GetSection("Users:KeyCloak"));
-
         services.AddTransient<KeycloakAuthDelegatingHandler>();
 
         services
-            .AddHttpClient<KeycloakAdminService>((serviceProvider, httpClient) =>
+            .AddRefitClient<IKeycloakAdminApi>()
+            .ConfigureHttpClient((serviceProvider, httpClient) =>
             {
                 KeycloakOptions keycloakOptions = serviceProvider
                     .GetRequiredService<IOptions<KeycloakOptions>>().Value;
@@ -56,7 +58,8 @@ public static class UsersModule
             .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
 
         services
-            .AddHttpClient<KeycloakTokenService>((serviceProvider, httpClient) =>
+            .AddRefitClient<IKeycloakTokenApi>()
+            .ConfigureHttpClient((serviceProvider, httpClient) =>
             {
                 KeycloakOptions keycloakOptions = serviceProvider
                     .GetRequiredService<IOptions<KeycloakOptions>>().Value;
@@ -65,6 +68,8 @@ public static class UsersModule
             })
             .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
 
+        services.AddTransient<IKeycloakAdminService, KeycloakAdminService>();
+        services.AddTransient<IKeycloakTokenService, KeycloakTokenService>();
         services.AddTransient<IIdentityProviderService, IdentityProviderService>();
 
         services.AddDbContext<UsersDbContext>((sp, options) =>
