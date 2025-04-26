@@ -4,33 +4,39 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
-env: 
-  DOTNET_VERSION: '9.x'
+env:
+  DOTNET_VERSION: "9.0.x"
   SOLUTION_PATH: "./Lanka.sln"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
-    defaults: 
-      run: 
-        working-directory: Lanka
-    
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
+      
+      # Remove compose proj from sln
+      - name: Remove compose proj from sln
+        run: dotnet sln ${{ env.SOLUTION_PATH }} remove $(dotnet sln ${{ env.SOLUTION_PATH }} list | grep .dcproj)
+      
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      # Add compose proj back to sln
+      - name: Add compose proj back to sln
+        run: |
+          find . -name '*.dcproj' | xargs -I {} dotnet sln ${{ env.SOLUTION_PATH }} add {}
         
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
-        
+
       - name: Test
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build
       
