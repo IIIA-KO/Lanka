@@ -1,12 +1,13 @@
 name: Build
+
 on:
-  workflow_dispatch: 
-    push:
-        branches:
-        - main
+  push:
+    branches:
+      - main
 
 env: 
   DOTNET_VERSION: '9.x'
+  SOLUTION_PATH: "./Lanka.sln"
 
 jobs:
   build:
@@ -23,15 +24,22 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          
+
       - name: Restore
-        run: dotnet restore Lanka.sln
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
         
       - name: Build
-        run: dotnet build Lanka.sln --configuration Release --no-restore
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
         
       - name: Test
-        run: dotnet test Lanka.sln --configuration Release --no-restore --no-build
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build
       
       - name: Publish
-        run: dotnet publish Lanka.sln --configuration Release --no-restore --no-build
+        run: dotnet publish src/Lanka.Api/Lanka.Api.csproj --configuration Release --no-restore --no-build --output ${{env.DOTNET_ROOT}}/publish
+
+      # Upload the artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/publish
