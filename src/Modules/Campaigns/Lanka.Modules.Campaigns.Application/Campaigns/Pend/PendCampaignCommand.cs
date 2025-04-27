@@ -9,4 +9,4 @@ public sealed record PendCampaignCommand(
     string Description,
     DateTimeOffset ScheduledOnUtc,
     OfferId OfferId
-) : ICommand<CampaignId>;
+) : ICommand<Guid>;

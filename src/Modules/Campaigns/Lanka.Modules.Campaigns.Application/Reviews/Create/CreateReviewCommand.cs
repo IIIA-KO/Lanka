@@ -7,4 +7,4 @@ public sealed record CreateReviewCommand(
     Guid CampaignId,
     int Rating,
     string Comment
-) : ICommand<ReviewId>;
+) : ICommand<Guid>;

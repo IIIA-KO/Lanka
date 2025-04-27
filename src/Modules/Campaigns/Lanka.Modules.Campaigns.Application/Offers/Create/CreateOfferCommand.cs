@@ -8,4 +8,4 @@ public sealed record CreateOfferCommand(
     decimal PriceAmount,
     string PriceCurrency,
     string Description
-) : ICommand<OfferId>;
+) : ICommand<Guid>;

@@ -90,11 +90,11 @@ public class PendCampaignTests
         ).Returns(false);
         
         // Act
-        Result<CampaignId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
         
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
+        result.Value.Should().NotBeEmpty();
     }
     
     [Fact]
@@ -107,7 +107,7 @@ public class PendCampaignTests
         ).Returns((Offer?)null);
 
         // Act
-        Result<CampaignId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
         
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -130,7 +130,7 @@ public class PendCampaignTests
         ).Returns((Pact?)null);
 
         // Act
-        Result<CampaignId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
         
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -156,7 +156,7 @@ public class PendCampaignTests
         this._userContextMock.GetUserId().Returns(pact.BloggerId.Value);
 
         // Act
-        Result<CampaignId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
         
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -188,7 +188,7 @@ public class PendCampaignTests
         ).Returns(true);
 
         // Act
-        Result<CampaignId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
         
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -220,7 +220,7 @@ public class PendCampaignTests
         ).Returns(false);
 
         // Act
-        Result<CampaignId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
         
         // Assert
         result.IsFailure.Should().BeTrue();

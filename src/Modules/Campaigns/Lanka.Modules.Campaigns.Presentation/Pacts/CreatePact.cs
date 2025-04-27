@@ -22,7 +22,7 @@ internal sealed class CreatePact : PactEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<PactId> result = await sender.Send(
+                    Result<Guid> result = await sender.Send(
                         new CreatePactCommand(request.Content),
                         cancellationToken
                     );

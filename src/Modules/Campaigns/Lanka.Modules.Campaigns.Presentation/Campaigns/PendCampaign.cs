@@ -23,7 +23,7 @@ internal sealed class PendCampaign : CampaignsEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<CampaignId> result = await sender.Send(new PendCampaignCommand(
+                    Result<Guid> result = await sender.Send(new PendCampaignCommand(
                             request.Name,
                             request.Description,
                             request.ScheduledOnUtc,

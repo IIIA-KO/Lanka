@@ -22,7 +22,7 @@ internal sealed class CreateOffer : OfferEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<OfferId> result = await sender.Send(new CreateOfferCommand(
+                    Result<Guid> result = await sender.Send(new CreateOfferCommand(
                             request.Name,
                             request.PriceAmount,
                             request.PriceCurrency,

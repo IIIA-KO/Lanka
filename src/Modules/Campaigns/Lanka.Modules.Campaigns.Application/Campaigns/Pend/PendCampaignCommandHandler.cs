@@ -12,7 +12,7 @@ using Lanka.Modules.Campaigns.Domain.Pacts;
 namespace Lanka.Modules.Campaigns.Application.Campaigns.Pend;
 
 internal sealed class PendCampaignCommandHandler
-    : ICommandHandler<PendCampaignCommand, CampaignId>
+    : ICommandHandler<PendCampaignCommand, Guid>
 {
         private readonly IPactRepository _pactRepository;
         private readonly ICampaignRepository _campaignRepository;
@@ -38,7 +38,7 @@ internal sealed class PendCampaignCommandHandler
         this._userContext = userContext;
     }
 
-    public async Task<Result<CampaignId>> Handle(PendCampaignCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(PendCampaignCommand request, CancellationToken cancellationToken)
     {
         Offer? offer = await this._offerRepository.GetByIdAsync(
             request.OfferId,
@@ -47,7 +47,7 @@ internal sealed class PendCampaignCommandHandler
 
         if (offer is null)
         {
-            return Result.Failure<CampaignId>(OfferErrors.NotFound);
+            return Result.Failure<Guid>(OfferErrors.NotFound);
         }
 
         Pact? creatorPact = await this._pactRepository.GetByIdWithOffersAsync(
@@ -57,19 +57,19 @@ internal sealed class PendCampaignCommandHandler
 
         if (creatorPact is null)
         {
-            return Result.Failure<CampaignId>(OfferErrors.NotFound);
+            return Result.Failure<Guid>(OfferErrors.NotFound);
         }
 
         var clientId = new BloggerId(this._userContext.GetUserId());
 
         if (clientId == creatorPact.BloggerId)
         {
-            return Result.Failure<CampaignId>(CampaignErrors.SameUser);
+            return Result.Failure<Guid>(CampaignErrors.SameUser);
         }
 
         if (!creatorPact.HasOffer(offer.Name))
         {
-            return Result.Failure<CampaignId>(OfferErrors.NotFound);
+            return Result.Failure<Guid>(OfferErrors.NotFound);
         }
 
         if (
@@ -80,7 +80,7 @@ internal sealed class PendCampaignCommandHandler
             )
         )
         {
-            return Result.Failure<CampaignId>(CampaignErrors.AlreadyStarted);
+            return Result.Failure<Guid>(CampaignErrors.AlreadyStarted);
         }
 
         try
@@ -97,7 +97,7 @@ internal sealed class PendCampaignCommandHandler
 
             if (result.IsFailure)
             {
-                return Result.Failure<CampaignId>(result.Error);
+                return Result.Failure<Guid>(result.Error);
             }
 
             Campaign campaign = result.Value;
@@ -106,11 +106,11 @@ internal sealed class PendCampaignCommandHandler
 
             await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return campaign.Id;
+            return campaign.Id.Value;
         }
         catch (ConcurrencyException)
         {
-            return Result.Failure<CampaignId>(CampaignErrors.AlreadyStarted);
+            return Result.Failure<Guid>(CampaignErrors.AlreadyStarted);
         }
     }
 }

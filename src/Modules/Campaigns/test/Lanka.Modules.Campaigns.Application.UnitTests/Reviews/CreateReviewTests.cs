@@ -71,11 +71,11 @@ public class CreateReviewTests
             .Returns((Review?)null);
 
         // Act
-        Result<ReviewId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
+        result.Value.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class CreateReviewTests
             .Returns((Campaign?)null);
 
         // Act
-        Result<ReviewId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -111,7 +111,7 @@ public class CreateReviewTests
         this._userContextMock.GetUserId().Returns(Guid.NewGuid());
 
         // Act
-        Result<ReviewId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -141,7 +141,7 @@ public class CreateReviewTests
             .Returns(ReviewData.CreateReview());
 
         // Act
-        Result<ReviewId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();

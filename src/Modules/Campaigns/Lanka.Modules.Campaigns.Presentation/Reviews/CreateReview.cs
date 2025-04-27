@@ -22,7 +22,7 @@ internal sealed class CreateReview : ReviewEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<ReviewId> result = await sender.Send(new CreateReviewCommand(
+                    Result<Guid> result = await sender.Send(new CreateReviewCommand(
                             request.CampaignId,
                             request.Rating,
                             request.Comment
