@@ -25,7 +25,7 @@ jobs:
       # Remove compose proj from sln
       - name: Remove compose proj from sln
         run: dotnet sln ${{ env.SOLUTION_PATH }} remove $(dotnet sln ${{ env.SOLUTION_PATH }} list | grep .dcproj)
-      
+
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION_PATH }}
 
@@ -33,13 +33,18 @@ jobs:
       - name: Add compose proj back to sln
         run: |
           find . -name '*.dcproj' | xargs -I {} dotnet sln ${{ env.SOLUTION_PATH }} add {}
-        
+      
+      # Generate dev certificate
+      - name: Generate dev certificate
+        run: |
+          dotnet dev-certs https -ep src/Api/Lanka.Api/localhost.pfx --no-password
+
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
 
       - name: Test
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build
-      
+
       - name: Publish
         run: dotnet publish src/Lanka.Api/Lanka.Api.csproj --configuration Release --no-restore --no-build --output ${{env.DOTNET_ROOT}}/publish
 
