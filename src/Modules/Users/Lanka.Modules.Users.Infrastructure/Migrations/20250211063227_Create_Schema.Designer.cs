@@ -9,201 +9,200 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Lanka.Modules.Users.Infrastructure.Migrations
+namespace Lanka.Modules.Users.Infrastructure.Migrations;
+
+[DbContext(typeof(UsersDbContext))]
+[Migration("20250211063227_Create_Schema")]
+partial class Create_Schema
 {
-    [DbContext(typeof(UsersDbContext))]
-    [Migration("20250211063227_Create_Schema")]
-    partial class Create_Schema
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasDefaultSchema("users")
-                .HasAnnotation("ProductVersion", "9.0.1")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+        modelBuilder
+            .HasDefaultSchema("users")
+            .HasAnnotation("ProductVersion", "9.0.1")
+            .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+        NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.Permission", b =>
+        modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.Permission", b =>
+        {
+            b.Property<string>("Code")
+                .HasMaxLength(100)
+                .HasColumnType("character varying(100)")
+                .HasColumnName("code");
+
+            b.HasKey("Code")
+                .HasName("pk_permissions");
+
+            b.ToTable("permissions", "users");
+
+            b.HasData(
+                new
                 {
-                    b.Property<string>("Code")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.HasKey("Code")
-                        .HasName("pk_permissions");
-
-                    b.ToTable("permissions", "users");
-
-                    b.HasData(
-                        new
-                        {
-                            Code = "users:read"
-                        });
+                    Code = "users:read"
                 });
+        });
 
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.Role", b =>
+        modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.Role", b =>
+        {
+            b.Property<string>("Name")
+                .HasMaxLength(50)
+                .HasColumnType("character varying(50)")
+                .HasColumnName("name");
+
+            b.HasKey("Name")
+                .HasName("pk_roles");
+
+            b.ToTable("roles", "users");
+
+            b.HasData(
+                new
                 {
-                    b.Property<string>("Name")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.HasKey("Name")
-                        .HasName("pk_roles");
-
-                    b.ToTable("roles", "users");
-
-                    b.HasData(
-                        new
-                        {
-                            Name = "Member"
-                        },
-                        new
-                        {
-                            Name = "Administrator"
-                        });
-                });
-
-            modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.User", b =>
+                    Name = "Member"
+                },
+                new
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Bio")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)")
-                        .HasColumnName("bio");
-
-                    b.Property<DateOnly>("BirthDate")
-                        .HasColumnType("date")
-                        .HasColumnName("birth_date");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("first_name");
-
-                    b.Property<string>("IdentityId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("identity_id");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("last_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_users");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("ix_users_email");
-
-                    b.HasIndex("IdentityId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_users_identity_id");
-
-                    b.ToTable("users", "users");
+                    Name = "Administrator"
                 });
+        });
 
-            modelBuilder.Entity("PermissionRole", b =>
+        modelBuilder.Entity("Lanka.Modules.Users.Domain.Users.User", b =>
+        {
+            b.Property<Guid>("Id")
+                .HasColumnType("uuid")
+                .HasColumnName("id");
+
+            b.Property<string>("Bio")
+                .HasMaxLength(150)
+                .HasColumnType("character varying(150)")
+                .HasColumnName("bio");
+
+            b.Property<DateOnly>("BirthDate")
+                .HasColumnType("date")
+                .HasColumnName("birth_date");
+
+            b.Property<string>("Email")
+                .IsRequired()
+                .HasMaxLength(255)
+                .HasColumnType("character varying(255)")
+                .HasColumnName("email");
+
+            b.Property<string>("FirstName")
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnType("character varying(100)")
+                .HasColumnName("first_name");
+
+            b.Property<string>("IdentityId")
+                .IsRequired()
+                .HasColumnType("text")
+                .HasColumnName("identity_id");
+
+            b.Property<string>("LastName")
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnType("character varying(100)")
+                .HasColumnName("last_name");
+
+            b.HasKey("Id")
+                .HasName("pk_users");
+
+            b.HasIndex("Email")
+                .IsUnique()
+                .HasDatabaseName("ix_users_email");
+
+            b.HasIndex("IdentityId")
+                .IsUnique()
+                .HasDatabaseName("ix_users_identity_id");
+
+            b.ToTable("users", "users");
+        });
+
+        modelBuilder.Entity("PermissionRole", b =>
+        {
+            b.Property<string>("PermissionCode")
+                .HasColumnType("character varying(100)")
+                .HasColumnName("permission_code");
+
+            b.Property<string>("RoleName")
+                .HasColumnType("character varying(50)")
+                .HasColumnName("role_name");
+
+            b.HasKey("PermissionCode", "RoleName")
+                .HasName("pk_role_permissions");
+
+            b.HasIndex("RoleName")
+                .HasDatabaseName("ix_role_permissions_role_name");
+
+            b.ToTable("role_permissions", "users");
+
+            b.HasData(
+                new
                 {
-                    b.Property<string>("PermissionCode")
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("permission_code");
-
-                    b.Property<string>("RoleName")
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("role_name");
-
-                    b.HasKey("PermissionCode", "RoleName")
-                        .HasName("pk_role_permissions");
-
-                    b.HasIndex("RoleName")
-                        .HasDatabaseName("ix_role_permissions_role_name");
-
-                    b.ToTable("role_permissions", "users");
-
-                    b.HasData(
-                        new
-                        {
-                            PermissionCode = "users:read",
-                            RoleName = "Member"
-                        },
-                        new
-                        {
-                            PermissionCode = "users:read",
-                            RoleName = "Administrator"
-                        });
-                });
-
-            modelBuilder.Entity("RoleUser", b =>
+                    PermissionCode = "users:read",
+                    RoleName = "Member"
+                },
+                new
                 {
-                    b.Property<string>("RolesName")
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("role_name");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("RolesName", "UserId")
-                        .HasName("pk_user_roles");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_roles_user_id");
-
-                    b.ToTable("user_roles", "users");
+                    PermissionCode = "users:read",
+                    RoleName = "Administrator"
                 });
+        });
 
-            modelBuilder.Entity("PermissionRole", b =>
-                {
-                    b.HasOne("Lanka.Modules.Users.Domain.Users.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_permissions_permissions_permission_code");
+        modelBuilder.Entity("RoleUser", b =>
+        {
+            b.Property<string>("RolesName")
+                .HasColumnType("character varying(50)")
+                .HasColumnName("role_name");
 
-                    b.HasOne("Lanka.Modules.Users.Domain.Users.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_permissions_roles_role_name");
-                });
+            b.Property<Guid>("UserId")
+                .HasColumnType("uuid")
+                .HasColumnName("user_id");
 
-            modelBuilder.Entity("RoleUser", b =>
-                {
-                    b.HasOne("Lanka.Modules.Users.Domain.Users.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_roles_roles_roles_name");
+            b.HasKey("RolesName", "UserId")
+                .HasName("pk_user_roles");
 
-                    b.HasOne("Lanka.Modules.Users.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_roles_users_user_id");
-                });
+            b.HasIndex("UserId")
+                .HasDatabaseName("ix_user_roles_user_id");
+
+            b.ToTable("user_roles", "users");
+        });
+
+        modelBuilder.Entity("PermissionRole", b =>
+        {
+            b.HasOne("Lanka.Modules.Users.Domain.Users.Permission", null)
+                .WithMany()
+                .HasForeignKey("PermissionCode")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasConstraintName("fk_role_permissions_permissions_permission_code");
+
+            b.HasOne("Lanka.Modules.Users.Domain.Users.Role", null)
+                .WithMany()
+                .HasForeignKey("RoleName")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasConstraintName("fk_role_permissions_roles_role_name");
+        });
+
+        modelBuilder.Entity("RoleUser", b =>
+        {
+            b.HasOne("Lanka.Modules.Users.Domain.Users.Role", null)
+                .WithMany()
+                .HasForeignKey("RolesName")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasConstraintName("fk_user_roles_roles_roles_name");
+
+            b.HasOne("Lanka.Modules.Users.Domain.Users.User", null)
+                .WithMany()
+                .HasForeignKey("UserId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired()
+                .HasConstraintName("fk_user_roles_users_user_id");
+        });
 #pragma warning restore 612, 618
-        }
     }
 }
