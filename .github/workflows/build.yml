@@ -37,7 +37,7 @@ jobs:
       # Generate dev certificate
       - name: Generate dev certificate
         run: |
-          dotnet dev-certs https -ep src/Api/Lanka.Api/localhost.pfx --no-password
+          dotnet dev-certs https -ep src/Api/Lanka.Api/localhost.pfx -p password
 
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
