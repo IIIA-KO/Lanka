@@ -54,7 +54,7 @@ jobs:
         run: dotnet sln ${{ env.SOLUTION_PATH }} add test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj
        
       - name: Publish
-        run: dotnet publish src/Lanka.Api/Lanka.Api.csproj --configuration Release --no-restore --no-build --output ${{env.DOTNET_ROOT}}/publish
+        run: dotnet publish src/Api/Lanka.Api/Lanka.Api.csproj --configuration Release --no-restore --no-build --output ${{env.DOTNET_ROOT}}/publish
 
       # Upload the artifact
       - name: Upload artifact
