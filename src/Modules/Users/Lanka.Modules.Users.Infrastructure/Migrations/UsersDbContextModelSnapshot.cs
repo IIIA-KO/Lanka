@@ -145,6 +145,86 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         new
                         {
                             Code = "users:read"
+                        },
+                        new
+                        {
+                            Code = "users:create"
+                        },
+                        new
+                        {
+                            Code = "users:update"
+                        },
+                        new
+                        {
+                            Code = "users:delete"
+                        },
+                        new
+                        {
+                            Code = "profile:read"
+                        },
+                        new
+                        {
+                            Code = "profile:update"
+                        },
+                        new
+                        {
+                            Code = "bloggers:read"
+                        },
+                        new
+                        {
+                            Code = "offers:read"
+                        },
+                        new
+                        {
+                            Code = "offers:create"
+                        },
+                        new
+                        {
+                            Code = "offers:update"
+                        },
+                        new
+                        {
+                            Code = "offers:delete"
+                        },
+                        new
+                        {
+                            Code = "pacts:read"
+                        },
+                        new
+                        {
+                            Code = "pacts:create"
+                        },
+                        new
+                        {
+                            Code = "pacts:update"
+                        },
+                        new
+                        {
+                            Code = "campaigns:read"
+                        },
+                        new
+                        {
+                            Code = "campaigns:create"
+                        },
+                        new
+                        {
+                            Code = "campaigns:update"
+                        },
+                        new
+                        {
+                            Code = "reviews:read"
+                        },
+                        new
+                        {
+                            Code = "reviews:create"
+                        },
+                        new
+                        {
+                            Code = "reviews:update"
+                        },
+                        new
+                        {
+                            Code = "reviews:delete"
                         });
                 });
 
@@ -176,11 +256,6 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<string>("Bio")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)")
-                        .HasColumnName("bio");
 
                     b.Property<DateOnly>("BirthDate")
                         .HasColumnType("date")
@@ -244,12 +319,132 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            PermissionCode = "users:read",
+                            PermissionCode = "profile:read",
                             RoleName = "Member"
                         },
                         new
                         {
+                            PermissionCode = "profile:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "bloggers:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "pacts:create",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "pacts:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "pacts:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "campaigns:create",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "campaigns:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "campaigns:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:create",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:delete",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "profile:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "profile:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
                             PermissionCode = "users:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "users:create",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "users:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "users:delete",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "bloggers:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "pacts:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "pacts:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "campaigns:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:update",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "reviews:delete",
                             RoleName = "Administrator"
                         });
                 });

@@ -11,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Campaigns;
 
 internal sealed class GetCampaign : CampaignsEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.ReadCampaigns];
+    
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapGet(this.BuildRoute("{id:guid}"),

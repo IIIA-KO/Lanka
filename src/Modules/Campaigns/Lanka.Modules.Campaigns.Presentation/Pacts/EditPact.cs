@@ -12,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Pacts;
 
 internal sealed class EditPact : PactEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.UpdatePact];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPut(this.BuildRoute("{id:guid}/edit"),

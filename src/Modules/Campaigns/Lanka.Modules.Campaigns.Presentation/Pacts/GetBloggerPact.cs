@@ -11,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Pacts;
 
 internal sealed class GetBloggerPact : PactEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.ReadPacts];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapGet(this.BuildRoute("{bloggerId:guid}"),

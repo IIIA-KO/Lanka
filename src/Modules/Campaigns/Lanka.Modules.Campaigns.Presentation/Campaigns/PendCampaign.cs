@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Campaigns.Pend;
-using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +12,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Campaigns;
 
 internal sealed class PendCampaign : CampaignsEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreateCampaign];
+    
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),
@@ -21,7 +22,7 @@ internal sealed class PendCampaign : CampaignsEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<CampaignId> result = await sender.Send(new PendCampaignCommand(
+                    Result<Guid> result = await sender.Send(new PendCampaignCommand(
                             request.Name,
                             request.Description,
                             request.ScheduledOnUtc,

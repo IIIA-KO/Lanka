@@ -9,7 +9,7 @@ using Lanka.Modules.Campaigns.Domain.Reviews;
 namespace Lanka.Modules.Campaigns.Application.Reviews.Create;
 
 internal sealed class CreateReviewCommandHandler
-    : ICommandHandler<CreateReviewCommand, ReviewId>
+    : ICommandHandler<CreateReviewCommand, Guid>
 {
     private readonly ICampaignRepository _campaignRepository;
     private readonly IReviewRepository _reviewRepository;
@@ -32,7 +32,7 @@ internal sealed class CreateReviewCommandHandler
         this._dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result<ReviewId>> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
     {
         var campaignId = new CampaignId(request.CampaignId);
         Campaign? campaign = await this._campaignRepository.GetByIdAsync(
@@ -42,12 +42,12 @@ internal sealed class CreateReviewCommandHandler
 
         if (campaign is null)
         {
-            return Result.Failure<ReviewId>(CampaignErrors.NotFound);
+            return Result.Failure<Guid>(CampaignErrors.NotFound);
         }
 
         if (this._userContext.GetUserId() != campaign.ClientId.Value)
         {
-            return Result.Failure<ReviewId>(Error.NotAuthorized);
+            return Result.Failure<Guid>(Error.NotAuthorized);
         }
 
         Review? review = await this._reviewRepository.GetByCampaignIdAndClientIdAsync(
@@ -58,7 +58,7 @@ internal sealed class CreateReviewCommandHandler
 
         if (review is not null)
         {
-            return Result.Failure<ReviewId>(ReviewErrors.AlreadyReviewed);
+            return Result.Failure<Guid>(ReviewErrors.AlreadyReviewed);
         }
 
         Result<Review> reviewResult = Review.Create(
@@ -72,6 +72,6 @@ internal sealed class CreateReviewCommandHandler
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return reviewResult.Value.Id;
+        return reviewResult.Value.Id.Value;
     }
 }

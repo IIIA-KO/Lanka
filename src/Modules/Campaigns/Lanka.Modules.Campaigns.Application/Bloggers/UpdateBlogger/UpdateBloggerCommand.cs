@@ -1,10 +1,11 @@
 using Lanka.Common.Application.Messaging;
+using Lanka.Modules.Campaigns.Application.Bloggers.GetBlogger;
 
 namespace Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
 
 public sealed record UpdateBloggerCommand(
-    Guid BloggerId,
     string FirstName,
     string LastName,
-    DateOnly BirthDate
-) : ICommand;
+    DateOnly BirthDate,
+    string Bio
+) : ICommand<BloggerResponse>;

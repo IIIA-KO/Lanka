@@ -4,7 +4,6 @@ using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.IntegrationTests.Abstractions;
 using Lanka.Modules.Campaigns.Application.Bloggers.GetBlogger;
-using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Presentation.Users;
 
 namespace Lanka.IntegrationTests.Users;

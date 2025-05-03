@@ -22,12 +22,12 @@ internal sealed class UserRegisteredDomainEventHandler
     }
 
     public override async Task Handle(
-        UserCreatedDomainEvent notification,
+        UserCreatedDomainEvent domainEvent,
         CancellationToken cancellationToken = default
     )
     {
         Result<UserResponse> result =
-            await this._sender.Send(new GetUserQuery(notification.UserId.Value), cancellationToken);
+            await this._sender.Send(new GetUserQuery(domainEvent.UserId.Value), cancellationToken);
 
         if (result.IsFailure)
         {
@@ -36,8 +36,8 @@ internal sealed class UserRegisteredDomainEventHandler
 
         await this._eventBus.PublishAsync(
             new UserRegisteredIntegrationEvent(
-                notification.Id,
-                notification.OccurredOnUtc,
+                domainEvent.Id,
+                domainEvent.OccurredOnUtc,
                 result.Value.Id,
                 result.Value.Email,
                 result.Value.FirstName,

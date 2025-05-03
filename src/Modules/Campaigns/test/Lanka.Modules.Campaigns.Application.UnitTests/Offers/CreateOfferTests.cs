@@ -60,11 +60,11 @@ public class CreateOfferTests
             .Returns(PactData.CreatePact());
 
         // Act
-        Result<OfferId> result = await this._handler.Handle(Command, default);
+        Result<Guid> result = await this._handler.Handle(Command, default);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
+        result.Value.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class CreateOfferTests
             .Returns((Pact?)null);
 
         // Act
-        Result<OfferId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -109,7 +109,7 @@ public class CreateOfferTests
         );
         
         // Act
-        Result<OfferId> result = await this._handler.Handle(command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -151,7 +151,7 @@ public class CreateOfferTests
         }
         
         // Act
-        Result<OfferId> result = await this._handler.Handle(Command, CancellationToken.None);
+        Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();

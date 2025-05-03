@@ -8,7 +8,7 @@ using Lanka.Modules.Campaigns.Domain.Pacts;
 namespace Lanka.Modules.Campaigns.Application.Pacts.Create;
 
 internal sealed class CreatePactCommandHandler
-    : ICommandHandler<CreatePactCommand, PactId>
+    : ICommandHandler<CreatePactCommand, Guid>
 {
     private readonly IPactRepository _pactRepository;
     private readonly IUserContext _userContext;
@@ -25,7 +25,7 @@ internal sealed class CreatePactCommandHandler
         this._unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<PactId>> Handle(CreatePactCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreatePactCommand request, CancellationToken cancellationToken)
     {
         var bloggerId = new BloggerId(this._userContext.GetUserId());
 
@@ -36,14 +36,14 @@ internal sealed class CreatePactCommandHandler
         
         if (pact is not null)
         {
-            return Result.Failure<PactId>(PactErrors.Duplicate);
+            return Result.Failure<Guid>(PactErrors.Duplicate);
         }
 
         Result<Pact> result = Pact.Create(bloggerId, request.Content);
 
         if (result.IsFailure)
         {
-            return Result.Failure<PactId>(result.Error);
+            return Result.Failure<Guid>(result.Error);
         }
         
         pact = result.Value;
@@ -52,6 +52,6 @@ internal sealed class CreatePactCommandHandler
         
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return pact.Id;
+        return pact.Id.Value;
     }
 }

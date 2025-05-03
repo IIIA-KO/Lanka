@@ -48,6 +48,13 @@ public static class CampaignsModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        AddPersistence(services, configuration);
+
+        AddOutbox(services, configuration);
+    }
+
+    private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddDbContext<CampaignsDbContext>((sp, options) =>
             options
                 .UseNpgsql(
@@ -64,7 +71,10 @@ public static class CampaignsModule
         services.AddScoped<IReviewRepository, ReviewRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CampaignsDbContext>());
+    }
 
+    private static void AddOutbox(IServiceCollection services, IConfiguration configuration)
+    {
         services.Configure<OutboxOptions>(configuration.GetSection("Campaigns:Outbox"));
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
 

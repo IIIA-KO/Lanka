@@ -48,14 +48,14 @@ public class CreatePactTests
         
         
         // Act
-        Result<PactId> result = await this._handler.Handle(
+        Result<Guid> result = await this._handler.Handle(
             Command,
             CancellationToken.None
         );
         
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
+        result.Value.Should().NotBeEmpty();
     }
     
     [Fact]
@@ -71,7 +71,7 @@ public class CreatePactTests
         ).Returns(PactData.CreatePact());
         
         // Act
-        Result<PactId> result = await this._handler.Handle(
+        Result<Guid> result = await this._handler.Handle(
             Command,
             CancellationToken.None
         );
@@ -96,7 +96,7 @@ public class CreatePactTests
         var command = new CreatePactCommand(string.Empty);
         
         // Act
-        Result<PactId> result = await this._handler.Handle(
+        Result<Guid> result = await this._handler.Handle(
             command,
             CancellationToken.None
         );

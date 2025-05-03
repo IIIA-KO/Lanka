@@ -9,7 +9,7 @@ using Lanka.Modules.Campaigns.Domain.Pacts;
 namespace Lanka.Modules.Campaigns.Application.Offers.Create;
 
 internal sealed class CreateOfferCommandHandler
-    : ICommandHandler<CreateOfferCommand, OfferId>
+    : ICommandHandler<CreateOfferCommand, Guid>
 {
     private readonly IOfferRepository _offerRepository;
     private readonly IPactRepository _pactRepository;
@@ -29,7 +29,7 @@ internal sealed class CreateOfferCommandHandler
         this._unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<OfferId>> Handle(CreateOfferCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateOfferCommand request, CancellationToken cancellationToken)
     {
         Pact? pact = await this._pactRepository.GetByBloggerIdWithOffersAsync(
             new BloggerId(this._userContext.GetUserId()),
@@ -38,7 +38,7 @@ internal sealed class CreateOfferCommandHandler
 
         if (pact is null)
         {
-            return Result.Failure<OfferId>(PactErrors.NotFound);
+            return Result.Failure<Guid>(PactErrors.NotFound);
         }
         
         Result<Offer> result = Offer.Create(
@@ -51,20 +51,20 @@ internal sealed class CreateOfferCommandHandler
         
         if (result.IsFailure)
         {
-            return Result.Failure<OfferId>(result.Error);
+            return Result.Failure<Guid>(result.Error);
         }
         
         Offer offer = result.Value;
 
         if (pact.HasOffer(offer.Name))
         {
-            return Result.Failure<OfferId>(OfferErrors.Duplicate);
+            return Result.Failure<Guid>(OfferErrors.Duplicate);
         }
 
         this._offerRepository.Add(offer);
         
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
         
-        return offer.Id;
+        return offer.Id.Value;
     }
 }

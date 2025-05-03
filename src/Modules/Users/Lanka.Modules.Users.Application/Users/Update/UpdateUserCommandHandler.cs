@@ -1,27 +1,23 @@
-using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Users.GetUser;
 using Lanka.Modules.Users.Domain.Users;
 
-namespace Lanka.Modules.Users.Application.Users.UpdateUser;
+namespace Lanka.Modules.Users.Application.Users.Update;
 
 internal sealed class UpdateUserCommandHandler
     : ICommandHandler<UpdateUserCommand, UserResponse>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IUserContext _userContext;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateUserCommandHandler(
         IUserRepository userRepository,
-        IUserContext userContext, 
         IUnitOfWork unitOfWork
     )
     {
         this._userRepository = userRepository;
-        this._userContext = userContext;
         this._unitOfWork = unitOfWork;
     }
 
@@ -35,11 +31,6 @@ internal sealed class UpdateUserCommandHandler
         if (user is null)
         {
             return Result.Failure<UserResponse>(UserErrors.NotFound);
-        }
-
-        if (this._userContext.GetIdentityId() != user.IdentityId)
-        {
-            return Result.Failure<UserResponse>(Error.NotAuthorized);
         }
 
         Result result = user.Update(

@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Offers.Create;
-using Lanka.Modules.Campaigns.Domain.Offers;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Offers;
 
 internal sealed class CreateOffer : OfferEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreateOffer];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),
@@ -20,7 +21,7 @@ internal sealed class CreateOffer : OfferEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<OfferId> result = await sender.Send(new CreateOfferCommand(
+                    Result<Guid> result = await sender.Send(new CreateOfferCommand(
                             request.Name,
                             request.PriceAmount,
                             request.PriceCurrency,

@@ -1,6 +1,6 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Users.Domain.Users.Bios;
+namespace Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
 
 public static class BioErrors
 {

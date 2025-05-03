@@ -1,4 +1,9 @@
 using Lanka.Modules.Campaigns.Domain.Bloggers;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
+using Lanka.Modules.Campaigns.Domain.Bloggers.BirthDates;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Emails;
+using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
+using Lanka.Modules.Campaigns.Domain.Bloggers.LastNames;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,23 +28,29 @@ public class BloggerConfiguration : IEntityTypeConfiguration<Blogger>
             
         builder
             .Property(blogger => blogger.FirstName)
-            .HasConversion(firstName => firstName.Value, value => new FirstName(value))
+            .HasConversion(firstName => firstName.Value, value => FirstName.Create(value).Value)
             .IsRequired();
             
         builder
             .Property(blogger => blogger.LastName)
-            .HasConversion(lastName => lastName.Value, value => new LastName(value))
+            .HasConversion(lastName => lastName.Value, value => LastName.Create(value).Value)
             .IsRequired();
             
         builder
             .Property(blogger => blogger.Email)
-            .HasConversion(email => email.Value, value => new Email(value))
+            .HasConversion(email => email.Value, value => Email.Create(value).Value)
             .IsRequired();
             
         builder
             .Property(blogger => blogger.BirthDate)
-            .HasConversion(birthDate => birthDate.Value, value => new BirthDate(value))
+            .HasConversion(birthDate => birthDate.Value, value => BirthDate.Create(value).Value)
             .IsRequired();
+        
+        builder
+            .Property(user => user.Bio)
+            .HasMaxLength(Bio.MaxLength)
+            .HasConversion(bio => bio.Value, value => Bio.Create(value).Value)
+            .IsRequired(false);
             
         builder
             .HasOne(blogger => blogger.Pact)

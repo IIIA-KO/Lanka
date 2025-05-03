@@ -8,7 +8,7 @@ namespace Lanka.Modules.Users.Infrastructure.Identity;
 internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
 {
     private readonly KeycloakOptions _options;
-        
+
     public KeycloakAuthDelegatingHandler(IOptions<KeycloakOptions> options)
     {
         this._options = options.Value;
@@ -19,11 +19,9 @@ internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
         CancellationToken cancellationToken)
     {
         AuthToken authorizationToken = await this.GetAuthorizationToken(cancellationToken);
-
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authorizationToken.AccessToken);
 
         HttpResponseMessage httpResponseMessage = await base.SendAsync(request, cancellationToken);
-
         httpResponseMessage.EnsureSuccessStatusCode();
 
         return httpResponseMessage;
@@ -45,7 +43,6 @@ internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
         authRequest.Content = authRequestContent;
 
         using HttpResponseMessage authorizationResponse = await base.SendAsync(authRequest, cancellationToken);
-
         authorizationResponse.EnsureSuccessStatusCode();
 
         return await authorizationResponse.Content.ReadFromJsonAsync<AuthToken>(cancellationToken);
@@ -53,7 +50,6 @@ internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
 
     internal sealed class AuthToken
     {
-        [JsonPropertyName("access_token")]
-        public string AccessToken { get; init; }
+        [JsonPropertyName("access_token")] public string AccessToken { get; init; }
     }
 }

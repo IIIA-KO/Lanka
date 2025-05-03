@@ -1,7 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Reviews.Create;
-using Lanka.Modules.Campaigns.Domain.Reviews;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +11,8 @@ namespace Lanka.Modules.Campaigns.Presentation.Reviews;
 
 internal sealed class CreateReview : ReviewEndpointBase
 {
+    protected override string[] RequiredPermissions => [Permissions.CreateReview];
+
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute(string.Empty),
@@ -20,7 +21,7 @@ internal sealed class CreateReview : ReviewEndpointBase
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
-                    Result<ReviewId> result = await sender.Send(new CreateReviewCommand(
+                    Result<Guid> result = await sender.Send(new CreateReviewCommand(
                             request.CampaignId,
                             request.Rating,
                             request.Comment

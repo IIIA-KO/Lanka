@@ -18,6 +18,10 @@ internal sealed class ConfigureProcessInboxJob(IOptions<InboxOptions> outboxOpti
                 configure
                     .ForJob(jobName)
                     .WithSimpleSchedule(schedule =>
-                        schedule.WithIntervalInSeconds(this._inboxOptions.IntervalInSeconds).RepeatForever()));
+                        schedule
+                            .WithIntervalInSeconds(this._inboxOptions.IntervalInSeconds)
+                            .RepeatForever()
+                    )
+            );
     }
 }

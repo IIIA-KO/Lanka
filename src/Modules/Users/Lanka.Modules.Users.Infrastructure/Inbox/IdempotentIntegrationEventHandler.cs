@@ -6,26 +6,33 @@ using Lanka.Common.Infrastructure.Inbox;
 
 namespace Lanka.Modules.Users.Infrastructure.Inbox;
 
-internal sealed class IdempotentIntegrationEventHandler<TIntegrationEvent>(
-    IIntegrationEventHandler<TIntegrationEvent> decorated,
-    IDbConnectionFactory dbConnectionFactory)
-    : IntegrationEventHandler<TIntegrationEvent>
+internal sealed class IdempotentIntegrationEventHandler<TIntegrationEvent> : IntegrationEventHandler<TIntegrationEvent>
     where TIntegrationEvent : IIntegrationEvent
 {
+    private readonly IIntegrationEventHandler<TIntegrationEvent> _decorated;
+    private readonly IDbConnectionFactory _dbConnectionFactory;
+
+    public IdempotentIntegrationEventHandler(IIntegrationEventHandler<TIntegrationEvent> decorated,
+        IDbConnectionFactory dbConnectionFactory)
+    {
+        this._decorated = decorated;
+        this._dbConnectionFactory = dbConnectionFactory;
+    }
+
     public override async Task Handle(
         TIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
-        await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
+        await using DbConnection connection = await this._dbConnectionFactory.OpenConnectionAsync();
 
-        var inboxMessageConsumer = new InboxMessageConsumer(integrationEvent.Id, decorated.GetType().Name);
+        var inboxMessageConsumer = new InboxMessageConsumer(integrationEvent.Id, this._decorated.GetType().Name);
 
         if (await InboxConsumerExistsAsync(connection, inboxMessageConsumer))
         {
             return;
         }
 
-        await decorated.Handle(integrationEvent, cancellationToken);
+        await this._decorated.Handle(integrationEvent, cancellationToken);
 
         await InsertInboxConsumerAsync(connection, inboxMessageConsumer);
     }

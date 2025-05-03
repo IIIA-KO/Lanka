@@ -9,13 +9,13 @@ namespace Lanka.Modules.Users.Infrastructure.Identity.Services;
 
 internal sealed class IdentityProviderService : IIdentityProviderService
 {
-    private readonly KeycloakTokenService _keycloakTokenService;
-    private readonly KeycloakAdminService _keycloakAdminService;
+    private readonly IKeycloakTokenService _keycloakTokenService;
+    private readonly IKeycloakAdminService _keycloakAdminService;
     private readonly ILogger<IdentityProviderService> _logger;
 
     public IdentityProviderService(
-        KeycloakTokenService keycloakTokenService,
-        KeycloakAdminService keycloakAdminService,
+        IKeycloakTokenService keycloakTokenService,
+        IKeycloakAdminService keycloakAdminService,
         ILogger<IdentityProviderService> logger
     )
     {

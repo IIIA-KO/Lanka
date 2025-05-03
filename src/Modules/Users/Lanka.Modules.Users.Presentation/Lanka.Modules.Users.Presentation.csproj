@@ -2,6 +2,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj" />
       <ProjectReference Include="..\..\..\Common\Lanka.Common.Presentation\Lanka.Common.Presentation.csproj" />
+      <ProjectReference Include="..\..\Campaigns\Lanka.Modules.Campaigns.IntegrationEvents\Lanka.Modules.Campaigns.IntegrationEvents.csproj" />
       <ProjectReference Include="..\Lanka.Modules.Users.Application\Lanka.Modules.Users.Application.csproj" />
     </ItemGroup>
     
