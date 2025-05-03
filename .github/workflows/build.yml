@@ -41,10 +41,18 @@ jobs:
 
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
-
+          
+      # Remove integration tests from sln
+      - name: Remove Lanka.IntegrationTests from sln
+        run: dotnet sln ${{ env.SOLUTION_PATH }} remove test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj
+        
       - name: Test
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build
-
+        
+      # Add integration tests back to sln
+      - name: Add Lanka.IntegrationTests back to sln
+        run: dotnet sln ${{ env.SOLUTION_PATH }} add test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj
+       
       - name: Publish
         run: dotnet publish src/Lanka.Api/Lanka.Api.csproj --configuration Release --no-restore --no-build --output ${{env.DOTNET_ROOT}}/publish
 
