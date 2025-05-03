@@ -9,6 +9,8 @@ internal static class BloggerData
     public static string LastName = BaseTest.Faker.Person.LastName;
 
     public static string Email = BaseTest.Faker.Internet.Email();
+    
+    public static string Bio = BaseTest.Faker.Lorem.Sentences(3);
 
     public static DateOnly BirthDate => BaseTest.Faker.Date.PastDateOnly(
         18,

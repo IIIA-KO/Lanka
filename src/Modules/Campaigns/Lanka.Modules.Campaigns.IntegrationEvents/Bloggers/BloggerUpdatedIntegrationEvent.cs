@@ -1,29 +1,33 @@
 using Lanka.Common.Application.EventBus;
 
-namespace Lanka.Modules.Users.IntegrationEvents;
+namespace Lanka.Modules.Campaigns.IntegrationEvents.Bloggers;
 
-public class UserUpdatedIntegrationEvent : IntegrationEvent
+public sealed class BloggerUpdatedIntegrationEvent : IntegrationEvent
 {
-    public UserUpdatedIntegrationEvent(
+    public BloggerUpdatedIntegrationEvent(
         Guid id,
         DateTime occurredOnUtc,
-        Guid userId,
+        Guid bloggerId,
         string firstName,
         string lastName,
-        DateOnly birthDate
+        DateOnly birthDate,
+        string bio
     ) : base(id, occurredOnUtc)
     {
-        this.UserId = userId;
+        this.BloggerId = bloggerId;
         this.FirstName = firstName;
         this.LastName = lastName;
         this.BirthDate = birthDate;
+        this.Bio = bio;
     }
-
-    public Guid UserId { get; init; }
-
+    
+    public Guid BloggerId { get; init; }
+    
     public string FirstName { get; init; }
-
+    
     public string LastName { get; init; }
-
+    
     public DateOnly BirthDate { get; init; }
+    
+    public string Bio { get; init; }
 }

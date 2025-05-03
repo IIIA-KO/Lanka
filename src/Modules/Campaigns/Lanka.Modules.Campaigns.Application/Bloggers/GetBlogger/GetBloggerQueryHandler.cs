@@ -28,7 +28,8 @@ internal sealed class GetBloggerQueryHandler
                  first_name AS {nameof(BloggerResponse.FirstName)},
                  last_name AS {nameof(BloggerResponse.LastName)},
                  email AS {nameof(BloggerResponse.Email)},
-                 birth_date AS {nameof(BloggerResponse.BirthDate)}
+                 birth_date AS {nameof(BloggerResponse.BirthDate)},
+                 bio AS {nameof(BloggerResponse.Bio)}
              FROM campaigns.bloggers
              WHERE id = @BloggerId
              """;

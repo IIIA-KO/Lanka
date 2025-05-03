@@ -12,7 +12,8 @@ public static class IntegrationEventHandlersFactory
     public static IEnumerable<IIntegrationEventHandler> GetHandlers(
         Type type,
         IServiceProvider serviceProvider,
-        Assembly assembly)
+        Assembly assembly
+    )
     {
         Type[] integrationEventHandlerTypes = HandlersDictionary.GetOrAdd(
             $"{assembly.GetName().Name}-{type.Name}",

@@ -14,17 +14,20 @@ public sealed class BloggerResponse
     
     public DateOnly BirthDate { get; init; }
     
+    public string Bio { get; init; }
+    
     public Guid? PactId { get; init; }
     
     public static BloggerResponse FromBloger(Blogger blogger)
     {
         return new BloggerResponse
         {
-            Id = blogger.Id.Value,
+            Id = blogger.Id.Value,  
             FirstName = blogger.FirstName.Value,
             LastName = blogger.LastName.Value,
             Email = blogger.Email.Value,
             BirthDate = blogger.BirthDate.Value,
+            Bio = blogger.Bio.Value,
             PactId = blogger.Pact?.Id.Value
         };
     }

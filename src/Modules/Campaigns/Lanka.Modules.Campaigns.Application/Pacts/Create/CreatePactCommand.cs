@@ -1,5 +1,4 @@
 using Lanka.Common.Application.Messaging;
-using Lanka.Modules.Campaigns.Domain.Pacts;
 
 namespace Lanka.Modules.Campaigns.Application.Pacts.Create;
 

@@ -8,9 +8,9 @@ using Lanka.Modules.Users.Application.Users.Login;
 
 namespace Lanka.IntegrationTests.Users;
 
-public class GetUserTests : BaseIntegrationTest
+public class GetUserProfileTests : BaseIntegrationTest
 {
-    public GetUserTests(IntegrationTestWebAppFactory factory) : base(factory)
+    public GetUserProfileTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
     }
 

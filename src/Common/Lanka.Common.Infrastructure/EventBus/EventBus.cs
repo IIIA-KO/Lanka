@@ -11,8 +11,8 @@ internal sealed class EventBus : IEventBus
     {
         this._bus = bus;
     }
-        
-    public async Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default) 
+
+    public async Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
         where T : IIntegrationEvent
     {
         await this._bus.Publish(integrationEvent, cancellationToken);

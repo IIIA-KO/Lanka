@@ -1,5 +1,4 @@
 using Lanka.Common.Domain;
-using Lanka.Modules.Users.Domain.Users.Bios;
 using Lanka.Modules.Users.Domain.Users.BirthDates;
 using Lanka.Modules.Users.Domain.Users.DomainEvents;
 using Lanka.Modules.Users.Domain.Users.Emails;
@@ -17,14 +16,11 @@ public class User : Entity<UserId>, IAggregateRoot
     public LastName LastName { get; private set; }
 
     public Email Email { get; private set; }
-
-    public Bio Bio { get; private set; } = Bio.Create(string.Empty).Value;
-
+    
     public BirthDate BirthDate { get; private set; }
 
     public string IdentityId { get; private set; }
-
-
+    
     public IReadOnlyCollection<Role> Roles => this._roles;
 
     private User() { }
@@ -86,24 +82,9 @@ public class User : Entity<UserId>, IAggregateRoot
             return Result.Success();
         }
 
-        Result<(FirstName, LastName, Email, BirthDate)> validationResult =
-            Validate(firstName, lastName, this.Email.Value, birthDate);
-
-        if (validationResult.IsFailure)
-        {
-            return Result.Failure<User>(validationResult.Error);
-        }
-
-        this.FirstName = validationResult.Value.Item1;
-        this.LastName = validationResult.Value.Item2;
-        this.BirthDate = validationResult.Value.Item4;
-
-        this.RaiseDomainEvent(new UserUpdatedDomainEvent(
-            this.Id,
-            this.FirstName.Value,
-            this.LastName.Value,
-            this.BirthDate.Value
-        ));
+        this.FirstName = FirstName.Create(firstName).Value;
+        this.LastName = LastName.Create(lastName).Value;
+        this.BirthDate = BirthDate.Create(birthDate).Value;
 
         return Result.Success();
     }

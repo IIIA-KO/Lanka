@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Lanka.Modules.Users.Presentation.Users;
 
-internal sealed class GetUser : UsersEndpointBase
+internal sealed class GetUserProfile : UsersEndpointBase
 {
     protected override string[] RequiredPermissions => [Permissions.ReadProfile];
 

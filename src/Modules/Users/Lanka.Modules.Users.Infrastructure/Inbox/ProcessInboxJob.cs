@@ -15,20 +15,34 @@ using Quartz;
 namespace Lanka.Modules.Users.Infrastructure.Inbox;
 
 [DisallowConcurrentExecution]
-internal sealed class ProcessInboxJob(
-    IDbConnectionFactory dbConnectionFactory,
-    IServiceScopeFactory serviceScopeFactory,
-    IDateTimeProvider dateTimeProvider,
-    IOptions<InboxOptions> inboxOptions,
-    ILogger<ProcessInboxJob> logger) : IJob
+internal sealed class ProcessInboxJob : IJob
 {
+    private readonly IDbConnectionFactory _dbConnectionFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IOptions<InboxOptions> _inboxOptions;
+    private readonly ILogger<ProcessInboxJob> _logger;
+
+    public ProcessInboxJob(IDbConnectionFactory dbConnectionFactory,
+        IServiceScopeFactory serviceScopeFactory,
+        IDateTimeProvider dateTimeProvider,
+        IOptions<InboxOptions> inboxOptions,
+        ILogger<ProcessInboxJob> logger)
+    {
+        this._dbConnectionFactory = dbConnectionFactory;
+        this._serviceScopeFactory = serviceScopeFactory;
+        this._dateTimeProvider = dateTimeProvider;
+        this._inboxOptions = inboxOptions;
+        this._logger = logger;
+    }
+
     private const string ModuleName = "Users";
 
     public async Task Execute(IJobExecutionContext context)
     {
-        logger.LogInformation("{Module} - Beginning to process inbox messages", ModuleName);
+        this._logger.LogInformation("{Module} - Beginning to process inbox messages", ModuleName);
 
-        await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
+        await using DbConnection connection = await this._dbConnectionFactory.OpenConnectionAsync();
         await using DbTransaction transaction = await connection.BeginTransactionAsync();
 
         IReadOnlyList<InboxMessageResponse> inboxMessages = await this.GetInboxMessagesAsync(connection, transaction);
@@ -41,14 +55,16 @@ internal sealed class ProcessInboxJob(
             {
                 IIntegrationEvent integrationEvent = JsonConvert.DeserializeObject<IIntegrationEvent>(
                     inboxMessage.Content,
-                    SerializerSettings.Instance)!;
+                    SerializerSettings.Instance
+                )!;
 
-                using IServiceScope scope = serviceScopeFactory.CreateScope();
+                using IServiceScope scope = this._serviceScopeFactory.CreateScope();
 
                 IEnumerable<IIntegrationEventHandler> handlers = IntegrationEventHandlersFactory.GetHandlers(
                     integrationEvent.GetType(),
                     scope.ServiceProvider,
-                    Presentation.AssemblyReference.Assembly);
+                    Presentation.AssemblyReference.Assembly
+                );
 
                 foreach (IIntegrationEventHandler integrationEventHandler in handlers)
                 {
@@ -57,7 +73,7 @@ internal sealed class ProcessInboxJob(
             }
             catch (Exception caughtException)
             {
-                logger.LogError(
+                this._logger.LogError(
                     caughtException,
                     "{Module} - Exception while processing inbox message {MessageId}",
                     ModuleName,
@@ -71,7 +87,7 @@ internal sealed class ProcessInboxJob(
 
         await transaction.CommitAsync();
 
-        logger.LogInformation("{Module} - Completed processing inbox messages", ModuleName);
+        this._logger.LogInformation("{Module} - Completed processing inbox messages", ModuleName);
     }
 
     private async Task<IReadOnlyList<InboxMessageResponse>> GetInboxMessagesAsync(
@@ -86,13 +102,14 @@ internal sealed class ProcessInboxJob(
              FROM users.inbox_messages
              WHERE processed_on_utc IS NULL
              ORDER BY occurred_on_utc
-             LIMIT {inboxOptions.Value.BatchSize}
+             LIMIT {this._inboxOptions.Value.BatchSize}
              FOR UPDATE
              """;
 
         IEnumerable<InboxMessageResponse> inboxMessages = await connection.QueryAsync<InboxMessageResponse>(
             sql,
-            transaction: transaction);
+            transaction: transaction
+        );
 
         return inboxMessages.AsList();
     }
@@ -116,10 +133,11 @@ internal sealed class ProcessInboxJob(
             new
             {
                 inboxMessage.Id,
-                ProcessedOnUtc = dateTimeProvider.UtcNow,
+                ProcessedOnUtc = this._dateTimeProvider.UtcNow,
                 Error = exception?.ToString()
             },
-            transaction: transaction);
+            transaction: transaction
+        );
     }
 
     internal sealed record InboxMessageResponse(Guid Id, string Content);

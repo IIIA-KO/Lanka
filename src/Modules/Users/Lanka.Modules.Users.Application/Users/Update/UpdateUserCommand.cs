@@ -1,7 +1,7 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Modules.Users.Application.Users.GetUser;
 
-namespace Lanka.Modules.Users.Application.Users.UpdateUser;
+namespace Lanka.Modules.Users.Application.Users.Update;
 
 public sealed record UpdateUserCommand(
     Guid UserId,

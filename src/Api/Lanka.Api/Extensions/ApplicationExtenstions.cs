@@ -18,7 +18,7 @@ internal static class ApplicationExtenstions
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
         builder.Services.AddEndpointsApiExplorer();
-        
+
         return builder;
     }
 
@@ -27,10 +27,10 @@ internal static class ApplicationExtenstions
         builder.Host.UseSerilog((context, loggerConfiguration) =>
             loggerConfiguration.ReadFrom.Configuration(context.Configuration)
         );
-            
+
         return builder;
     }
-    
+
     public static WebApplicationBuilder ConfigureModules(this WebApplicationBuilder builder)
     {
         builder.Services.AddApplication([
@@ -42,7 +42,10 @@ internal static class ApplicationExtenstions
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
 
         builder.Services.AddInfrastructure(
-            [CampaignsModule.ConfigureConsumers],
+            [
+                CampaignsModule.ConfigureConsumers,
+                UsersModule.ConfigureConsumers
+            ],
             databaseConnectionString,
             redisConnectionString
         );
@@ -53,7 +56,7 @@ internal static class ApplicationExtenstions
 
         return builder;
     }
-    
+
     public static WebApplicationBuilder ConfigureHealthChecks(this WebApplicationBuilder builder)
     {
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
@@ -70,22 +73,22 @@ internal static class ApplicationExtenstions
 
         return builder;
     }
-    
+
     public static WebApplication ConfigureMiddleware(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.UseSwaggerUI(options => 
+            app.UseSwaggerUI(options =>
                 options.SwaggerEndpoint("/openapi/v1.json", "Lanka.Api"));
             app.ApplyMigrations();
         }
 
         app.MapEndpoints();
-        app.MapHealthChecks("/healthz", 
+        app.MapHealthChecks("/healthz",
             new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
         );
-        
+
         app.UseSerilogRequestLogging();
         app.UseExceptionHandler();
         app.UseAuthentication();
