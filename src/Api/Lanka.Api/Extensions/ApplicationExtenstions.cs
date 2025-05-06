@@ -1,5 +1,6 @@
 using HealthChecks.UI.Client;
 using Lanka.Api.Middleware;
+using Lanka.Api.OpenTelemetry;
 using Lanka.Common.Application;
 using Lanka.Common.Infrastructure;
 using Lanka.Common.Presentation.Endpoints;
@@ -42,6 +43,7 @@ internal static class ApplicationExtenstions
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
 
         builder.Services.AddInfrastructure(
+            DiagnosticsConfig.ServiceName,
             [
                 CampaignsModule.ConfigureConsumers,
                 UsersModule.ConfigureConsumers
@@ -89,6 +91,8 @@ internal static class ApplicationExtenstions
             new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
         );
 
+
+        app.UseLogContext();
         app.UseSerilogRequestLogging();
         app.UseExceptionHandler();
         app.UseAuthentication();

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Lanka.Common.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -49,6 +50,9 @@ internal sealed class RequestLoggingPipelineBehavior<TRequest, TResponse>
         string moduleName = GetModuleName(typeof(TRequest).FullName!);
         string requestName = typeof(TRequest).Name;
 
+        Activity.Current?.SetTag("request.module", moduleName);
+        Activity.Current?.SetTag("request.name", requestName);
+        
         using (LogContext.PushProperty("Module", moduleName))
         {
             ProcessingRequestLog(this._logger, requestName, null);
