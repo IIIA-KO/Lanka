@@ -3,6 +3,7 @@ using Lanka.Api.Middleware;
 using Lanka.Api.OpenTelemetry;
 using Lanka.Common.Application;
 using Lanka.Common.Infrastructure;
+using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
@@ -32,7 +33,9 @@ internal static class ApplicationExtenstions
         return builder;
     }
 
-    public static WebApplicationBuilder ConfigureModules(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureModules(
+        this WebApplicationBuilder builder
+    )
     {
         builder.Services.AddApplication([
             Lanka.Modules.Users.Application.AssemblyReference.Assembly,
@@ -41,13 +44,15 @@ internal static class ApplicationExtenstions
 
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-
+        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
+        
         builder.Services.AddInfrastructure(
             DiagnosticsConfig.ServiceName,
             [
                 CampaignsModule.ConfigureConsumers,
                 UsersModule.ConfigureConsumers
             ],
+            rabbitMqSettings,
             databaseConnectionString,
             redisConnectionString
         );
@@ -63,10 +68,12 @@ internal static class ApplicationExtenstions
     {
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-
+        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
+        
         builder.Services.AddHealthChecks()
             .AddNpgSql(databaseConnectionString)
             .AddRedis(redisConnectionString)
+            .AddRabbitMQ(rabbitConnectionString: rabbitMqSettings.Host)
             .AddUrlGroup(
                 new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
                 HttpMethod.Get,

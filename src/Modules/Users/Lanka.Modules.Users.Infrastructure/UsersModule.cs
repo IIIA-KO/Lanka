@@ -45,9 +45,10 @@ public static class UsersModule
         return services;
     }
 
-    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
+    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>();
+        registrationConfigurator.AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
+            .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
     
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
