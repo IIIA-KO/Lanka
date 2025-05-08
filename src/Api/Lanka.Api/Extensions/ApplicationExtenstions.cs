@@ -8,6 +8,7 @@ using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using RabbitMQ.Client;
 using Serilog;
 
 namespace Lanka.Api.Extensions;
@@ -45,7 +46,7 @@ internal static class ApplicationExtenstions
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
-        
+
         builder.Services.AddInfrastructure(
             DiagnosticsConfig.ServiceName,
             [
@@ -69,11 +70,25 @@ internal static class ApplicationExtenstions
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
-        
+
+        builder.Services
+            .AddSingleton<IConnection>(_ =>
+                {
+                    var factory = new ConnectionFactory()
+                    {
+                        Uri = new Uri(rabbitMqSettings.Host),
+                        UserName = rabbitMqSettings.Username,
+                        Password = rabbitMqSettings.Password,
+                    };
+
+                    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+                }
+            );
+
         builder.Services.AddHealthChecks()
             .AddNpgSql(databaseConnectionString)
             .AddRedis(redisConnectionString)
-            .AddRabbitMQ(rabbitConnectionString: rabbitMqSettings.Host)
+            .AddRabbitMQ()
             .AddUrlGroup(
                 new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
                 HttpMethod.Get,

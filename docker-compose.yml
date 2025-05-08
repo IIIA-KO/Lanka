@@ -7,6 +7,13 @@
       dockerfile: src/API/Lanka.Api/Dockerfile
     ports:
       - "4308:4308"
+    depends_on:
+      - lanka.database
+      - lanka.identity
+      - lanka.redis
+      - lanka.queue
+      - lanka.seq
+      - lanka.jaeger
   
   lanka.database:
     image: postgres:latest
