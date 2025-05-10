@@ -1,4 +1,4 @@
-namespace Lanka.Api.Middleware;
+namespace Lanka.Gateway.Middleware;
 
 internal static class MiddlewareExtensions
 {

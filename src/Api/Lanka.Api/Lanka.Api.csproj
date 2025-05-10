@@ -25,8 +25,4 @@
       <ProjectReference Include="..\..\Modules\Campaigns\Lanka.Modules.Campaigns.Infrastructure\Lanka.Modules.Campaigns.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Users\Lanka.Modules.Users.Infrastructure\Lanka.Modules.Users.Infrastructure.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-        <None Include="localhost.pfx" CopyToOutputDirectory="PreserveNewest" />
-    </ItemGroup>
 </Project>

@@ -33,26 +33,26 @@ jobs:
       - name: Add compose proj back to sln
         run: |
           find . -name '*.dcproj' | xargs -I {} dotnet sln ${{ env.SOLUTION_PATH }} add {}
-      
+
       # Generate dev certificate
       - name: Generate dev certificate
         run: |
-          dotnet dev-certs https -ep src/Api/Lanka.Api/localhost.pfx -p password
+          dotnet dev-certs https -ep src/Api/Lanka.Gateway/localhost.pfx -p password
 
       - name: Build
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
-          
+
       # Remove integration tests from sln
       - name: Remove Lanka.IntegrationTests from sln
         run: dotnet sln ${{ env.SOLUTION_PATH }} remove test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj
-        
+
       - name: Test
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build
-        
+
       # Add integration tests back to sln
       - name: Add Lanka.IntegrationTests back to sln
         run: dotnet sln ${{ env.SOLUTION_PATH }} add test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj
-       
+
       - name: Publish
         run: dotnet publish src/Api/Lanka.Api/Lanka.Api.csproj --configuration Release --no-restore --no-build --output ${{env.DOTNET_ROOT}}/publish
 

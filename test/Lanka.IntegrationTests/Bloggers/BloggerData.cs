@@ -1,5 +1,3 @@
-using Bogus.DataSets;
-
 namespace Lanka.IntegrationTests.Bloggers;
 
 internal static class BloggerData

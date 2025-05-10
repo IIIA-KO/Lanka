@@ -5,10 +5,10 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:4307",
+      "applicationUrl": "https://localhost:4308",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://+:4307"
+        "ASPNETCORE_URLS": "https://+:4308"
       }
     },
     "Docker": {
@@ -16,7 +16,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "publishAllPorts": true,
-      "useSSL": false
+      "useSSL": true
     }
   }
 }

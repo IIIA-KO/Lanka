@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Lanka.Api.Extensions;
 
-internal static class ApplicationExtenstions
+internal static class ApplicationExtensions
 {
     public static WebApplicationBuilder ConfigureBasicServices(this WebApplicationBuilder builder)
     {
@@ -69,8 +69,8 @@ internal static class ApplicationExtenstions
     {
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
 
+        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
         builder.Services
             .AddSingleton<IConnection>(_ =>
                 {
@@ -113,8 +113,7 @@ internal static class ApplicationExtenstions
             new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
         );
 
-
-        app.UseLogContext();
+        app.UseLogContextTraceLogging();
         app.UseSerilogRequestLogging();
         app.UseExceptionHandler();
         app.UseAuthentication();

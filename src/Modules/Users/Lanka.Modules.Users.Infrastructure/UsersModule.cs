@@ -15,7 +15,6 @@ using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
-using Lanka.Modules.Users.IntegrationEvents;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;

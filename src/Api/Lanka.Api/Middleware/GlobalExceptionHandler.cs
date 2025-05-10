@@ -9,7 +9,7 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
     private readonly ILogger<GlobalExceptionHandler> _logger;
     private readonly IHostEnvironment _environment;
 
-    private static readonly JsonSerializerOptions jsonSerializerOptions =
+    private static readonly JsonSerializerOptions _jsonSerializerOptions =
         new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     private sealed record InnerExceptionDetail(string Message, string? StackTrace);
@@ -64,7 +64,7 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
         httpContext.Response.StatusCode = problemDetails.Status.Value;
         httpContext.Response.ContentType = "application/problem+json";
 
-        string json = JsonSerializer.Serialize(problemDetails, jsonSerializerOptions);
+        string json = JsonSerializer.Serialize(problemDetails, _jsonSerializerOptions);
 
         await httpContext.Response.WriteAsync(json, cancellationToken);
 
