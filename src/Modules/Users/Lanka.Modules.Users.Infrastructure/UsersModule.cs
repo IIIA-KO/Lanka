@@ -15,7 +15,6 @@ using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
-using Lanka.Modules.Users.IntegrationEvents;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -45,9 +44,10 @@ public static class UsersModule
         return services;
     }
 
-    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator)
+    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>();
+        registrationConfigurator.AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
+            .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
     
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)

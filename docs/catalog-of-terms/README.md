@@ -29,3 +29,11 @@ This catalog provides detailed explanations of the core domain concepts used in 
 ## Data Management
 
 11. [Unit of Work](./unit-of-work/)
+
+## Resilience
+
+12. [Resilience](./resilience/README.md)
+
+13. [Reverse Proxy](./reverse-proxy/README.md)
+
+14. [Rate Limiting](./rate-limiting/README.md)

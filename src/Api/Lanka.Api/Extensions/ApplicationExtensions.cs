@@ -1,16 +1,19 @@
 using HealthChecks.UI.Client;
 using Lanka.Api.Middleware;
+using Lanka.Api.OpenTelemetry;
 using Lanka.Common.Application;
 using Lanka.Common.Infrastructure;
+using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using RabbitMQ.Client;
 using Serilog;
 
 namespace Lanka.Api.Extensions;
 
-internal static class ApplicationExtenstions
+internal static class ApplicationExtensions
 {
     public static WebApplicationBuilder ConfigureBasicServices(this WebApplicationBuilder builder)
     {
@@ -31,7 +34,9 @@ internal static class ApplicationExtenstions
         return builder;
     }
 
-    public static WebApplicationBuilder ConfigureModules(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureModules(
+        this WebApplicationBuilder builder
+    )
     {
         builder.Services.AddApplication([
             Lanka.Modules.Users.Application.AssemblyReference.Assembly,
@@ -40,12 +45,15 @@ internal static class ApplicationExtenstions
 
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
+        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
 
         builder.Services.AddInfrastructure(
+            DiagnosticsConfig.ServiceName,
             [
                 CampaignsModule.ConfigureConsumers,
                 UsersModule.ConfigureConsumers
             ],
+            rabbitMqSettings,
             databaseConnectionString,
             redisConnectionString
         );
@@ -62,9 +70,25 @@ internal static class ApplicationExtenstions
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
 
+        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
+        builder.Services
+            .AddSingleton<IConnection>(_ =>
+                {
+                    var factory = new ConnectionFactory()
+                    {
+                        Uri = new Uri(rabbitMqSettings.Host),
+                        UserName = rabbitMqSettings.Username,
+                        Password = rabbitMqSettings.Password,
+                    };
+
+                    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+                }
+            );
+
         builder.Services.AddHealthChecks()
             .AddNpgSql(databaseConnectionString)
             .AddRedis(redisConnectionString)
+            .AddRabbitMQ()
             .AddUrlGroup(
                 new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
                 HttpMethod.Get,
@@ -89,6 +113,7 @@ internal static class ApplicationExtenstions
             new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
         );
 
+        app.UseLogContextTraceLogging();
         app.UseSerilogRequestLogging();
         app.UseExceptionHandler();
         app.UseAuthentication();

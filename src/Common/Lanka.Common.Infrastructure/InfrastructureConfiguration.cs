@@ -8,11 +8,14 @@ using Lanka.Common.Infrastructure.Authorization;
 using Lanka.Common.Infrastructure.Caching;
 using Lanka.Common.Infrastructure.Clock;
 using Lanka.Common.Infrastructure.Data;
+using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Infrastructure.Outbox;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Quartz;
 using StackExchange.Redis;
 
@@ -22,7 +25,9 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        Action<IRegistrationConfigurator>[] moduleConfigureConsumers,
+        string serviceName,
+        Action<IRegistrationConfigurator, string>[] moduleConfigureConsumers,
+        RabbitMqSettings rabbitMqSettings,
         string databaseConnectionString,
         string redisConnectionString
     )
@@ -34,14 +39,16 @@ public static class InfrastructureConfiguration
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
-        
+
         AddPersistence(services, databaseConnectionString);
 
         AddBackgroundJobs(services);
 
         AddCache(services, redisConnectionString);
-        
-        AddEventBus(services, moduleConfigureConsumers);
+
+        AddEventBus(services, serviceName, moduleConfigureConsumers, rabbitMqSettings);
+
+        AddTracing(services, serviceName);
 
         return services;
     }
@@ -90,19 +97,56 @@ public static class InfrastructureConfiguration
         }
     }
 
-    private static void AddEventBus(IServiceCollection services, Action<IRegistrationConfigurator>[] moduleConfigureConsumers)
+    private static void AddEventBus(
+        IServiceCollection services,
+        string serviceName,
+        Action<IRegistrationConfigurator, string>[] moduleConfigureConsumers,
+        RabbitMqSettings rabbitMqSettings
+    )
     {
         services.TryAddSingleton<IEventBus, EventBus.EventBus>();
         services.AddMassTransit(configure =>
         {
-            foreach (Action<IRegistrationConfigurator> configureConsumer in moduleConfigureConsumers)
+#pragma warning disable CA1308 // Replace the call to 'ToLowerInvariant' with 'ToUpperInvariant'
+            string instanceId = serviceName.ToLowerInvariant().Replace('.', '-');
+#pragma warning restore CA1308
+
+            foreach (Action<IRegistrationConfigurator, string> configureConsumer in moduleConfigureConsumers)
             {
-                configureConsumer(configure);
+                configureConsumer(configure, instanceId);
             }
 
             configure.SetKebabCaseEndpointNameFormatter();
 
-            configure.UsingInMemory((context, cfg) => cfg.ConfigureEndpoints(context));
+            configure.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(new Uri(rabbitMqSettings.Host), host =>
+                {
+                    host.Username(rabbitMqSettings.Username);
+                    host.Password(rabbitMqSettings.Password);
+                });
+                cfg.ConfigureEndpoints(context);
+            });
         });
+    }
+
+    private static void AddTracing(IServiceCollection services, string serviceName)
+    {
+        services
+            .AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(serviceName))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddEntityFrameworkCoreInstrumentation()
+                    .AddRedisInstrumentation()
+                    .AddNpgsql()
+                    .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+
+                tracing
+                    .AddOtlpExporter();
+            });
     }
 }

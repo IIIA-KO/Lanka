@@ -6,7 +6,21 @@
       context: .
       dockerfile: src/API/Lanka.Api/Dockerfile
     ports:
+      - "4307:4307"
+    depends_on:
+      lanka.queue:
+        condition: service_healthy
+
+  lanka.gateway:
+    image: ${DOCKER_REGISTRY-}lankagateway
+    container_name: Lanka.Gateway
+    build:
+      context: .
+      dockerfile: src/Api/Lanka.Gateway/Dockerfile
+    ports:
       - "4308:4308"
+    depends_on:
+      - lanka.api
   
   lanka.database:
     image: postgres:latest
@@ -45,8 +59,35 @@
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
     volumes:
-        - ./.containers/identity:/opt/keycloak/data
-        - ./.files:/opt/keycloak/data/import
+      - ./.containers/identity:/opt/keycloak/data
+      - ./.files:/opt/keycloak/data/import
     ports:
-        - "18080:8080"
-        - "9000:9000"
+      - "18080:8080"
+      - "9000:9000"
+  
+  lanka.jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: Lanka.Jaeger
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "16686:16686"
+  
+  lanka.queue:
+    image: rabbitmq:management-alpine
+    container_name: Lanka.Queue
+    hostname: lanka-queue
+    volumes:
+      - ./.containers/queue/data/:/var/lib/rabbitmq
+      - ./.containers/queue/log/:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5672:5672"
+      - "15672:15672"

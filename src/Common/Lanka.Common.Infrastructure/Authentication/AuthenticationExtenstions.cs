@@ -14,10 +14,6 @@ internal static class AuthenticationExtenstions
         services.AddHttpContextAccessor();
 
         services.ConfigureOptions<JwtBearerConfigureOptions>();
-            
-        services.AddHttpContextAccessor();
-
-        services.AddHttpContextAccessor();
         
         services.AddScoped<IUserContext, UserContext>();
             
