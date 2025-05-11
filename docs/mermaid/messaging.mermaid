@@ -1,0 +1,11 @@
+sequenceDiagram
+    participant ModuleA
+    participant MassTransit
+    participant RabbitMQ
+    participant ModuleB
+
+    ModuleA->>MassTransit: Publish Message
+    MassTransit->>RabbitMQ: Send Message to Exchange
+    RabbitMQ->>ModuleB: Route Message to Queue
+    ModuleB->>MassTransit: Consume Message
+    MassTransit->>ModuleB: Process Message
