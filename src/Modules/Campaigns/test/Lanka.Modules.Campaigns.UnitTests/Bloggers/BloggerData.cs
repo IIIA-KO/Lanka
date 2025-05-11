@@ -4,13 +4,13 @@ namespace Lanka.Modules.Campaigns.UnitTests.Bloggers;
 
 internal static class BloggerData
 {
-    public static string FirstName = BaseTest.Faker.Person.FirstName;
+    public static string FirstName = "FirstName";
 
-    public static string LastName = BaseTest.Faker.Person.LastName;
+    public static string LastName = "LastName";
 
-    public static string Email = BaseTest.Faker.Internet.Email();
+    public static string Email = "blogger@lanka.com";
     
-    public static string Bio = BaseTest.Faker.Lorem.Sentences(3);
+    public static string Bio = "Bio";
 
     public static DateOnly BirthDate => BaseTest.Faker.Date.PastDateOnly(
         18,

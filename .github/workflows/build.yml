@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   DOTNET_VERSION: "9.0.x"
   SOLUTION_PATH: "./Lanka.sln"
