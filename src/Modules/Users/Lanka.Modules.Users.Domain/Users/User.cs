@@ -7,7 +7,7 @@ using Lanka.Modules.Users.Domain.Users.LastNames;
 
 namespace Lanka.Modules.Users.Domain.Users;
 
-public class User : Entity<UserId>, IAggregateRoot
+public class User : Entity<UserId>
 {
     private readonly List<Role> _roles = [];
 
@@ -16,11 +16,11 @@ public class User : Entity<UserId>, IAggregateRoot
     public LastName LastName { get; private set; }
 
     public Email Email { get; private set; }
-    
+
     public BirthDate BirthDate { get; private set; }
 
     public string IdentityId { get; private set; }
-    
+
     public IReadOnlyCollection<Role> Roles => this._roles;
 
     private User() { }

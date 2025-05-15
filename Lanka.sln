@@ -75,7 +75,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Campaigns.App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.IntegrationTests", "test\Lanka.IntegrationTests\Lanka.IntegrationTests.csproj", "{816B25BA-B829-4A0C-B987-F86B54DB51B6}"
 EndProject
+<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Gateway", "src\Api\Lanka.Gateway\Lanka.Gateway.csproj", "{B52E62B8-5542-4A68-9551-B2F196233B07}"
+=======
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analytics", "Analytics", "{65BD788B-9BBD-4EE4-B7B1-255931EC8D21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Analytics.Domain", "src\Modules\Analytics\Lanka.Modules.Analytics.Domain\Lanka.Modules.Analytics.Domain.csproj", "{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0}"
+>>>>>>> b2ccc1a (#18: Add domain models for Analytics module)
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +121,8 @@ Global
 		{FC2DE968-9900-4476-BBEA-C7FAB807B902} = {D9154D3F-4B7C-46B7-9A39-555F9E7EA2A2}
 		{816B25BA-B829-4A0C-B987-F86B54DB51B6} = {3F82F348-6FA6-42A1-BD42-D27A8FFD96DF}
 		{B52E62B8-5542-4A68-9551-B2F196233B07} = {B00FFF23-DB97-41DE-A3EB-E6D0269FA107}
+		{65BD788B-9BBD-4EE4-B7B1-255931EC8D21} = {6761B499-EBA0-4890-818A-D356FAC87CC8}
+		{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0} = {65BD788B-9BBD-4EE4-B7B1-255931EC8D21}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -221,5 +229,9 @@ Global
 		{B52E62B8-5542-4A68-9551-B2F196233B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B52E62B8-5542-4A68-9551-B2F196233B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B52E62B8-5542-4A68-9551-B2F196233B07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
