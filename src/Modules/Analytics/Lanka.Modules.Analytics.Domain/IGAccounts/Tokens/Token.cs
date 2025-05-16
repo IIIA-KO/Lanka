@@ -62,6 +62,6 @@ public class Token : Entity<TokenId>
             );
         }
         
-        return Result<AccessToken>.Success(new AccessToken(accessToken));
+        return AccessToken.Create(accessToken).Value;
     }
 }

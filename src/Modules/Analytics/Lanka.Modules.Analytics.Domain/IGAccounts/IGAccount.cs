@@ -1,6 +1,7 @@
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Domain.IGAccounts.AdvertisementAccountIds;
 using Lanka.Modules.Analytics.Domain.IGAccounts.FBPageIds;
+using Lanka.Modules.Analytics.Domain.Tokens;
 
 namespace Lanka.Modules.Analytics.Domain.IGAccounts;
 
@@ -14,10 +15,14 @@ public class IGAccount : Entity<IGAccountId>
 
     public AdvertisementAccountId AdvertisementAccountId { get; private set; }
 
+    public Category Category { get; private set; }
+
     public Metadata Metadata { get; private set; }
 
     public DateTimeOffset LastUpdatedAtUtc { get; private set; }
-
+    
+    public Token? Token { get; set; }
+    
     private IGAccount() { }
 
     private IGAccount(
@@ -25,6 +30,7 @@ public class IGAccount : Entity<IGAccountId>
         BloggerId bloggerId,
         FBPageId fbPageId,
         AdvertisementAccountId advertisementAccountId,
+        Category category,
         Metadata metadata
     )
     {
@@ -32,6 +38,7 @@ public class IGAccount : Entity<IGAccountId>
         this.BloggerId = bloggerId;
         this.FBPageId = fbPageId;
         this.AdvertisementAccountId = advertisementAccountId;
+        this.Category = category;
         this.Metadata = metadata;
     }
 
@@ -57,12 +64,13 @@ public class IGAccount : Entity<IGAccountId>
             new BloggerId(bloggerId),
             _fbPageId,
             _advertisementAccountId,
+            Category.None,
             metadata
         );
 
         return igAccount;
     }
-
+    
     private static Result<(FBPageId, AdvertisementAccountId)> Validate(
         string fbPageId,
         string advertisementAccountId
@@ -71,8 +79,7 @@ public class IGAccount : Entity<IGAccountId>
         Result<FBPageId> fbPageIdResult = FBPageId.Create(fbPageId);
         Result<AdvertisementAccountId> adAccountIdResult = AdvertisementAccountId.Create(advertisementAccountId);
 
-        if (fbPageIdResult.IsFailure
-            || adAccountIdResult.IsFailure)
+        if (fbPageIdResult.IsFailure || adAccountIdResult.IsFailure)
         {
             return Result.Failure<(FBPageId, AdvertisementAccountId)>(
                 ValidationError.FromResults([
