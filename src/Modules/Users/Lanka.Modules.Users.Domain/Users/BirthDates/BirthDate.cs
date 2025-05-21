@@ -5,7 +5,7 @@ namespace Lanka.Modules.Users.Domain.Users.BirthDates;
 public class BirthDate
 {
     public const int MinimumAge = 18;
-        
+
     public DateOnly Value { get; init; }
 
     private BirthDate(DateOnly value)
@@ -21,19 +21,19 @@ public class BirthDate
         {
             return Result.Failure<BirthDate>(validationResult.Error);
         }
-            
+
         return new BirthDate(birthDate);
     }
-        
+
     private static Result ValidateBirthDate(DateOnly birthDate)
     {
         DateTimeOffset now = DateTimeOffset.UtcNow;
-            
+
         var birthDateTimeOffset = new DateTimeOffset(
             birthDate.ToDateTime(TimeOnly.MinValue),
             TimeSpan.Zero
         );
-            
+
         int age = now.Year - birthDateTimeOffset.Year;
 
         if (now < birthDateTimeOffset.AddYears(age))
@@ -42,7 +42,14 @@ public class BirthDate
         }
 
         return age >= MinimumAge
-            ? Result.Success() 
+            ? Result.Success()
             : BirthDateErrors.Invalid;
+    }
+    
+    public static bool Validate(DateOnly birthDate)
+    {
+        Result result = ValidateBirthDate(birthDate);
+
+        return result.IsSuccess;
     }
 }

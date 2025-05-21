@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Lanka.Modules.Users.Domain.Users.BirthDates;
 using Lanka.Modules.Users.Domain.Users.Emails;
 using Lanka.Modules.Users.Domain.Users.FirstNames;
 using Lanka.Modules.Users.Domain.Users.LastNames;
@@ -23,8 +24,10 @@ internal sealed class RegisterUserCommandValidator : AbstractValidator<RegisterU
 
         this.RuleFor(c => c.BirthDate)
             .NotEmpty()
-            .WithMessage("Birth Date is required.");
-            
+            .WithMessage("Birth Date is required.")
+            .Must(BirthDate.Validate)
+            .WithMessage($"You must be at least {BirthDate.MinimumAge} years old.");
+        
         this.RuleFor(c => c.Email)
             .EmailAddress()
             .WithMessage("Invalid email format.")
