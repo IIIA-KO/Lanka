@@ -1,0 +1,30 @@
+/* Import PrimeIcons CSS */
+@import "primeicons/primeicons.css";
+
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Set Inter as the default font */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+:root {
+  --primary-color: #4AB8B8;
+  --primary-color-text: #ffffff;
+}
+
+html, body { height: 100%; background-color: #f0f4f9 ;}
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-mdc-snack-bar-container.snack-error {
+    --mdc-snackbar-container-color: red;
+    --mat-snack-bar-button-color: #fff;
+    --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.snack-success {
+    --mdc-snackbar-container-color: green;
+    --mat-snack-bar-button-color: #fff;
+    --mdc-snackbar-supporting-text-color: #fff;
+}

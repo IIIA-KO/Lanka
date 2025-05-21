@@ -8,4 +8,6 @@ public interface IBloggerRepository
     );
 
     void Add(Blogger blogger);
+    
+    void Remove(Blogger blogger);
 }

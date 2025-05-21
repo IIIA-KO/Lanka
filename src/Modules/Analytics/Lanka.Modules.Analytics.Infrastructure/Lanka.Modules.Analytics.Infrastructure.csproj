@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Campaigns\Lanka.Modules.Campaigns.Application\Lanka.Modules.Campaigns.Application.csproj" />
+      <ProjectReference Include="..\Lanka.Modules.Analytics.Application\Lanka.Modules.Analytics.Application.csproj" />
+    </ItemGroup>
+
+</Project>

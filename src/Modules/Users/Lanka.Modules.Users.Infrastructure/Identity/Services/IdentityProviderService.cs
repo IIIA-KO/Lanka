@@ -85,4 +85,14 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
         return result;
     }
+    
+    public async Task<Result> DeleteUserAsync(string userIdentityId, CancellationToken cancellationToken = default)
+    {
+        Result result = await this._keycloakAdminService.DeleteAccountAsync(
+            userIdentityId,
+            cancellationToken
+        );
+
+        return result;
+    }
 }

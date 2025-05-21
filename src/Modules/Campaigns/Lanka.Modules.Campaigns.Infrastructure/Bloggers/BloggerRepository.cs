@@ -26,4 +26,9 @@ internal sealed class BloggerRepository : IBloggerRepository
     {
         this._dbContext.Bloggers.Add(blogger);
     }
+    
+    public void Remove(Blogger blogger)
+    {
+        this._dbContext.Bloggers.Remove(blogger);
+    }
 }

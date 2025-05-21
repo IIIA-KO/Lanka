@@ -5,6 +5,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers.DomainEvents;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Emails;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
 using Lanka.Modules.Campaigns.Domain.Bloggers.LastNames;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Photos;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 
 namespace Lanka.Modules.Campaigns.Domain.Bloggers;
@@ -22,6 +23,8 @@ public class Blogger : Entity<BloggerId>
     public Bio Bio { get; private set; }
 
     public Pact? Pact { get; init; }
+    
+    public Photo? ProfilePhoto { get; private set; }
 
     private Blogger() { }
 
@@ -121,5 +124,15 @@ public class Blogger : Entity<BloggerId>
             birthDateResult.Value,
             bioResult.Value
         );
+    }
+    
+    public void SetProfilePhoto(Photo photo)
+    {
+        this.ProfilePhoto = photo;
+    }
+
+    public void RemoveProfilePhoto()
+    {
+        this.ProfilePhoto = null;
     }
 }

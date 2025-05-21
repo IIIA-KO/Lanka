@@ -3,6 +3,7 @@ using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
+using Lanka.Modules.Campaigns.Application.Abstractions.Photos;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
@@ -15,6 +16,7 @@ using Lanka.Modules.Campaigns.Infrastructure.Inbox;
 using Lanka.Modules.Campaigns.Infrastructure.Offers;
 using Lanka.Modules.Campaigns.Infrastructure.Outbox;
 using Lanka.Modules.Campaigns.Infrastructure.Pacts;
+using Lanka.Modules.Campaigns.Infrastructure.Photos;
 using Lanka.Modules.Campaigns.Infrastructure.Reviews;
 using Lanka.Modules.Users.IntegrationEvents;
 using MassTransit;
@@ -38,9 +40,11 @@ public static class CampaignsModule
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
 
+        services.AddCloudinary(configuration);
+
         return services;
     }
-
+    
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
         registrationConfigurator.AddConsumer<IntegrationEventConsumer<UserRegisteredIntegrationEvent>>()
@@ -128,5 +132,12 @@ public static class CampaignsModule
 
             services.Decorate(integrationEventHandler, closedIdempotentHandler);
         }
+    }
+    
+    private static void AddCloudinary(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<CloudinaryOptions>(configuration.GetSection("Cloudinary"));
+
+        services.AddSingleton<IPhotoAccessor, PhotoAccessor>();
     }
 }

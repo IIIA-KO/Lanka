@@ -14,6 +14,20 @@ namespace Lanka.Gateway.Extensions;
 
 internal static class ApplicationExtensions
 {
+    public static WebApplicationBuilder ConfigureCors(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddCors(options => 
+            options.AddPolicy("AllowLankaClient", corsPolicyBuilder => 
+                corsPolicyBuilder
+                    .WithOrigins("http://localhost:4200")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            )
+        );
+
+        return builder;
+    }
+    
     public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
     {
         builder.Host.UseSerilog((context, loggerConfiguration) =>
@@ -99,6 +113,8 @@ internal static class ApplicationExtensions
 
     public static WebApplication ConfigureMiddleware(this WebApplication app)
     {
+        app.UseCors("AllowLankaClient");
+        
         app.UseLogContextTraceLogging();
         app.UseSerilogRequestLogging();
 

@@ -1,7 +1,7 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Bloggers.GetBlogger;
-using Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
+using Lanka.Modules.Campaigns.Application.Bloggers.Update;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
