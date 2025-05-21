@@ -3,6 +3,29 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Angular specific
+.angular/
+dist/
+/.cache
+.vscode/
+/.idea
+/.editorconfig
+/.browserslistrc
+/.eslintrc.json
+/.prettierrc
+/.prettierignore
+/coverage
+/tmp
+/out-tsc
+/src/environments/environment.ts
+/src/environments/environment.prod.ts
+
+# Node.js specific
+package-lock.json
+yarn.lock
+npm-debug.log
+yarn-error.log
+
 # User-specific files
 *.rsuser
 *.suo
