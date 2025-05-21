@@ -1,0 +1,23 @@
+<div class="p-4 border-round shadow-2 surface-100 mt-5 mx-auto" style="max-width: 800px;">
+  <h1 class="text-2xl font-semibold mb-4">Internal server error</h1>
+
+  <div *ngIf="error">
+    <h5 class="text-red-600">Error: {{ error.message }}</h5>
+
+    <p class="font-bold mb-2">This error comes from the server, not Angular</p>
+    <p class="mb-2">What to do next?</p>
+
+    <ol class="list-decimal pl-4 mb-4">
+      <li class="mb-1">Check the network tab in Chrome DevTools</li>
+      <li class="mb-1">
+        Reproduce the error in Postman. If same error, don't waste time troubleshooting Angular code
+      </li>
+    </ol>
+
+    <h5 class="text-lg font-semibold mb-2">Stack trace</h5>
+
+    <p-card class="p-4 bg-white">
+      <code class="block whitespace-pre-wrap">{{ error.details }}</code>
+    </p-card>
+  </div>
+</div>

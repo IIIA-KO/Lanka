@@ -1,0 +1,32 @@
+<div
+  class="sidebar-container"
+  (mouseenter)="open = true"
+  (mouseleave)="open = false"
+>
+  <!-- Logo -->
+  <div class="logo-wrapper">
+    <img src="/logo/logo-white.svg" alt="Lanka" class="logo" />
+  </div>
+
+  <!-- Menu -->
+  <ul class="menu-list">
+    <li
+      *ngFor="let item of menu"
+      class="menu-item"
+      routerLinkActive="active"
+      [routerLink]="item.path"
+    >
+      <img [src]="item.icon" [alt]="item.title" class="icon" />
+      <span class="label" [class.visible]="open">{{ item.title }}</span>
+    </li>
+
+    <li
+      class="menu-item"
+      routerLinkActive="active"
+      [routerLink]="['logout']"
+    >
+      <img src="/icons/logout-icon.svg" alt="Logout" class="icon" />
+      <span class="label" [class.visible]="open">Logout</span>
+    </li>
+  </ul>
+</div>

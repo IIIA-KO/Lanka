@@ -1,0 +1,24 @@
+<div class="w-full flex justify-content-center">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="w-full max-w-md flex flex-column gap-3 mt-3">
+    <input pInputText formControlName="email" placeholder="E-mail" styleClass="w-full" inputStyleClass="w-full" />
+
+    <p-password formControlName="password" [feedback]="false" [toggleMask]="true" placeholder="Password"
+      styleClass="w-full" inputStyleClass="w-full"></p-password>
+
+    <div class="error-space">
+      <div class="error-container w-full">
+        <small *ngIf="form.get('password')?.hasError('required')" class="p-error">
+          Password is required.
+        </small>
+        <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error">
+          Password must be at least 8 characters.
+        </small>
+        <small *ngIf="form.get('password')?.hasError('pattern')" class="p-error">
+          Password must contain uppercase, lowercase, number & one special (!?*.$).
+        </small>
+      </div>
+    </div>
+
+    <button pButton type="submit" label="Login" class="w-full" [disabled]="form.invalid" style="background-color: var(--primary-color)"></button>
+  </form>
+</div>
