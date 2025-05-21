@@ -15,48 +15,61 @@ public class BloggerConfiguration : IEntityTypeConfiguration<Blogger>
     public void Configure(EntityTypeBuilder<Blogger> builder)
     {
         builder.ToTable("bloggers");
-            
+
         builder.HasKey(blogger => blogger.Id);
-            
+
         builder
             .HasIndex(blogger => blogger.Email)
             .IsUnique();
-            
+
         builder
             .Property(x => x.Id)
             .HasConversion(id => id.Value, value => new BloggerId(value));
-            
+
         builder
             .Property(blogger => blogger.FirstName)
             .HasConversion(firstName => firstName.Value, value => FirstName.Create(value).Value)
             .IsRequired();
-            
+
         builder
             .Property(blogger => blogger.LastName)
             .HasConversion(lastName => lastName.Value, value => LastName.Create(value).Value)
             .IsRequired();
-            
+
         builder
             .Property(blogger => blogger.Email)
             .HasConversion(email => email.Value, value => Email.Create(value).Value)
             .IsRequired();
-            
+
         builder
             .Property(blogger => blogger.BirthDate)
             .HasConversion(birthDate => birthDate.Value, value => BirthDate.Create(value).Value)
             .IsRequired();
-        
+
         builder
             .Property(user => user.Bio)
             .HasMaxLength(Bio.MaxLength)
             .HasConversion(bio => bio.Value, value => Bio.Create(value).Value)
             .IsRequired(false);
-            
+
         builder
             .HasOne(blogger => blogger.Pact)
             .WithOne(pact => pact.Blogger)
             .HasForeignKey<Pact>(pact => pact.BloggerId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired(false);
+
+        builder
+            .OwnsOne(
+                blogger => blogger.ProfilePhoto,
+                photoBuilder =>
+                {
+                    photoBuilder.Property(profilePhoto => profilePhoto.Id);
+
+                    photoBuilder
+                        .Property(profilePhoto => profilePhoto.Uri)
+                        .HasConversion(uri => uri.ToString(), value => new Uri(value));
+                }
+            );
     }
 }

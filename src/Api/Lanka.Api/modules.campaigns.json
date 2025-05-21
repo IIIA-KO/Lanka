@@ -7,6 +7,11 @@
     "Inbox": {
       "IntervalInSeconds": 5,
       "BatchSize": 50
+    },
+    "Cloudinary": {
+      "CloudName": "<your-cloudinary-cloud-name>",
+      "ApiKey": "<your-cloudinary-api-key>",
+      "ApiSecret": "<your-cloudinary-api-secret>"
     }
   }
 }
