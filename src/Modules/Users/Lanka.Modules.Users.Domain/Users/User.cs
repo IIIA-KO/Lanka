@@ -118,4 +118,9 @@ public class User : Entity<UserId>
             birthDateResult.Value
         );
     }
+    
+    public void Deleted()
+    {
+        this.RaiseDomainEvent(new UserDeletedDomainEvent(this.Id));
+    }
 }

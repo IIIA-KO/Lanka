@@ -33,4 +33,10 @@ public class UserRepository : IUserRepository
 
         this._dbContext.Users.Add(user);
     }
+
+    public void Remove(User user)
+    {
+        user.Deleted();
+        this._dbContext.Users.Remove(user);
+    }
 }
