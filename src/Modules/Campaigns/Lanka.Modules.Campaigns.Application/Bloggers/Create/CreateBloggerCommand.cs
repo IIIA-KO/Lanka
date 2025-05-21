@@ -1,6 +1,6 @@
 using Lanka.Common.Application.Messaging;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.CreateBlogger;
+namespace Lanka.Modules.Campaigns.Application.Bloggers.Create;
 
 public sealed record CreateBloggerCommand(
     Guid BloggerId,

@@ -3,7 +3,7 @@ using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Bloggers.GetBlogger;
-using Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
+using Lanka.Modules.Campaigns.Application.Bloggers.Update;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using NSubstitute;
 

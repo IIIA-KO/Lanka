@@ -1,7 +1,7 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Modules.Campaigns.Application.Bloggers.GetBlogger;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
+namespace Lanka.Modules.Campaigns.Application.Bloggers.Update;
 
 public sealed record UpdateBloggerCommand(
     string FirstName,

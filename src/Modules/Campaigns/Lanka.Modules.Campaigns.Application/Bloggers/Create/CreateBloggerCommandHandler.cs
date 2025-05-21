@@ -3,7 +3,7 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.CreateBlogger;
+namespace Lanka.Modules.Campaigns.Application.Bloggers.Create;
 
 internal sealed class CreateBloggerCommandHandler
     : ICommandHandler<CreateBloggerCommand>

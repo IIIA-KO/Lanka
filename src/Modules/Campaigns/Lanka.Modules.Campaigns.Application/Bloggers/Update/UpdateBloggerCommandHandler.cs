@@ -5,7 +5,7 @@ using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Bloggers.GetBlogger;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
+namespace Lanka.Modules.Campaigns.Application.Bloggers.Update;
 
 internal sealed class UpdateBloggerCommandHandler
     : ICommandHandler<UpdateBloggerCommand, BloggerResponse>

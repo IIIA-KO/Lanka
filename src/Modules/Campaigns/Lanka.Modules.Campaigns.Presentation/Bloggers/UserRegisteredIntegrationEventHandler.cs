@@ -1,7 +1,7 @@
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Domain;
-using Lanka.Modules.Campaigns.Application.Bloggers.CreateBlogger;
+using Lanka.Modules.Campaigns.Application.Bloggers.Create;
 using Lanka.Modules.Users.IntegrationEvents;
 using MediatR;
 

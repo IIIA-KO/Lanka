@@ -14,7 +14,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
 
     public RegisterUserCommandHandler(
         IIdentityProviderService identityProviderService,
-        IUserRepository userRepository, 
+        IUserRepository userRepository,
         IUnitOfWork unitOfWork
     )
     {
@@ -33,7 +33,7 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         {
             return Result.Failure<Guid>(result.Error);
         }
-            
+
         Result<User> userCreateResult = User.Create(
             request.FirstName,
             request.LastName,
@@ -46,9 +46,9 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
         {
             return Result.Failure<Guid>(userCreateResult.Error);
         }
-            
+
         User user = userCreateResult.Value;
-            
+
         this._userRepository.Add(user);
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);

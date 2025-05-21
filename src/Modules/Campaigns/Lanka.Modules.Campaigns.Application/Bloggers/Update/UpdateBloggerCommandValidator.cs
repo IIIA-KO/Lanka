@@ -3,7 +3,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
 using Lanka.Modules.Campaigns.Domain.Bloggers.LastNames;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
+namespace Lanka.Modules.Campaigns.Application.Bloggers.Update;
 
 internal sealed class UpdateBloggerCommandValidator : AbstractValidator<UpdateBloggerCommand>
 {

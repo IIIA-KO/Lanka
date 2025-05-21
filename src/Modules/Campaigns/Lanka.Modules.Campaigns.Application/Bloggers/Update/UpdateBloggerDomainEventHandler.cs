@@ -7,7 +7,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers.DomainEvents;
 using Lanka.Modules.Campaigns.IntegrationEvents.Bloggers;
 using MediatR;
 
-namespace Lanka.Modules.Campaigns.Application.Bloggers.UpdateBlogger;
+namespace Lanka.Modules.Campaigns.Application.Bloggers.Update;
 
 internal sealed class UpdateBloggerDomainEventHandler
     : DomainEventHandler<BloggerUpdatedDomainEvent>
