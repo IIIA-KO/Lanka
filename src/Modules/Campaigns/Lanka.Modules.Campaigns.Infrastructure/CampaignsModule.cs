@@ -47,7 +47,12 @@ public static class CampaignsModule
     
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<UserRegisteredIntegrationEvent>>()
+        registrationConfigurator
+            .AddConsumer<IntegrationEventConsumer<UserRegisteredIntegrationEvent>>()
+            .Endpoint(configuration => configuration.InstanceId = instanceId);
+        
+        registrationConfigurator
+            .AddConsumer<IntegrationEventConsumer<UserDeletedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
 

@@ -1,4 +1,4 @@
-namespace Lanka.Modules.Analytics.Domain.IGAccounts;
+namespace Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 public sealed class Category
 {

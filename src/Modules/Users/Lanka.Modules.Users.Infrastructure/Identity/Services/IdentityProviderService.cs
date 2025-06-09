@@ -95,4 +95,51 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
         return result;
     }
+    
+    public async Task<Result> LinkExternalAccountToUserAsync(
+        string userIdentityId,
+        string providerName,
+        string providerUserId,
+        string providerUsername,
+        CancellationToken cancellationToken = default
+    )
+    {
+        Result result = await this._keycloakAdminService.LinkExternalAccountToUserAsync(
+            userIdentityId,
+            providerName,
+            providerUserId,
+            providerUsername,
+            cancellationToken
+        );
+
+        return result;
+    }
+    
+    public async Task<bool> IsExternalAccountLinkedAsync(
+        string userIdentityId,
+        string providerName,
+        CancellationToken cancellationToken = default
+    )
+    {
+        bool isLinked = await this._keycloakAdminService.IsExternalAccountLinkedAsync(
+            userIdentityId,
+            providerName,
+            cancellationToken
+        );
+
+        return isLinked;
+    }
+    
+    public async Task<bool> CheckUserExistsInKeycloak(
+        string email,
+        CancellationToken cancellationToken = default
+    )
+    {
+        bool exists = await this._keycloakAdminService.CheckUserExistsInKeycloak(
+            email,
+            cancellationToken
+        );
+
+        return exists;
+    }
 }
