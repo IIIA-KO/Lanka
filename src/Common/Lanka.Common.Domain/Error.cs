@@ -15,7 +15,12 @@ public record Error
         "General.NotAuthorized",
         "User is not authorized to perform this action"
     );
-        
+
+    public static Error NoData => Failure(
+        "General.NoData",
+        "No data was found"
+    );
+
     public Error(string code, string description, ErrorType type)
     {
         this.Code = code;

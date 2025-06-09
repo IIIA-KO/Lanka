@@ -5,6 +5,7 @@ using Lanka.Common.Application;
 using Lanka.Common.Infrastructure;
 using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Presentation.Endpoints;
+using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -39,8 +40,9 @@ internal static class ApplicationExtensions
     )
     {
         builder.Services.AddApplication([
-            Lanka.Modules.Users.Application.AssemblyReference.Assembly,
-            Lanka.Modules.Campaigns.Application.AssemblyReference.Assembly
+            Modules.Users.Application.AssemblyReference.Assembly,
+            Modules.Campaigns.Application.AssemblyReference.Assembly,
+            Modules.Analytics.Application.AssemblyReference.Assembly
         ]);
 
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
@@ -50,17 +52,19 @@ internal static class ApplicationExtensions
         builder.Services.AddInfrastructure(
             DiagnosticsConfig.ServiceName,
             [
+                UsersModule.ConfigureConsumers(redisConnectionString),
                 CampaignsModule.ConfigureConsumers,
-                UsersModule.ConfigureConsumers
+                AnalyticsModule.ConfigureConsumers
             ],
             rabbitMqSettings,
             databaseConnectionString,
             redisConnectionString
         );
 
-        builder.Configuration.AddModuleConfiguration(["users", "campaigns"]);
+        builder.Configuration.AddModuleConfiguration(["users", "campaigns", "analytics"]);
         builder.Services.AddUsersModule(builder.Configuration);
         builder.Services.AddCampaignsModule(builder.Configuration);
+        builder.Services.AddAnalyticsModule(builder.Configuration);
 
         return builder;
     }
