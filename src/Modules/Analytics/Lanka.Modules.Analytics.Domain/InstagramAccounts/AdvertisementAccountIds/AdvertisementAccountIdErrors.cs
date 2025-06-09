@@ -1,6 +1,6 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Analytics.Domain.IGAccounts.AdvertisementAccountIds;
+namespace Lanka.Modules.Analytics.Domain.InstagramAccounts.AdvertisementAccountIds;
 
 public static class AdvertisementAccountIdErrors
 {

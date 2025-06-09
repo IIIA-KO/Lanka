@@ -1,6 +1,6 @@
 using Lanka.Common.Domain;
 
-namespace Lanka.Modules.Analytics.Domain.Tokens.AccessTokens;
+namespace Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens.AccessTokens;
 
 public static class AccessTokenErrors
 {

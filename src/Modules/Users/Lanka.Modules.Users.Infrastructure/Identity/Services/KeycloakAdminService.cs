@@ -1,6 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
-using Lanka.Modules.Users.Infrastructure.Identity.Interfaces;
+using Lanka.Modules.Users.Infrastructure.Identity.Apis;
 using Lanka.Modules.Users.Infrastructure.Identity.Models;
 using Microsoft.Extensions.Logging;
 
@@ -111,7 +111,7 @@ internal sealed class KeycloakAdminService : IKeycloakAdminService
         return Result.Success();
     }
 
-    public async Task<Result> LinkExternalIdentityProviderAccountToKeycloakUserAsync(
+    public async Task<Result> LinkExternalAccountToUserAsync(
         string userIdentityId,
         string providerName,
         string providerUserId,
@@ -150,7 +150,7 @@ internal sealed class KeycloakAdminService : IKeycloakAdminService
         return Result.Success();
     }
 
-    public async Task<bool> IsExternalIdentityProviderAccountLinkedAsync(
+    public async Task<bool> IsExternalAccountLinkedAsync(
         string userIdentityId,
         string providerName,
         CancellationToken cancellationToken = default

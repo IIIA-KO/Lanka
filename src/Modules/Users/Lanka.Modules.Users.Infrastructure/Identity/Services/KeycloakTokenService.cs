@@ -3,7 +3,7 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Application.Users.Login;
 using Lanka.Modules.Users.Domain.Users.Emails;
-using Lanka.Modules.Users.Infrastructure.Identity.Interfaces;
+using Lanka.Modules.Users.Infrastructure.Identity.Apis;
 using Lanka.Modules.Users.Infrastructure.Identity.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

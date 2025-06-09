@@ -26,14 +26,16 @@ This catalog provides detailed explanations of the core domain concepts used in 
 
 10. [Inbox Pattern](./inbox-pattern/)
 
+11. [Saga Pattern](./saga/)
+
 ## Data Management
 
-11. [Unit of Work](./unit-of-work/)
+12. [Unit of Work](./unit-of-work/)
 
 ## Resilience
 
-12. [Resilience](./resilience/README.md)
+13. [Resilience](./resilience/README.md)
 
-13. [Reverse Proxy](./reverse-proxy/README.md)
+14. [Reverse Proxy](./reverse-proxy/README.md)
 
-14. [Rate Limiting](./rate-limiting/README.md)
+15. [Rate Limiting](./rate-limiting/README.md)

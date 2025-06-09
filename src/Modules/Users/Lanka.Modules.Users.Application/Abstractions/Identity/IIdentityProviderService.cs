@@ -28,4 +28,23 @@ public interface IIdentityProviderService
         string userIdentityId,
         CancellationToken cancellationToken = default
     );
+    
+    Task<Result> LinkExternalAccountToUserAsync(
+        string userIdentityId,
+        string providerName,
+        string providerUserId,
+        string providerUsername,
+        CancellationToken cancellationToken = default
+    );
+    
+    Task<bool> IsExternalAccountLinkedAsync(
+        string userIdentityId,
+        string providerName,
+        CancellationToken cancellationToken = default
+    );
+    
+    Task<bool> CheckUserExistsInKeycloak(
+        string email,
+        CancellationToken cancellationToken = default
+    );
 }
