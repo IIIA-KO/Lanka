@@ -1,37 +1,43 @@
 using Lanka.Common.Domain;
-using Lanka.Modules.Analytics.Domain.IGAccounts;
-using Lanka.Modules.Analytics.Domain.Tokens.AccessTokens;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens.AccessTokens;
 
-namespace Lanka.Modules.Analytics.Domain.Tokens;
+namespace Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
 
 public class Token : Entity<TokenId>
 {
-    public BloggerId BloggerId { get; init; }
+    public UserId UserId { get; init; }
 
     public AccessToken AccessToken { get; init; }
 
-    public DateTimeOffset LastCheckedOnUtc { get; private set; }
+    public DateTimeOffset LastCheckedOnUtc { get; }
 
     public DateTimeOffset ExpiresAtUtc { get; private set; }
+    
+    public InstagramAccountId InstagramAccountId { get; init; }
+    
+    public InstagramAccount InstagramAccount { get; init; }
 
     private Token() { }
 
     private Token(
         TokenId id,
-        BloggerId bloggerId, 
+        UserId userId, 
         AccessToken accessToken,
-        DateTimeOffset expiresAtUtc
+        DateTimeOffset expiresAtUtc,
+        InstagramAccountId instagramAccountId
     ) : base(id)
     {
-        this.BloggerId = bloggerId;
+        this.UserId = userId;
         this.AccessToken = accessToken;
         this.ExpiresAtUtc = expiresAtUtc;
+        this.InstagramAccountId = instagramAccountId;
     }
     
     public static Result<Token> Create(
-        Guid bloggerId,
+        Guid userId,
         string accessToke,
-        DateTimeOffset expiresAtUtc
+        DateTimeOffset expiresAtUtc,
+        InstagramAccountId instagramAccountId
     )
     {
         Result<AccessToken> validationResult = Validate(accessToke);
@@ -43,9 +49,10 @@ public class Token : Entity<TokenId>
         
         var token = new Token(
             TokenId.New(),
-            new BloggerId(bloggerId),
+            new UserId(userId),
             validationResult.Value,
-            expiresAtUtc
+            expiresAtUtc,
+            instagramAccountId
         );
         
         return token;

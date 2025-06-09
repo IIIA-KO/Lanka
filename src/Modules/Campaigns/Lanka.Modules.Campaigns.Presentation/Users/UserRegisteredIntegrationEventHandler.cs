@@ -5,7 +5,7 @@ using Lanka.Modules.Campaigns.Application.Bloggers.Create;
 using Lanka.Modules.Users.IntegrationEvents;
 using MediatR;
 
-namespace Lanka.Modules.Campaigns.Presentation.Bloggers;
+namespace Lanka.Modules.Campaigns.Presentation.Users;
 
 internal sealed class UserRegisteredIntegrationEventHandler
     : IntegrationEventHandler<UserRegisteredIntegrationEvent>

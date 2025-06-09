@@ -1,0 +1,28 @@
+{
+  "Analytics": {
+    "Outbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "Inbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "Instagram": {
+      "BaseUrl": "<base-facebook-graph-url>",
+      "ClientId": "<your-client-id>",
+      "ClientSecret": "<your-client-secret>",
+      "RedirectUri": "<your-client-app-callback-url>",
+      "RenewRedirectUri": "<your-client-app-renew-callback-url>",
+      "TokenUrl": "<base-facebook-graph-url>/oauth/access_token",
+      "UserInfoUrl": "<base-instagram-graph-url>",
+      "IntervalInSeconds": 3600,
+      "BatchSize": 100,
+      "RenewalThresholdInDays": 7
+    },
+    "Token": {
+      "IntervalInHours": 24,
+      "RenewalThresholdInDays": 30
+    }
+  }
+}
