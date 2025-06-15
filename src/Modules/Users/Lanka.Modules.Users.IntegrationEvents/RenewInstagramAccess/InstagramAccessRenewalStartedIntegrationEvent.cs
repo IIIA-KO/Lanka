@@ -1,10 +1,10 @@
 using Lanka.Common.Application.EventBus;
 
-namespace Lanka.Modules.Users.IntegrationEvents;
+namespace Lanka.Modules.Users.IntegrationEvents.RenewInstagramAccess;
 
-public sealed class InstagramAccountLinkingStartedIntegrationEvent : IntegrationEvent
+public sealed class InstagramAccessRenewalStartedIntegrationEvent : IntegrationEvent
 {
-    public InstagramAccountLinkingStartedIntegrationEvent(
+    public InstagramAccessRenewalStartedIntegrationEvent(
         Guid id,
         DateTime occurredOnUtc,
         Guid userId,
@@ -16,6 +16,6 @@ public sealed class InstagramAccountLinkingStartedIntegrationEvent : Integration
     }
 
     public Guid UserId { get; }
-    
+
     public string Code { get; init; }
 }

@@ -14,6 +14,7 @@ using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Services;
 using Lanka.Modules.Analytics.Infrastructure.Outbox;
 using Lanka.Modules.Users.IntegrationEvents;
+using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;

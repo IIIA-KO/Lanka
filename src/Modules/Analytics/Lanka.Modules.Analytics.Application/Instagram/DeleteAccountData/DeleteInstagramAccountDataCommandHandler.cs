@@ -5,13 +5,13 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.DeleteAccountData;
 
-internal sealed class DeleteInstagramAccounDataCommandHandler
+internal sealed class DeleteInstagramAccountDataCommandHandler
     : ICommandHandler<DeleteInstagramAccountDataCommand>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteInstagramAccounDataCommandHandler(
+    public DeleteInstagramAccountDataCommandHandler(
         IInstagramAccountRepository instagramAccountRepository,
         IUnitOfWork unitOfWork
     )

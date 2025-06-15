@@ -10,7 +10,7 @@ internal sealed class InstagramBusinessAccountResponse
     [JsonPropertyName("id")] public string FacebookBusinessPageId { get; set; }
 }
 
-internal class InstagramAccountResponse
+internal sealed class InstagramAccountResponse
 {
     [JsonPropertyName("id")] public string Id { get; set; }
 

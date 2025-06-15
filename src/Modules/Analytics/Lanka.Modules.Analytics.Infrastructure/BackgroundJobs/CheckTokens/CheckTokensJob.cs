@@ -1,9 +1,7 @@
 using System.Data.Common;
-using System.Reflection;
 using Dapper;
 using Lanka.Common.Application.Clock;
 using Lanka.Common.Application.Data;
-using Lanka.Modules.Analytics.Application.Abstractions.Data;
 using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.UpdateAccount;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

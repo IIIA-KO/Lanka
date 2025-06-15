@@ -1,53 +1,53 @@
 using Lanka.Modules.Analytics.IntegrationEvents;
-using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
+using Lanka.Modules.Users.IntegrationEvents.RenewInstagramAccess;
 using MassTransit;
 
-namespace Lanka.Modules.Users.Presentation.LinkInstagramSaga;
+namespace Lanka.Modules.Users.Presentation.RenewInstagramAccessSaga;
 
-public sealed class LinkInstagramSaga : MassTransitStateMachine<LinkInstagramState>
+public sealed class RenewInstagramAccessSaga : MassTransitStateMachine<RenewInstagramAccessState>
 {
-    public State LinkingStarted { get; init; }
+    public State RenewalStarted { get; init; }
     public State InstagramAccountDataFetched { get; init; }
 
-    public Event<InstagramAccountLinkedIntegrationEvent> EventAccountLinked { get; init; }
+    public Event<InstagramAccessRenewedIntegrationEvent> EventAccessRenewed { get; init; }
     public Event<InstagramAccountDataFetchedIntegrationEvent> EventAccountDataFetched { get; init; }
-    public Event InstagramLinkingCompleted { get; init; }
+    public Event InstagramAccessRenewalCompleted { get; init; }
 
-    public LinkInstagramSaga()
+    public RenewInstagramAccessSaga()
     {
-        this.Event(() => this.EventAccountLinked, c => c.CorrelateById(m => m.Message.UserId));
+        this.Event(() => this.EventAccessRenewed, c => c.CorrelateById(m => m.Message.UserId));
         this.Event(() => this.EventAccountDataFetched, c => c.CorrelateById(m => m.Message.UserId));
 
         this.InstanceState(s => s.CurrentState);
 
         this.Initially(
-            this.When(this.EventAccountLinked)
+            this.When(this.EventAccessRenewed)
                 .Publish(context =>
-                    new InstagramAccountLinkingStartedIntegrationEvent(
+                    new InstagramAccessRenewalStartedIntegrationEvent(
                         context.Message.Id,
                         context.Message.OccurredOnUtc,
                         context.Message.UserId,
                         context.Message.Code
                     )
                 )
-                .TransitionTo(this.LinkingStarted)
+                .TransitionTo(this.RenewalStarted)
         );
-
-        this.During(this.LinkingStarted,
+        
+        this.During(this.RenewalStarted,
             this.When(this.EventAccountDataFetched)
                 .TransitionTo(this.InstagramAccountDataFetched)
         );
 
         this.CompositeEvent(
-            () => this.InstagramLinkingCompleted,
-            state => state.LinkingCompletedStatus,
+            () => this.InstagramAccessRenewalCompleted,
+            state => state.RenewalCompletedStatus,
             this.EventAccountDataFetched
         );
 
         this.DuringAny(
-            this.When(this.InstagramLinkingCompleted)
+            this.When(this.InstagramAccessRenewalCompleted)
                 .Publish(context =>
-                    new InstagramAccountLinkingCompletedIntegrationEvent(
+                    new InstagramAccessRenewalCompletedIntegrationEvent(
                         Guid.NewGuid(),
                         DateTime.UtcNow,
                         context.Saga.CorrelationId

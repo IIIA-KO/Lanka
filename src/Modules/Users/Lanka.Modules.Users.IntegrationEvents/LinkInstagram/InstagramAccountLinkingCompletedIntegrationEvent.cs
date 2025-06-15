@@ -1,6 +1,6 @@
 using Lanka.Common.Application.EventBus;
 
-namespace Lanka.Modules.Users.IntegrationEvents;
+namespace Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 
 public sealed class InstagramAccountLinkingCompletedIntegrationEvent : IntegrationEvent
 {

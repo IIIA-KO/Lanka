@@ -131,4 +131,9 @@ public class User : Entity<UserId>
         this.InstagramAccountLinkedOnUtc = DateTimeOffset.UtcNow;
         this.RaiseDomainEvent(new InstagramAccountLinkedDomainEvent(this.Id, code));
     }
+    
+    public void RenewInstagramAccess(string code)
+    {
+        this.RaiseDomainEvent(new InstagramAccessRenewedDomainEvent(this.Id, code));
+    }
 }

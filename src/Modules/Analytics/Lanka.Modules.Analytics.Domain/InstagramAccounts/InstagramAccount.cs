@@ -79,6 +79,11 @@ public class InstagramAccount : Entity<InstagramAccountId>
         return igAccount;
     }
 
+    public void Update(Metadata metadata)
+    {
+        this.Metadata = metadata;
+    }
+    
     private static Result<(FacebookPageId, AdvertisementAccountId)> Validate(
         string fbPageId,
         string advertisementAccountId

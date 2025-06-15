@@ -2,7 +2,7 @@
 
 namespace Lanka.Modules.Analytics.IntegrationEvents;
 
-public class InstagramAccountDataFetchedIntegrationEvent : IntegrationEvent
+public sealed class InstagramAccountDataFetchedIntegrationEvent : IntegrationEvent
 {
     public InstagramAccountDataFetchedIntegrationEvent(
         Guid id,

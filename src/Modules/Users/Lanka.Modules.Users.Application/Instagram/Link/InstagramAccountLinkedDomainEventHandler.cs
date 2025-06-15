@@ -1,7 +1,7 @@
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Modules.Users.Domain.Users.DomainEvents;
-using Lanka.Modules.Users.IntegrationEvents;
+using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 
 namespace Lanka.Modules.Users.Application.Instagram.Link;
 

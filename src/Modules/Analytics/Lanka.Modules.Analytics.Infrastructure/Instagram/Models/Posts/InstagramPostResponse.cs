@@ -33,7 +33,7 @@ internal sealed class InstagramInsightResponse
     [JsonPropertyName("values")] public List<InsightValueResponse> Values { get; set; }
 }
 
-internal class InsightValueResponse
+internal sealed class InsightValueResponse
 {
     [JsonPropertyName("value")] public int? Value { get; set; }
 }

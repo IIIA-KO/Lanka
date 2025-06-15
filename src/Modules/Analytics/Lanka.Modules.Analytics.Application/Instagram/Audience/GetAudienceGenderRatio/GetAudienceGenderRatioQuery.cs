@@ -1,6 +1,5 @@
 using Lanka.Common.Application.Caching;
 using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetAudienceGenderRatio;
 

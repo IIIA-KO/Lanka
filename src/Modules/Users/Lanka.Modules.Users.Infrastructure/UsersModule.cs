@@ -17,6 +17,7 @@ using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
 using Lanka.Modules.Users.Presentation.LinkInstagramSaga;
+using Lanka.Modules.Users.Presentation.RenewInstagramAccessSaga;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -52,6 +53,10 @@ public static class UsersModule
         {
             registration
                 .AddSagaStateMachine<LinkInstagramSaga, LinkInstagramState>()
+                .RedisRepository(redisConnectionString);
+
+            registration
+                .AddSagaStateMachine<RenewInstagramAccessSaga, RenewInstagramAccessState>()
                 .RedisRepository(redisConnectionString);
 
             registration

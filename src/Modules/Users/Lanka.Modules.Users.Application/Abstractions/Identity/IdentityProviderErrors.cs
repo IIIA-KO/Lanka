@@ -26,6 +26,14 @@ public static class IdentityProviderErrors
         Error.Unauthorized("User.InvalidCredentials", "The provided credentials were invalid");
 
     public static Error ExternalIdentityProviderAlreadyLinked =>
-        Error.Conflict("User.ExternalIdentityProviderAlreadyLinked",
-            "The external identity provider is already linked");
+        Error.Conflict(
+            "User.ExternalIdentityProviderAlreadyLinked",
+            "The external identity provider is already linked"
+        );
+
+    public static Error InstagramAccountNotLinked =>
+        Error.Problem(
+            "User.InstagramAccountNotLinked",
+            "The Instagram account is not linked to the user"
+        );
 }

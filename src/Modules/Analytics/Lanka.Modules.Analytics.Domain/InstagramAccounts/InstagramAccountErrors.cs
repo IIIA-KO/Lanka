@@ -33,4 +33,9 @@ public static class InstagramAccountErrors
         "InstagramAccount.Unexpected",
         "An unexpected error occurred while processing the Instagram account."
     );
+
+    public static Error WrongInstagramAccount => Error.Failure(
+        "InstagramAccount.WrongInstagramAccount",
+        "The provided Instagram account is not associated with the current user."
+    );
 }
