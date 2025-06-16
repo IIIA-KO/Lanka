@@ -17,8 +17,10 @@ internal sealed class InstagramAccessRenewalStartedIntegrationEventHandler
         this._sender = sender;
     }
 
-    public override async Task Handle(InstagramAccessRenewalStartedIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
+    public override async Task Handle(
+        InstagramAccessRenewalStartedIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default
+    )
     {
         Result result = await this._sender.Send(
             new RefreshInstagramTokenCommand(
