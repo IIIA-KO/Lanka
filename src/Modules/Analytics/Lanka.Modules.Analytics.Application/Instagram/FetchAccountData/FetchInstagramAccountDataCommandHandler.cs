@@ -9,7 +9,7 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.FetchAccountData;
 
-public class FetchInstagramAccountDataCommandHandler
+internal sealed class FetchInstagramAccountDataCommandHandler
     : ICommandHandler<FetchInstagramAccountDataCommand>
 {
     private readonly IInstagramTokenService _instagramTokenService;

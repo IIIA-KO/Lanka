@@ -5,4 +5,7 @@
         <ProjectReference Include="..\Lanka.Modules.Analytics.IntegrationEvents\Lanka.Modules.Analytics.IntegrationEvents.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Lanka.Modules.Analytics.Application.UnitTests"/>
+    </ItemGroup>
 </Project>

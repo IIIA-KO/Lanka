@@ -5,7 +5,7 @@ using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 
 namespace Lanka.Modules.Users.Application.Instagram.Link;
 
-public class InstagramAccountLinkedDomainEventHandler
+internal sealed class InstagramAccountLinkedDomainEventHandler
     : DomainEventHandler<InstagramAccountLinkedDomainEvent>
 {
     private readonly IEventBus _eventBus;

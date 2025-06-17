@@ -96,6 +96,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{45565474-6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Analytics.UnitTests", "src\Modules\Analytics\test\Lanka.Modules.Analytics.UnitTests\Lanka.Modules.Analytics.UnitTests.csproj", "{9742646F-B10C-4EED-B460-AA959C9799B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Analytics.ArchitectureTests", "src\Modules\Analytics\test\Lanka.Modules.Analytics.ArchitectureTests\Lanka.Modules.Analytics.ArchitectureTests.csproj", "{A609D3A5-6313-4745-982F-B36BF0A156C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Analytics.Application.UnitTests", "src\Modules\Analytics\test\Lanka.Modules.Analytics.Application.UnitTests\Lanka.Modules.Analytics.Application.UnitTests.csproj", "{D94D6997-4B5D-4C5C-B4E4-1EAE5436C7A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +146,8 @@ Global
 		{C6010AB2-7EBA-45C9-AD89-67DA91F4C37D} = {65BD788B-9BBD-4EE4-B7B1-255931EC8D21}
 		{45565474-6CDA-4108-BB77-7AC407CAF998} = {65BD788B-9BBD-4EE4-B7B1-255931EC8D21}
 		{9742646F-B10C-4EED-B460-AA959C9799B2} = {45565474-6CDA-4108-BB77-7AC407CAF998}
+		{A609D3A5-6313-4745-982F-B36BF0A156C0} = {45565474-6CDA-4108-BB77-7AC407CAF998}
+		{D94D6997-4B5D-4C5C-B4E4-1EAE5436C7A6} = {45565474-6CDA-4108-BB77-7AC407CAF998}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4F18C413-8A9A-41F1-9E4E-C6308A8D00F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -272,5 +278,13 @@ Global
 		{9742646F-B10C-4EED-B460-AA959C9799B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9742646F-B10C-4EED-B460-AA959C9799B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9742646F-B10C-4EED-B460-AA959C9799B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A609D3A5-6313-4745-982F-B36BF0A156C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A609D3A5-6313-4745-982F-B36BF0A156C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A609D3A5-6313-4745-982F-B36BF0A156C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A609D3A5-6313-4745-982F-B36BF0A156C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D94D6997-4B5D-4C5C-B4E4-1EAE5436C7A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D94D6997-4B5D-4C5C-B4E4-1EAE5436C7A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D94D6997-4B5D-4C5C-B4E4-1EAE5436C7A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D94D6997-4B5D-4C5C-B4E4-1EAE5436C7A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

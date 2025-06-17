@@ -5,7 +5,7 @@ using Lanka.Modules.Analytics.IntegrationEvents;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.FetchAccountData;
 
-public class InstagramAccountDataFetchedDomainEventHandler
+internal sealed class InstagramAccountDataFetchedDomainEventHandler
     : DomainEventHandler<InstagramAccountDataFetchedDomainEvent>
 {
     private readonly IEventBus _eventBus;

@@ -87,6 +87,11 @@ internal sealed class RefreshInstagramTokenCommandHandler
             new UserId(request.UserId),
             cancellationToken
         );
+        
+        if (existingToken is null)
+        {
+            return Result.Failure(TokenErrors.NotFound);
+        }
 
         this._tokenRepository.Remove(existingToken!);
 

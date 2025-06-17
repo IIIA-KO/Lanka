@@ -109,7 +109,6 @@ internal sealed class InstagramAccountsService : IInstagramAccountsService
         CancellationToken cancellationToken = default
     )
     {
-        // Auto‐resolve the FB page, then delegate
         Result<string> pageIdResult = await this._facebookService.GetFacebookPageIdAsync(accessToken, cancellationToken);
         if (pageIdResult.IsFailure)
         {

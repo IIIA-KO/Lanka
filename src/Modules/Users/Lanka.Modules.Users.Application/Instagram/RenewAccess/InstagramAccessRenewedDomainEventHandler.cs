@@ -5,7 +5,7 @@ using Lanka.Modules.Users.IntegrationEvents.RenewInstagramAccess;
 
 namespace Lanka.Modules.Users.Application.Instagram.RenewAccess;
 
-public class InstagramAccessRenewedDomainEventHandler
+internal sealed class InstagramAccessRenewedDomainEventHandler
     : DomainEventHandler<InstagramAccessRenewedDomainEvent>
 {
     private readonly IEventBus _eventBus;
