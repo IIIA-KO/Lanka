@@ -2,7 +2,7 @@ using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.IntegrationEvents;
-using Lanka.Modules.Users.Application.Instagram.FinishInstagramLinking;
+using Lanka.Modules.Users.Application.Instagram.FinishLinking;
 using MediatR;
 
 namespace Lanka.Modules.Users.Presentation.Analytics;

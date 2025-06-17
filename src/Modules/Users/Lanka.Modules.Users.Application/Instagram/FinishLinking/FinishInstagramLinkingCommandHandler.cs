@@ -4,7 +4,7 @@ using Lanka.Modules.Users.Application.Abstractions;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
 
-namespace Lanka.Modules.Users.Application.Instagram.FinishInstagramLinking;
+namespace Lanka.Modules.Users.Application.Instagram.FinishLinking;
 
 internal sealed class FinishInstagramLinkingCommandHandler
     : ICommandHandler<FinishInstagramLinkingCommand>
