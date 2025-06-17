@@ -83,7 +83,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
     {
         this.Metadata = metadata;
     }
-    
+
     private static Result<(FacebookPageId, AdvertisementAccountId)> Validate(
         string fbPageId,
         string advertisementAccountId
@@ -96,8 +96,8 @@ public class InstagramAccount : Entity<InstagramAccountId>
         {
             return Result.Failure<(FacebookPageId, AdvertisementAccountId)>(
                 ValidationError.FromResults([
-                        fbPageIdResult.Error,
-                        adAccountIdResult.Error
+                        fbPageIdResult,
+                        adAccountIdResult
                     ]
                 )
             );

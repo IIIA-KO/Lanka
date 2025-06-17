@@ -65,7 +65,7 @@ public class Token : Entity<TokenId>
         if (accessTokenResult.IsFailure)
         {
             return Result.Failure<AccessToken>(
-                ValidationError.FromResults([accessTokenResult.Error])
+                ValidationError.FromResults([accessTokenResult])
             );
         }
         
