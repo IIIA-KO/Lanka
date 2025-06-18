@@ -4,7 +4,7 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts.FacebookPageIds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Lanka.Modules.Analytics.Infrastructure.IgAccounts;
+namespace Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 
 internal sealed class InstagramAccountConfiguration : IEntityTypeConfiguration<InstagramAccount>
 {

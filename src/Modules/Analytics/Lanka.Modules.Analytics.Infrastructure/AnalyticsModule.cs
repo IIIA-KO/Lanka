@@ -7,12 +7,13 @@ using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
 using Lanka.Modules.Analytics.Infrastructure.Database;
-using Lanka.Modules.Analytics.Infrastructure.IgAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Inbox;
 using Lanka.Modules.Analytics.Infrastructure.Instagram;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Services;
+using Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Outbox;
+using Lanka.Modules.Analytics.Infrastructure.Tokens;
 using Lanka.Modules.Users.IntegrationEvents;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 using MassTransit;
@@ -66,7 +67,7 @@ public static class AnalyticsModule
 
     private static void AddInstagramIntegration(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<InstagramOptions>(configuration.GetSection("Instagram"));
+        services.Configure<InstagramOptions>(configuration.GetSection("Analytics:Instagram"));
 
         services
             .AddRefitClient<IFacebookApi>()
@@ -128,7 +129,7 @@ public static class AnalyticsModule
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IInstagramAccountRepository, InstagramAccountRepository>();
-        services.AddScoped<ITokenRepository, ITokenRepository>();
+        services.AddScoped<ITokenRepository, TokenRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AnalyticsDbContext>());
     }

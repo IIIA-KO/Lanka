@@ -2,17 +2,17 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Lanka.Modules.Analytics.Infrastructure.IgAccounts;
+namespace Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 
 internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
         builder.ToTable("categories");
-        
+
         builder.HasKey(category => category.Name);
-        
-        builder.Property(category => category.Name).HasMaxLength(50);
+
+        builder.Property(category => category.Name).HasMaxLength(100);
 
         builder
             .HasMany<InstagramAccount>()

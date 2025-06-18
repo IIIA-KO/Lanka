@@ -1,5 +1,6 @@
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens.AccessTokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,8 +11,21 @@ internal sealed class TokenConfiguration : IEntityTypeConfiguration<Token>
     public void Configure(EntityTypeBuilder<Token> builder)
     {
         builder.ToTable("tokens");
-        
+
         builder.HasKey(token => token.Id);
+
+        builder
+            .Property(token => token.Id)
+            .HasConversion(tokenId => tokenId.Value, value => new TokenId(value))
+            .IsRequired();
+
+        builder
+            .Property(token => token.AccessToken)
+            .HasConversion(
+                accessToken => accessToken.Value,
+                value => AccessToken.Create(value).Value
+            )
+            .IsRequired();
 
         builder
             .Property(token => token.UserId)

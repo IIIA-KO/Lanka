@@ -2,7 +2,7 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Lanka.Modules.Analytics.Infrastructure.IgAccounts;
+namespace Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 
 internal sealed class InstagramAccountRepository : IInstagramAccountRepository
 {

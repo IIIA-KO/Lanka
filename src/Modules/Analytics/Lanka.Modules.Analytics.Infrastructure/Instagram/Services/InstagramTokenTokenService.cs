@@ -5,6 +5,7 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Refit;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Instagram.Services;
@@ -17,12 +18,12 @@ internal sealed class InstagramTokenTokenService : IInstagramTokenService
 
     public InstagramTokenTokenService(
         IInstagramTokenApi instagramTokenApi,
-        InstagramOptions instagramOptions,
+        IOptions<InstagramOptions> instagramOptions,
         ILogger<InstagramTokenTokenService> logger
     )
     {
         this._instagramTokenApi = instagramTokenApi;
-        this._instagramOptions = instagramOptions;
+        this._instagramOptions = instagramOptions.Value;
         this._logger = logger;
     }
 
@@ -83,7 +84,7 @@ internal sealed class InstagramTokenTokenService : IInstagramTokenService
         }
         catch (ApiException exception)
         {
-            this._logger.LogWarning(exception,"Renew token request failed: {StatusCode}", exception.StatusCode);
+            this._logger.LogWarning(exception, "Renew token request failed: {StatusCode}", exception.StatusCode);
             return Result.Failure<FacebookTokenResponse>(Error.NotAuthorized);
         }
 
@@ -91,7 +92,7 @@ internal sealed class InstagramTokenTokenService : IInstagramTokenService
 
         return await this.AttachExpiration(tokenResponse, cancellationToken);
     }
-    
+
     private async Task<Result<FacebookTokenResponse>> AttachExpiration(
         FacebookTokenResponse token,
         CancellationToken cancellationToken
@@ -100,6 +101,7 @@ internal sealed class InstagramTokenTokenService : IInstagramTokenService
         this._logger.LogInformation("Fetching data_access_expires_at");
 
         DebugTokenResponse debug;
+
         try
         {
             debug = await this._instagramTokenApi.GetDebugTokenAsync(

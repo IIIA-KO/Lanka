@@ -17,12 +17,12 @@ public class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> options) : 
     {
         modelBuilder.HasDefaultSchema(Schemas.Analytics);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AnalyticsDbContext).Assembly);
-
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new InboxMessageConsumerConfiguration());
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AnalyticsDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }
