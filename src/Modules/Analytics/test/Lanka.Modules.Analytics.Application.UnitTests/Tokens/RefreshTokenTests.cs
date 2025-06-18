@@ -46,17 +46,11 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnSuccess()
     {
         // Arrange
-        var fbToken = new FacebookTokenResponse
-        {
-            AccessToken = TokenData.AccessToken,
-            ExpiresAtUtc = TokenData.ExpiresAtUtc,
-        };
-
         this._instagramTokenServiceMock.GetAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
-            .Returns(fbToken);
+            .Returns(TokenData.FacebookTokenResponse);
 
         this._instagramAccountsServiceMock.GetUserInfoAsync(
                 Arg.Any<string>(),
@@ -109,11 +103,7 @@ public class RefreshTokenTests
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
-            .Returns(new FacebookTokenResponse
-            {
-                AccessToken = TokenData.AccessToken,
-                ExpiresAtUtc = TokenData.ExpiresAtUtc,
-            });
+            .Returns(TokenData.FacebookTokenResponse);
 
         this._instagramAccountsServiceMock.GetUserInfoAsync(
                 Arg.Any<string>(),

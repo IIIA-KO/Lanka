@@ -1,3 +1,4 @@
+using Lanka.Modules.Analytics.Application.Abstractions.Models;
 using Lanka.Modules.Analytics.Application.UnitTests.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
@@ -16,6 +17,12 @@ internal static class TokenData
         ).Value;
     }
 
+    public static FacebookTokenResponse FacebookTokenResponse => new()
+    {
+        AccessToken = AccessToken,
+        ExpiresAtUtc = ExpiresAtUtc
+    };
+    
     public static InstagramAccount InstagramAccount => InstagramAccountData.Create();
     
     public static Guid UserId => Guid.NewGuid();
