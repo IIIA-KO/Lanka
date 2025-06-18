@@ -6,7 +6,7 @@ public interface ITokenRepository
     
     Task<Token?> GetByUserIdAsync(UserId userId, CancellationToken cancellationToken = default);
     
-    public void Add(Token token);
+    void Add(Token token);
     
-    public void Remove(Token token);
+    void Remove(Token token);
 }
