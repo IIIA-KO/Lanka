@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
     <ItemGroup>
-      <ProjectReference Include="..\Lanka.Modules.Analytics.Domain\Lanka.Modules.Analytics.Domain.csproj" />
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Application\Lanka.Common.Application.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Analytics.Domain\Lanka.Modules.Analytics.Domain.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Analytics.IntegrationEvents\Lanka.Modules.Analytics.IntegrationEvents.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Lanka.Modules.Analytics.Application.UnitTests"/>
+    </ItemGroup>
 </Project>

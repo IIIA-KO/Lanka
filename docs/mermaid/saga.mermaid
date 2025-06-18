@@ -1,0 +1,9 @@
+graph TD
+    U1[User initiates linking] --> E1[Users module publishes InstagramAccountLinkedIntegrationEvent]
+    E1 --> S1[LinkInstagramSaga starts, state = LinkingStarted]
+    S1 --> E2[Analytics handles event, fetches token + profile]
+    E2 --> E3[Analytics publishes InstagramAccountDataFetchedIntegrationEvent]
+    E3 --> H1[Users handles event, finalizes Keycloak link]
+    H1 --> S2[LinkInstagramSaga receives data fetched event]
+    S2 --> F1[InstagramLinkingCompletedIntegrationEvent]
+    F1 --> Done[Link complete]

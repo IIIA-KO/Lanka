@@ -1,3 +1,5 @@
+using Lanka.Modules.Analytics.Infrastructure;
+using Lanka.Modules.Analytics.Infrastructure.Database;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +14,9 @@ internal static class MigrationExtensions
 
         ApplyMigration<UsersDbContext>(serviceScope);
         ApplyMigration<CampaignsDbContext>(serviceScope);
+        ApplyMigration<AnalyticsDbContext>(serviceScope);
     }
-        
+
     private static void ApplyMigration<TDbContext>(IServiceScope serviceScope)
         where TDbContext : DbContext
     {

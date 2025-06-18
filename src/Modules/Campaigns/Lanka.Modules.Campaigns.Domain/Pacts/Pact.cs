@@ -72,7 +72,7 @@ public sealed class Pact : Entity<PactId>
         if (contentResult.IsFailure)
         {
             return Result.Failure<Content>(
-                ValidationError.FromResults([contentResult.Error])
+                ValidationError.FromResults([contentResult])
             );
         }
             

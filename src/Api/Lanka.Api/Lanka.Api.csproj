@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Modules\Analytics\Lanka.Modules.Analytics.Infrastructure\Lanka.Modules.Analytics.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Campaigns\Lanka.Modules.Campaigns.Infrastructure\Lanka.Modules.Campaigns.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Users\Lanka.Modules.Users.Infrastructure\Lanka.Modules.Users.Infrastructure.csproj" />
     </ItemGroup>

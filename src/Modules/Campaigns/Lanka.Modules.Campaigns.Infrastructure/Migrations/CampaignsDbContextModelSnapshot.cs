@@ -372,6 +372,35 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                     b.ToTable("reviews", "campaigns");
                 });
 
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", b =>
+                {
+                    b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.Photos.Photo", "ProfilePhoto", b1 =>
+                        {
+                            b1.Property<Guid>("BloggerId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Id")
+                                .HasColumnType("text")
+                                .HasColumnName("profile_photo_id");
+
+                            b1.Property<string>("Uri")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("profile_photo_uri");
+
+                            b1.HasKey("BloggerId");
+
+                            b1.ToTable("bloggers", "campaigns");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BloggerId")
+                                .HasConstraintName("fk_bloggers_bloggers_id");
+                        });
+
+                    b.Navigation("ProfilePhoto");
+                });
+
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Campaigns.Campaign", b =>
                 {
                     b.HasOne("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", "Client")

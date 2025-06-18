@@ -15,4 +15,7 @@ app.ConfigureMiddleware();
 await app.RunAsync();
 
 #pragma warning disable CA1515 // Type can be made internal
-public partial class Program;
+namespace Lanka.Api
+{
+    public partial class Program;
+}

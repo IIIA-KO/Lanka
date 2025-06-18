@@ -3,4 +3,4 @@ using Microsoft.AspNetCore.Http;
 
 namespace Lanka.Modules.Campaigns.Application.Bloggers.Photos.SetProfilePhoto;
 
-public record SetProfilePhotoCommand(IFormFile File) : ICommand;
+public sealed record SetProfilePhotoCommand(IFormFile File) : ICommand;

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Lanka.Api;
 using Lanka.IntegrationTests.Users;
 using Lanka.Modules.Users.Infrastructure.Identity;
 using Microsoft.AspNetCore.Hosting;

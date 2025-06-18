@@ -1,0 +1,234 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Lanka.Modules.Analytics.Infrastructure.Migrations
+{
+    /// <inheritdoc />
+    public partial class Initial : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.EnsureSchema(
+                name: "analytics");
+
+            migrationBuilder.CreateTable(
+                name: "categories",
+                schema: "analytics",
+                columns: table => new
+                {
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_categories", x => x.name);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "inbox_message_consumers",
+                schema: "analytics",
+                columns: table => new
+                {
+                    inbox_message_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_inbox_message_consumers", x => new { x.inbox_message_id, x.name });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "inbox_messages",
+                schema: "analytics",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "jsonb", maxLength: 2000, nullable: false),
+                    occurred_on_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_on_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    error = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_inbox_messages", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "outbox_message_consumers",
+                schema: "analytics",
+                columns: table => new
+                {
+                    outbox_message_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_outbox_message_consumers", x => new { x.outbox_message_id, x.name });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "outbox_messages",
+                schema: "analytics",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "jsonb", maxLength: 2000, nullable: false),
+                    occurred_on_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_on_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    error = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_outbox_messages", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "accounts",
+                schema: "analytics",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    facebook_page_id = table.Column<string>(type: "text", nullable: false),
+                    advertisement_account_id = table.Column<string>(type: "text", nullable: false),
+                    category_name = table.Column<string>(type: "character varying(100)", nullable: false),
+                    metadata_id = table.Column<string>(type: "text", nullable: true),
+                    metadata_ig_id = table.Column<long>(type: "bigint", nullable: false),
+                    metadata_user_name = table.Column<string>(type: "text", nullable: false),
+                    metadata_followers_count = table.Column<int>(type: "integer", nullable: false),
+                    metadata_media_count = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_accounts", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_accounts_categories_category_name",
+                        column: x => x.category_name,
+                        principalSchema: "analytics",
+                        principalTable: "categories",
+                        principalColumn: "name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "tokens",
+                schema: "analytics",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    access_token = table.Column<string>(type: "text", nullable: false),
+                    expires_at_utc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    instagram_account_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_tokens", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_tokens_accounts_instagram_account_id",
+                        column: x => x.instagram_account_id,
+                        principalSchema: "analytics",
+                        principalTable: "accounts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                schema: "analytics",
+                table: "categories",
+                column: "name",
+                values: new object[]
+                {
+                    "Animals",
+                    "Art",
+                    "Automobiles",
+                    "Clothing and Footwear",
+                    "Comedy",
+                    "Cooking and Food",
+                    "Cryptocurrency",
+                    "DIY and Crafts",
+                    "Education",
+                    "Entrepreneurship",
+                    "Environment",
+                    "Fashion and Style",
+                    "Finance",
+                    "Fitness",
+                    "Gaming",
+                    "Health and Wellness",
+                    "History",
+                    "Home Decor",
+                    "Horticulture",
+                    "Legal Advice",
+                    "Literature",
+                    "Marketing",
+                    "Mental Health",
+                    "Movies and TV",
+                    "Music",
+                    "News",
+                    "None",
+                    "Parenting",
+                    "Personal Development",
+                    "Photography",
+                    "Politics",
+                    "Real Estate",
+                    "Relationships",
+                    "Religion and Spirituality",
+                    "Science",
+                    "Self Improvement",
+                    "Social Media",
+                    "Sports",
+                    "Technology",
+                    "Travel"
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_accounts_category_name",
+                schema: "analytics",
+                table: "accounts",
+                column: "category_name");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tokens_instagram_account_id",
+                schema: "analytics",
+                table: "tokens",
+                column: "instagram_account_id",
+                unique: true);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "inbox_message_consumers",
+                schema: "analytics");
+
+            migrationBuilder.DropTable(
+                name: "inbox_messages",
+                schema: "analytics");
+
+            migrationBuilder.DropTable(
+                name: "outbox_message_consumers",
+                schema: "analytics");
+
+            migrationBuilder.DropTable(
+                name: "outbox_messages",
+                schema: "analytics");
+
+            migrationBuilder.DropTable(
+                name: "tokens",
+                schema: "analytics");
+
+            migrationBuilder.DropTable(
+                name: "accounts",
+                schema: "analytics");
+
+            migrationBuilder.DropTable(
+                name: "categories",
+                schema: "analytics");
+        }
+    }
+}

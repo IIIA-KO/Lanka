@@ -19,7 +19,7 @@ public interface IKeycloakAdminService
         CancellationToken cancellationToken = default
     );
 
-    Task<Result> LinkExternalIdentityProviderAccountToKeycloakUserAsync(
+    Task<Result> LinkExternalAccountToUserAsync(
         string userIdentityId,
         string providerName,
         string providerUserId,
@@ -27,7 +27,7 @@ public interface IKeycloakAdminService
         CancellationToken cancellationToken = default
     );
 
-    Task<bool> IsExternalIdentityProviderAccountLinkedAsync(
+    Task<bool> IsExternalAccountLinkedAsync(
         string userIdentityId,
         string providerName,
         CancellationToken cancellationToken = default

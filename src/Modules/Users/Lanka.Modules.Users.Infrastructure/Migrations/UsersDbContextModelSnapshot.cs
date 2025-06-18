@@ -278,6 +278,10 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("identity_id");
 
+                    b.Property<DateTimeOffset?>("InstagramAccountLinkedOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("instagram_account_linked_on_utc");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)

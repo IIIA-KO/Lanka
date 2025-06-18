@@ -1,7 +1,7 @@
 using Lanka.Modules.Users.Infrastructure.Identity.Models;
 using Refit;
 
-namespace Lanka.Modules.Users.Infrastructure.Identity.Interfaces;
+namespace Lanka.Modules.Users.Infrastructure.Identity.Apis;
 
 internal interface IKeycloakAdminApi
 {

@@ -3,6 +3,7 @@ using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
+using Lanka.Modules.Analytics.IntegrationEvents;
 using Lanka.Modules.Campaigns.IntegrationEvents.Bloggers;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
@@ -10,11 +11,13 @@ using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Infrastructure.Authorization;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Identity;
-using Lanka.Modules.Users.Infrastructure.Identity.Interfaces;
+using Lanka.Modules.Users.Infrastructure.Identity.Apis;
 using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
+using Lanka.Modules.Users.Presentation.LinkInstagramSaga;
+using Lanka.Modules.Users.Presentation.RenewInstagramAccessSaga;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -36,7 +39,7 @@ public static class UsersModule
         services.AddDomainEventHandlers();
 
         services.AddIntegrationEventHandlers();
-        
+
         services.AddInfrastructure(configuration);
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
@@ -44,18 +47,34 @@ public static class UsersModule
         return services;
     }
 
-    public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
+    public static Action<IRegistrationConfigurator, string> ConfigureConsumers(string redisConnectionString)
     {
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
-            .Endpoint(configuration => configuration.InstanceId = instanceId);
+        return (registration, instanceId) =>
+        {
+            registration
+                .AddSagaStateMachine<LinkInstagramSaga, LinkInstagramState>()
+                .RedisRepository(redisConnectionString);
+
+            registration
+                .AddSagaStateMachine<RenewInstagramAccessSaga, RenewInstagramAccessState>()
+                .RedisRepository(redisConnectionString);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+        };
     }
-    
+
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         AddAuthentication(services, configuration);
 
         AddPersistence(services, configuration);
-        
+
         AddOutbox(services, configuration);
     }
 
@@ -105,7 +124,7 @@ public static class UsersModule
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUserRepository, UserRepository>();
-        
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
     }
 
@@ -140,7 +159,7 @@ public static class UsersModule
             services.Decorate(domainEventHandler, closedIdempotentHandler);
         }
     }
-    
+
     private static void AddIntegrationEventHandlers(this IServiceCollection services)
     {
         Type[] integrationEventHandlers = Presentation.AssemblyReference.Assembly
