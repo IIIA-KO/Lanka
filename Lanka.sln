@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
 		Lanka.sln.DotSettings = Lanka.sln.DotSettings
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Api", "src\Api\Lanka.Api\Lanka.Api.csproj", "{ED19CC12-E951-4243-8A54-48C67C1CE9E5}"
