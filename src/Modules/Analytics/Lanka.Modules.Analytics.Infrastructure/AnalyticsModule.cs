@@ -48,9 +48,9 @@ public static class AnalyticsModule
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
         registrationConfigurator
-            .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkedIntegrationEvent>>()
+            .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingStartedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
-
+        
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<UserDeletedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
@@ -97,24 +97,12 @@ public static class AnalyticsModule
 
             httpClient.BaseAddress = new Uri(instagramOptions.BaseUrl);
         }
-
-        services
-            .AddRefitClient<IInstagramTokenApi>()
-            .ConfigureHttpClient((serviceProvider, httpClient) =>
-            {
-                InstagramOptions instagramOptions = serviceProvider
-                    .GetRequiredService<IOptions<InstagramOptions>>()
-                    .Value;
-
-                httpClient.BaseAddress = new Uri(instagramOptions.TokenUrl);
-            });
         
         services.AddScoped<IFacebookService, FacebookService>();
         services.AddScoped<IInstagramAccountsService, InstagramAccountsService>();
         services.AddScoped<IInstagramAudienceService, InstagramAudienceService>();
         services.AddScoped<IInstagramPostService, InstagramPostService>();
         services.AddScoped<IInstagramStatisticsService, InstagramStatisticsService>();
-        services.AddScoped<IInstagramTokenService, InstagramTokenTokenService>();
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
@@ -136,10 +124,10 @@ public static class AnalyticsModule
 
     private static void AddOutbox(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<OutboxOptions>(configuration.GetSection("Users:Outbox"));
+        services.Configure<OutboxOptions>(configuration.GetSection("Analytics:Outbox"));
         services.ConfigureOptions<ConfigureProcessOutboxJob>();
 
-        services.Configure<InboxOptions>(configuration.GetSection("Users:Inbox"));
+        services.Configure<InboxOptions>(configuration.GetSection("Analytics:Inbox"));
         services.ConfigureOptions<ConfigureProcessInboxJob>();
     }
 

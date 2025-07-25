@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Lanka.Modules.Analytics.Application.Abstractions.Models;
+using Lanka.Modules.Analytics.Infrastructure.Instagram.Models;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Models.Accounts;
 using Refit;
 
@@ -16,7 +17,7 @@ internal interface IFacebookApi
     [Get("/{userId}/accounts")]
     Task<FacebookAccountsResponse?> GetAccountsAsync(
         [AliasAs("userId")] string userId,
-        [Query] string access_token,
+        [Query] Dictionary<string, string> queryParams,
         CancellationToken cancellationToken = default
     );
 
@@ -24,6 +25,19 @@ internal interface IFacebookApi
     Task<JsonElement> GetAdAccountsAsync(
         [AliasAs("userId")] string userId,
         [Query] string access_token,
+        CancellationToken cancellationToken = default
+    );
+    
+    [Post("/oauth/access_token")]
+    Task<FacebookTokenResponse> GetAccessTokenAsync(
+        FormUrlEncodedContent formData,
+        CancellationToken cancellationToken = default
+    );
+    
+    [Get("/debug_token")]
+    Task<DebugTokenResponse>  GetDebugTokenAsync(
+        [AliasAs("input_token")] string inputToken,
+        [AliasAs("access_token")] string accessToken,
         CancellationToken cancellationToken = default
     );
 }

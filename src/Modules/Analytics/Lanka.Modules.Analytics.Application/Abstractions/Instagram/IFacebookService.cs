@@ -15,6 +15,16 @@ public interface IFacebookService
         CancellationToken cancellationToken = default
     );
 
+    Task<Result<FacebookTokenResponse>> GetAccessTokenAsync(
+        string code,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<Result<FacebookTokenResponse>> RenewAccessTokenAsync(
+        string code,
+        CancellationToken cancellationToken = default
+    );
+    
     Task<FacebookUserInfo?> GetFacebookUserInfoAsync(
         string accessToken,
         CancellationToken cancellationToken = default

@@ -12,21 +12,21 @@ namespace Lanka.Modules.Analytics.Application.Instagram.RefreshToken;
 internal sealed class RefreshInstagramTokenCommandHandler
     : ICommandHandler<RefreshInstagramTokenCommand>
 {
-    private readonly IInstagramTokenService _instagramTokenService;
+    private readonly IFacebookService _facebookService;
     private readonly IInstagramAccountsService _instagramAccountsService;
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly ITokenRepository _tokenRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public RefreshInstagramTokenCommandHandler(
-        IInstagramTokenService instagramTokenService,
+        IFacebookService facebookService,
         IInstagramAccountsService instagramAccountsService,
         IInstagramAccountRepository instagramAccountRepository,
         ITokenRepository tokenRepository,
         IUnitOfWork unitOfWork
     )
     {
-        this._instagramTokenService = instagramTokenService;
+        this._facebookService = facebookService;
         this._instagramAccountsService = instagramAccountsService;
         this._instagramAccountRepository = instagramAccountRepository;
         this._tokenRepository = tokenRepository;
@@ -35,7 +35,7 @@ internal sealed class RefreshInstagramTokenCommandHandler
 
     public async Task<Result> Handle(RefreshInstagramTokenCommand request, CancellationToken cancellationToken)
     {
-        Result<FacebookTokenResponse> fbTokenResult = await this._instagramTokenService.GetAccessTokenAsync(
+        Result<FacebookTokenResponse> fbTokenResult = await this._facebookService.GetAccessTokenAsync(
             request.Code,
             cancellationToken
         );

@@ -18,7 +18,7 @@ public class FetchInstagramAccountDataTests
     private static FetchInstagramAccountDataCommand Command =>
         new(Guid.NewGuid(), "test_code");
 
-    private readonly IInstagramTokenService _instagramTokenServiceMock;
+    private readonly IFacebookService _facebookServiceMock;
     private readonly IInstagramAccountsService _instagramAccountsServiceMock;
     private readonly IInstagramAccountRepository _instagramAccountRepositoryMock;
     private readonly ITokenRepository _tokenRepositoryMock;
@@ -28,14 +28,14 @@ public class FetchInstagramAccountDataTests
 
     public FetchInstagramAccountDataTests()
     {
-        this._instagramTokenServiceMock = Substitute.For<IInstagramTokenService>();
+        this._facebookServiceMock = Substitute.For<IFacebookService>();
         this._instagramAccountsServiceMock = Substitute.For<IInstagramAccountsService>();
         this._instagramAccountRepositoryMock = Substitute.For<IInstagramAccountRepository>();
         this._tokenRepositoryMock = Substitute.For<ITokenRepository>();
         this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
         this._handler = new FetchInstagramAccountDataCommandHandler(
-            this._instagramTokenServiceMock,
+            this._facebookServiceMock,
             this._instagramAccountsServiceMock,
             this._instagramAccountRepositoryMock,
             this._tokenRepositoryMock,
@@ -47,7 +47,7 @@ public class FetchInstagramAccountDataTests
     public async Task Handle_ShouldReturnSuccess()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         ).Returns(TokenData.FacebookTokenResponse);
@@ -68,7 +68,7 @@ public class FetchInstagramAccountDataTests
     public async Task Handle_ShouldReturnFailure_WhenTokenServiceFails()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         ).Returns(Result.Failure<FacebookTokenResponse>(Error.NoData));
@@ -85,7 +85,7 @@ public class FetchInstagramAccountDataTests
     public async Task Handle_ShouldReturnFailure_WhenUserInfoServiceFails()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         ).Returns(TokenData.FacebookTokenResponse);

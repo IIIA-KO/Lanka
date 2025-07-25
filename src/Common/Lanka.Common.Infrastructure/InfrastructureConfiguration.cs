@@ -17,6 +17,7 @@ using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Quartz;
+using Quartz.Simpl;
 using StackExchange.Redis;
 
 namespace Lanka.Common.Infrastructure;
@@ -42,9 +43,9 @@ public static class InfrastructureConfiguration
 
         AddPersistence(services, databaseConnectionString);
 
-        AddBackgroundJobs(services);
-
         AddCache(services, redisConnectionString);
+
+        AddBackgroundJobs(services);
 
         AddEventBus(services, serviceName, moduleConfigureConsumers, rabbitMqSettings);
 
@@ -63,18 +64,6 @@ public static class InfrastructureConfiguration
         services.TryAddScoped<IDbConnectionFactory, DbConnectionFactory>();
 
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-    }
-
-    private static void AddBackgroundJobs(IServiceCollection services)
-    {
-        services.AddQuartz(configurator =>
-        {
-            var scheduler = Guid.NewGuid();
-            configurator.SchedulerId = $"default-id-{scheduler}";
-            configurator.SchedulerName = $"default-name-{scheduler}";
-        });
-
-        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
     }
 
     private static void AddCache(IServiceCollection services, string redisConnectionString)
@@ -97,6 +86,31 @@ public static class InfrastructureConfiguration
         }
     }
 
+    private static void AddBackgroundJobs(IServiceCollection services)
+    {
+        services.Configure<QuartzOptions>(options =>
+        {
+            options.Scheduling.IgnoreDuplicates = true;
+            options.Scheduling.OverWriteExistingData = true;
+        });
+
+        services.AddQuartz(configurator =>
+        {
+            var scheduler = Guid.NewGuid();
+            
+            configurator.SchedulerId = $"default-id-{scheduler}";
+            configurator.SchedulerName = $"default-name-{scheduler}";
+            
+            configurator.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
+            
+            configurator.UseDefaultThreadPool(tp => 
+                tp.MaxConcurrency = Environment.ProcessorCount * 2
+            );
+        });
+
+        services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+    }
+    
     private static void AddEventBus(
         IServiceCollection services,
         string serviceName,
@@ -117,7 +131,9 @@ public static class InfrastructureConfiguration
             }
 
             configure.SetKebabCaseEndpointNameFormatter();
-
+            
+            configure.AddMessageScheduler(new Uri("queue:quartz-scheduler"));
+            
             configure.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(new Uri(rabbitMqSettings.Host), host =>
@@ -125,6 +141,9 @@ public static class InfrastructureConfiguration
                     host.Username(rabbitMqSettings.Username);
                     host.Password(rabbitMqSettings.Password);
                 });
+                
+                cfg.UseMessageScheduler(new Uri("queue:quartz-scheduler"));
+                
                 cfg.ConfigureEndpoints(context);
             });
         });

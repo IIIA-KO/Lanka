@@ -5,7 +5,7 @@
 >
   <!-- Logo -->
   <div class="logo-wrapper">
-    <img src="/logo/logo-white.svg" alt="Lanka" class="logo" />
+    <img src="/logo/lanka-logo-white.svg" alt="Lanka" class="logo" />
   </div>
 
   <!-- Menu -->
@@ -22,11 +22,15 @@
 
     <li
       class="menu-item"
-      routerLinkActive="active"
-      [routerLink]="['logout']"
+      (click)="confirmLogout()"
+      (keydown.enter)="confirmLogout()"
+      (keydown.space)="confirmLogout()"
+      style="cursor: pointer;"
     >
       <img src="/icons/logout-icon.svg" alt="Logout" class="icon" />
       <span class="label" [class.visible]="open">Logout</span>
     </li>
   </ul>
 </div>
+
+<p-confirmDialog></p-confirmDialog>

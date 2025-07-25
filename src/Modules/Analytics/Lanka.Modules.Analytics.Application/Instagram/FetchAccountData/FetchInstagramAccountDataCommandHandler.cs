@@ -12,21 +12,21 @@ namespace Lanka.Modules.Analytics.Application.Instagram.FetchAccountData;
 internal sealed class FetchInstagramAccountDataCommandHandler
     : ICommandHandler<FetchInstagramAccountDataCommand>
 {
-    private readonly IInstagramTokenService _instagramTokenService;
+    private readonly IFacebookService _facebookService;
     private readonly IInstagramAccountsService _instagramAccountsService;
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly ITokenRepository _tokenRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public FetchInstagramAccountDataCommandHandler(
-        IInstagramTokenService instagramTokenService,
+        IFacebookService facebookService,
         IInstagramAccountsService instagramAccountsService,
         IInstagramAccountRepository instagramAccountRepository,
         ITokenRepository tokenRepository,
         IUnitOfWork unitOfWork
     )
     {
-        this._instagramTokenService = instagramTokenService;
+        this._facebookService = facebookService;
         this._instagramAccountsService = instagramAccountsService;
         this._instagramAccountRepository = instagramAccountRepository;
         this._tokenRepository = tokenRepository;
@@ -35,7 +35,7 @@ internal sealed class FetchInstagramAccountDataCommandHandler
 
     public async Task<Result> Handle(FetchInstagramAccountDataCommand request, CancellationToken cancellationToken)
     {
-        Result<FacebookTokenResponse> fbTokenResult = await this._instagramTokenService.GetAccessTokenAsync(
+        Result<FacebookTokenResponse> fbTokenResult = await this._facebookService.GetAccessTokenAsync(
             request.Code,
             cancellationToken
         );
@@ -50,13 +50,13 @@ internal sealed class FetchInstagramAccountDataCommandHandler
             cancellationToken
         );
 
-        if (igUserInfo.IsFailure)
+        if (igUserInfo!.IsFailure)
         {
             return Result.Failure(igUserInfo.Error);
         }
 
         Result<InstagramAccount> igAccountResult = igUserInfo.Value.CreateInstagramAccount(new UserId(request.UserId));
-        
+
         if (igAccountResult.IsFailure)
         {
             return Result.Failure(igAccountResult.Error);

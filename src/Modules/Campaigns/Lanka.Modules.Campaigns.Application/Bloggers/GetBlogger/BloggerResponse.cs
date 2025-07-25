@@ -18,7 +18,15 @@ public sealed class BloggerResponse
     
     public Guid? PactId { get; init; }
     
-    public static BloggerResponse FromBloger(Blogger blogger)
+    public string? ProfilePhotoUri { get; init; }
+    
+    public string? InstagramUsername { get; init; }
+    
+    public int? InstagramFollowersCount { get; init; }
+    
+    public int? InstagramMediaCount { get; init; }
+    
+    public static BloggerResponse FromBlogger(Blogger blogger)
     {
         return new BloggerResponse
         {
@@ -28,7 +36,11 @@ public sealed class BloggerResponse
             Email = blogger.Email.Value,
             BirthDate = blogger.BirthDate.Value,
             Bio = blogger.Bio.Value,
-            PactId = blogger.Pact?.Id.Value
+            PactId = blogger.Pact?.Id.Value,
+            ProfilePhotoUri = blogger.ProfilePhoto?.Uri.ToString(),
+            InstagramUsername = blogger.InstagramMetadata.Username,
+            InstagramFollowersCount = blogger.InstagramMetadata.FollowersCount,
+            InstagramMediaCount = blogger.InstagramMetadata.MediaCount
         };
     }
 }

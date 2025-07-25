@@ -19,7 +19,7 @@ internal static class ApplicationExtensions
         builder.Services.AddCors(options =>
             options.AddPolicy("AllowLankaClient", corsPolicyBuilder =>
                 corsPolicyBuilder
-                    .WithOrigins("http://localhost:4200")
+                    .WithOrigins("https://localhost:4200")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
             )

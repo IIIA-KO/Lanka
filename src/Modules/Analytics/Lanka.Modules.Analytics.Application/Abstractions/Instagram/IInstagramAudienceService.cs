@@ -6,26 +6,26 @@ namespace Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 
 public interface IInstagramAudienceService
 {
-    Task<Result<GenderRatio>> GetAudienceGenderPercentage(
+    Task<Result<GenderDistribution>> GetAudienceGenderPercentage(
         string accessToken,
         string instagramAccountId,
         CancellationToken cancellationToken = default
     );
 
-    Task<Result<LocationRatio>> GetAudienceTopLocations(
+    Task<Result<LocationDistribution>> GetAudienceTopLocations(
         string accessToken,
         string instagramAccountId,
         LocationType locationType,
         CancellationToken cancellationToken = default
     );
 
-    Task<Result<AgeRatio>> GetAudienceAgesPercentage(
+    Task<Result<AgeDistribution>> GetAudienceAgesPercentage(
         string accessToken,
         string instagramAccountId,
         CancellationToken cancellationToken = default
     );
 
-    Task<Result<ReachRatio>> GetAudienceReachPercentage(
+    Task<Result<ReachDistribution>> GetAudienceReachPercentage(
         InstagramPeriodRequest request,
         CancellationToken cancellationToken = default
     );

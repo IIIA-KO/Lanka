@@ -374,6 +374,33 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
 
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Bloggers.Blogger", b =>
                 {
+                    b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.InstagramMetadata", "InstagramMetadata", b1 =>
+                        {
+                            b1.Property<Guid>("BloggerId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<int?>("FollowersCount")
+                                .HasColumnType("integer")
+                                .HasColumnName("instagram_metadata_followers_count");
+
+                            b1.Property<int?>("MediaCount")
+                                .HasColumnType("integer")
+                                .HasColumnName("instagram_metadata_media_count");
+
+                            b1.Property<string>("Username")
+                                .HasColumnType("text")
+                                .HasColumnName("instagram_metadata_username");
+
+                            b1.HasKey("BloggerId");
+
+                            b1.ToTable("bloggers", "campaigns");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BloggerId")
+                                .HasConstraintName("fk_bloggers_bloggers_id");
+                        });
+
                     b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.Photos.Photo", "ProfilePhoto", b1 =>
                         {
                             b1.Property<Guid>("BloggerId")
@@ -397,6 +424,9 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                                 .HasForeignKey("BloggerId")
                                 .HasConstraintName("fk_bloggers_bloggers_id");
                         });
+
+                    b.Navigation("InstagramMetadata")
+                        .IsRequired();
 
                     b.Navigation("ProfilePhoto");
                 });

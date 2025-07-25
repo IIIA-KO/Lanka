@@ -11,4 +11,8 @@ public sealed class LinkInstagramState : SagaStateMachineInstance, ISagaVersion
     public string CurrentState { get; set; }
     
     public int LinkingCompletedStatus { get; set; }
+    
+    public DateTime StartedAt { get; set; }
+    
+    public Guid? TimeoutTokenId { get; set; }
 }

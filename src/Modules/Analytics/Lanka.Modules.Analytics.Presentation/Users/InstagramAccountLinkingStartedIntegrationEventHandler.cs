@@ -11,10 +11,13 @@ internal sealed class InstagramAccountLinkingStartedIntegrationEventHandler
     : IntegrationEventHandler<InstagramAccountLinkingStartedIntegrationEvent>
 {
     private readonly ISender _sender;
+    private readonly IEventBus _eventBus;
 
-    public InstagramAccountLinkingStartedIntegrationEventHandler(ISender sender)
+
+    public InstagramAccountLinkingStartedIntegrationEventHandler(ISender sender, IEventBus eventBus)
     {
         this._sender = sender;
+        this._eventBus = eventBus;
     }
 
     public override async Task Handle(
@@ -32,6 +35,16 @@ internal sealed class InstagramAccountLinkingStartedIntegrationEventHandler
 
         if (result.IsFailure)
         {
+            await this._eventBus.PublishAsync(
+                new InstagramLinkingFailedIntegrationEvent(
+                    integrationEvent.Id,
+                    integrationEvent.OccurredOnUtc,
+                    integrationEvent.UserId,
+                    result.Error.Description
+                ),
+                cancellationToken
+            );
+
             throw new LankaException(nameof(FetchInstagramAccountDataCommand), result.Error);
         }
     }

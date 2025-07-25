@@ -43,6 +43,7 @@ internal sealed class InstagramAccountRepository : IInstagramAccountRepository
 
     public void Add(InstagramAccount instagramAccount)
     {
+        this._dbContext.Attach(instagramAccount.Category);
         this._dbContext.InstagramAccounts.Add(instagramAccount);
     }
 

@@ -26,6 +26,8 @@ public class Blogger : Entity<BloggerId>
     
     public Photo? ProfilePhoto { get; private set; }
 
+    public InstagramMetadata InstagramMetadata { get; private set; }
+    
     private Blogger() { }
 
     private Blogger(
@@ -43,6 +45,7 @@ public class Blogger : Entity<BloggerId>
         this.Email = email;
         this.BirthDate = birthDate;
         this.Bio = bio;
+        this.InstagramMetadata = new InstagramMetadata(null, null, null);
     }
 
     public static Blogger Create(
@@ -94,6 +97,11 @@ public class Blogger : Entity<BloggerId>
         this.RaiseDomainEvent(new BloggerUpdatedDomainEvent(this.Id.Value));
         
         return Result.Success();
+    }
+
+    public void UpdateInstagramData(string? username, int? followersCount, int? mediaCount)
+    {
+        this.InstagramMetadata = new InstagramMetadata(username, followersCount, mediaCount);
     }
 
     private static Result<(FirstName, LastName, BirthDate, Bio)> Validate(

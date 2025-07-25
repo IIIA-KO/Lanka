@@ -18,7 +18,7 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
         this._instagramAudienceApi = instagramAudienceApi;
     }
     
-    public async Task<Result<GenderRatio>> GetAudienceGenderPercentage(
+    public async Task<Result<GenderDistribution>> GetAudienceGenderPercentage(
         string accessToken,
         string instagramAccountId,
         CancellationToken cancellationToken = default
@@ -35,12 +35,12 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
         );
 
         return response.ValueKind != JsonValueKind.Undefined
-            ? GenderRatio.FromJson(response)
-            : Result.Failure<GenderRatio>(InstagramAccountErrors.Unexpected);
+            ? GenderDistribution.FromJson(response)
+            : Result.Failure<GenderDistribution>(InstagramAccountErrors.Unexpected);
     }
     
     
-    public async Task<Result<LocationRatio>> GetAudienceTopLocations(
+    public async Task<Result<LocationDistribution>> GetAudienceTopLocations(
         string accessToken,
         string instagramAccountId,
         LocationType locationType,
@@ -58,11 +58,11 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
         );
 
         return response.ValueKind != JsonValueKind.Undefined
-            ? LocationRatio.FromJson(response)
-            : Result.Failure<LocationRatio>(InstagramAccountErrors.Unexpected);
+            ? LocationDistribution.FromJson(response)
+            : Result.Failure<LocationDistribution>(InstagramAccountErrors.Unexpected);
     }
 
-    public async Task<Result<AgeRatio>> GetAudienceAgesPercentage(
+    public async Task<Result<AgeDistribution>> GetAudienceAgesPercentage(
         string accessToken,
         string instagramAccountId,
         CancellationToken cancellationToken = default
@@ -79,11 +79,11 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
         );
 
         return response.ValueKind != JsonValueKind.Undefined
-            ? AgeRatio.FromJson(response)
-            : Result.Failure<AgeRatio>(InstagramAccountErrors.Unexpected);
+            ? AgeDistribution.FromJson(response)
+            : Result.Failure<AgeDistribution>(InstagramAccountErrors.Unexpected);
     }
 
-    public async Task<Result<ReachRatio>> GetAudienceReachPercentage(
+    public async Task<Result<ReachDistribution>> GetAudienceReachPercentage(
         InstagramPeriodRequest request,
         CancellationToken cancellationToken = default
     )
@@ -101,7 +101,7 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
         );
 
         return response.ValueKind != JsonValueKind.Undefined
-            ? ReachRatio.FromJson(response)
-            : Result.Failure<ReachRatio>(InstagramAccountErrors.Unexpected);
+            ? ReachDistribution.FromJson(response)
+            : Result.Failure<ReachDistribution>(InstagramAccountErrors.Unexpected);
     }
 }

@@ -71,5 +71,7 @@ public class BloggerConfiguration : IEntityTypeConfiguration<Blogger>
                         .HasConversion(uri => uri.ToString(), value => new Uri(value));
                 }
             );
+
+        builder.OwnsOne(blogger => blogger.InstagramMetadata);
     }
 }

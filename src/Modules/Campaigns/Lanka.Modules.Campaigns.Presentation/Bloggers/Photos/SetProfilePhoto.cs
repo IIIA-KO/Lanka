@@ -14,19 +14,21 @@ internal sealed class SetProfilePhoto : BloggerEndpointBase
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute("photos"),
-            async (
-                [FromForm] IFormFile photo,
-                ISender sender,
-                CancellationToken cancellationToken
-            ) =>
-            {
-                Result result = await sender.Send(
-                    new SetProfilePhotoCommand(photo),
-                    cancellationToken
-                );
-                
-                return result.Match(Results.NoContent, ApiResult.Problem);
-            }
-        );
+                async (
+                    [FromForm] IFormFile photo,
+                    ISender sender,
+                    CancellationToken cancellationToken
+                ) =>
+                {
+                    Result result = await sender.Send(
+                        new SetProfilePhotoCommand(photo),
+                        cancellationToken
+                    );
+
+                    return result.Match(Results.NoContent, ApiResult.Problem);
+                }
+            )
+            .WithTags(Tags.Bloggers)
+            .DisableAntiforgery();
     }
 }

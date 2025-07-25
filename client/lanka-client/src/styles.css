@@ -28,3 +28,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     --mat-snack-bar-button-color: #fff;
     --mdc-snackbar-supporting-text-color: #fff;
 }
+
+.my-reject-btn {
+  background: var(--primary-color) !important; /* Example: custom red */
+  color: var(--primary-color-text) !important;
+  border: none !important;
+}

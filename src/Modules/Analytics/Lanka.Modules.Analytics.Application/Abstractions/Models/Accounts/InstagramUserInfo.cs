@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
 
 namespace Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 
@@ -21,13 +22,11 @@ public sealed class InstagramUserInfo
             userId.Value,
             this.FacebookPageId,
             this.AdAccountId,
-            new Metadata(
-                this.Id,
-                this.BusinessDiscovery.IgId,
-                this.BusinessDiscovery.Username,
-                this.BusinessDiscovery.FollowersCount,
-                this.BusinessDiscovery.MediaCount
-            )
+            this.BusinessDiscovery.Id,
+            this.BusinessDiscovery.IgId,
+            this.BusinessDiscovery.Username,
+            this.BusinessDiscovery.FollowersCount,
+            this.BusinessDiscovery.MediaCount
         );
     }
 }

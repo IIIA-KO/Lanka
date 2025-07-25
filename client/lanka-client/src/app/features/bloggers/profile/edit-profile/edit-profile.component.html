@@ -1,0 +1,107 @@
+<!-- Avatar section -->
+<div class="avatar-section">
+  <img *ngIf="photoUri; else placeholder" [src]="photoUri" class="profile-avatar" alt="Avatar" />
+  <ng-template #placeholder>
+    <img src="/icons/no-profile.svg" class="profile-avatar" alt="No avatar" />
+  </ng-template>
+  <div class="avatar-actions">
+    <button type="button" (click)="fileInput.click()" [disabled]="uploading">
+      {{ uploading ? 'Processing...' : 'Change Photo' }}
+    </button>
+    <button type="button" (click)="removePhoto()" [disabled]="uploading || !photoUri">
+      Remove Photo
+    </button>
+    <input #fileInput type="file" accept="image/*" style="display:none" (change)="onFileChange($event)" />
+  </div>
+</div>
+
+<!-- Cropping modal/section -->
+<div *ngIf="cropping" class="cropper-section">
+  <div class="cropper-header">
+    <h3>Crop Your Photo</h3>
+    <p>Adjust the crop area to frame your photo perfectly</p>
+  </div>
+
+  <image-cropper
+    [imageChangedEvent]="imageChangedEvent"
+    [maintainAspectRatio]="true"
+    [aspectRatio]="1/1"
+    [resizeToWidth]="256"
+    [cropperMinWidth]="128"
+    format="jpeg"
+    [imageQuality]="80"
+    [autoCrop]="true"
+    [containWithinAspectRatio]="false"
+    [hideResizeSquares]="false"
+    (imageCropped)="imageCropped($event)"
+    (imageLoaded)="imageLoaded($event)"
+    (cropperReady)="cropperReady()"
+    (loadImageFailed)="loadImageFailed()"
+  ></image-cropper>
+
+  <div class="cropper-actions">
+    <button type="button" (click)="uploadPhoto()" [disabled]="uploading || !croppedImage">
+      {{ uploading ? 'Uploading...' : 'Save Photo' }}
+    </button>
+    <button type="button" (click)="cancelCrop()" [disabled]="uploading">
+      Cancel
+    </button>
+  </div>
+
+  <!-- Preview of cropped image -->
+  <div *ngIf="photoPreview" class="photo-preview">
+    <h4>Preview:</h4>
+    <img [src]="photoPreview" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
+  </div>
+</div>
+
+<!-- Loading indicator -->
+<div *ngIf="uploading" class="loading-indicator">
+  <p>Processing your photo...</p>
+</div>
+
+<!-- Form section -->
+<form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="firstName">First Name</label>
+    <input id="firstName" formControlName="firstName" class="form-control" />
+    <div *ngIf="firstName?.invalid && (firstName?.dirty || firstName?.touched)" class="error">
+      <div *ngIf="firstName?.errors?.['required']">First name is required.</div>
+      <div *ngIf="firstName?.errors?.['maxLength']">First name is too long.</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="lastName">Last Name</label>
+    <input id="lastName" formControlName="lastName" class="form-control" />
+    <div *ngIf="lastName?.invalid && (lastName?.dirty || lastName?.touched)" class="error">
+      <div *ngIf="lastName?.errors?.['required']">Last name is required.</div>
+      <div *ngIf="lastName?.errors?.['maxLength']">Last name is too long.</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="birthDate">Birth Date</label>
+    <input id="birthDate" type="date" formControlName="birthDate" class="form-control" />
+    <div *ngIf="birthDate?.invalid && (birthDate?.dirty || birthDate?.touched)" class="error">
+      <div *ngIf="birthDate?.errors?.['required']">Birth date is required.</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="bio">Bio</label>
+    <textarea id="bio" formControlName="bio" class="form-control" rows="4"></textarea>
+    <div *ngIf="bio?.invalid && (bio?.dirty || bio?.touched)" class="error">
+      <div *ngIf="bio?.errors?.['maxLength']">Bio is too long.</div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="editForm.invalid || uploading" class="btn btn-primary">
+      Save Profile
+    </button>
+    <button type="button" (click)="onCancel()" class="btn btn-secondary">
+      Cancel
+    </button>
+  </div>
+</form>

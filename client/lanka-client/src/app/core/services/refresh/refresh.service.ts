@@ -22,7 +22,7 @@ export class TokenRefreshService {
 
     const refreshToken = this.auth.getRefreshToken();
     if (!refreshToken) {
-      this.auth.clear();
+      this.auth.clearTokens();
       return throwError(() => new Error('No refresh token'));
     }
 
@@ -39,7 +39,7 @@ export class TokenRefreshService {
         this.refreshSubject = new Subject<void>();
       }),
       catchError((error) => {
-        this.auth.clear();
+        this.auth.clearTokens();
         this.refreshInProgress = false;
         return throwError(() => error);
       }),

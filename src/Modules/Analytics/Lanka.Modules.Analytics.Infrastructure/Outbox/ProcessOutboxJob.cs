@@ -37,7 +37,7 @@ internal sealed class ProcessOutboxJob : IJob
         this._logger = logger;
     }
 
-    private const string ModuleName = "Users";
+    private const string ModuleName = "Analytics";
 
     public async Task Execute(IJobExecutionContext context)
     {

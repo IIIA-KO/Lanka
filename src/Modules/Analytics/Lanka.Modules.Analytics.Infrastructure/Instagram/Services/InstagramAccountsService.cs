@@ -36,7 +36,8 @@ internal sealed class InstagramAccountsService : IInstagramAccountsService
         this._logger.LogInformation("Retrieving Instagram user info…");
 
         // 1. Resolve Ad Account ID
-        Result<string> adAccountIdResult = await this._facebookService.GetAdAccountIdAsync(accessToken, cancellationToken);
+        Result<string> adAccountIdResult =
+            await this._facebookService.GetAdAccountIdAsync(accessToken, cancellationToken);
 
         if (adAccountIdResult.IsFailure)
         {
@@ -44,18 +45,16 @@ internal sealed class InstagramAccountsService : IInstagramAccountsService
         }
 
         // 2. Get the Business Account
-        var businessQuery = new Dictionary<string, string>
-        {
-            ["fields"] = "instagram_business_account{id,username}",
-            ["access_token"] = accessToken
-        };
-
         InstagramBusinessAccountResponse business;
 
         try
         {
-            business = await this._instagramAccountsApi.GetBusinessAccountAsync(facebookPageId, businessQuery,
-                cancellationToken);
+            business = await this._instagramAccountsApi.GetBusinessAccountAsync(
+                facebookPageId,
+                "instagram_business_account{id,username}",
+                accessToken,
+                cancellationToken
+            );
         }
         catch (ApiException exception)
         {
@@ -75,18 +74,15 @@ internal sealed class InstagramAccountsService : IInstagramAccountsService
         }
 
         // 4. Fetch full user info via business_discovery
-        var userQuery = new Dictionary<string, string>
-        {
-            ["fields"] = 
-                $"business_discovery.username({instagramUsername}){{username,name,ig_id,id,profile_picture_url,biography,followers_count,media_count}}",
-            ["access_token"] = accessToken
-        };
-
         InstagramUserInfo userInfo;
 
         try
         {
-            userInfo = await this._instagramAccountsApi.GetUserInfoAsync(business.InstagramAccount.Id, userQuery, cancellationToken);
+            userInfo = await this._instagramAccountsApi.GetUserInfoAsync(
+                business.InstagramAccount.Id, 
+                $"business_discovery.username({instagramUsername}){{username,name,ig_id,id,profile_picture_url,biography,followers_count,media_count}}",
+                accessToken,
+                cancellationToken);
         }
         catch (ApiException exception)
         {
@@ -109,13 +105,18 @@ internal sealed class InstagramAccountsService : IInstagramAccountsService
         CancellationToken cancellationToken = default
     )
     {
-        Result<string> pageIdResult = await this._facebookService.GetFacebookPageIdAsync(accessToken, cancellationToken);
+        Result<string> pageIdResult =
+            await this._facebookService.GetFacebookPageIdAsync(accessToken, cancellationToken);
+
         if (pageIdResult.IsFailure)
         {
             return this.LogAndReturnFailure<InstagramUserInfo>(pageIdResult.Error);
         }
 
-        return await this.GetUserInfoAsync(accessToken, pageIdResult.Value, string.Empty, cancellationToken);
+        Result<InstagramUserInfo> result =
+            await this.GetUserInfoAsync(accessToken, pageIdResult.Value, string.Empty, cancellationToken);
+
+        return result;
     }
 
     private Result<T> LogAndReturnFailure<T>(Error error)

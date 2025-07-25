@@ -1,18 +1,24 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { CampaignsComponent } from './features/campaigns/campaigns.component';
-import { SearchComponent } from './features/search/search.component';
-import { ProfileComponent } from './features//profile/profile.component';
-import { LoginComponent } from './features/users/login/login.component';
-import { RegisterComponent } from './features/users/register/register.component';
+import { PactComponent } from './features/bloggers/pact/pact.component';
+import { CampaignsComponent } from './features/bloggers/campaigns/campaigns.component';
+import { SearchComponent } from './features/bloggers/search/search.component';
+import { ProfileComponent } from './features/bloggers/profile/profile.component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent } from './features/auth/register/register.component';
+import { EditProfileComponent } from './features/bloggers/profile/edit-profile/edit-profile.component';
 
-import { authGuard } from './core/guards/auth.guard';
 import { AuthLayoutComponent } from './core/layouts/auth.layout.component';
 import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy.component';
 import { ServerErrorComponent } from './shared/components/server-error/server-error.component';
-import { unauthGuard } from './core/guards/unauth.guard';
 import { LayoutComponent } from './core/components/layout/layout.component';
-import { LogoutComponent } from './features/users/logout/logout.component';
+import { LogoutComponent } from './features/auth/logout/logout.component';
+import { ProfileResolver } from './core/api/profile.resolver';
+import { LinkInstagramComponent } from './pages/link-instagram/link-instagram.component';
+import { LinkInstagramCallbackComponent } from './pages/link-instagram/link-instagram-callback/link-instagram-callback.component';
+
+import { authGuard } from './core/guards/auth.guard';
+import { unauthGuard } from './core/guards/unauth.guard';
+import { instagramLinkedGuard } from './core/guards/instagram-linked.guard';
 
 export const routes: Routes = [
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
@@ -34,26 +40,67 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: 'pact', pathMatch: 'full' },
       { path: 'logout', component: LogoutComponent, canActivate: [authGuard] },
       {
-        path: 'dashboard',
-        component: DashboardComponent,
+        path: 'link-instagram',
+        component: LinkInstagramComponent,
         canActivate: [authGuard],
+      },
+      {
+        path: 'link-instagram/callback',
+        component: LinkInstagramCallbackComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'pact',
+        component: PactComponent,
+        canActivate: [instagramLinkedGuard],
       },
       {
         path: 'campaigns',
         component: CampaignsComponent,
-        canActivate: [authGuard],
+        canActivate: [instagramLinkedGuard],
       },
-      { path: 'search', component: SearchComponent, canActivate: [authGuard] },
+      { path: 'search', component: SearchComponent, canActivate: [instagramLinkedGuard] },
       {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [authGuard],
+        canActivate: [instagramLinkedGuard],
+        resolve: { profile: ProfileResolver },
+      },
+      {
+        path: 'profile/edit',
+        component: EditProfileComponent,
+        canActivate: [instagramLinkedGuard],
+        resolve: { profile: ProfileResolver },
       },
       { path: 'server-error', component: ServerErrorComponent },
-      { path: '**', redirectTo: 'dashboard' },
+      {
+        path: 'offers',
+        loadChildren: () =>
+          import('./features/bloggers/offers/offers.module').then(
+            (m) => m.OffersModule
+          ),
+        canActivate: [instagramLinkedGuard],
+      },
+      {
+        path: 'reviews',
+        loadChildren: () =>
+          import('./features/bloggers/reviews/reviews.module').then(
+            (m) => m.ReviewsModule
+          ),
+        canActivate: [instagramLinkedGuard],
+      },
+      {
+        path: 'analytics',
+        loadChildren: () =>
+          import('./features/analytics/analytics.module').then(
+            (m) => m.AnalyticsModule
+          ),
+        canActivate: [instagramLinkedGuard],
+      },
+      { path: '**', redirectTo: 'pact' },
     ],
-  }
+  },
 ];
