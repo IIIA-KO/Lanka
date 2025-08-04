@@ -1,5 +1,4 @@
 using Lanka.Common.Application.EventBus;
-using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Instagram.FetchAccountData;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
@@ -44,8 +43,6 @@ internal sealed class InstagramAccountLinkingStartedIntegrationEventHandler
                 ),
                 cancellationToken
             );
-
-            throw new LankaException(nameof(FetchInstagramAccountDataCommand), result.Error);
         }
     }
 }

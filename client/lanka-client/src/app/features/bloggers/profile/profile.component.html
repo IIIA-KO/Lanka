@@ -1,25 +1,21 @@
 <div style="display: flex; justify-content: space-between; align-items: center;">
   <h2>Profile</h2>
-  <button
-    [routerLink]="['edit']"
-    [state]="{profile: profile}"
-    class="edit-profile-btn">
+  <button [routerLink]="['edit']" [state]="{profile: profile}" class="edit-profile-btn">
     Edit Profile
   </button>
 </div>
-<div *ngIf="profile">
-    <p>First name: {{ profile.firstName }}</p>
-    <p>Last name: {{ profile.lastName }}</p>
-    <p>Email: {{ profile.email }}</p>
-    <p>Birth Date: {{ profile!.birthDate }}</p>
-    <p>Bio: {{ profile.bio || 'No bio provided.' }}</p>
-    <img [src]="profile.profilePhotoUri || '/icons/no-profile.svg'" alt="Avatar" />
-    <p>Followers: {{profile.instagramFollowersCount}}</p>
-    <p>Media: {{profile.instagramMediaCount}}</p>
-    <p>Username: {{profile.instagramUsername}}</p>
-    <br>
+<div>
+  <p>First name: {{ profile.firstName }}</p>
+  <p>Last name: {{ profile.lastName }}</p>
+  <p>Email: {{ profile.email }}</p>
+  <p>Birth Date: {{ profile!.birthDate }}</p>
+  <p>Bio: {{ profile.bio || 'No bio provided.' }}</p>
+  <img [src]="profile.profilePhotoUri || '/icons/no-profile.svg'" alt="Avatar" />
+  <p>Followers: {{profile.instagramFollowersCount}}</p>
+  <p>Media: {{profile.instagramMediaCount}}</p>
+  <p>Username: {{profile.instagramUsername}}</p>
 
-    <h3>Audience Age Ratio</h3>
-    <p>{{ageRatio?.agePercentages}}</p>
+  <app-age-distribution></app-age-distribution>
+  <app-gender-distribution></app-gender-distribution>
 </div>
 <router-outlet></router-outlet>

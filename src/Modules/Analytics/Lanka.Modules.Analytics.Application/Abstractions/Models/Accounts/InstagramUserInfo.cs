@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
 
 namespace Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 

@@ -5,7 +5,7 @@ using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 using Lanka.Modules.Analytics.Application.Abstractions.Models;
 using Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.FetchAccountData;
 

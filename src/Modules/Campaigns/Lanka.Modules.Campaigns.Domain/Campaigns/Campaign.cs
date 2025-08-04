@@ -131,14 +131,10 @@ public class Campaign : Entity<CampaignId>
         Result<Name> nameResult = Name.Create(name);
         Result<Description> descriptionResult = Description.Create(description);
 
-        if (nameResult.IsFailure || descriptionResult.IsFailure)
-        {
-            return Result.Failure<(Name, Description)>(
-                ValidationError.FromResults([nameResult, descriptionResult])
-            );
-        }
-
-        return (nameResult.Value, descriptionResult.Value);
+        return new ValidationBuilder()
+            .Add(nameResult)
+            .Add(descriptionResult)
+            .Build(() => (nameResult.Value, descriptionResult.Value));
     }
 
     public Result Confirm(DateTimeOffset utcNow)
@@ -195,7 +191,7 @@ public class Campaign : Entity<CampaignId>
         this.Status = CampaignStatus.Completed;
         this.CompletedOnUtc = utcNow;
 
-        this.RaiseDomainEvent(new CampaignCompletedDomainEvent(this.Id));
+        this.RaiseDomainEvent(new CampaignCompletedDomainEvent(this.Id, (DateTimeOffset)this.CompletedOnUtc));
         return Result.Success();
     }
 

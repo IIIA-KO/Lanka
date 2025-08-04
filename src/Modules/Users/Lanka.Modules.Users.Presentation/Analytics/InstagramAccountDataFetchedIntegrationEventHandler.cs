@@ -1,5 +1,4 @@
 using Lanka.Common.Application.EventBus;
-using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.IntegrationEvents;
 using Lanka.Modules.Users.Application.Instagram.FinishLinking;
@@ -13,7 +12,7 @@ internal sealed class InstagramAccountDataFetchedIntegrationEventHandler
 {
     private readonly ISender _sender;
     private readonly IEventBus _eventBus;
-    
+
     public InstagramAccountDataFetchedIntegrationEventHandler(ISender sender, IEventBus eventBus)
     {
         this._sender = sender;
@@ -45,8 +44,6 @@ internal sealed class InstagramAccountDataFetchedIntegrationEventHandler
                 ),
                 cancellationToken
             );
-            
-            throw new LankaException(nameof(FinishInstagramLinkingCommand), result.Error);
         }
     }
 }

@@ -1,17 +1,16 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
+using Lanka.Modules.Analytics.Domain.Audience;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetGenderDistribution;
 
 internal sealed class GetGenderDistributionQueryHandler
-    : IQueryHandler<GetGenderDistributionQuery, GenderDistribution>
+    : IQueryHandler<GetGenderDistributionQuery, GenderDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IInstagramAudienceService _instagramAudienceService;
-
 
     public GetGenderDistributionQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
@@ -22,7 +21,7 @@ internal sealed class GetGenderDistributionQueryHandler
         this._instagramAudienceService = instagramAudienceService;
     }
 
-    public async Task<Result<GenderDistribution>> Handle(
+    public async Task<Result<GenderDistributionResponse>> Handle(
         GetGenderDistributionQuery request,
         CancellationToken cancellationToken
     )
@@ -34,13 +33,19 @@ internal sealed class GetGenderDistributionQueryHandler
 
         if (account is null)
         {
-            return Result.Failure<GenderDistribution>(InstagramAccountErrors.NotFound);
+            return Result.Failure<GenderDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        return await this._instagramAudienceService.GetAudienceGenderPercentage(
-            account.Token!.AccessToken.Value,
-            account.Metadata.Id,
+        Result<GenderDistribution> result = await this._instagramAudienceService.GetAudienceGenderPercentage(
+            account,
             cancellationToken
         );
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<GenderDistributionResponse>(result.Error);
+        }
+
+        return GenderDistributionResponse.FromGenderDistribution(result.Value);
     }
 }

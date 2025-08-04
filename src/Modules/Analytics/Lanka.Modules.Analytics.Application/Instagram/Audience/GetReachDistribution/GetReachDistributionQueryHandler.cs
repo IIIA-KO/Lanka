@@ -1,14 +1,13 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
+using Lanka.Modules.Analytics.Domain.Audience;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetReachDistribution;
 
 internal sealed class GetReachDistributionQueryHandler
-    : IQueryHandler<GetReachDistributionQuery, ReachDistribution>
+    : IQueryHandler<GetReachDistributionQuery, ReachDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IInstagramAudienceService _instagramAudienceService;
@@ -22,7 +21,7 @@ internal sealed class GetReachDistributionQueryHandler
         this._instagramAudienceService = instagramAudienceService;
     }
 
-    public async Task<Result<ReachDistribution>> Handle(
+    public async Task<Result<ReachDistributionResponse>> Handle(
         GetReachDistributionQuery request,
         CancellationToken cancellationToken
     )
@@ -34,16 +33,20 @@ internal sealed class GetReachDistributionQueryHandler
 
         if (account is null)
         {
-            return Result.Failure<ReachDistribution>(InstagramAccountErrors.NotFound);
+            return Result.Failure<ReachDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        return await this._instagramAudienceService.GetAudienceReachPercentage(
-            new InstagramPeriodRequest(
-                account.Token!.AccessToken.Value,
-                account.Metadata.Id,
-                request.StatisticsPeriod
-            ),
+        Result<ReachDistribution> result = await this._instagramAudienceService.GetAudienceReachPercentage(
+            account,
+            request.StatisticsPeriod,
             cancellationToken
         );
+        
+        if (result.IsFailure)
+        {
+            return Result.Failure<ReachDistributionResponse>(result.Error);
+        }
+
+        return ReachDistributionResponse.FromReachDistribution(result.Value);
     }
 }

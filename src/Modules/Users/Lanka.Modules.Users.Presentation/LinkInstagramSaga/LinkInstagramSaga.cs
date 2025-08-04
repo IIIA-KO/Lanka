@@ -1,7 +1,6 @@
 using Lanka.Modules.Analytics.IntegrationEvents;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 using MassTransit;
-using MassTransit.Serialization;
 
 namespace Lanka.Modules.Users.Presentation.LinkInstagramSaga;
 

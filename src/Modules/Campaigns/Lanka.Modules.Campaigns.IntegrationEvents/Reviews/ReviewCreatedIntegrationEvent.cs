@@ -13,7 +13,8 @@ public class ReviewCreatedIntegrationEvent : IntegrationEvent
         Guid creatorId,
         Guid reviewId,
         int rating,
-        string comment
+        string comment,
+        DateTimeOffset createdOnUtc
     ) 
         : base(id, occurredOnUtc)
     {
@@ -24,6 +25,7 @@ public class ReviewCreatedIntegrationEvent : IntegrationEvent
         this.ReviewId = reviewId;
         this.Rating = rating;
         this.Comment = comment;
+        this.CreatedOnUtc = createdOnUtc;
     }
 
     public Guid CampaignId { get; init; }
@@ -33,4 +35,5 @@ public class ReviewCreatedIntegrationEvent : IntegrationEvent
     public Guid ReviewId { get; init; }
     public int Rating { get; init; }
     public string Comment { get; init; }
+    public DateTimeOffset CreatedOnUtc { get; init; }
 }

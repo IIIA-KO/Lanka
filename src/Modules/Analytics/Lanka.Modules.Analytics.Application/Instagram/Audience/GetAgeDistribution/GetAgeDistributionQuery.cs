@@ -1,9 +1,8 @@
 using Lanka.Common.Application.Caching;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetAgeDistribution;
 
-public sealed record GetAgeDistributionQuery(Guid UserId) : ICachedQuery<AgeDistribution>
+public sealed record GetAgeDistributionQuery(Guid UserId) : ICachedQuery<AgeDistributionResponse>
 {
     public string CacheKey => $"audience-age-{this.UserId}";
 

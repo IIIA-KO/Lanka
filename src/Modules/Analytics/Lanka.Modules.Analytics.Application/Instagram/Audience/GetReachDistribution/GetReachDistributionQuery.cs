@@ -1,13 +1,12 @@
 using Lanka.Common.Application.Caching;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
+using Lanka.Modules.Analytics.Domain;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetReachDistribution;
 
 public sealed record GetReachDistributionQuery(
     Guid UserId,
     StatisticsPeriod StatisticsPeriod
-) : ICachedQuery<ReachDistribution>
+) : ICachedQuery<ReachDistributionResponse>
 {
     public string CacheKey =>
         $"audience-reach-{this.UserId}-{(int)this.StatisticsPeriod}";

@@ -1,13 +1,13 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
+using Lanka.Modules.Analytics.Domain.Audience;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetLocationDistribution;
 
 internal sealed class GetLocationDistributionQueryHandler
-    : IQueryHandler<GetLocationDistributionQuery, LocationDistribution>
+    : IQueryHandler<GetLocationDistributionQuery, LocationDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IInstagramAudienceService _instagramAudienceService;
@@ -21,7 +21,7 @@ internal sealed class GetLocationDistributionQueryHandler
         this._instagramAudienceService = instagramAudienceService;
     }
 
-    public async Task<Result<LocationDistribution>> Handle(
+    public async Task<Result<LocationDistributionResponse>> Handle(
         GetLocationDistributionQuery request,
         CancellationToken cancellationToken
     )
@@ -33,14 +33,20 @@ internal sealed class GetLocationDistributionQueryHandler
 
         if (account is null)
         {
-            return Result.Failure<LocationDistribution>(InstagramAccountErrors.NotFound);
+            return Result.Failure<LocationDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        return await this._instagramAudienceService.GetAudienceTopLocations(
-            account.Token!.AccessToken.Value,
-            account.Metadata.Id,
+        Result<LocationDistribution> result = await this._instagramAudienceService.GetAudienceTopLocations(
+            account,
             request.LocationType,
             cancellationToken
         );
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<LocationDistributionResponse>(result.Error);
+        }
+
+        return LocationDistributionResponse.FromLocationDistribution(result.Value);
     }
 }

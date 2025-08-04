@@ -42,7 +42,8 @@ internal sealed class CampaignCompletedDomainEventHandler
                 notification.CampaignId.Value,
                 result.Value.OfferId,
                 result.Value.ClientId,
-                result.Value.CreatorId
+                result.Value.CreatorId,
+                notification.CompletedAtUtc
             ),
             cancellationToken
         );

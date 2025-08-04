@@ -3,7 +3,7 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts.AdvertisementAccountIds;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.DomainEvents;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.FacebookPageIds;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 
 namespace Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
@@ -18,8 +18,6 @@ public class InstagramAccount : Entity<InstagramAccountId>
     public Category Category { get; private set; }
 
     public Metadata Metadata { get; private set; }
-
-    public DateTimeOffset LastUpdatedAtUtc { get; }
 
     public Token? Token { get; set; }
 
@@ -53,7 +51,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
         int businessDiscoveryMediaCount
     )
     {
-        Result<(FacebookPageId, AdvertisementAccountId, Metadata)> validationResult = 
+        Result<(FacebookPageId, AdvertisementAccountId, Metadata)> validationResult =
             Validate(
                 fbPageId,
                 advertisementAccountId,
@@ -69,7 +67,8 @@ public class InstagramAccount : Entity<InstagramAccountId>
             return Result.Failure<InstagramAccount>(validationResult.Error);
         }
 
-        (FacebookPageId _fbPageId, AdvertisementAccountId _advertisementAccountId, Metadata metadata) = validationResult.Value;
+        (FacebookPageId _fbPageId, AdvertisementAccountId _advertisementAccountId, Metadata metadata) =
+            validationResult.Value;
 
         var igAccount = new InstagramAccount(
             InstagramAccountId.New(),
@@ -118,18 +117,16 @@ public class InstagramAccount : Entity<InstagramAccountId>
             businessDiscoveryMediaCount
         );
 
-        if (fbPageIdResult.IsFailure || adAccountIdResult.IsFailure || metadataResult.IsFailure)
-        {
-            return Result.Failure<(FacebookPageId, AdvertisementAccountId, Metadata)>(
-                ValidationError.FromResults([
-                        fbPageIdResult,
-                        adAccountIdResult,
-                        metadataResult
-                    ]
+        return new ValidationBuilder()
+            .Add(fbPageIdResult)
+            .Add(adAccountIdResult)
+            .Add(metadataResult)
+            .Build(() =>
+                (
+                    fbPageIdResult.Value,
+                    adAccountIdResult.Value,
+                    metadataResult.Value
                 )
             );
-        }
-
-        return (fbPageIdResult.Value, adAccountIdResult.Value, metadataResult.Value);
     }
 }

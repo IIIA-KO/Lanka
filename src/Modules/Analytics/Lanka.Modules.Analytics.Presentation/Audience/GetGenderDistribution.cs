@@ -1,7 +1,6 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
 using Lanka.Modules.Analytics.Application.Instagram.Audience.GetGenderDistribution;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -21,7 +20,7 @@ internal sealed class GetGenderDistribution : AnalyticsEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<GenderDistribution> result = await sender.Send(
+                    Result<GenderDistributionResponse> result = await sender.Send(
                         new GetGenderDistributionQuery(
                             userContext.GetUserId()
                         ),

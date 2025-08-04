@@ -91,20 +91,17 @@ public class Offer : Entity<OfferId>
         Result<Description> descriptionResult = Description.Create(description);
         Result<Money> priceResult = Money.Create(priceAmount, Currency.FromCode(priceCurrency));
 
-        if (nameResult.IsFailure
-            || descriptionResult.IsFailure
-            || priceResult.IsFailure)
-        {
-            return Result.Failure<(Name, Description, Money)>(
-                ValidationError.FromResults([nameResult, descriptionResult, priceResult])
+        return new ValidationBuilder()
+            .Add(nameResult)
+            .Add(descriptionResult)
+            .Add(priceResult)
+            .Build(() =>
+                (
+                    nameResult.Value,
+                    descriptionResult.Value,
+                    priceResult.Value
+                )
             );
-        }
-
-        return (
-            nameResult.Value,
-            descriptionResult.Value,
-            priceResult.Value
-        );
     }
 
     public void SetLastCooperatedOnUtc(DateTimeOffset utcNow)

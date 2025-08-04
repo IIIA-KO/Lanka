@@ -1,9 +1,8 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Statistics;
 using Lanka.Modules.Analytics.Application.Instagram.Statistics.GetInteractionStatistics;
+using Lanka.Modules.Analytics.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +23,7 @@ internal sealed class GetInteractionStatistics : AnalyticsEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<InteractionStatistics> result =
+                    Result<InteractionStatisticsResponse> result =
                         await sender.Send(
                             new GetInteractionStatisticsQuery(userContext.GetUserId(), period),
                             cancellationToken

@@ -1,11 +1,15 @@
+using System.Threading.RateLimiting;
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.Application.Abstractions.Data;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
+using Lanka.Modules.Analytics.Application.Instagram.UserActivity;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
+using Lanka.Modules.Analytics.Domain.UserActivities;
+using Lanka.Modules.Analytics.Infrastructure.Audience;
 using Lanka.Modules.Analytics.Infrastructure.Database;
 using Lanka.Modules.Analytics.Infrastructure.Inbox;
 using Lanka.Modules.Analytics.Infrastructure.Instagram;
@@ -13,7 +17,9 @@ using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Services;
 using Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Outbox;
+using Lanka.Modules.Analytics.Infrastructure.Statistics;
 using Lanka.Modules.Analytics.Infrastructure.Tokens;
+using Lanka.Modules.Analytics.Infrastructure.UserActivities;
 using Lanka.Modules.Users.IntegrationEvents;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 using MassTransit;
@@ -50,7 +56,7 @@ public static class AnalyticsModule
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingStartedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
-        
+
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<UserDeletedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
@@ -69,25 +75,40 @@ public static class AnalyticsModule
     {
         services.Configure<InstagramOptions>(configuration.GetSection("Analytics:Instagram"));
 
+        services.AddSingleton<RateLimiter>(sp =>
+            new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 200,
+                TokensPerPeriod = 200,
+                ReplenishmentPeriod = TimeSpan.FromHours(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            })
+        );
+
         services
             .AddRefitClient<IFacebookApi>()
             .ConfigureHttpClient(ConfigureBaseUrl);
-        
+
         services
             .AddRefitClient<IInstagramAccountsApi>()
-            .ConfigureHttpClient(ConfigureBaseUrl);
-        
+            .ConfigureHttpClient(ConfigureBaseUrl)
+            .AddHttpMessageHandler<InstagramApiDelegatingHandler>();
+
         services
             .AddRefitClient<IInstagramPostsApi>()
-            .ConfigureHttpClient(ConfigureBaseUrl);
-        
+            .ConfigureHttpClient(ConfigureBaseUrl)
+            .AddHttpMessageHandler<InstagramApiDelegatingHandler>();
+
         services
             .AddRefitClient<IInstagramAudienceApi>()
-            .ConfigureHttpClient(ConfigureBaseUrl);
-        
+            .ConfigureHttpClient(ConfigureBaseUrl)
+            .AddHttpMessageHandler<InstagramApiDelegatingHandler>();
+
         services
             .AddRefitClient<IInstagramStatisticsApi>()
-            .ConfigureHttpClient(ConfigureBaseUrl);
+            .ConfigureHttpClient(ConfigureBaseUrl)
+            .AddHttpMessageHandler<InstagramApiDelegatingHandler>();
 
         static void ConfigureBaseUrl(IServiceProvider serviceProvider, HttpClient httpClient)
         {
@@ -97,7 +118,7 @@ public static class AnalyticsModule
 
             httpClient.BaseAddress = new Uri(instagramOptions.BaseUrl);
         }
-        
+
         services.AddScoped<IFacebookService, FacebookService>();
         services.AddScoped<IInstagramAccountsService, InstagramAccountsService>();
         services.AddScoped<IInstagramAudienceService, InstagramAudienceService>();
@@ -118,6 +139,19 @@ public static class AnalyticsModule
 
         services.AddScoped<IInstagramAccountRepository, InstagramAccountRepository>();
         services.AddScoped<ITokenRepository, TokenRepository>();
+
+        services.AddScoped<AgeDistributionRepository>();
+        services.AddScoped<GenderDistributionRepository>();
+        services.AddScoped<LocationDistributionRepository>();
+        services.AddScoped<ReachDistributionRepository>();
+
+        services.AddScoped<EngagementRepository>();
+        services.AddScoped<InteractionRepository>();
+        services.AddScoped<MetricsRepository>();
+        services.AddScoped<OverviewRepository>();
+
+        services.AddScoped<IUserActivityRepository, UserActivityRepository>();
+        services.AddScoped<IUserActivityService, UserActivityService>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AnalyticsDbContext>());
     }

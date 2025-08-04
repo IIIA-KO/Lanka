@@ -7,7 +7,7 @@ using Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 using Lanka.Modules.Analytics.Application.Instagram.RefreshToken;
 using Lanka.Modules.Analytics.Application.UnitTests.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 using NSubstitute;
 
 namespace Lanka.Modules.Analytics.Application.UnitTests.Tokens;

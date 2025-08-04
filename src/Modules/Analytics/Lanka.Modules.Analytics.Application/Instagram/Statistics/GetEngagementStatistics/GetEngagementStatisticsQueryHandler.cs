@@ -1,14 +1,13 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Statistics;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain.Statistics;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Statistics.GetEngagementStatistics;
 
 internal sealed class GetEngagementStatisticsQueryHandler
-    : IQueryHandler<GetEngagementStatisticsQuery, EngagementStatistics>
+    : IQueryHandler<GetEngagementStatisticsQuery, EngagementStatisticsResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IInstagramStatisticsService _instagramStatisticsService;
@@ -22,7 +21,7 @@ internal sealed class GetEngagementStatisticsQueryHandler
         this._instagramStatisticsService = instagramStatisticsService;
     }
 
-    public async Task<Result<EngagementStatistics>> Handle(
+    public async Task<Result<EngagementStatisticsResponse>> Handle(
         GetEngagementStatisticsQuery request,
         CancellationToken cancellationToken
     )
@@ -34,17 +33,21 @@ internal sealed class GetEngagementStatisticsQueryHandler
 
         if (account is null)
         {
-            return Result.Failure<EngagementStatistics>(InstagramAccountErrors.NotFound);
+            return Result.Failure<EngagementStatisticsResponse>(InstagramAccountErrors.NotFound);
         }
 
-        return await this._instagramStatisticsService.GetEngagementStatistics(
-            account.Metadata.FollowersCount,
-            new InstagramPeriodRequest(
-                account.Token!.AccessToken.Value,
-                account.Metadata.Id,
-                request.StatisticsPeriod
-            ),
+       
+        Result<EngagementStatistics> result = await this._instagramStatisticsService.GetEngagementStatistics(
+            account,
+            request.StatisticsPeriod,
             cancellationToken
         );
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<EngagementStatisticsResponse>(result.Error);
+        }
+        
+        return EngagementStatisticsResponse.FromEngagementStatistics(result.Value);
     }
 }

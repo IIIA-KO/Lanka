@@ -13,6 +13,11 @@ using Lanka.Common.Infrastructure.Outbox;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
+using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using Npgsql;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -30,7 +35,8 @@ public static class InfrastructureConfiguration
         Action<IRegistrationConfigurator, string>[] moduleConfigureConsumers,
         RabbitMqSettings rabbitMqSettings,
         string databaseConnectionString,
-        string redisConnectionString
+        string redisConnectionString,
+        string mongoConnectionString
     )
     {
         services.AddAuthenticationInternal();
@@ -49,7 +55,7 @@ public static class InfrastructureConfiguration
 
         AddEventBus(services, serviceName, moduleConfigureConsumers, rabbitMqSettings);
 
-        AddTracing(services, serviceName);
+        AddTracing(services, serviceName, mongoConnectionString);
 
         return services;
     }
@@ -149,7 +155,7 @@ public static class InfrastructureConfiguration
         });
     }
 
-    private static void AddTracing(IServiceCollection services, string serviceName)
+    private static void AddTracing(IServiceCollection services, string serviceName, string mongoConnectionString)
     {
         services
             .AddOpenTelemetry()
@@ -162,10 +168,29 @@ public static class InfrastructureConfiguration
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddRedisInstrumentation()
                     .AddNpgsql()
-                    .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+                    .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName)
+                    .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
 
                 tracing
                     .AddOtlpExporter();
             });
+        
+        services.AddSingleton<IMongoClient>(serviceProvider =>
+        {
+            var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConnectionString);
+
+            mongoClientSettings.ClusterConfigurator = c => c.Subscribe(
+                new DiagnosticsActivityEventSubscriber(
+                    new InstrumentationOptions
+                    {
+                        CaptureCommandText = true
+                    }
+                )
+            );
+
+            return new MongoClient(mongoClientSettings);
+        });
+        
+        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
     }
 }

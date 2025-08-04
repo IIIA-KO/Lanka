@@ -16,7 +16,8 @@ internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         AuthToken authorizationToken = await this.GetAuthorizationToken(cancellationToken);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authorizationToken.AccessToken);

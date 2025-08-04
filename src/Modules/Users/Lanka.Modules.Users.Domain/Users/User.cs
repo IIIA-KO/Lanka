@@ -103,22 +103,19 @@ public class User : Entity<UserId>
         Result<Email> emailResult = Email.Create(email);
         Result<BirthDate> birthDateResult = BirthDate.Create(birthDate);
 
-        if (firstNameResult.IsFailure
-            || lastNameResult.IsFailure
-            || emailResult.IsFailure
-            || birthDateResult.IsFailure)
-        {
-            return Result.Failure<(FirstName, LastName, Email, BirthDate)>(
-                ValidationError.FromResults([firstNameResult, lastNameResult, emailResult, birthDateResult])
+        return new ValidationBuilder()
+            .Add(firstNameResult)
+            .Add(lastNameResult)
+            .Add(emailResult)
+            .Add(birthDateResult)
+            .Build(() =>
+                (
+                    firstNameResult.Value,
+                    lastNameResult.Value,
+                    emailResult.Value,
+                    birthDateResult.Value
+                )
             );
-        }
-
-        return (
-            firstNameResult.Value,
-            lastNameResult.Value,
-            emailResult.Value,
-            birthDateResult.Value
-        );
     }
 
     public void Deleted()
@@ -131,9 +128,14 @@ public class User : Entity<UserId>
         this.InstagramAccountLinkedOnUtc = DateTimeOffset.UtcNow;
         this.RaiseDomainEvent(new InstagramAccountLinkedDomainEvent(this.Id, code));
     }
-    
+
     public void RenewInstagramAccess(string code)
     {
         this.RaiseDomainEvent(new InstagramAccessRenewedDomainEvent(this.Id, code));
+    }
+
+    public void LoggedIn()
+    {
+        this.RaiseDomainEvent(new UserLoggedInDomainEvent(this.Id, DateTimeOffset.UtcNow));
     }
 }

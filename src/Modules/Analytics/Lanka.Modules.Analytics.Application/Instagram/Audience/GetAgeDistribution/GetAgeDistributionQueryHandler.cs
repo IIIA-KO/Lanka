@@ -1,13 +1,13 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
+using Lanka.Modules.Analytics.Domain.Audience;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Audience.GetAgeDistribution;
 
 internal sealed class GetAgeDistributionQueryHandler
-    : IQueryHandler<GetAgeDistributionQuery, AgeDistribution>
+    : IQueryHandler<GetAgeDistributionQuery, AgeDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IInstagramAudienceService _instagramAudienceService;
@@ -21,7 +21,7 @@ internal sealed class GetAgeDistributionQueryHandler
         this._instagramAudienceService = instagramAudienceService;
     }
 
-    public async Task<Result<AgeDistribution>> Handle(
+    public async Task<Result<AgeDistributionResponse>> Handle(
         GetAgeDistributionQuery request,
         CancellationToken cancellationToken
     )
@@ -33,13 +33,19 @@ internal sealed class GetAgeDistributionQueryHandler
 
         if (account is null)
         {
-            return Result.Failure<AgeDistribution>(InstagramAccountErrors.NotFound);
+            return Result.Failure<AgeDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        return await this._instagramAudienceService.GetAudienceAgesPercentage(
-            account.Token!.AccessToken.Value,
-            account.Metadata.Id,
+        Result<AgeDistribution> result = await this._instagramAudienceService.GetAudienceAgesPercentage(
+            account,
             cancellationToken
         );
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<AgeDistributionResponse>(result.Error);
+        }
+
+        return AgeDistributionResponse.FromAgeDistribution(result.Value);
     }
 }

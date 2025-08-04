@@ -42,9 +42,9 @@ public sealed class Review : Entity<ReviewId>
     public CampaignId CampaignId { get; init; }
 
     public Rating Rating { get; private set; }
-    
+
     public Comment Comment { get; private set; }
-    
+
     public DateTimeOffset CreatedOnUtc { get; private set; }
 
     public static Result<Review> Create(
@@ -60,9 +60,9 @@ public sealed class Review : Entity<ReviewId>
         {
             return Result.Failure<Review>(validationResult.Error);
         }
-        
+
         (Rating _rating, Comment _comment) = validationResult.Value;
-        
+
         if (campaign.Status != CampaignStatus.Completed)
         {
             return Result.Failure<Review>(ReviewErrors.NotEligible);
@@ -87,31 +87,27 @@ public sealed class Review : Entity<ReviewId>
     public Result Update(int rating, string comment)
     {
         Result<(Rating, Comment)> validationResult = Validate(rating, comment);
-        
+
         if (validationResult.IsFailure)
         {
             return validationResult;
         }
-        
+
         (this.Rating, this.Comment) = validationResult.Value;
-        
+
         this.RaiseDomainEvent(new ReviewUpdatedDomainEvent(this.Id));
-        
+
         return Result.Success();
-    } 
-    
+    }
+
     private static Result<(Rating, Comment)> Validate(int rating, string comment)
     {
         Result<Rating> ratingResult = Rating.Create(rating);
         Result<Comment> commentResult = Comment.Create(comment);
 
-        if (ratingResult.IsFailure || commentResult.IsFailure)
-        {
-            return Result.Failure<(Rating, Comment)>(
-                ValidationError.FromResults([ratingResult, commentResult])
-            );
-        }
-
-        return (ratingResult.Value, commentResult.Value);
+        return new ValidationBuilder()
+            .Add(ratingResult)
+            .Add(commentResult)
+            .Build(() => (ratingResult.Value, commentResult.Value));
     }
 }

@@ -1,8 +1,8 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
 using Lanka.Modules.Analytics.Application.Instagram.Audience.GetLocationDistribution;
+using Lanka.Modules.Analytics.Domain.Audience;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +23,7 @@ internal sealed class GetLocationDistribution : AnalyticsEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<LocationDistribution> result = await sender.Send(
+                    Result<LocationDistributionResponse> result = await sender.Send(
                         new GetLocationDistributionQuery(
                             userContext.GetUserId(),
                             locationType

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 using Lanka.Modules.Analytics.UnitTests.Abstractions;
 
 namespace Lanka.Modules.Analytics.UnitTests.Tokens;
