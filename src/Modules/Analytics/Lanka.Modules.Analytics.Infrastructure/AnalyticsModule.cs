@@ -75,7 +75,7 @@ public static class AnalyticsModule
     {
         services.Configure<InstagramOptions>(configuration.GetSection("Analytics:Instagram"));
 
-        services.AddSingleton<RateLimiter>(sp =>
+        services.AddSingleton<RateLimiter>(_ =>
             new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
             {
                 TokenLimit = 200,

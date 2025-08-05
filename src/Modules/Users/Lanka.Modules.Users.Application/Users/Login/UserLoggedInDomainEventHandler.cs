@@ -5,7 +5,7 @@ using Lanka.Modules.Users.IntegrationEvents;
 
 namespace Lanka.Modules.Users.Application.Users.Login;
 
-public class UserLoggedInDomainEventHandler
+internal sealed class UserLoggedInDomainEventHandler
     : DomainEventHandler<UserLoggedInDomainEvent>
 {
     private readonly IEventBus _eventBus;

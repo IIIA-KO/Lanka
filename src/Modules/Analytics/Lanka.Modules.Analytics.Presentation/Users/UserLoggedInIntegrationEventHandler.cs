@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Lanka.Modules.Analytics.Presentation.Users;
 
-public class UserLoggedInIntegrationEventHandler
+internal sealed class UserLoggedInIntegrationEventHandler
     : IntegrationEventHandler<UserLoggedInIntegrationEvent>
 {
     private readonly ISender _sender;
