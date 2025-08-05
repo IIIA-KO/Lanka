@@ -1,11 +1,11 @@
-export interface IAgeRatio {
+export interface IAgeDistribution {
   agePercentages: {
     ageGroup: string;
     percentage: number;
   }[];
 }
 
-export interface IGenderRatio {
+export interface IGenderDistribution {
   genderPercentages: {
     gender: string;
     percentage: number;
@@ -17,20 +17,20 @@ export enum LocationType {
   country = 2
 }
 
-export interface ILocationRatio {
+export interface ILocationDistribution {
   locationPercentages: {
     location: string;
     percentage: number;
   }[];
 }
 
-export enum StatisticPeriod {
+export enum StatisticsPeriod {
   day = 1,
   week = 7,
   day21 = 21
 }
 
-export interface IReachRatio {
+export interface IReachDistribution {
   reachPercentages: {
     followType: string;
     percentage: number;

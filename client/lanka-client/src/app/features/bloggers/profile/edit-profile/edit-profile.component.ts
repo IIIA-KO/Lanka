@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IBloggerProfile } from '../../../../core/models/blogger';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AgentService } from '../../../../core/api/agent';
 import {
@@ -14,11 +14,10 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ImageCropperComponent,
-  ],
+    ImageCropperComponent
+],
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.css',

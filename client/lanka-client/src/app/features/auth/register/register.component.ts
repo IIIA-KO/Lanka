@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AgentService } from '../../../core/api/agent';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -22,15 +22,14 @@ const EMAIL_MAX = 255;
   standalone: true,
   selector: 'lnk-register',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     InputTextModule,
     PasswordModule,
     ButtonModule,
     MessageModule,
-    TranslateModule,
-  ],
+    TranslateModule
+],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })

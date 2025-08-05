@@ -1,33 +1,64 @@
-import { OnInit } from '@angular/core';
 import { IBloggerProfile } from '../../../core/models/blogger';
 import { Component } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
-import { IAgeRatio } from '../../../core/models/analytics/analytics.audience';
 import { AgentService } from '../../../core/api/agent';
+import { AnalyticsChartComponent } from '../../analytics/chart/chart.component';
+import { LocationType } from '../../../core/models/analytics/analytics.audience';
+
 @Component({
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule, CommonModule, AnalyticsChartComponent],
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  standalone: true,
+  styleUrl: './profile.component.css',
 })
-export class ProfileComponent implements OnInit {
-  profile: IBloggerProfile | null = null;
-  ageRatio: IAgeRatio | null = null;
-  error: string | null = null;
+export class ProfileComponent {
+  profile!: IBloggerProfile;
+  age: { labels: string[]; values: number[] } = { labels: [], values: [] };
+  gender: { labels: string[]; values: number[] } = { labels: [], values: [] };
+  location: { labels: string[]; values: number[] } = {
+    labels: [],
+    values: [],
+  };
 
   constructor(private route: ActivatedRoute, private api: AgentService) {}
 
   ngOnInit(): void {
     this.profile = this.route.snapshot.data['profile'] ?? null;
-    this.api.Analytics.getAudienceAgeRatio().subscribe({
-      next: (data: IAgeRatio) => {
-        this.ageRatio = data;
+
+    if (this.profile) {
+      this.loadAnalytics();
+    }
+  }
+
+  private loadAnalytics(): void {
+    this.api.Analytics.getAgeDistribution().subscribe({
+      next: (data) => {
+        this.age.labels = data.agePercentages.map((p) => p.ageGroup);
+        this.age.values = data.agePercentages.map((p) => p.percentage);
       },
-      error: (err: any) => {
-        this.error = err.message || 'Failed to load age ratio data';
-      }
+      error: (error) => console.error('Error loading age distribution:', error),
+    });
+
+    this.api.Analytics.getGenderDistribution().subscribe({
+      next: (data) => {
+        this.gender.labels = data.genderPercentages.map((p) => p.gender);
+        this.gender.values = data.genderPercentages.map((p) => p.percentage);
+      },
+      error: (error) =>
+        console.error('Error loading gender distribution:', error),
+    });
+
+    this.api.Analytics.getLocationDistribution(LocationType.country).subscribe({
+      next: (data) => {
+        this.location.labels = data.locationPercentages.map((p) => p.location);
+        this.location.values = data.locationPercentages.map(
+          (p) => p.percentage
+        );
+      },
+      error: (error) =>
+        console.error('Error loading location distribution:', error),
     });
   }
 }

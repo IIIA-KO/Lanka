@@ -1,7 +1,7 @@
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { Component, HostBinding } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
@@ -13,7 +13,7 @@ interface MenuItem {
 
 @Component({
   selector: 'lnk-navbar',
-  imports: [PanelMenuModule, CommonModule, RouterModule, ConfirmDialogModule],
+  imports: [PanelMenuModule, RouterModule, ConfirmDialogModule],
   standalone: true,
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',

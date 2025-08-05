@@ -10,15 +10,21 @@
 
     <div class="error-space">
       <div class="error-container w-full">
-        <small *ngIf="loginForm.get('password')?.hasError('required')" class="p-error">
-          {{ 'LOGIN.ERRORS.PASSWORD_REQUIRED' | translate }}
-        </small>
-        <small *ngIf="loginForm.get('password')?.hasError('minlength')" class="p-error">
-          {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
-        </small>
-        <small *ngIf="loginForm.get('password')?.hasError('pattern')" class="p-error">
-          {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
-        </small>
+        @if (loginForm.get('password')?.hasError('required')) {
+          <small class="p-error">
+            {{ 'LOGIN.ERRORS.PASSWORD_REQUIRED' | translate }}
+          </small>
+        }
+        @if (loginForm.get('password')?.hasError('minlength')) {
+          <small class="p-error">
+            {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
+          </small>
+        }
+        @if (loginForm.get('password')?.hasError('pattern')) {
+          <small class="p-error">
+            {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
+          </small>
+        }
       </div>
     </div>
 

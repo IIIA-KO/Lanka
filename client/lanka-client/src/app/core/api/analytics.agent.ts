@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { IAgeRatio, IGenderRatio, ILocationRatio, IReachRatio } from '../models/analytics/analytics.audience';
+import { IAgeDistribution, IGenderDistribution, ILocationDistribution, IReachDistribution, LocationType, StatisticsPeriod } from '../models/analytics/analytics.audience';
 
 const BASE_URL = environment.apiUrl;
 
@@ -17,27 +17,39 @@ export class AnalyticsAgent {
     return throwError(() => new Error(message));
   }
 
-  getAudienceAgeRatio() : Observable<IAgeRatio> {
+  getAgeDistribution() : Observable<IAgeDistribution> {
     return this.http
-      .get<IAgeRatio>(`${BASE_URL}/analytics/audience/age-ratio`)
+      .get<IAgeDistribution>(`${BASE_URL}/analytics/audience/age-distribution`)
       .pipe(catchError(this.handleError));
   }
 
-  getAudienceGenderRatio() : Observable<IGenderRatio> {
+  getGenderDistribution() : Observable<IGenderDistribution> {
     return this.http
-      .get<IGenderRatio>(`${BASE_URL}/analytics/audience/gender-ratio`)
+      .get<IGenderDistribution>(`${BASE_URL}/analytics/audience/gender-distribution`)
       .pipe(catchError(this.handleError));
   }
 
-  getAudienceLocationRatio() : Observable<ILocationRatio> {
+  getLocationDistribution(locationType?: LocationType) : Observable<ILocationDistribution> {
+    let params = new HttpParams();
+
+    if (locationType) {
+      params = params.set('locationType', locationType);
+    }
+
     return this.http
-      .get<ILocationRatio>(`${BASE_URL}/analytics/audience/location-ratio`)
+      .get<ILocationDistribution>(`${BASE_URL}/analytics/audience/location-distribution`, { params })
       .pipe(catchError(this.handleError));
   }
 
-  getAudienceReachRatio() : Observable<IReachRatio> {
+  getReachDistribution(period: StatisticsPeriod) : Observable<IReachDistribution> {
+    let params = new HttpParams();
+
+    if (period) {
+      params = params.set('period', period);
+    }
+
     return this.http
-      .get<IReachRatio>(`${BASE_URL}/analytics/audience/reach-ratio`)
+      .get<IReachDistribution>(`${BASE_URL}/analytics/audience/reach-distribution`, { params })
       .pipe(catchError(this.handleError));
   }
 }

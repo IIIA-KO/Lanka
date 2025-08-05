@@ -85,6 +85,8 @@ public static class AnalyticsModule
                 QueueLimit = 0
             })
         );
+        
+        services.AddTransient<InstagramApiDelegatingHandler>();
 
         services
             .AddRefitClient<IFacebookApi>()

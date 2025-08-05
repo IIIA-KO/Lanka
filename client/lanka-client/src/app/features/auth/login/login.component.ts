@@ -5,7 +5,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AgentService } from '../../../core/api/agent';
@@ -23,15 +23,14 @@ const EMAIL_MAX = 255;
   standalone: true,
   selector: 'lnk-login',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     InputTextModule,
     ButtonModule,
     PasswordModule,
     MessageModule,
-    TranslateModule,
-  ],
+    TranslateModule
+],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })

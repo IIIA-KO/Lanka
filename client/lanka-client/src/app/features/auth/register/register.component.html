@@ -43,18 +43,26 @@
 
   <!-- Reserve space for password errors -->
   <div class="error-space w-full">
-    <small *ngIf="form.get('password')?.hasError('required')" class="p-error">
-      {{ 'REGISTER.ERRORS.PASSWORD_REQUIRED' | translate }}
-    </small>
-    <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error">
-      {{ 'REGISTER.ERRORS.PASSWORD_MIN' | translate }}
-    </small>
-    <small *ngIf="form.get('password')?.hasError('maxlength')" class="p-error">
-      {{ 'REGISTER.ERRORS.PASSWORD_MAX' | translate }}
-    </small>
-    <small *ngIf="form.get('password')?.hasError('pattern')" class="p-error">
-      {{ 'REGISTER.ERRORS.PASSWORD_PATTERN' | translate }}
-    </small>
+    @if (form.get('password')?.hasError('required')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_REQUIRED' | translate }}
+      </small>
+    }
+    @if (form.get('password')?.hasError('minlength')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_MIN' | translate }}
+      </small>
+    }
+    @if (form.get('password')?.hasError('maxlength')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_MAX' | translate }}
+      </small>
+    }
+    @if (form.get('password')?.hasError('pattern')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_PATTERN' | translate }}
+      </small>
+    }
   </div>
 
   <!-- Birth Date -->
@@ -74,5 +82,5 @@
     [label]="'REGISTER.BUTTON' | translate"
     class="w-full"
     style="background-color: var(--primary-color)"
-    [disabled]="form.invalid"></button>
+  [disabled]="form.invalid"></button>
 </form>

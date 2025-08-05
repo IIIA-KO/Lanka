@@ -2,7 +2,7 @@
   class="sidebar-container"
   (mouseenter)="open = true"
   (mouseleave)="open = false"
->
+  >
   <!-- Logo -->
   <div class="logo-wrapper">
     <img src="/logo/lanka-logo-white.svg" alt="Lanka" class="logo" />
@@ -10,15 +10,16 @@
 
   <!-- Menu -->
   <ul class="menu-list">
-    <li
-      *ngFor="let item of menu"
-      class="menu-item"
-      routerLinkActive="active"
-      [routerLink]="item.path"
-    >
-      <img [src]="item.icon" [alt]="item.title" class="icon" />
-      <span class="label" [class.visible]="open">{{ item.title }}</span>
-    </li>
+    @for (item of menu; track item) {
+      <li
+        class="menu-item"
+        routerLinkActive="active"
+        [routerLink]="item.path"
+        >
+        <img [src]="item.icon" [alt]="item.title" class="icon" />
+        <span class="label" [class.visible]="open">{{ item.title }}</span>
+      </li>
+    }
 
     <li
       class="menu-item"
@@ -26,7 +27,7 @@
       (keydown.enter)="confirmLogout()"
       (keydown.space)="confirmLogout()"
       style="cursor: pointer;"
-    >
+      >
       <img src="/icons/logout-icon.svg" alt="Logout" class="icon" />
       <span class="label" [class.visible]="open">Logout</span>
     </li>
