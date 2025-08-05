@@ -1,6 +1,6 @@
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens.AccessTokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens.AccessTokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

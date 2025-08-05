@@ -57,6 +57,7 @@ internal sealed class UpdateBloggerCommandHandler
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return BloggerResponse.FromBloger(blogger);
+        var response = BloggerResponse.FromBlogger(blogger);
+        return response;
     }
 }

@@ -1,5 +1,5 @@
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 using Lanka.Modules.Analytics.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 

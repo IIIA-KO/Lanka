@@ -6,12 +6,14 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AgentService } from '../../../core/api/agent';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 255;
@@ -20,14 +22,14 @@ const EMAIL_MAX = 255;
   standalone: true,
   selector: 'lnk-register',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     InputTextModule,
     PasswordModule,
     ButtonModule,
     MessageModule,
-  ],
+    TranslateModule
+],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
@@ -37,7 +39,8 @@ export class RegisterComponent {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private agent: AgentService
+    private agent: AgentService,
+    private translate: TranslateService
   ) {
     this.form = this.formBuilder.group({
       firstName: [

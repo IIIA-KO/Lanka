@@ -91,3 +91,14 @@
     ports:
       - "5672:5672"
       - "15672:15672"
+          
+  lanka.mongo:
+    image: mongo:latest
+    container_name: Lanka.Mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - ./.containers/mongo:/data/db
+    ports:
+      - "27017:27017"

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Lanka.Common.Domain;
+using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Application.Users.Login;
 using Lanka.Modules.Users.Domain.Users;
@@ -13,6 +14,7 @@ public class LoginUserTests
     private static LoginUserCommand Command => new(UserData.Email, UserData.Password);
     
     private readonly IUserRepository _userRepositoryMock;
+    private readonly IUnitOfWork _unitOfWorkMock;
     private readonly IIdentityProviderService _identityProviderServiceMock;
     
     private readonly LoginUserCommandHandler _handler;
@@ -21,9 +23,11 @@ public class LoginUserTests
     {
         this._userRepositoryMock = Substitute.For<IUserRepository>();
         this._identityProviderServiceMock = Substitute.For<IIdentityProviderService>();
+        this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
         
         this._handler = new LoginUserCommandHandler(
             this._userRepositoryMock,
+            this._unitOfWorkMock,
             this._identityProviderServiceMock
         );
     }

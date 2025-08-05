@@ -2,4 +2,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Lanka.Common.Domain\Lanka.Common.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" />
+  </ItemGroup>
 </Project>

@@ -1,9 +1,8 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Statistics;
-using Lanka.Modules.Analytics.Application.Instagram.Statistics.GetTableStatistics;
+using Lanka.Modules.Analytics.Application.Instagram.Statistics.GetMetricsStatistics;
+using Lanka.Modules.Analytics.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,9 +23,9 @@ internal sealed class GetTableStatistics : AnalyticsEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<TableStatistics> result =
+                    Result<MetricsStatisticsResponse> result =
                         await sender.Send(
-                            new GetTableStatisticsQuery(userContext.GetUserId(), period),
+                            new GetMetricsStatisticsQuery(userContext.GetUserId(), period),
                             cancellationToken
                         );
 

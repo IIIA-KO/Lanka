@@ -2,6 +2,7 @@ using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.DomainEvents;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
 using Lanka.Modules.Analytics.UnitTests.Abstractions;
 
 namespace Lanka.Modules.Analytics.UnitTests.InstagramAccounts;
@@ -17,7 +18,11 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
             InstagramAccountData.UserId,
             InstagramAccountData.FacebookPageId,
             InstagramAccountData.AdvertisementAccountId,
-            InstagramAccountData.Metadata
+            InstagramAccountData.BusinessDiscoveryId,
+            InstagramAccountData.BusinessDiscoveryIgId,
+            InstagramAccountData.BusinessDiscoveryUsername,
+            InstagramAccountData.BusinessDiscoveryFollowersCount,
+            InstagramAccountData.BusinessDiscoveryMediaCount
         );
 
         // Assert
@@ -33,7 +38,11 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
             InstagramAccountData.UserId,
             " ",
             InstagramAccountData.AdvertisementAccountId,
-            InstagramAccountData.Metadata
+            InstagramAccountData.BusinessDiscoveryId,
+            InstagramAccountData.BusinessDiscoveryIgId,
+            InstagramAccountData.BusinessDiscoveryUsername,
+            InstagramAccountData.BusinessDiscoveryFollowersCount,
+            InstagramAccountData.BusinessDiscoveryMediaCount
         );
 
         // Assert
@@ -49,7 +58,11 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
             InstagramAccountData.UserId,
             InstagramAccountData.FacebookPageId,
             null!,
-            InstagramAccountData.Metadata
+            InstagramAccountData.BusinessDiscoveryId,
+            InstagramAccountData.BusinessDiscoveryIgId,
+            InstagramAccountData.BusinessDiscoveryUsername,
+            InstagramAccountData.BusinessDiscoveryFollowersCount,
+            InstagramAccountData.BusinessDiscoveryMediaCount
         );
 
         // Assert
@@ -65,7 +78,11 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
             InstagramAccountData.UserId,
             InstagramAccountData.FacebookPageId,
             InstagramAccountData.AdvertisementAccountId,
-            InstagramAccountData.Metadata
+            InstagramAccountData.BusinessDiscoveryId,
+            InstagramAccountData.BusinessDiscoveryIgId,
+            InstagramAccountData.BusinessDiscoveryUsername,
+            InstagramAccountData.BusinessDiscoveryFollowersCount,
+            InstagramAccountData.BusinessDiscoveryMediaCount
         );
 
         // Act
@@ -83,12 +100,16 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
             InstagramAccountData.UserId,
             InstagramAccountData.FacebookPageId,
             InstagramAccountData.AdvertisementAccountId,
-            InstagramAccountData.Metadata
+            InstagramAccountData.BusinessDiscoveryId,
+            InstagramAccountData.BusinessDiscoveryIgId,
+            InstagramAccountData.BusinessDiscoveryUsername,
+            InstagramAccountData.BusinessDiscoveryFollowersCount,
+            InstagramAccountData.BusinessDiscoveryMediaCount
         );
 
         InstagramAccount instagramAccount = instagramAccountResult.Value;
 
-        Metadata updatedMetadata = new("new-id", 12345, "new-username", 100, 100);
+        Metadata updatedMetadata = Metadata.Create("new-id", 12345, "new-username", 100, 100).Value;
         // Act
         instagramAccount.Update(updatedMetadata);
 

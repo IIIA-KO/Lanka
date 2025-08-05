@@ -1,32 +1,31 @@
 using Lanka.Common.Domain;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Audience;
+using Lanka.Modules.Analytics.Domain;
+using Lanka.Modules.Analytics.Domain.Audience;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
 namespace Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 
 public interface IInstagramAudienceService
 {
-    Task<Result<GenderRatio>> GetAudienceGenderPercentage(
-        string accessToken,
-        string instagramAccountId,
+    Task<Result<GenderDistribution>> GetAudienceGenderPercentage(
+        InstagramAccount instagramAccount,
         CancellationToken cancellationToken = default
     );
 
-    Task<Result<LocationRatio>> GetAudienceTopLocations(
-        string accessToken,
-        string instagramAccountId,
+    Task<Result<LocationDistribution>> GetAudienceTopLocations(
+        InstagramAccount instagramAccount,
         LocationType locationType,
         CancellationToken cancellationToken = default
     );
 
-    Task<Result<AgeRatio>> GetAudienceAgesPercentage(
-        string accessToken,
-        string instagramAccountId,
+    Task<Result<AgeDistribution>> GetAudienceAgesPercentage(
+        InstagramAccount instagramAccount,
         CancellationToken cancellationToken = default
     );
 
-    Task<Result<ReachRatio>> GetAudienceReachPercentage(
-        InstagramPeriodRequest request,
+    Task<Result<ReachDistribution>> GetAudienceReachPercentage(
+        InstagramAccount instagramAccount,
+        StatisticsPeriod period,
         CancellationToken cancellationToken = default
     );
 }

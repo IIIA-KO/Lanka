@@ -1,4 +1,4 @@
-using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
 
 namespace Lanka.Modules.Analytics.Application.Abstractions.Models;
 

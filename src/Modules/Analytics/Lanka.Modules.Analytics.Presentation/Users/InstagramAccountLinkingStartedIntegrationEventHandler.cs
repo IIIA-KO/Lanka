@@ -1,5 +1,4 @@
 using Lanka.Common.Application.EventBus;
-using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Instagram.FetchAccountData;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
@@ -11,10 +10,13 @@ internal sealed class InstagramAccountLinkingStartedIntegrationEventHandler
     : IntegrationEventHandler<InstagramAccountLinkingStartedIntegrationEvent>
 {
     private readonly ISender _sender;
+    private readonly IEventBus _eventBus;
 
-    public InstagramAccountLinkingStartedIntegrationEventHandler(ISender sender)
+
+    public InstagramAccountLinkingStartedIntegrationEventHandler(ISender sender, IEventBus eventBus)
     {
         this._sender = sender;
+        this._eventBus = eventBus;
     }
 
     public override async Task Handle(
@@ -32,7 +34,15 @@ internal sealed class InstagramAccountLinkingStartedIntegrationEventHandler
 
         if (result.IsFailure)
         {
-            throw new LankaException(nameof(FetchInstagramAccountDataCommand), result.Error);
+            await this._eventBus.PublishAsync(
+                new InstagramLinkingFailedIntegrationEvent(
+                    integrationEvent.Id,
+                    integrationEvent.OccurredOnUtc,
+                    integrationEvent.UserId,
+                    result.Error.Description
+                ),
+                cancellationToken
+            );
         }
     }
 }

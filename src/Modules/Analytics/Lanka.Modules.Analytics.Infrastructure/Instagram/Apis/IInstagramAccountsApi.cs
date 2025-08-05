@@ -9,14 +9,16 @@ internal interface IInstagramAccountsApi
     [Get("/{pageId}")]
     Task<InstagramBusinessAccountResponse> GetBusinessAccountAsync(
         [AliasAs("pageId")] string pageId,
-        [Query] IDictionary<string, string> query,
+        [Query] string fields,
+        [Query] string access_token,
         CancellationToken cancellationToken = default
     );
 
     [Get("/{accountId}")]
     Task<InstagramUserInfo> GetUserInfoAsync(
         [AliasAs("accountId")] string accountId,
-        [Query] IDictionary<string, string> query,
+        [Query] string fields,
+        [Query] string access_token,
         CancellationToken cancellationToken = default
     );
 }

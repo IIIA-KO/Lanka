@@ -16,6 +16,7 @@ using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
+using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 using Lanka.Modules.Users.Presentation.LinkInstagramSaga;
 using Lanka.Modules.Users.Presentation.RenewInstagramAccessSaga;
 using MassTransit;
@@ -53,11 +54,21 @@ public static class UsersModule
         {
             registration
                 .AddSagaStateMachine<LinkInstagramSaga, LinkInstagramState>()
+                .Endpoint(c => c.InstanceId = instanceId)
                 .RedisRepository(redisConnectionString);
 
             registration
                 .AddSagaStateMachine<RenewInstagramAccessSaga, RenewInstagramAccessState>()
+                .Endpoint(c => c.InstanceId = instanceId)
                 .RedisRepository(redisConnectionString);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingFailureCleanedUpIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+            
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramLinkingFailedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()

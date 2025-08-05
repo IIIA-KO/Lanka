@@ -1,0 +1,27 @@
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <h2>Profile</h2>
+  <button [routerLink]="['edit']" [state]="{profile: profile}" class="edit-profile-btn">
+    Edit Profile
+  </button>
+</div>
+<div>
+  <p>First name: {{ profile.firstName }}</p>
+  <p>Last name: {{ profile.lastName }}</p>
+  <p>Email: {{ profile.email }}</p>
+  <p>Birth Date: {{ profile!.birthDate }}</p>
+  <p>Bio: {{ profile.bio || 'No bio provided.' }}</p>
+  <img [src]="profile.profilePhotoUri || '/icons/no-profile.svg'" alt="Avatar" />
+  <p>Followers: {{profile.instagramFollowersCount}}</p>
+  <p>Media: {{profile.instagramMediaCount}}</p>
+  <p>Username: {{profile.instagramUsername}}</p>
+
+  <analytics-chart *ngIf="age.labels && age.values" [type]="'pie'" [title]="'Age Distribution'" [labels]="age!.labels"
+    [values]="age!.values"></analytics-chart>
+
+  <analytics-chart *ngIf="gender.labels && gender.values" [type]="'pie'" [title]="'Age Distribution'"
+    [labels]="gender!.labels" [values]="gender.values"></analytics-chart>
+
+  <analytics-chart *ngIf="location.labels && location.values" [type]="'pie'" [title]="'Age Distribution'"
+    [labels]="location.labels" [values]="location.values"></analytics-chart>
+</div>
+<router-outlet></router-outlet>

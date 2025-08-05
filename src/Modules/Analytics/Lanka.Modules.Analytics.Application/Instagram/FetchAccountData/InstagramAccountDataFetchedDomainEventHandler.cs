@@ -26,6 +26,8 @@ internal sealed class InstagramAccountDataFetchedDomainEventHandler
                 domainEvent.OccurredOnUtc,
                 domainEvent.UserId.Value,
                 domainEvent.Username,
+                domainEvent.FollowersCount,
+                domainEvent.MediaCount,
                 domainEvent.ProviderId
             ),
             cancellationToken

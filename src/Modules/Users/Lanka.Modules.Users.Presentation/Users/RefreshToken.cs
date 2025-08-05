@@ -29,6 +29,7 @@ internal sealed class RefreshToken : UsersEndpointBase
                 return result.Match(Results.Ok, ApiResult.Problem);
             }
         )
+        .AllowAnonymous()
         .WithTags(Tags.Users);
     }
     

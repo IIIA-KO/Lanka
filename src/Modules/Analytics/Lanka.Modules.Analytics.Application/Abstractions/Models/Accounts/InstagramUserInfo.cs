@@ -21,13 +21,11 @@ public sealed class InstagramUserInfo
             userId.Value,
             this.FacebookPageId,
             this.AdAccountId,
-            new Metadata(
-                this.Id,
-                this.BusinessDiscovery.IgId,
-                this.BusinessDiscovery.Username,
-                this.BusinessDiscovery.FollowersCount,
-                this.BusinessDiscovery.MediaCount
-            )
+            this.BusinessDiscovery.Id,
+            this.BusinessDiscovery.IgId,
+            this.BusinessDiscovery.Username,
+            this.BusinessDiscovery.FollowersCount,
+            this.BusinessDiscovery.MediaCount
         );
     }
 }

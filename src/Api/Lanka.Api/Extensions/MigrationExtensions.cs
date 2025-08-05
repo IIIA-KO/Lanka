@@ -1,4 +1,3 @@
-using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Analytics.Infrastructure.Database;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Database;

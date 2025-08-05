@@ -7,7 +7,7 @@ using Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 using Lanka.Modules.Analytics.Application.Instagram.RefreshToken;
 using Lanka.Modules.Analytics.Application.UnitTests.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 using NSubstitute;
 
 namespace Lanka.Modules.Analytics.Application.UnitTests.Tokens;
@@ -17,7 +17,7 @@ public class RefreshTokenTests
 {
     private static RefreshInstagramTokenCommand Command => new(Guid.NewGuid(), "test_code");
 
-    private readonly IInstagramTokenService _instagramTokenServiceMock;
+    private readonly IFacebookService _facebookServiceMock;
     private readonly IInstagramAccountsService _instagramAccountsServiceMock;
     private readonly IInstagramAccountRepository _instagramAccountRepositoryMock;
     private readonly ITokenRepository _tokenRepositoryMock;
@@ -27,14 +27,14 @@ public class RefreshTokenTests
 
     public RefreshTokenTests()
     {
-        this._instagramTokenServiceMock = Substitute.For<IInstagramTokenService>();
+        this._facebookServiceMock = Substitute.For<IFacebookService>();
         this._instagramAccountsServiceMock = Substitute.For<IInstagramAccountsService>();
         this._instagramAccountRepositoryMock = Substitute.For<IInstagramAccountRepository>();
         this._tokenRepositoryMock = Substitute.For<ITokenRepository>();
         this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
         this._handler = new RefreshInstagramTokenCommandHandler(
-            this._instagramTokenServiceMock,
+            this._facebookServiceMock,
             this._instagramAccountsServiceMock,
             this._instagramAccountRepositoryMock,
             this._tokenRepositoryMock,
@@ -46,7 +46,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnSuccess()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -81,7 +81,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenTokenServiceFails()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -99,7 +99,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenInstagramUserInfoFetchFails()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -123,7 +123,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenInstagramAccountCreationFails()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -157,7 +157,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenTokenRepositoryFails()
     {
         // Arrange
-        this._instagramTokenServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.GetAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )

@@ -9,5 +9,5 @@ public sealed record GetPostsQuery(Guid UserId, int Limit, string? CursorType, s
     public string CacheKey =>
         $"posts-{this.UserId}-limit-{this.Limit}-cursorType-{this.CursorType ?? "after"}-cursor-{this.Cursor ?? "null"}";
 
-    public TimeSpan? Expiration => TimeSpan.FromMinutes(1);
+    public TimeSpan? Expiration => TimeSpan.FromMinutes(10);
 }

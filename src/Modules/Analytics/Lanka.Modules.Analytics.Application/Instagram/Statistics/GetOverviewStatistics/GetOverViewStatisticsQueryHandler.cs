@@ -1,14 +1,13 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Statistics;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain.Statistics;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Statistics.GetOverviewStatistics;
 
 internal sealed class GetOverViewStatisticsQueryHandler
-    : IQueryHandler<GetOverviewStatisticsQuery, OverviewStatistics>
+    : IQueryHandler<GetOverviewStatisticsQuery, OverviewStatisticsResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly IInstagramStatisticsService _instagramStatisticsService;
@@ -22,7 +21,7 @@ internal sealed class GetOverViewStatisticsQueryHandler
         this._instagramStatisticsService = instagramStatisticsService;
     }
 
-    public async Task<Result<OverviewStatistics>> Handle(
+    public async Task<Result<OverviewStatisticsResponse>> Handle(
         GetOverviewStatisticsQuery request,
         CancellationToken cancellationToken
     )
@@ -34,16 +33,21 @@ internal sealed class GetOverViewStatisticsQueryHandler
 
         if (account is null)
         {
-            return Result.Failure<OverviewStatistics>(InstagramAccountErrors.NotFound);
+            return Result.Failure<OverviewStatisticsResponse>(InstagramAccountErrors.NotFound);
         }
 
-        return await this._instagramStatisticsService.GetOverviewStatistics(
-            new InstagramPeriodRequest(
-                account.Token!.AccessToken.Value,
-                account.Metadata.Id,
-                request.StatisticsPeriod
-            ),
+
+        Result<OverviewStatistics> result = await this._instagramStatisticsService.GetOverviewStatistics(
+            account,
+            request.StatisticsPeriod,
             cancellationToken
         );
+
+        if (result.IsFailure)
+        {
+            return Result.Failure<OverviewStatisticsResponse>(result.Error);
+        }
+
+        return OverviewStatisticsResponse.FromOverviewStatistics(result.Value);
     }
 }

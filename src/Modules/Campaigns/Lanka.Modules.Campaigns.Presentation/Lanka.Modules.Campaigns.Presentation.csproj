@@ -2,6 +2,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj" />
         <ProjectReference Include="..\..\..\Common\Lanka.Common.Presentation\Lanka.Common.Presentation.csproj"/>
+        <ProjectReference Include="..\..\Analytics\Lanka.Modules.Analytics.IntegrationEvents\Lanka.Modules.Analytics.IntegrationEvents.csproj" />
         <ProjectReference Include="..\..\Users\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj"/>
         <ProjectReference Include="..\Lanka.Modules.Campaigns.Application\Lanka.Modules.Campaigns.Application.csproj"/>
     </ItemGroup>

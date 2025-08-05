@@ -1,9 +1,8 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Statistics;
 using Lanka.Modules.Analytics.Application.Instagram.Statistics.GetOverviewStatistics;
+using Lanka.Modules.Analytics.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +23,7 @@ internal sealed class GetOverviewStatistics : AnalyticsEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<OverviewStatistics> result =
+                    Result<OverviewStatisticsResponse> result =
                         await sender.Send(
                             new GetOverviewStatisticsQuery(userContext.GetUserId(), period),
                             cancellationToken

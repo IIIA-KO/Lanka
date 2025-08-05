@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
+      <PackageReference Include="AspNetCore.HealthChecks.MongoDb" />
       <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" />
       <PackageReference Include="EFCore.NamingConventions" />
       <PackageReference Include="MassTransit" />
@@ -7,6 +8,8 @@
       <PackageReference Include="MassTransit.Redis" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+      <PackageReference Include="MongoDB.Driver" />
+      <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" />
       <PackageReference Include="Newtonsoft.Json" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
       <PackageReference Include="Npgsql.OpenTelemetry" />

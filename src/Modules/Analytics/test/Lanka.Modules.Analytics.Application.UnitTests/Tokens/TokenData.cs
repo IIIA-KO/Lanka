@@ -1,7 +1,7 @@
 using Lanka.Modules.Analytics.Application.Abstractions.Models;
 using Lanka.Modules.Analytics.Application.UnitTests.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 
 namespace Lanka.Modules.Analytics.Application.UnitTests.Tokens;
 

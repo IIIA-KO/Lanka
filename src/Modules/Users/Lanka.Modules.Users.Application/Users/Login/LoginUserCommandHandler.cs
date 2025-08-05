@@ -1,5 +1,6 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
+using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Domain.Users.Emails;
@@ -10,11 +11,17 @@ internal sealed class LoginUserCommandHandler
     : ICommandHandler<LoginUserCommand, AccessTokenResponse>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IIdentityProviderService _identityProviderService;
 
-    public LoginUserCommandHandler(IUserRepository userRepository, IIdentityProviderService identityProviderService)
+    public LoginUserCommandHandler(
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork,
+        IIdentityProviderService identityProviderService
+    )
     {
         this._userRepository = userRepository;
+        this._unitOfWork = unitOfWork;
         this._identityProviderService = identityProviderService;
     }
 
@@ -32,6 +39,10 @@ internal sealed class LoginUserCommandHandler
             request.Password,
             cancellationToken
         );
+
+        user.LoggedIn();
+
+        await this._unitOfWork.SaveChangesAsync(cancellationToken);
 
         return result.IsFailure ? result : result.Value;
     }

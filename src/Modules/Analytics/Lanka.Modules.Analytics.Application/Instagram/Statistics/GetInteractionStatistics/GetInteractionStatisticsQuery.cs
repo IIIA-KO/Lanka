@@ -1,13 +1,12 @@
 using Lanka.Common.Application.Caching;
-using Lanka.Modules.Analytics.Application.Abstractions.Models;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Statistics;
+using Lanka.Modules.Analytics.Domain;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.Statistics.GetInteractionStatistics;
 
 public sealed record GetInteractionStatisticsQuery(
     Guid UserId,
     StatisticsPeriod StatisticsPeriod
-) : ICachedQuery<InteractionStatistics>
+) : ICachedQuery<InteractionStatisticsResponse>
 {
     public string CacheKey => $"interaction-{this.UserId}-{(int)this.StatisticsPeriod}";
 

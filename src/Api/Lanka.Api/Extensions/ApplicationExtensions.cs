@@ -47,6 +47,7 @@ internal static class ApplicationExtensions
 
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
+        string mongoConnectionString = builder.Configuration.GetConnectionString("Mongo")!;
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
 
         builder.Services.AddInfrastructure(
@@ -58,7 +59,8 @@ internal static class ApplicationExtensions
             ],
             rabbitMqSettings,
             databaseConnectionString,
-            redisConnectionString
+            redisConnectionString,
+            mongoConnectionString
         );
 
         builder.Configuration.AddModuleConfiguration(["users", "campaigns", "analytics"]);
@@ -73,7 +75,7 @@ internal static class ApplicationExtensions
     {
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-
+       
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
         builder.Services
             .AddSingleton<IConnection>(_ =>
@@ -93,6 +95,7 @@ internal static class ApplicationExtensions
             .AddNpgSql(databaseConnectionString)
             .AddRedis(redisConnectionString)
             .AddRabbitMQ()
+            .AddMongoDb()
             .AddUrlGroup(
                 new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
                 HttpMethod.Get,

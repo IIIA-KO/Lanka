@@ -1,23 +1,40 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="w-full flex flex-column gap-3 mt-3">
   <!-- First Name -->
   <div class="w-full">
-    <input pInputText type="text" placeholder="First Name" formControlName="firstName" class="w-full" />
+    <input
+      pInputText
+      type="text"
+      [placeholder]="'REGISTER.FIRST_NAME' | translate"
+      formControlName="firstName"
+      class="w-full" />
   </div>
 
   <!-- Last Name -->
   <div class="w-full">
-    <input pInputText type="text" placeholder="Last Name" formControlName="lastName" class="w-full" />
+    <input
+      pInputText
+      type="text"
+      [placeholder]="'REGISTER.LAST_NAME' | translate"
+      formControlName="lastName"
+      class="w-full" />
   </div>
 
   <!-- Email -->
   <div class="w-full">
-    <input pInputText type="email" placeholder="E-mail" formControlName="email" class="w-full" />
+    <input
+      pInputText
+      type="email"
+      [placeholder]="'REGISTER.EMAIL' | translate"
+      formControlName="email"
+      class="w-full" />
   </div>
 
   <!-- Password -->
   <p-password
     formControlName="password"
-    placeholder="Password"
+    [placeholder]="'REGISTER.PASSWORD' | translate"
+    [required]="true"
+    [minlength]="8"
     [toggleMask]="true"
     [feedback]="false"
     styleClass="w-full"
@@ -26,26 +43,44 @@
 
   <!-- Reserve space for password errors -->
   <div class="error-space w-full">
-    <small *ngIf="form.get('password')?.hasError('required')" class="p-error">
-      Password is required.
-    </small>
-    <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error">
-      Password must be at least 8 characters.
-    </small>
-    <small *ngIf="form.get('password')?.hasError('maxlength')" class="p-error">
-      Password cannot exceed 16 characters.
-    </small>
-    <small *ngIf="form.get('password')?.hasError('pattern')" class="p-error">
-      Password must include uppercase, lowercase, digit & one special (!?*.$).
-    </small>
+    @if (form.get('password')?.hasError('required')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_REQUIRED' | translate }}
+      </small>
+    }
+    @if (form.get('password')?.hasError('minlength')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_MIN' | translate }}
+      </small>
+    }
+    @if (form.get('password')?.hasError('maxlength')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_MAX' | translate }}
+      </small>
+    }
+    @if (form.get('password')?.hasError('pattern')) {
+      <small class="p-error">
+        {{ 'REGISTER.ERRORS.PASSWORD_PATTERN' | translate }}
+      </small>
+    }
   </div>
 
   <!-- Birth Date -->
   <div class="w-full">
-    <input pInputText type="date" formControlName="birthDate" class="w-full" placeholder="Birth Date" />
+    <input
+      pInputText
+      type="date"
+      formControlName="birthDate"
+      class="w-full"
+      [placeholder]="'REGISTER.BIRTH_DATE' | translate"/>
   </div>
 
   <!-- Submit Button -->
-  <button pButton type="submit" label="Register" class="w-full" style="background-color: var(--primary-color)"
-    [disabled]="form.invalid"></button>
+  <button
+    pButton
+    type="submit"
+    [label]="'REGISTER.BUTTON' | translate"
+    class="w-full"
+    style="background-color: var(--primary-color)"
+  [disabled]="form.invalid"></button>
 </form>

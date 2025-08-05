@@ -2,6 +2,7 @@ using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
+using Lanka.Modules.Analytics.IntegrationEvents;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Abstractions.Photos;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
@@ -53,6 +54,10 @@ public static class CampaignsModule
         
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<UserDeletedIntegrationEvent>>()
+            .Endpoint(configuration => configuration.InstanceId = instanceId);
+        
+        registrationConfigurator
+            .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
 
@@ -141,7 +146,7 @@ public static class CampaignsModule
     
     private static void AddCloudinary(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<CloudinaryOptions>(configuration.GetSection("Cloudinary"));
+        services.Configure<CloudinaryOptions>(configuration.GetSection("Campaigns:Cloudinary"));
 
         services.AddSingleton<IPhotoAccessor, PhotoAccessor>();
     }

@@ -2,7 +2,7 @@
   --sidebar-bg: #009688;
   --sidebar-hover-bg: #00796b;
   --item-hover-bg: rgba(244, 243, 243, 0.1);
-  --active-bg: rgba(255,255,255,0.2);
+  --active-bg: rgba(255, 255, 255, 0.2);
   --transition: 0.3s ease;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .sidebar-container:hover {
-  width: 300px;
+  width: 200px;
 }
 
 .logo-wrapper .logo {
@@ -34,7 +34,7 @@
   padding: 1rem 0;
 }
 .logo {
-  width: 60px;
+  width: 50px;
   transition: width var(--transition);
 }
 .sidebar-container:hover .logo {
@@ -79,4 +79,13 @@
 
 .menu-item.active {
   background-color: var(--active-bg);
+}
+
+.p-button-secondary {
+  background-color: var(--sidebar-bg);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition);
 }

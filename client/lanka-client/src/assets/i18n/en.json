@@ -1,0 +1,84 @@
+{
+  "AUTH_LAYOUT": {
+    "SUBTITLE": "A network for successful cooperation with bloggers",
+    "LOGIN": "Login",
+    "REGISTER": "Register",
+    "PRIVACY_POLICY": "By clicking the \"Login\" button, you accept the terms of the"
+  },
+  "LOGIN": {
+    "EMAIL": "E-mail",
+    "PASSWORD": "Password",
+    "BUTTON": "Login",
+    "ERRORS": {
+      "PASSWORD_REQUIRED": "Password is required.",
+      "PASSWORD_MIN": "Password must be at least 8 characters.",
+      "PASSWORD_PATTERN": "Password must contain uppercase, lowercase, number & one special (!?*.$)."
+    }
+  },
+  "REGISTER": {
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "EMAIL": "E-mail",
+    "PASSWORD": "Password",
+    "BUTTON": "Register",
+    "ERRORS": {
+      "EMAIL_REQUIRED": "Email is required.",
+      "PASSWORD_REQUIRED": "Password is required.",
+      "PASSWORD_MIN": "Password must be at least 8 characters.",
+      "PASSWORD_PATTERN": "Password must contain uppercase, lowercase, number & one special (!?*.$)."
+    }
+  },
+  "PRIVACY_POLICY": {
+    "TITLE": "Privacy Policy",
+    "LAST_UPDATED": "Last updated: May 18, 2025",
+    "INTRO": "Welcome to Lanka. Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your personal information when you use our platform.",
+
+    "SECTIONS": {
+      "1_TITLE": "1. Information We Collect",
+      "1_CONTENT": {
+        "ACCOUNT": "Account Information: Name, email, birth date, password.",
+        "CAMPAIGN": "Campaign Data: Activity, offers, performance details.",
+        "SOCIAL": "Social Media: Instagram metrics if linked."
+      },
+
+      "2_TITLE": "2. How We Use Your Information",
+      "2_CONTENT": {
+        "ACCOUNT": "Account setup and management",
+        "CAMPAIGN": "Campaign participation",
+        "IMPROVEMENT": "Platform improvement",
+        "ANALYTICS": "Internal analytics",
+        "COMMUNICATION": "Communications and updates"
+      },
+
+      "3_TITLE": "3. Sharing of Information",
+      "3_INTRO": "We do not sell your personal data. Information may be shared with:",
+      "3_LIST": {
+        "ADMINS": "Admins and moderators",
+        "PROVIDERS": "Trusted service providers",
+        "LEGAL": "Legal authorities if required"
+      },
+
+      "4_TITLE": "4. Data Retention",
+      "4_CONTENT": "We keep your data while your account is active or as required by law. You can request deletion anytime.",
+
+      "5_TITLE": "5. Your Rights",
+      "5_CONTENT": {
+        "ACCESS": "Access, edit, or delete your data",
+        "WITHDRAW": "Withdraw consent (e.g., disconnect Instagram)",
+        "GDPR": "GDPR rights (EU users): data portability, complaints"
+      },
+
+      "6_TITLE": "6. Security",
+      "6_CONTENT": "We apply best practices for data protection, but no system is 100% secure.",
+
+      "7_TITLE": "7. Cookies & Tracking",
+      "7_CONTENT": "Cookies help improve your experience. You can manage preferences via browser settings.",
+
+      "8_TITLE": "8. Changes to This Policy",
+      "8_CONTENT": "We may update this policy. Significant changes will be communicated or posted here.",
+
+      "9_TITLE": "9. Contact Us",
+      "9_CONTENT": "If you have any questions, reach out at:"
+    }
+  }
+}

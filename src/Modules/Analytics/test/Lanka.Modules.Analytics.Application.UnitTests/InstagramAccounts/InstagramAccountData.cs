@@ -1,5 +1,6 @@
 using Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
 
 namespace Lanka.Modules.Analytics.Application.UnitTests.InstagramAccounts;
 
@@ -11,7 +12,11 @@ internal static class InstagramAccountData
             UserId,
             FacebookPageId,
             AdvertisementAccountId,
-            Metadata
+            BusinessDiscoveryId,
+            BusinessDiscoveryIgId,
+            BusinessDiscoveryUsername,
+            BusinessDiscoveryFollowersCount,
+            BusinessDiscoveryMediaCount
         ).Value;
     }
 
@@ -37,11 +42,21 @@ internal static class InstagramAccountData
 
     public static string AdvertisementAccountId => "advertisement_account_id_1234567890";
 
-    public static Metadata Metadata => new(
-        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-        1234567890,
-        "username123",
-        100,
-        100
-    );
+    public static string BusinessDiscoveryId => "business_discovery_id_1234567890";
+    
+    public static long BusinessDiscoveryIgId => 123456780;
+    
+    public static string BusinessDiscoveryUsername => "business_discovery_username";
+    
+    public static int BusinessDiscoveryFollowersCount => 1000;
+    
+    public static int BusinessDiscoveryMediaCount => 200;
+    
+    public static Metadata Metadata => Metadata.Create(
+        BusinessDiscoveryId,
+        BusinessDiscoveryIgId,
+        BusinessDiscoveryUsername,
+        BusinessDiscoveryFollowersCount,
+        BusinessDiscoveryMediaCount
+    ).Value;
 }

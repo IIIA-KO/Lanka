@@ -1,0 +1,131 @@
+<!-- Avatar section -->
+<div class="avatar-section">
+  @if (photoUri) {
+    <img [src]="photoUri" class="profile-avatar" alt="Avatar" />
+  } @else {
+    <img src="/icons/no-profile.svg" class="profile-avatar" alt="No avatar" />
+  }
+  <div class="avatar-actions">
+    <button type="button" (click)="fileInput.click()" [disabled]="uploading">
+      {{ uploading ? 'Processing...' : 'Change Photo' }}
+    </button>
+    <button type="button" (click)="removePhoto()" [disabled]="uploading || !photoUri">
+      Remove Photo
+    </button>
+    <input #fileInput type="file" accept="image/*" style="display:none" (change)="onFileChange($event)" />
+  </div>
+</div>
+
+<!-- Cropping modal/section -->
+@if (cropping) {
+  <div class="cropper-section">
+    <div class="cropper-header">
+      <h3>Crop Your Photo</h3>
+      <p>Adjust the crop area to frame your photo perfectly</p>
+    </div>
+    <image-cropper
+      [imageChangedEvent]="imageChangedEvent"
+      [maintainAspectRatio]="true"
+      [aspectRatio]="1/1"
+      [resizeToWidth]="256"
+      [cropperMinWidth]="128"
+      format="jpeg"
+      [imageQuality]="80"
+      [autoCrop]="true"
+      [containWithinAspectRatio]="false"
+      [hideResizeSquares]="false"
+      (imageCropped)="imageCropped($event)"
+      (imageLoaded)="imageLoaded($event)"
+      (cropperReady)="cropperReady()"
+      (loadImageFailed)="loadImageFailed()"
+    ></image-cropper>
+    <div class="cropper-actions">
+      <button type="button" (click)="uploadPhoto()" [disabled]="uploading || !croppedImage">
+        {{ uploading ? 'Uploading...' : 'Save Photo' }}
+      </button>
+      <button type="button" (click)="cancelCrop()" [disabled]="uploading">
+        Cancel
+      </button>
+    </div>
+    <!-- Preview of cropped image -->
+    @if (photoPreview) {
+      <div class="photo-preview">
+        <h4>Preview:</h4>
+        <img [src]="photoPreview" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 50%;" />
+      </div>
+    }
+  </div>
+}
+
+<!-- Loading indicator -->
+@if (uploading) {
+  <div class="loading-indicator">
+    <p>Processing your photo...</p>
+  </div>
+}
+
+<!-- Form section -->
+<form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="firstName">First Name</label>
+    <input id="firstName" formControlName="firstName" class="form-control" />
+    @if (firstName?.invalid && (firstName?.dirty || firstName?.touched)) {
+      <div class="error">
+        @if (firstName?.errors?.['required']) {
+          <div>First name is required.</div>
+        }
+        @if (firstName?.errors?.['maxLength']) {
+          <div>First name is too long.</div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="lastName">Last Name</label>
+    <input id="lastName" formControlName="lastName" class="form-control" />
+    @if (lastName?.invalid && (lastName?.dirty || lastName?.touched)) {
+      <div class="error">
+        @if (lastName?.errors?.['required']) {
+          <div>Last name is required.</div>
+        }
+        @if (lastName?.errors?.['maxLength']) {
+          <div>Last name is too long.</div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="birthDate">Birth Date</label>
+    <input id="birthDate" type="date" formControlName="birthDate" class="form-control" />
+    @if (birthDate?.invalid && (birthDate?.dirty || birthDate?.touched)) {
+      <div class="error">
+        @if (birthDate?.errors?.['required']) {
+          <div>Birth date is required.</div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="bio">Bio</label>
+    <textarea id="bio" formControlName="bio" class="form-control" rows="4"></textarea>
+    @if (bio?.invalid && (bio?.dirty || bio?.touched)) {
+      <div class="error">
+        @if (bio?.errors?.['maxLength']) {
+          <div>Bio is too long.</div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="editForm.invalid || uploading" class="btn btn-primary">
+      Save Profile
+    </button>
+    <button type="button" (click)="onCancel()" class="btn btn-secondary">
+      Cancel
+    </button>
+  </div>
+</form>

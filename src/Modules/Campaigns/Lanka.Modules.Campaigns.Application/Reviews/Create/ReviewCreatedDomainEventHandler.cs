@@ -47,7 +47,8 @@ internal sealed class ReviewCreatedDomainEventHandler
                 result.Value.CreatorId,
                 notification.ReviewId.Value,
                 result.Value.Rating,
-                result.Value.Comment
+                result.Value.Comment,
+                result.Value.CreatedOnUtc
             ),
             cancellationToken
         );

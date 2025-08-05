@@ -5,15 +5,17 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AgentService } from '../../../core/api/agent';
-
+import { ILoginRequest } from '../../../core/models/auth';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 const EMAIL_MAX = 255;
 
@@ -21,59 +23,68 @@ const EMAIL_MAX = 255;
   standalone: true,
   selector: 'lnk-login',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     InputTextModule,
     ButtonModule,
     PasswordModule,
     MessageModule,
-  ],
+    TranslateModule
+],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  form: FormGroup;
-  errorMessage = '';
+  loginForm: FormGroup;
+  returnUrl = '/pact';
 
   constructor(
+    private fb: FormBuilder,
     private authService: AuthService,
-    private formBuilder: FormBuilder,
+    private agent: AgentService,
     private router: Router,
-    private agent: AgentService
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) {
-    this.form = this.formBuilder.group({
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.email,
-          Validators.maxLength(EMAIL_MAX),
-        ],
-      ],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(16),
-          Validators.pattern(/[A-Z]/), // uppercase
-          Validators.pattern(/[a-z]/), // lowercase
-          Validators.pattern(/[0-9]/), // number
-          Validators.pattern(/[!?*.$]/), // special
-        ],
-      ],
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(EMAIL_MAX)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+
+    this.returnUrl =
+      this.route.snapshot.queryParams['returnUrl'] || '/pact';
+  }
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    const loginRequest: ILoginRequest = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+    };
+
+    this.agent.Users.login(loginRequest).subscribe({
+      next: (tokenResponse) => {
+        console.log('Login successful:', tokenResponse);
+
+        this.authService.login(tokenResponse);
+
+        this.router.navigate([this.returnUrl]);
+      },
+      error: (error) => {
+        console.error('Login failed:', error);
+      },
     });
   }
 
-  submit() {
-    if (this.form.invalid) return;
+  get email() {
+    return this.loginForm.get('email');
+  }
 
-    this.agent.Users.login(this.form.value).subscribe({
-      next: (response: any) => {
-        this.authService.login(response);
-        this.router.navigate(['/']);
-      },
-    });
+  get password() {
+    return this.loginForm.get('password');
   }
 }

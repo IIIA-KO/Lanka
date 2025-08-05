@@ -20,7 +20,7 @@ internal sealed class GetBloggerQueryHandler
     public async Task<Result<BloggerResponse>> Handle(GetBloggerQuery request, CancellationToken cancellationToken)
     {
         await using DbConnection connection = await this._dbConnectionFactory.OpenConnectionAsync();
-        
+
         const string sql =
             $"""
              SELECT
@@ -29,16 +29,20 @@ internal sealed class GetBloggerQueryHandler
                  last_name AS {nameof(BloggerResponse.LastName)},
                  email AS {nameof(BloggerResponse.Email)},
                  birth_date AS {nameof(BloggerResponse.BirthDate)},
-                 bio AS {nameof(BloggerResponse.Bio)}
+                 bio AS {nameof(BloggerResponse.Bio)},
+                 profile_photo_uri AS {nameof(BloggerResponse.ProfilePhotoUri)},
+                 instagram_metadata_username AS {nameof(BloggerResponse.InstagramUsername)},
+                 instagram_metadata_followers_count AS {nameof(BloggerResponse.InstagramFollowersCount)},
+                 instagram_metadata_media_count AS {nameof(BloggerResponse.InstagramMediaCount)}
              FROM campaigns.bloggers
              WHERE id = @BloggerId
              """;
-        
+
         BloggerResponse? blogger = await connection.QuerySingleOrDefaultAsync<BloggerResponse>(
             sql,
             new { request.BloggerId }
         );
-        
+
         return blogger ?? Result.Failure<BloggerResponse>(BloggerErrors.NotFound);
     }
 }

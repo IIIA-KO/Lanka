@@ -2,7 +2,7 @@ using Lanka.Common.Infrastructure.Inbox;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Modules.Analytics.Application.Abstractions.Data;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
-using Lanka.Modules.Analytics.Domain.InstagramAccounts.Tokens;
+using Lanka.Modules.Analytics.Domain.Tokens;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Database;

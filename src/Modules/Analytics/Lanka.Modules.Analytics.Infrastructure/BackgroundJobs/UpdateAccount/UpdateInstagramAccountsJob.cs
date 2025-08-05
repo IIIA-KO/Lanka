@@ -128,7 +128,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             transaction: transaction
         );
 
-        if (token == null)
+        if (token is null)
         {
             this._logger.LogWarning(
                 "No token found for user associated with Instagram account {AccountId}",
@@ -155,7 +155,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             transaction: transaction
         );
 
-        if (currentAccount == null)
+        if (currentAccount is null)
         {
             this._logger.LogWarning(
                 "No current account found for user associated with Instagram account {AccountId}",
