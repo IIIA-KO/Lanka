@@ -1,6 +1,7 @@
 # ADL 014 - MongoDB Adoption for Analytics Module
 
-**Date:** ## Technical Details
+**Date:** 2025-07-21  
+**Status:** Accepted
 
 The MongoDB implementation will be configured with:
 
