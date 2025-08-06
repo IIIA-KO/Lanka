@@ -11,4 +11,8 @@ public sealed class RenewInstagramAccessState : SagaStateMachineInstance, ISagaV
     public string CurrentState { get; set; }
 
     public int RenewalCompletedStatus { get; set; }
+    
+    public DateTime StartedAt { get; set; }
+    
+    public Guid? TimeoutTokenId { get; set; }
 }
