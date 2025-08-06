@@ -36,6 +36,10 @@ internal sealed class InstagramAccountConfiguration : IEntityTypeConfiguration<I
             .HasConversion(userId => userId.Value, value => new UserId(value))
             .IsRequired();
 
+        builder
+            .Property(igAccount => igAccount.LastUpdatedAtUtc)
+            .IsRequired(false);
+
         builder.OwnsOne(igAccount => igAccount.Metadata);
     }
 }

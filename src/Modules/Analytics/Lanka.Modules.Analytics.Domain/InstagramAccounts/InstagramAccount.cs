@@ -19,6 +19,8 @@ public class InstagramAccount : Entity<InstagramAccountId>
 
     public Metadata Metadata { get; private set; }
 
+    public DateTimeOffset? LastUpdatedAtUtc { get; set; }
+    
     public Token? Token { get; set; }
 
     private InstagramAccount() { }

@@ -45,8 +45,6 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
-
         AddPersistence(services, databaseConnectionString);
 
         AddCache(services, redisConnectionString);
@@ -62,6 +60,8 @@ public static class InfrastructureConfiguration
 
     private static void AddPersistence(IServiceCollection services, string databaseConnectionString)
     {
+        services.TryAddSingleton<InsertOutboxMessagesInterceptor>();
+
         NpgsqlDataSource dataSource = new NpgsqlDataSourceBuilder(
             databaseConnectionString
         ).Build();
@@ -74,8 +74,6 @@ public static class InfrastructureConfiguration
 
     private static void AddCache(IServiceCollection services, string redisConnectionString)
     {
-        services.TryAddSingleton<ICacheService, CacheService>();
-
         try
         {
             IConnectionMultiplexer connectionMultiplexer = ConnectionMultiplexer.Connect(
@@ -90,6 +88,8 @@ public static class InfrastructureConfiguration
         {
             services.AddDistributedMemoryCache();
         }
+
+        services.TryAddSingleton<ICacheService, CacheService>();
     }
 
     private static void AddBackgroundJobs(IServiceCollection services)
@@ -103,20 +103,20 @@ public static class InfrastructureConfiguration
         services.AddQuartz(configurator =>
         {
             var scheduler = Guid.NewGuid();
-            
+
             configurator.SchedulerId = $"default-id-{scheduler}";
             configurator.SchedulerName = $"default-name-{scheduler}";
-            
+
             configurator.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
-            
-            configurator.UseDefaultThreadPool(tp => 
+
+            configurator.UseDefaultThreadPool(tp =>
                 tp.MaxConcurrency = Environment.ProcessorCount * 2
             );
         });
 
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
     }
-    
+
     private static void AddEventBus(
         IServiceCollection services,
         string serviceName,
@@ -137,9 +137,9 @@ public static class InfrastructureConfiguration
             }
 
             configure.SetKebabCaseEndpointNameFormatter();
-            
+
             configure.AddMessageScheduler(new Uri("queue:quartz-scheduler"));
-            
+
             configure.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(new Uri(rabbitMqSettings.Host), host =>
@@ -147,9 +147,9 @@ public static class InfrastructureConfiguration
                     host.Username(rabbitMqSettings.Username);
                     host.Password(rabbitMqSettings.Password);
                 });
-                
+
                 cfg.UseMessageScheduler(new Uri("queue:quartz-scheduler"));
-                
+
                 cfg.ConfigureEndpoints(context);
             });
         });
@@ -174,7 +174,7 @@ public static class InfrastructureConfiguration
                 tracing
                     .AddOtlpExporter();
             });
-        
+
         services.AddSingleton<IMongoClient>(serviceProvider =>
         {
             var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConnectionString);
@@ -190,7 +190,7 @@ public static class InfrastructureConfiguration
 
             return new MongoClient(mongoClientSettings);
         });
-        
+
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
     }
 }

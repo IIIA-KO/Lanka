@@ -121,7 +121,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                           metadata_user_name as {nameof(InstagramAccountResponse.MetadataUserName)},
                           metadata_followers_count as {nameof(InstagramAccountResponse.MetadataFollowersCount)},
                           metadata_media_count as {nameof(InstagramAccountResponse.MetadataMediaCount)}
-                      FROM analytics.instagram_accounts
+                      FROM analytics.accounts
                       WHERE
                           last_updated_at_utc IS NULL
                             OR last_updated_at_utc <= CURRENT_DATE - INTERVAL '{this._instagramOptions.RenewalThresholdInDays} day'
@@ -147,7 +147,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         );
 
         Guid userId = await connection.QueryFirstOrDefaultAsync<Guid>(
-            "SELECT user_id FROM analytics.instagram_accounts WHERE id = @Id",
+            "SELECT user_id FROM analytics.accounts WHERE id = @Id",
             new { account.Id },
             transaction: transaction
         );
@@ -155,6 +155,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         TokenResponse? token = await connection.QueryFirstOrDefaultAsync<TokenResponse>(
             $"""
              SELECT
+                 *
              FROM analytics.tokens
              WHERE user_id = @UserId
              """,
@@ -200,7 +201,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
 
         const string updateSql =
             """
-            UPDATE analytics.instagram_accounts
+            UPDATE analytics.accounts
             SET
                 metadata_id = @MetadataId,
                 metadata_ig_id = @MetadataIgId,

@@ -54,6 +54,17 @@ public static class AnalyticsModule
         return services;
     }
 
+    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        AddPersistence(services, configuration);
+
+        AddInstagramIntegration(services, configuration);
+
+        AddOutbox(services, configuration);
+
+        ConfigureBackgroundJobs(services, configuration);
+    }
+
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
         registrationConfigurator
@@ -63,19 +74,6 @@ public static class AnalyticsModule
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<UserDeletedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
-    }
-
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
-        AddInstagramIntegration(services, configuration);
-
-        AddPersistence(services, configuration);
-
-        AddOutbox(services, configuration);
-        
-        services.ConfigureOptions<CheckTokensJobSetup>();
-        services.ConfigureOptions<CleanupExpiredAnalyticsJobSetup>();
-        services.ConfigureOptions<UpdateInstagramAccountJobSetup>();
     }
 
     private static void AddInstagramIntegration(IServiceCollection services, IConfiguration configuration)
@@ -92,7 +90,7 @@ public static class AnalyticsModule
                 QueueLimit = 100
             })
         );
-        
+
         services.AddTransient<InstagramApiDelegatingHandler>();
 
         services
@@ -163,7 +161,7 @@ public static class AnalyticsModule
         services.AddScoped<IUserActivityService, UserActivityService>();
 
         services.AddScoped<IMongoCleanupService, MongoCleanupService>();
-        
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AnalyticsDbContext>());
     }
 
@@ -174,6 +172,16 @@ public static class AnalyticsModule
 
         services.Configure<InboxOptions>(configuration.GetSection("Analytics:Inbox"));
         services.ConfigureOptions<ConfigureProcessInboxJob>();
+    }
+
+    private static void ConfigureBackgroundJobs(IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<TokenOptions>(configuration.GetSection("Analytics:Token"));
+        services.ConfigureOptions<CheckTokensJobSetup>();
+
+        services.ConfigureOptions<CleanupExpiredAnalyticsJobSetup>();
+
+        services.ConfigureOptions<UpdateInstagramAccountJobSetup>();
     }
 
     private static void AddDomainEventHandlers(this IServiceCollection services)

@@ -61,7 +61,7 @@ public class QueryCachingPipelineBehavior<TRequest, TResponse>
             
         CacheMissLog(this._logger, name, null);
 
-        TResponse result = await next();
+        TResponse result = await next(cancellationToken);
 
         if (result.IsSuccess)
         {

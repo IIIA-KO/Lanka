@@ -45,22 +45,22 @@ internal static class ApplicationExtensions
             Modules.Analytics.Application.AssemblyReference.Assembly
         ]);
 
-        string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
-        string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-        string mongoConnectionString = builder.Configuration.GetConnectionString("Mongo")!;
+        string databaseConnectionString = builder.Configuration.GetConnectionString("Database");
+        string redisConnectionString = builder.Configuration.GetConnectionString("Cache");
+        string mongoConnectionString = builder.Configuration.GetConnectionString("Mongo");
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
 
         builder.Services.AddInfrastructure(
             DiagnosticsConfig.ServiceName,
             [
-                UsersModule.ConfigureConsumers(redisConnectionString),
+                UsersModule.ConfigureConsumers(redisConnectionString ?? "<redis-connection-string>"),
                 CampaignsModule.ConfigureConsumers,
                 AnalyticsModule.ConfigureConsumers
             ],
             rabbitMqSettings,
-            databaseConnectionString,
-            redisConnectionString,
-            mongoConnectionString
+            databaseConnectionString ?? "<database-connection-string>",
+            redisConnectionString ?? "<redis-connection-string>",
+            mongoConnectionString ?? "<mongo-connection-string>"
         );
 
         builder.Configuration.AddModuleConfiguration(["users", "campaigns", "analytics"]);

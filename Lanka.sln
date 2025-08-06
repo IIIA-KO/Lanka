@@ -76,14 +76,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Campaigns.App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.IntegrationTests", "test\Lanka.IntegrationTests\Lanka.IntegrationTests.csproj", "{816B25BA-B829-4A0C-B987-F86B54DB51B6}"
 EndProject
-<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Gateway", "src\Api\Lanka.Gateway\Lanka.Gateway.csproj", "{B52E62B8-5542-4A68-9551-B2F196233B07}"
-=======
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analytics", "Analytics", "{65BD788B-9BBD-4EE4-B7B1-255931EC8D21}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Analytics.Domain", "src\Modules\Analytics\Lanka.Modules.Analytics.Domain\Lanka.Modules.Analytics.Domain.csproj", "{94CEA26E-6E2A-4470-BA72-56FCAEC2FBB0}"
->>>>>>> b2ccc1a (#18: Add domain models for Analytics module)
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanka.Modules.Analytics.Infrastructure", "src\Modules\Analytics\Lanka.Modules.Analytics.Infrastructure\Lanka.Modules.Analytics.Infrastructure.csproj", "{4A547495-4294-43D0-A836-A35E30AFC235}"
 EndProject

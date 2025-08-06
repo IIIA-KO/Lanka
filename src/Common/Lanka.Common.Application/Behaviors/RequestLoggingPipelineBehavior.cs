@@ -57,7 +57,7 @@ internal sealed class RequestLoggingPipelineBehavior<TRequest, TResponse>
         {
             ProcessingRequestLog(this._logger, requestName, null);
 
-            TResponse result = await next();
+            TResponse result = await next(cancellationToken);
 
             if (result.IsSuccess)
             {

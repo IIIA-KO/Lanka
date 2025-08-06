@@ -13,9 +13,9 @@ internal sealed class MongoCleanupService : IMongoCleanupService
     private readonly IMongoDatabase _database;
     private readonly ILogger<MongoCleanupService> _logger;
 
-    public MongoCleanupService(IMongoDatabase database, ILogger<MongoCleanupService> logger)
+    public MongoCleanupService(IMongoClient mongoClient, ILogger<MongoCleanupService> logger)
     {
-        this._database = database;
+        this._database = mongoClient.GetDatabase(DocumentDbSettings.Database);
         this._logger = logger;
     }
 
