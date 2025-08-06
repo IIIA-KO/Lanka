@@ -13,6 +13,7 @@ public class DeleteAccountDataTests
     private static DeleteInstagramAccountDataCommand Command => new(Guid.NewGuid());
 
     private readonly IInstagramAccountRepository _instagramAccountRepositoryMock;
+    private readonly IMongoCleanupService _mongoCleanupServiceMock;
     private readonly IUnitOfWork _unitOfWorkMock;
 
     private readonly DeleteInstagramAccountDataCommandHandler _handler;
@@ -20,10 +21,12 @@ public class DeleteAccountDataTests
     public DeleteAccountDataTests()
     {
         this._instagramAccountRepositoryMock = Substitute.For<IInstagramAccountRepository>();
+        this._mongoCleanupServiceMock = Substitute.For<IMongoCleanupService>();
         this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
         this._handler = new DeleteInstagramAccountDataCommandHandler(
             this._instagramAccountRepositoryMock,
+            this._mongoCleanupServiceMock,
             this._unitOfWorkMock
         );
     }
@@ -74,7 +77,7 @@ public class DeleteAccountDataTests
         // Act
         Result result = await this._handler.Handle(Command, CancellationToken.None);
 
-        // Assert
+        // Assertå
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(InstagramAccountErrors.NotFound);
     }

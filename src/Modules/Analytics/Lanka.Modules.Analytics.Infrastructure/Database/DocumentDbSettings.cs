@@ -1,4 +1,4 @@
-namespace Lanka.Modules.Analytics.Infrastructure.Instagram;
+namespace Lanka.Modules.Analytics.Infrastructure.Database;
 
 internal static class DocumentDbSettings
 {

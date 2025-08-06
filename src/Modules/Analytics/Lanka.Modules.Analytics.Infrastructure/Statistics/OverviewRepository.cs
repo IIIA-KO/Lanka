@@ -1,6 +1,6 @@
 using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Domain.Statistics;
-using Lanka.Modules.Analytics.Infrastructure.Instagram;
+using Lanka.Modules.Analytics.Infrastructure.Database;
 using MongoDB.Driver;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Statistics;
@@ -74,5 +74,16 @@ internal sealed class OverviewRepository
         var options = new ReplaceOptions { IsUpsert = true };
 
         await this._collection.ReplaceOneAsync(filter, overviewStatistics, options, cancellationToken);
+    }
+
+    public async Task Remove(
+        Guid instagramAccountId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        FilterDefinition<OverviewStatistics> filter = Builders<OverviewStatistics>
+            .Filter.Eq(os => os.InstagramAccountId, instagramAccountId);
+
+        await this._collection.DeleteOneAsync(filter, cancellationToken);
     }
 }

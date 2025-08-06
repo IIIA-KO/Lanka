@@ -1,5 +1,5 @@
 using Lanka.Modules.Analytics.Domain.UserActivities;
-using Lanka.Modules.Analytics.Infrastructure.Instagram;
+using Lanka.Modules.Analytics.Infrastructure.Database;
 using MongoDB.Driver;
 
 namespace Lanka.Modules.Analytics.Infrastructure.UserActivities;
@@ -17,7 +17,7 @@ internal sealed class UserActivityRepository : IUserActivityRepository
     public async Task<UserActivity?> GetAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         FilterDefinition<UserActivity> filter = Builders<UserActivity>
-            .Filter.Eq(x => x.UserId, userId);
+            .Filter.Eq(ua => ua.UserId, userId);
 
         UserActivity? userActivity = await this._collection.Find(filter).SingleOrDefaultAsync(cancellationToken);
 
@@ -33,10 +33,21 @@ internal sealed class UserActivityRepository : IUserActivityRepository
     {
         FilterDefinition<UserActivity> filter = Builders<UserActivity>
             .Filter
-            .Eq(x => x.UserId, userActivity.UserId);
+            .Eq(ua => ua.UserId, userActivity.UserId);
 
         var options = new ReplaceOptions { IsUpsert = true };
         
         await this._collection.ReplaceOneAsync(filter, userActivity, options, cancellationToken);
+    }
+    
+    public async Task Remove(
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        FilterDefinition<UserActivity> filter = Builders<UserActivity>
+            .Filter.Eq(ua => ua.UserId , userId);
+        
+        await this._collection.DeleteOneAsync(filter, cancellationToken);
     }
 }

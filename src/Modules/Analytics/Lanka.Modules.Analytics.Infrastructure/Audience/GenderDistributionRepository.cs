@@ -1,5 +1,5 @@
 using Lanka.Modules.Analytics.Domain.Audience;
-using Lanka.Modules.Analytics.Infrastructure.Instagram;
+using Lanka.Modules.Analytics.Infrastructure.Database;
 using MongoDB.Driver;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Audience;
@@ -58,5 +58,16 @@ internal sealed class GenderDistributionRepository
         var options = new ReplaceOptions { IsUpsert = true };
 
         await this._collection.ReplaceOneAsync(filter, genderDistribution, options, cancellationToken);
+    }
+    
+    public async Task Remove(
+        Guid instagramAccountId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        FilterDefinition<GenderDistribution> filter = Builders<GenderDistribution>
+            .Filter.Eq(gd => gd.InstagramAccountId, instagramAccountId);
+        
+        await this._collection.DeleteOneAsync(filter, cancellationToken);
     }
 }

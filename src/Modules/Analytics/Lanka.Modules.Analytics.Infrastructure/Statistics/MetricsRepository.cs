@@ -1,6 +1,6 @@
 using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Domain.Statistics;
-using Lanka.Modules.Analytics.Infrastructure.Instagram;
+using Lanka.Modules.Analytics.Infrastructure.Database;
 using MongoDB.Driver;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Statistics;
@@ -15,7 +15,7 @@ internal sealed class MetricsRepository
 
         this._collection = database.GetCollection<MetricsStatistics>(DocumentDbSettings.MetricsStatistics);
     }
-    
+
     public async Task<MetricsStatistics?> GetAsync(
         Guid instagramAccountId,
         StatisticsPeriod statisticsPeriod,
@@ -23,7 +23,7 @@ internal sealed class MetricsRepository
     )
     {
         FilterDefinition<MetricsStatistics> filter = Builders<MetricsStatistics>
-            .Filter.Where(ms => 
+            .Filter.Where(ms =>
                 ms.InstagramAccountId == instagramAccountId
                 && ms.StatisticsPeriod == statisticsPeriod
             );
@@ -40,7 +40,8 @@ internal sealed class MetricsRepository
         CancellationToken cancellationToken = default
     )
     {
-        MetricsStatistics? metricsStatistics = await this.GetAsync(instagramAccountId, statisticsPeriod, cancellationToken);
+        MetricsStatistics? metricsStatistics =
+            await this.GetAsync(instagramAccountId, statisticsPeriod, cancellationToken);
 
         if (metricsStatistics is null || metricsStatistics.IsExpired)
         {
@@ -65,13 +66,24 @@ internal sealed class MetricsRepository
     )
     {
         FilterDefinition<MetricsStatistics> filter = Builders<MetricsStatistics>
-            .Filter.Where(ms => 
+            .Filter.Where(ms =>
                 ms.InstagramAccountId == metricsStatistics.InstagramAccountId
                 && ms.StatisticsPeriod == statisticsPeriod
             );
-        
+
         var options = new ReplaceOptions { IsUpsert = true };
-        
+
         await this._collection.ReplaceOneAsync(filter, metricsStatistics, options, cancellationToken);
+    }
+
+    public async Task Remove(
+        Guid instagramAccountId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        FilterDefinition<MetricsStatistics> filter = Builders<MetricsStatistics>
+            .Filter.Eq(ms => ms.InstagramAccountId, instagramAccountId);
+
+        await this._collection.DeleteOneAsync(filter, cancellationToken);
     }
 }

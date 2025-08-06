@@ -1,6 +1,6 @@
 using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Domain.Statistics;
-using Lanka.Modules.Analytics.Infrastructure.Instagram;
+using Lanka.Modules.Analytics.Infrastructure.Database;
 using MongoDB.Driver;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Statistics;
@@ -40,7 +40,8 @@ internal sealed class EngagementRepository
         CancellationToken cancellationToken = default
     )
     {
-        EngagementStatistics? engagementStatistics = await this.GetAsync(instagramAccountId, statisticsPeriod, cancellationToken);
+        EngagementStatistics? engagementStatistics =
+            await this.GetAsync(instagramAccountId, statisticsPeriod, cancellationToken);
 
         if (engagementStatistics is null || engagementStatistics.IsExpired)
         {
@@ -71,7 +72,18 @@ internal sealed class EngagementRepository
             );
 
         var options = new ReplaceOptions { IsUpsert = true };
-        
+
         await this._collection.ReplaceOneAsync(filter, engagementStatistics, options, cancellationToken);
+    }
+
+    public async Task Remove(
+        Guid instagramAccountId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        FilterDefinition<EngagementStatistics> filter = Builders<EngagementStatistics>
+            .Filter.Eq(es => es.InstagramAccountId, instagramAccountId);
+
+        await this._collection.DeleteOneAsync(filter, cancellationToken);
     }
 }

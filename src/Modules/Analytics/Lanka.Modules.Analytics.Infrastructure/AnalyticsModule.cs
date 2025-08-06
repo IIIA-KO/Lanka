@@ -155,6 +155,8 @@ public static class AnalyticsModule
         services.AddScoped<IUserActivityRepository, UserActivityRepository>();
         services.AddScoped<IUserActivityService, UserActivityService>();
 
+        services.AddScoped<IMongoCleanupService, MongoCleanupService>();
+        
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AnalyticsDbContext>());
     }
 
