@@ -10,6 +10,9 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.Tokens;
 using Lanka.Modules.Analytics.Domain.UserActivities;
 using Lanka.Modules.Analytics.Infrastructure.Audience;
+using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.CheckTokens;
+using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.CleanupExpiredAnalytics;
+using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.UpdateAccount;
 using Lanka.Modules.Analytics.Infrastructure.Database;
 using Lanka.Modules.Analytics.Infrastructure.Inbox;
 using Lanka.Modules.Analytics.Infrastructure.Instagram;
@@ -69,6 +72,10 @@ public static class AnalyticsModule
         AddPersistence(services, configuration);
 
         AddOutbox(services, configuration);
+        
+        services.ConfigureOptions<CheckTokensJobSetup>();
+        services.ConfigureOptions<CleanupExpiredAnalyticsJobSetup>();
+        services.ConfigureOptions<UpdateInstagramAccountJobSetup>();
     }
 
     private static void AddInstagramIntegration(IServiceCollection services, IConfiguration configuration)
@@ -78,11 +85,11 @@ public static class AnalyticsModule
         services.AddSingleton<RateLimiter>(_ =>
             new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
             {
-                TokenLimit = 200,
-                TokensPerPeriod = 200,
+                TokenLimit = 190, // Slightly below Instagram's 200/hour limit
+                TokensPerPeriod = 190,
                 ReplenishmentPeriod = TimeSpan.FromHours(1),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0
+                QueueLimit = 100
             })
         );
         

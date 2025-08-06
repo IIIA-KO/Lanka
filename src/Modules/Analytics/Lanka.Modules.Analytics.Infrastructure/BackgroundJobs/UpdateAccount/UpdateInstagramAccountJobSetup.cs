@@ -4,7 +4,7 @@ using Quartz;
 
 namespace Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.UpdateAccount;
 
-internal sealed class UpdateInstagramAccountJobSetup
+internal sealed class UpdateInstagramAccountJobSetup : IConfigureOptions<QuartzOptions>
 {
     private readonly InstagramOptions _instagramOptions;
 
@@ -13,7 +13,7 @@ internal sealed class UpdateInstagramAccountJobSetup
         this._instagramOptions = instagramOptions.Value;
     }
 
-    public void ConfigureJob(QuartzOptions options)
+    public void Configure(QuartzOptions options)
     {
         const string jobName = nameof(UpdateInstagramAccountsJob);
 

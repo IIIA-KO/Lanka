@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Threading.RateLimiting;
 using Dapper;
 using Lanka.Common.Application.Clock;
 using Lanka.Common.Application.Data;
@@ -22,6 +23,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
     private readonly InstagramOptions _instagramOptions;
     private readonly IInstagramAccountsService _instagramAccountsService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly RateLimiter _rateLimiter;
     private readonly ILogger<UpdateInstagramAccountsJob> _logger;
 
     public UpdateInstagramAccountsJob(
@@ -30,6 +32,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         IOptions<InstagramOptions> instagramOptions,
         IInstagramAccountsService instagramAccountsService,
         IUnitOfWork unitOfWork,
+        RateLimiter rateLimiter,
         ILogger<UpdateInstagramAccountsJob> logger
     )
     {
@@ -38,6 +41,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         this._instagramOptions = instagramOptions.Value;
         this._instagramAccountsService = instagramAccountsService;
         this._unitOfWork = unitOfWork;
+        this._rateLimiter = rateLimiter;
         this._logger = logger;
     }
 
@@ -51,13 +55,43 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         IReadOnlyList<InstagramAccountResponse> instagramAccounts =
             await this.GetInstagramAccountsAsync(connection, transaction);
 
+        int successCount = 0;
+        int failureCount = 0;
+        int rateLimitedCount = 0;
+
         foreach (InstagramAccountResponse account in instagramAccounts)
         {
+            using RateLimitLease lease = await this._rateLimiter.AcquireAsync(
+                permitCount: 1,
+                cancellationToken: context.CancellationToken
+            );
+
+            if (!lease.IsAcquired)
+            {
+                this._logger.LogWarning(
+                    "Rate limit reached, stop batch processing. Processed {SuccessCount}, successful, {FailureCount} failed, {RateLimitedCount} rate limited",
+                    successCount, failureCount, rateLimitedCount
+                );
+
+                rateLimitedCount++;
+                break;
+            }
+
             try
             {
                 await this.UpdateInstagramAccountMetadataAsync(connection, transaction, account);
-
                 await this._unitOfWork.SaveChangesAsync();
+
+                successCount++;
+
+                this._logger.LogInformation("Successfully updated account {AccountId}", account.Id);
+            }
+            catch (HttpRequestException exception)
+                when (exception.Message.Contains("rate limit"))
+            {
+                this._logger.LogWarning(exception, "Rate limit exceeded for account {AccountId}", account.Id);
+                rateLimitedCount++;
+                break;
             }
             catch (Exception exception)
             {
@@ -89,7 +123,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                           metadata_media_count as {nameof(InstagramAccountResponse.MetadataMediaCount)}
                       FROM analytics.instagram_accounts
                       WHERE
-                          AND last_updated_at_utc IS NULL
+                          last_updated_at_utc IS NULL
                             OR last_updated_at_utc <= CURRENT_DATE - INTERVAL '{this._instagramOptions.RenewalThresholdInDays} day'
                       ORDER BY last_updated_at_utc ASC NULLS FIRST
                       LIMIT {this._instagramOptions.BatchSize}
@@ -138,33 +172,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             return;
         }
 
-        InstagramAccountResponse currentAccount = await connection.QueryFirstOrDefaultAsync<InstagramAccountResponse>(
-            $"""
-               SELECT
-                 id as {nameof(InstagramAccountResponse.Id)},
-                 user_id as {nameof(InstagramAccountResponse.UserId)},
-                 metadata_id as {nameof(InstagramAccountResponse.MetadataId)},
-                 metadata_ig_id as {nameof(InstagramAccountResponse.MetadataIgId)},
-                 metadata_user_name as {nameof(InstagramAccountResponse.MetadataUserName)},
-                 metadata_followers_count as {nameof(InstagramAccountResponse.MetadataFollowersCount)},
-                 metadata_media_count as {nameof(InstagramAccountResponse.MetadataMediaCount)}
-             FROM analytics.instagram_accounts
-             WHERE user_id = @UserId
-             """,
-            new { UserId = userId },
-            transaction: transaction
-        );
-
-        if (currentAccount is null)
-        {
-            this._logger.LogWarning(
-                "No current account found for user associated with Instagram account {AccountId}",
-                account.Id
-            );
-
-            return;
-        }
-
         Result<InstagramUserInfo> instagramAccountResult = await this._instagramAccountsService
             .GetUserInfoAsync(token.AccessToken);
 
@@ -174,7 +181,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                 "Failed to retrieve Instagram user info for account {AccountId}: {ErrorMessage}",
                 account.Id, instagramAccountResult.Error.Description
             );
-
             return;
         }
 
