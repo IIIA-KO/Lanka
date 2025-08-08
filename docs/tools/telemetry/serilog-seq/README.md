@@ -103,7 +103,7 @@ _logger.LogInformation("User registered: {UserId}, {Email}", userId, email);
 1. Run the Seq Docker container:
 
     ```bash
-    docker run --name lanka.seq -e ACCEPT_EULA=Y -p 5431:5341 -p 8081:80 datalust/seq:latest
+    docker run --name lanka.seq -e ACCEPT_EULA=Y -p 8081:80 datalust/seq:latest
     ```
 
 2. Access the Seq UI at `http://localhost:8081`.
