@@ -1,6 +1,6 @@
 namespace Lanka.Gateway.Cors;
 
-public sealed class CorsOptions
+internal sealed class CorsOptions
 {
     public const string PolicyName = "LankaCorsPolicy";
 
