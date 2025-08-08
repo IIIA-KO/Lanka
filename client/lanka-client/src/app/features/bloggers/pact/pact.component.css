@@ -1,0 +1,134 @@
+.pact-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.pact-content {
+  margin-top: 1rem;
+}
+
+.pact-details {
+  min-height: 200px;
+}
+
+.pact-text {
+  margin-bottom: 1rem;
+}
+
+.pact-content-text {
+  line-height: 1.8;
+  color: var(--text-color);
+  margin: 0;
+  font-size: 1rem;
+  white-space: pre-wrap;
+}
+
+.offers-section {
+  margin-top: 1rem;
+}
+
+.offers-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.offers-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.offer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-50);
+}
+
+.offer-price {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.no-offers {
+  text-align: center;
+  padding: 1rem;
+}
+
+.pact-form-container {
+  margin-top: 1rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.help-text {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.p-error {
+  color: var(--red-500);
+  font-size: 0.875rem;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+}
+
+.no-pact-message {
+  text-align: center;
+  padding: 2rem;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-50);
+  margin-top: 1rem;
+}
+
+.no-pact-message h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+/* Card header styling */
+:host ::ng-deep .p-card .p-card-header {
+  padding: 0;
+}
+
+:host ::ng-deep .p-card .p-card-header h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.2rem;
+}
+
+/* Textarea styling */
+:host ::ng-deep .p-inputtextarea {
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .pact-container {
+    padding: 0.5rem;
+  }
+  
+  .offers-grid {
+    flex-direction: column;
+  }
+  
+  .offer-item {
+    justify-content: space-between;
+  }
+}

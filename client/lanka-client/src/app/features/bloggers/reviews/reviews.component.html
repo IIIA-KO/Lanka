@@ -1,0 +1,252 @@
+<div class="reviews-container">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h2>My Reviews</h2>
+    <div class="flex gap-2">
+      <button pButton type="button" 
+              label="Write Review" 
+              icon="pi pi-plus" 
+              class="p-button-raised"
+              (click)="openCreateDialog()">
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-content-center p-4">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <div *ngIf="error" class="p-4">
+    <p-message severity="error" [text]="error"></p-message>
+  </div>
+
+  <div *ngIf="!loading && !error" class="reviews-grid">
+    <div *ngIf="reviews.length === 0" class="no-reviews-message">
+      <div class="text-center p-6">
+        <i class="pi pi-star" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+        <h3>No reviews yet</h3>
+        <p class="text-color-secondary">Share your experience by writing reviews for completed campaigns.</p>
+        <button pButton type="button" 
+                label="Write Your First Review" 
+                icon="pi pi-plus" 
+                class="p-button-outlined mt-3"
+                (click)="openCreateDialog()">
+        </button>
+      </div>
+    </div>
+
+    <div *ngFor="let review of reviews" class="review-card">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-between align-items-center p-3">
+            <div class="review-header">
+              <div class="rating-display">
+                <p-rating 
+                  [ngModel]="review.rating" 
+                  [readonly]="true" 
+                  [cancel]="false">
+                </p-rating>
+                <span class="rating-text">({{ review.rating }}/5)</span>
+              </div>
+              <small class="text-color-secondary">{{ review.createdOnUtc | date:'medium' }}</small>
+            </div>
+            <p-select 
+              [options]="[
+                {label: 'Edit', value: 'edit', icon: 'pi pi-pencil'},
+                {label: 'Delete', value: 'delete', icon: 'pi pi-trash'}
+              ]" 
+              placeholder="Actions"
+              (onChange)="onReviewAction($event.value, review)"
+              [showClear]="false"
+              appendTo="body">
+              <ng-template pTemplate="trigger">
+                <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-text p-button-sm"></button>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="content">
+          <div class="review-content">
+            <p class="review-comment">{{ review.comment }}</p>
+            
+            <div class="review-details">
+              <div class="detail-item">
+                <i class="pi pi-hashtag"></i>
+                <span>Campaign ID: {{ review.campaignId }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="pi pi-calendar"></i>
+                <span>Created: {{ review.createdOnUtc | date:'short' }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="footer">
+          <div class="flex gap-2">
+            <button pButton type="button" 
+                    label="Edit" 
+                    icon="pi pi-pencil" 
+                    class="p-button-outlined p-button-sm"
+                    (click)="openEditDialog(review)">
+            </button>
+            <button pButton type="button" 
+                    label="Delete" 
+                    icon="pi pi-trash" 
+                    class="p-button-outlined p-button-sm p-button-danger"
+                    (click)="deleteReview(review)">
+            </button>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>
+
+<!-- Create Review Dialog -->
+<p-dialog 
+  header="Write a Review" 
+  [(visible)]="showCreateDialog" 
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="create-review-dialog"
+  (onHide)="closeCreateDialog()">
+  
+  <form [formGroup]="createReviewForm" (ngSubmit)="onCreateReview()">
+    <!-- Campaign Selection -->
+    <div class="field">
+      <label for="campaignId" class="block mb-2 font-medium">Campaign</label>
+      <p-select 
+        id="campaignId"
+        formControlName="campaignId"
+        [options]="availableCampaigns"
+        placeholder="Select a campaign to review"
+        class="w-full"
+        styleClass="w-full">
+      </p-dropdown>
+      <small class="p-error block mt-1" *ngIf="getFieldError(createReviewForm, 'campaignId')">
+        {{ getFieldError(createReviewForm, 'campaignId') }}
+      </small>
+    </div>
+
+    <!-- Rating -->
+    <div class="field">
+      <label for="rating" class="block mb-2 font-medium">Rating</label>
+      <p-rating 
+        id="rating"
+        formControlName="rating"
+        [cancel]="false">
+      </p-rating>
+      <small class="help-text text-color-secondary">
+        Rate your experience from 1 to 5 stars
+      </small>
+      <small class="p-error block mt-1" *ngIf="getFieldError(createReviewForm, 'rating')">
+        {{ getFieldError(createReviewForm, 'rating') }}
+      </small>
+    </div>
+
+    <!-- Comment -->
+    <div class="field">
+      <label for="comment" class="block mb-2 font-medium">Review Comment</label>
+              <textarea pTextarea 
+                id="comment"
+                formControlName="comment" 
+                placeholder="Share your experience, what went well, and any feedback..."
+                rows="5"
+                class="w-full">
+      </textarea>
+      <small class="help-text text-color-secondary">
+        Minimum 10 characters, maximum 500 characters. 
+        Current: {{ createReviewForm.get('comment')?.value?.length || 0 }} characters
+      </small>
+      <small class="p-error block mt-1" *ngIf="getFieldError(createReviewForm, 'comment')">
+        {{ getFieldError(createReviewForm, 'comment') }}
+      </small>
+    </div>
+
+    <div class="dialog-footer flex gap-2 mt-4">
+      <button pButton 
+              type="button" 
+              label="Cancel" 
+              class="p-button-outlined flex-1"
+              (click)="closeCreateDialog()"
+              [disabled]="loading">
+      </button>
+      <button pButton 
+              type="submit" 
+              label="Submit Review" 
+              class="flex-1"
+              [disabled]="createReviewForm.invalid || loading"
+              [loading]="loading">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Edit Review Dialog -->
+<p-dialog 
+  header="Edit Review" 
+  [(visible)]="showEditDialog" 
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="edit-review-dialog"
+  (onHide)="closeEditDialog()">
+  
+  <form [formGroup]="editReviewForm" (ngSubmit)="onEditReview()">
+    <!-- Rating -->
+    <div class="field">
+      <label for="editRating" class="block mb-2 font-medium">Rating</label>
+      <p-rating 
+        id="editRating"
+        formControlName="rating"
+        [cancel]="false">
+      </p-rating>
+      <small class="help-text text-color-secondary">
+        Rate your experience from 1 to 5 stars
+      </small>
+      <small class="p-error block mt-1" *ngIf="getFieldError(editReviewForm, 'rating')">
+        {{ getFieldError(editReviewForm, 'rating') }}
+      </small>
+    </div>
+
+    <!-- Comment -->
+    <div class="field">
+      <label for="editComment" class="block mb-2 font-medium">Review Comment</label>
+              <textarea pTextarea 
+                id="editComment"
+                formControlName="comment" 
+                placeholder="Share your experience, what went well, and any feedback..."
+                rows="5"
+                class="w-full">
+      </textarea>
+      <small class="help-text text-color-secondary">
+        Minimum 10 characters, maximum 500 characters. 
+        Current: {{ editReviewForm.get('comment')?.value?.length || 0 }} characters
+      </small>
+      <small class="p-error block mt-1" *ngIf="getFieldError(editReviewForm, 'comment')">
+        {{ getFieldError(editReviewForm, 'comment') }}
+      </small>
+    </div>
+
+    <div class="dialog-footer flex gap-2 mt-4">
+      <button pButton 
+              type="button" 
+              label="Cancel" 
+              class="p-button-outlined flex-1"
+              (click)="closeEditDialog()"
+              [disabled]="loading">
+      </button>
+      <button pButton 
+              type="submit" 
+              label="Update Review" 
+              class="flex-1"
+              [disabled]="editReviewForm.invalid || loading"
+              [loading]="loading">
+      </button>
+    </div>
+  </form>
+</p-dialog>

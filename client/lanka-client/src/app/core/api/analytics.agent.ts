@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { IAgeDistribution, IGenderDistribution, ILocationDistribution, IReachDistribution, LocationType, StatisticsPeriod } from '../models/analytics/analytics.audience';
+import { IPostsResponse, IPostsQueryParams } from '../models/analytics/analytics.posts';
+import { IOverviewStatisticsResponse, IEngagementStatisticsResponse, IInteractionStatisticsResponse, IMetricsStatisticsResponse } from '../models/analytics/analytics.statistics';
 
 const BASE_URL = environment.apiUrl;
 
@@ -50,6 +52,60 @@ export class AnalyticsAgent {
 
     return this.http
       .get<IReachDistribution>(`${BASE_URL}/analytics/audience/reach-distribution`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Posts Analytics
+  getPosts(queryParams?: IPostsQueryParams): Observable<IPostsResponse> {
+    let params = new HttpParams();
+
+    if (queryParams) {
+      if (queryParams.limit) params = params.set('limit', queryParams.limit.toString());
+      if (queryParams.after) params = params.set('after', queryParams.after);
+      if (queryParams.before) params = params.set('before', queryParams.before);
+      if (queryParams.since) params = params.set('since', queryParams.since);
+      if (queryParams.until) params = params.set('until', queryParams.until);
+    }
+
+    return this.http
+      .get<IPostsResponse>(`${BASE_URL}/analytics/posts`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Statistics Analytics
+  getOverviewStatistics(period: StatisticsPeriod): Observable<IOverviewStatisticsResponse> {
+    let params = new HttpParams();
+    if (period) params = params.set('period', period);
+
+    return this.http
+      .get<IOverviewStatisticsResponse>(`${BASE_URL}/analytics/statistics/overview`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  getEngagementStatistics(period: StatisticsPeriod): Observable<IEngagementStatisticsResponse> {
+    let params = new HttpParams();
+    if (period) params = params.set('period', period);
+
+    return this.http
+      .get<IEngagementStatisticsResponse>(`${BASE_URL}/analytics/statistics/engagement`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  getInteractionStatistics(period: StatisticsPeriod): Observable<IInteractionStatisticsResponse> {
+    let params = new HttpParams();
+    if (period) params = params.set('period', period);
+
+    return this.http
+      .get<IInteractionStatisticsResponse>(`${BASE_URL}/analytics/statistics/interaction`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  getTableStatistics(period: StatisticsPeriod): Observable<IMetricsStatisticsResponse> {
+    let params = new HttpParams();
+    if (period) params = params.set('period', period);
+
+    return this.http
+      .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/statistics/table`, { params })
       .pipe(catchError(this.handleError));
   }
 }

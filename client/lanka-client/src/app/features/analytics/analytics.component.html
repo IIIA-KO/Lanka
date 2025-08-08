@@ -1,0 +1,235 @@
+<div class="analytics-container">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h2>Analytics Dashboard</h2>
+    <div class="flex gap-2 align-items-center">
+      <p-select 
+        [(ngModel)]="selectedPeriod"
+        [options]="periodOptions"
+        placeholder="Select Period"
+        (onChange)="onPeriodChange()"
+        class="period-selector">
+      </p-select>
+      <button pButton type="button" 
+              label="Refresh" 
+              icon="pi pi-refresh" 
+              class="p-button-outlined"
+              (click)="refreshData()"
+              [loading]="loading">
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-content-center p-4">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <div *ngIf="error" class="p-4">
+    <p-message severity="error" [text]="error"></p-message>
+  </div>
+
+  <div *ngIf="!loading && !error" class="analytics-content">
+    <p-tabs>
+      <!-- Overview Tab -->
+      <p-tabPanel header="Overview">
+        <div class="overview-section">
+          <!-- Engagement Stats Cards -->
+          <div class="stats-grid" *ngIf="engagementStats">
+            <p-card styleClass="stats-card">
+              <ng-template pTemplate="content">
+                <div class="stat-item">
+                  <div class="stat-value">{{ (engagementStats.reachRate * 100).toFixed(2) }}%</div>
+                  <div class="stat-label">Reach Rate</div>
+                </div>
+              </ng-template>
+            </p-card>
+            
+            <p-card styleClass="stats-card">
+              <ng-template pTemplate="content">
+                <div class="stat-item">
+                  <div class="stat-value">{{ (engagementStats.engagementRate * 100).toFixed(2) }}%</div>
+                  <div class="stat-label">Engagement Rate</div>
+                </div>
+              </ng-template>
+            </p-card>
+            
+            <p-card styleClass="stats-card">
+              <ng-template pTemplate="content">
+                <div class="stat-item">
+                  <div class="stat-value">{{ (engagementStats.erReach * 100).toFixed(2) }}%</div>
+                  <div class="stat-label">ER Reach</div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+
+          <!-- Overview Statistics -->
+          <div class="overview-stats" *ngIf="overviewStats">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="p-3">
+                  <h3>Overview Statistics</h3>
+                  <p class="text-color-secondary">{{ overviewStats.statisticsPeriod }}</p>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="content">
+                <div class="metrics-grid">
+                  <div *ngFor="let metric of overviewStats.metrics" class="metric-item">
+                    <div class="metric-name">{{ metric.title || metric.name }}</div>
+                    <div class="metric-value">{{ formatNumber(metric.totalValue) }}</div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+
+          <!-- Engagement Metrics Summary -->
+          <div class="engagement-summary" *ngIf="engagementStats">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="p-3">
+                  <h3>Engagement Metrics Summary</h3>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="content">
+                <div class="engagement-metrics">
+                  <div class="metric-bar">
+                    <span class="metric-label">Reach Rate:</span>
+                    <span class="metric-value">{{ (engagementStats.reachRate * 100).toFixed(2) }}%</span>
+                  </div>
+                  <div class="metric-bar">
+                    <span class="metric-label">Engagement Rate:</span>
+                    <span class="metric-value">{{ (engagementStats.engagementRate * 100).toFixed(2) }}%</span>
+                  </div>
+                  <div class="metric-bar">
+                    <span class="metric-label">ER Reach:</span>
+                    <span class="metric-value">{{ (engagementStats.erReach * 100).toFixed(2) }}%</span>
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Posts Tab -->
+      <p-tabPanel header="Posts">
+        <div class="posts-section">
+          <div *ngIf="posts.length === 0" class="no-posts-message">
+            <div class="text-center p-6">
+              <i class="pi pi-images" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+              <h3>No posts data available</h3>
+              <p class="text-color-secondary">Connect your Instagram account to see post analytics.</p>
+            </div>
+          </div>
+
+          <div *ngIf="posts.length > 0" class="posts-grid">
+            <div *ngFor="let post of posts" class="post-card">
+              <p-card>
+                <ng-template pTemplate="header">
+                  <div class="post-image-container">
+                    <img [src]="post.thumbnailUrl || post.mediaUrl" 
+                         [alt]="'Post from ' + (post.timestamp | date:'short')"
+                         class="post-image">
+                    <p-tag [value]="post.mediaType" 
+                           severity="info" 
+                           class="media-type-tag">
+                    </p-tag>
+                  </div>
+                </ng-template>
+                
+                <ng-template pTemplate="content">
+                  <div class="post-insights">
+                    <div class="insight-item">
+                      <i class="pi pi-heart"></i>
+                      <span>{{ formatNumber(getPostInsightValue(post, 'likes')) }}</span>
+                    </div>
+                    <div class="insight-item">
+                      <i class="pi pi-comment"></i>
+                      <span>{{ formatNumber(getPostInsightValue(post, 'comments')) }}</span>
+                    </div>
+                    <div class="insight-item">
+                      <i class="pi pi-eye"></i>
+                      <span>{{ formatNumber(getPostInsightValue(post, 'reach')) }}</span>
+                    </div>
+                    <div class="insight-item">
+                      <i class="pi pi-chart-bar"></i>
+                      <span>{{ formatNumber(getPostInsightValue(post, 'impressions')) }}</span>
+                    </div>
+                  </div>
+                </ng-template>
+                
+                <ng-template pTemplate="footer">
+                  <div class="flex justify-content-between align-items-center">
+                    <small class="text-color-secondary">{{ post.timestamp | date:'medium' }}</small>
+                    <a [href]="post.permalink" 
+                       target="_blank" 
+                       class="p-button p-button-text p-button-sm">
+                      <i class="pi pi-external-link"></i>
+                    </a>
+                  </div>
+                </ng-template>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Interactions Tab -->
+      <p-tabPanel header="Interactions">
+        <div class="interactions-section">
+          <div *ngIf="interactionStats" class="interaction-summary">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="p-3">
+                  <h3>Interaction Statistics</h3>
+                  <p class="text-color-secondary">{{ interactionStats.statisticsPeriod }}</p>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="content">
+                <div class="interaction-metrics">
+                  <div *ngFor="let metric of interactionStats.metrics" class="interaction-metric">
+                    <h4>{{ metric.title || metric.name }}</h4>
+                    <div class="metric-timeline">
+                      <div *ngFor="let value of metric.values" class="timeline-item">
+                        <span class="timeline-date">{{ value.endTime | date:'short' }}</span>
+                        <span class="timeline-value">{{ formatNumber(value.value) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+
+          <div *ngIf="tableStats" class="table-stats">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="p-3">
+                  <h3>Detailed Metrics</h3>
+                  <p class="text-color-secondary">{{ tableStats.statisticsPeriod }}</p>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="content">
+                <div class="table-metrics">
+                  <div *ngFor="let metric of tableStats.metrics" class="table-metric-section">
+                    <h4>{{ metric.title || metric.name }}</h4>
+                    <div class="metric-values">
+                      <div *ngFor="let value of metric.values" class="metric-value-item">
+                        <span class="value-date">{{ value.endTime | date:'short' }}</span>
+                        <span class="value-number">{{ formatNumber(value.value) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabs>
+  </div>
+</div>

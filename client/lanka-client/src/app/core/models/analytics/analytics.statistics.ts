@@ -1,7 +1,15 @@
+// Enhanced Statistics Models
 export interface IEngagementStatistics {
   reachRate: number;
   engagementRate: number;
   erRech: number;
+}
+
+export interface IEngagementStatisticsResponse {
+  statisticsPeriod: string;
+  reachRate: number;
+  engagementRate: number;
+  erReach: number;
 }
 
 export interface IInteractionStatistics {
@@ -11,6 +19,11 @@ export interface IInteractionStatistics {
   cpe: number;
 }
 
+export interface IInteractionStatisticsResponse {
+  statisticsPeriod: string;
+  metrics: ITimeSeriesMetricData[];
+}
+
 export interface IOverviewStatistics {
   metrics: {
     name: string;
@@ -18,9 +31,35 @@ export interface IOverviewStatistics {
   };
 }
 
+export interface IOverviewStatisticsResponse {
+  statisticsPeriod: string;
+  metrics: ITotalValueMetricData[];
+}
+
+export interface ITotalValueMetricData {
+  name: string;
+  period: string;
+  totalValue: number;
+  title?: string;
+  description?: string;
+}
+
+export interface IMetricsStatisticsResponse {
+  statisticsPeriod: string;
+  metrics: ITimeSeriesMetricData[];
+}
+
 export interface ITimeSeriesMetricData {
   name: string;
-  values: Record<string, number>;
+  period: string;
+  values: IMetricValue[];
+  title?: string;
+  description?: string;
+}
+
+export interface IMetricValue {
+  value: number;
+  endTime: string;
 }
 
 export interface ITableStatistics {

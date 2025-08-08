@@ -1,0 +1,107 @@
+.campaigns-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.campaigns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.campaign-card {
+  height: fit-content;
+}
+
+.campaign-content {
+  min-height: 120px;
+}
+
+.campaign-description {
+  margin-bottom: 1rem;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+}
+
+.campaign-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}
+
+.detail-item i {
+  color: var(--primary-color);
+  width: 16px;
+}
+
+.no-campaigns-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-50);
+}
+
+.no-campaigns-message h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+/* Status tag styles */
+:host ::ng-deep .p-tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Card header styling */
+:host ::ng-deep .p-card .p-card-header {
+  padding: 0;
+}
+
+:host ::ng-deep .p-card .p-card-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+/* Button variants */
+:host ::ng-deep .p-button.p-button-success {
+  background: var(--green-500);
+  border-color: var(--green-500);
+}
+
+:host ::ng-deep .p-button.p-button-danger {
+  background: var(--red-500);
+  border-color: var(--red-500);
+}
+
+:host ::ng-deep .p-button.p-button-info {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+}
+
+@media (max-width: 768px) {
+  .campaigns-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .campaigns-container {
+    padding: 0.5rem;
+  }
+  
+  .detail-item {
+    font-size: 0.8rem;
+  }
+}

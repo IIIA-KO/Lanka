@@ -1,0 +1,104 @@
+<div class="edit-offer-container">
+  <div class="flex align-items-center gap-2 mb-4">
+    <button pButton 
+            type="button" 
+            icon="pi pi-arrow-left" 
+            class="p-button-text p-button-sm"
+            (click)="onCancel()">
+    </button>
+    <h2>Edit Offer</h2>
+  </div>
+
+  <div *ngIf="loading && !offerForm.value.name" class="flex justify-content-center p-4">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <div class="w-full flex justify-content-center" *ngIf="!loading || offerForm.value.name">
+    <form [formGroup]="offerForm" 
+          (ngSubmit)="onSubmit()" 
+          class="w-full max-w-md flex flex-column gap-3">
+
+      <!-- Offer Name -->
+      <div class="field">
+        <label for="name" class="block mb-2 font-medium">Offer Name</label>
+        <input pInputText 
+               id="name"
+               formControlName="name" 
+               placeholder="Enter a descriptive name for your offer"
+               class="w-full" />
+        <small class="p-error block mt-1" *ngIf="getFieldError('name')">
+          {{ getFieldError('name') }}
+        </small>
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label for="description" class="block mb-2 font-medium">Description</label>
+        <textarea pInputTextarea 
+                  id="description"
+                  formControlName="description" 
+                  placeholder="Describe what this offer includes..."
+                  rows="4"
+                  class="w-full">
+        </textarea>
+        <small class="p-error block mt-1" *ngIf="getFieldError('description')">
+          {{ getFieldError('description') }}
+        </small>
+      </div>
+
+      <!-- Price Amount -->
+      <div class="field">
+        <label for="priceAmount" class="block mb-2 font-medium">Price</label>
+        <p-inputNumber 
+          id="priceAmount"
+          formControlName="priceAmount"
+          [min]="0.01"
+          [step]="0.01"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          placeholder="0.00"
+          class="w-full"
+          inputStyleClass="w-full">
+        </p-inputNumber>
+        <small class="p-error block mt-1" *ngIf="getFieldError('priceAmount')">
+          {{ getFieldError('priceAmount') }}
+        </small>
+      </div>
+
+      <!-- Currency -->
+      <div class="field">
+        <label for="priceCurrency" class="block mb-2 font-medium">Currency</label>
+                <p-select
+          id="priceCurrency"
+          formControlName="priceCurrency"
+          [options]="currencies"
+          placeholder="Select currency"
+          class="w-full"
+          styleClass="w-full">
+        </p-select>
+        <small class="p-error block mt-1" *ngIf="getFieldError('priceCurrency')">
+          {{ getFieldError('priceCurrency') }}
+        </small>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 mt-4">
+        <button pButton 
+                type="button" 
+                label="Cancel" 
+                class="p-button-outlined flex-1"
+                (click)="onCancel()"
+                [disabled]="loading">
+        </button>
+        <button pButton 
+                type="submit" 
+                label="Update Offer" 
+                class="flex-1"
+                [disabled]="offerForm.invalid || loading"
+                [loading]="loading">
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

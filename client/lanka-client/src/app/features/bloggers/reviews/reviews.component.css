@@ -1,0 +1,171 @@
+.reviews-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.review-card {
+  height: fit-content;
+}
+
+.review-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-text {
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.review-content {
+  min-height: 120px;
+}
+
+.review-comment {
+  margin-bottom: 1rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.review-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}
+
+.detail-item i {
+  color: var(--primary-color);
+  width: 16px;
+}
+
+.no-reviews-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-50);
+}
+
+.no-reviews-message h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+/* Dialog Styles */
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.help-text {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.p-error {
+  color: var(--red-500);
+  font-size: 0.875rem;
+}
+
+.dialog-footer {
+  margin-top: 1.5rem;
+}
+
+/* Card header styling */
+:host ::ng-deep .p-card .p-card-header {
+  padding: 0;
+}
+
+/* Rating component styling */
+:host ::ng-deep .p-rating {
+  gap: 0.25rem;
+}
+
+:host ::ng-deep .p-rating .p-rating-item {
+  color: var(--yellow-500);
+}
+
+:host ::ng-deep .p-rating .p-rating-item.p-rating-item-active {
+  color: var(--yellow-500);
+}
+
+/* Dialog styling */
+:host ::ng-deep .create-review-dialog,
+:host ::ng-deep .edit-review-dialog {
+  width: 90vw;
+  max-width: 500px;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  padding: 1rem 1.5rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+/* Button variants */
+:host ::ng-deep .p-button.p-button-danger {
+  background: var(--red-500);
+  border-color: var(--red-500);
+}
+
+:host ::ng-deep .p-button.p-button-danger:hover {
+  background: var(--red-600);
+  border-color: var(--red-600);
+}
+
+@media (max-width: 768px) {
+  .reviews-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reviews-container {
+    padding: 0.5rem;
+  }
+  
+  .detail-item {
+    font-size: 0.8rem;
+  }
+  
+  .rating-display {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  :host ::ng-deep .create-review-dialog,
+  :host ::ng-deep .edit-review-dialog {
+    width: 95vw;
+  }
+}

@@ -1,0 +1,60 @@
+.offers-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.offer-card {
+  height: fit-content;
+}
+
+.offer-content {
+  min-height: 100px;
+}
+
+.offer-description {
+  margin-bottom: 1rem;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+}
+
+.offer-price {
+  text-align: right;
+}
+
+.price-amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.no-offers-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-50);
+}
+
+.no-offers-message h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+  .offers-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .offers-container {
+    padding: 0.5rem;
+  }
+}

@@ -129,3 +129,36 @@
     </button>
   </div>
 </form>
+
+<!-- Danger Zone: Delete Account -->
+<div class="danger-zone">
+  <h3>Danger Zone</h3>
+  <p class="danger-text">
+    Deleting your account is permanent. Your data will be deleted and cannot be restored.
+  </p>
+
+  @if (!confirmingDelete) {
+    <button type="button" class="btn btn-danger" (click)="startDeleteCountdown()" [disabled]="deletingAccount">
+      Delete My Account
+    </button>
+  } @else {
+    <div class="delete-confirmation">
+      <p>
+        Confirming in {{ deleteCountdown }}s...
+        <span class="muted">(Click cancel to keep your account)</span>
+      </p>
+      <div class="actions">
+        <button type="button" class="btn btn-outline" (click)="cancelDeleteCountdown()" [disabled]="deletingAccount">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="performDelete()" [disabled]="deletingAccount">
+          Delete Now
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (deleteError) {
+    <div class="error">{{ deleteError }}</div>
+  }
+</div>

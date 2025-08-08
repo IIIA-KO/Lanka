@@ -58,4 +58,10 @@ export class UsersAgent {
       .post(`${BASE_URL}/users/renew-instagram-access`, { code })
       .pipe(catchError(this.handleError));
   }
+
+  deleteAccount(): Observable<void> {
+    return this.http
+      .delete<void>(`${BASE_URL}/users`)
+      .pipe(catchError(this.handleError));
+  }
 }

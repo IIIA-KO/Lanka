@@ -11,6 +11,7 @@ import {
   LoadedImage,
 } from 'ngx-image-cropper';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth/auth.service';
 
 @Component({
   imports: [
@@ -38,7 +39,8 @@ export class EditProfileComponent implements OnInit {
     private api: AgentService,
     private router: Router,
     private fb: FormBuilder,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private auth: AuthService
   ) {
     const nav = this.router.getCurrentNavigation();
     if (nav?.extras?.state?.['profile']) {
@@ -51,6 +53,59 @@ export class EditProfileComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.maxLength(50)]],
       birthDate: ['', [Validators.required]],
       bio: ['', [Validators.maxLength(500)]],
+    });
+  }
+
+  // Danger zone (account deletion)
+  deleteCountdown = 0;
+  private deleteTimer: any;
+  confirmingDelete = false;
+  deletingAccount = false;
+  deleteError: string | null = null;
+
+  startDeleteCountdown(): void {
+    if (this.deletingAccount) return;
+    this.deleteError = null;
+    this.confirmingDelete = true;
+    this.deleteCountdown = 5;
+
+    this.clearDeleteTimer();
+    this.deleteTimer = setInterval(() => {
+      this.deleteCountdown -= 1;
+      if (this.deleteCountdown <= 0) {
+        this.clearDeleteTimer();
+        this.performDelete();
+      }
+    }, 1000);
+  }
+
+  cancelDeleteCountdown(): void {
+    this.clearDeleteTimer();
+    this.confirmingDelete = false;
+    this.deleteCountdown = 0;
+  }
+
+  private clearDeleteTimer(): void {
+    if (this.deleteTimer) {
+      clearInterval(this.deleteTimer);
+      this.deleteTimer = null;
+    }
+  }
+
+  performDelete(): void {
+    this.deletingAccount = true;
+    this.api.Users.deleteAccount().subscribe({
+      next: () => {
+        // Ensure timers are cleared and user is logged out
+        this.clearDeleteTimer();
+        this.auth.logout();
+      },
+      error: (err) => {
+        this.deletingAccount = false;
+        this.confirmingDelete = false;
+        this.deleteCountdown = 0;
+        this.deleteError = err?.message || 'Failed to delete account. Please try again later.';
+      },
     });
   }
 

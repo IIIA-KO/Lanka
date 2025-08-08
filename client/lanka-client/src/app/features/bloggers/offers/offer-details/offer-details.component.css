@@ -1,0 +1,69 @@
+.offer-details-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.offer-details-content {
+  margin-top: 1rem;
+}
+
+.offer-details-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.detail-section {
+  padding: 1rem 0;
+}
+
+.detail-section h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.description-text {
+  line-height: 1.6;
+  color: var(--text-color-secondary);
+  margin: 0;
+}
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.price-amount {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.price-currency {
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+.offer-id {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+  background: var(--surface-100);
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .offer-details-container {
+    padding: 0.5rem;
+  }
+  
+  .price-amount {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,25 @@
+.edit-offer-container {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.p-error {
+  color: var(--red-500);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .edit-offer-container {
+    padding: 0.5rem;
+  }
+}

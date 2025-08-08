@@ -1,1 +1,115 @@
-<p>campaigns works!</p>
+<div class="campaigns-container">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h2>My Campaigns</h2>
+    <div class="flex gap-2">
+      <button pButton type="button" 
+              label="Refresh" 
+              icon="pi pi-refresh" 
+              class="p-button-outlined"
+              (click)="loadCampaigns()"
+              [loading]="loading">
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-content-center p-4">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <div *ngIf="error" class="p-4">
+    <p-message severity="error" [text]="error"></p-message>
+  </div>
+
+  <div *ngIf="!loading && !error" class="campaigns-grid">
+    <div *ngIf="campaigns.length === 0" class="no-campaigns-message">
+      <div class="text-center p-6">
+        <i class="pi pi-calendar" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+        <h3>No campaigns yet</h3>
+        <p class="text-color-secondary">Your campaigns from brands will appear here.</p>
+      </div>
+    </div>
+
+    <div *ngFor="let campaign of campaigns" class="campaign-card">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-between align-items-center p-3">
+            <div>
+              <h4>{{ campaign.name }}</h4>
+              <p-tag 
+                [value]="campaign.status" 
+                [severity]="getStatusColor(campaign.status)"
+                [icon]="getStatusIcon(campaign.status)">
+              </p-tag>
+            </div>
+            <div class="flex gap-2">
+              <button pButton 
+                      type="button" 
+                      icon="pi pi-eye" 
+                      class="p-button-text p-button-sm"
+                      (click)="viewCampaign(campaign.id)"
+                      pTooltip="View Details">
+              </button>
+              <p-select 
+                [options]="getAvailableActions(campaign.status)"
+                placeholder="Actions"
+                (onChange)="onCampaignAction($event, campaign.id)"
+
+                appendTo="body"
+                *ngIf="getAvailableActions(campaign.status).length > 0">
+                <ng-template pTemplate="trigger">
+                  <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-text p-button-sm"></button>
+                </ng-template>
+              </p-select>
+            </div>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="content">
+          <div class="campaign-content">
+            <p class="campaign-description">{{ campaign.description }}</p>
+            
+            <div class="campaign-details">
+              <div class="detail-item">
+                <i class="pi pi-calendar"></i>
+                <span>Scheduled: {{ campaign.scheduledOnUtc | date:'short' }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="pi pi-hashtag"></i>
+                <span>Campaign ID: {{ campaign.id }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="footer">
+          <div class="flex justify-content-between align-items-center">
+            <div class="flex gap-2">
+              <button pButton 
+                      type="button" 
+                      label="View Details" 
+                      icon="pi pi-eye" 
+                      class="p-button-outlined p-button-sm"
+                      (click)="viewCampaign(campaign.id)">
+              </button>
+            </div>
+            
+            <div class="flex gap-1" *ngIf="getAvailableActions(campaign.status).length > 0">
+              <button *ngFor="let action of getAvailableActions(campaign.status)" 
+                      pButton 
+                      type="button" 
+                      [label]="action.label" 
+                      [icon]="action.icon" 
+                      class="p-button-sm"
+                      [class.p-button-success]="action.value === 'confirm' || action.value === 'complete'"
+                      [class.p-button-danger]="action.value === 'reject' || action.value === 'cancel'"
+                      [class.p-button-info]="action.value === 'done'"
+                      (click)="onCampaignAction(action.value, campaign.id)"
+                      [loading]="loading">
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>

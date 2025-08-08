@@ -16,6 +16,11 @@ export const instagramLinkedGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
+  // Allow access to profile and edit-profile even if Instagram is not linked
+  if (state.url.startsWith('/profile')) {
+    return true;
+  }
+
   return api.Bloggers.getProfile().pipe(
     map((profile) => {
       console.log('Instagram account is linked:', profile.instagramUsername);
