@@ -88,7 +88,7 @@ Manage entire campaign lifecycles from discovery to completion. Handle contracts
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/lanka.git
+git clone https://github.com/IIIA-KO/lanka.git
 cd lanka
 
 # 2. Start infrastructure services
@@ -168,8 +168,8 @@ We welcome contributions from developers of all skill levels! Lanka is built by 
 
 #### **🐛 Report Issues**
 Found a bug or have a suggestion?
-- [📝 Bug Report Template](https://github.com/your-org/lanka/issues/new?template=bug_report.md)
-- [💡 Feature Request](https://github.com/your-org/lanka/issues/new?template=feature_request.md)
+- [📝 Bug Report Template](https://github.com/IIIA-KO/lanka/issues/new?template=bug_report.md)
+- [💡 Feature Request](https://github.com/IIIA-KO/lanka/issues/new?template=feature_request.md)
 
 </td>
 <td width="25%">
@@ -213,8 +213,8 @@ Strengthen our test suite:
 ### **💬 Get Help**
 - 📚 **Documentation**: [Comprehensive Guides](docs/README.md)
 - ❓ **FAQ**: [Common Questions](docs/development/faq.md)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-org/lanka/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/lanka/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/IIIA-KO/lanka/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/IIIA-KO/lanka/discussions)
 
 ---
 
@@ -232,7 +232,7 @@ Lanka is released under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 [![View Documentation](https://img.shields.io/badge/📚-View%20Documentation-blue?style=for-the-badge)](docs/README.md)
 [![Start Contributing](https://img.shields.io/badge/🤝-Start%20Contributing-green?style=for-the-badge)](CONTRIBUTING.md)
-[![Join Community](https://img.shields.io/badge/💬-Join%20Community-purple?style=for-the-badge)](https://github.com/your-org/lanka/discussions)
+[![Join Community](https://img.shields.io/badge/💬-Join%20Community-purple?style=for-the-badge)](https://github.com/IIIA-KO/lanka/discussions)
 
 **⭐ Star this repository if Lanka helps your development!**
 

@@ -46,7 +46,7 @@ git --version
 ### **1.1 Clone the Repository**
 ```bash
 # Clone the repo
-git clone https://github.com/your-org/lanka.git
+git clone https://github.com/IIIA-KO/lanka.git
 cd lanka
 
 # Verify structure
