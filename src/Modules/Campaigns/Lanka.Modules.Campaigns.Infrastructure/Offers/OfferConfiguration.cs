@@ -13,7 +13,7 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
     public void Configure(EntityTypeBuilder<Offer> builder)
     {
         builder.ToTable("offers");
-            
+
         builder.HasKey(x => x.Id);
 
         builder
@@ -25,13 +25,13 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
             .HasMaxLength(Name.MaxLength)
             .HasConversion(name => name.Value, value => Name.Create(value).Value)
             .IsRequired();
-            
+
         builder
             .Property(offer => offer.Description)
             .HasMaxLength(Description.MaxLength)
             .HasConversion(description => description.Value, value => Description.Create(value).Value)
             .IsRequired();
-            
+
         builder
             .Property(offer => offer.PactId)
             .HasConversion(pactId => pactId.Value, value => new PactId(value));
@@ -46,10 +46,16 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
             .OwnsOne(
                 offer => offer.Price,
                 priceBuilder =>
+                {
+                    priceBuilder
+                        .Property(money => money.Amount)
+                        .IsRequired();
+
                     priceBuilder
                         .Property(money => money.Currency)
                         .HasConversion(currency => currency.Code.ToString(), code => Currency.FromCode(code))
-                        .IsRequired()
+                        .IsRequired();
+                }
             );
 
         builder.Property<uint>("Version").IsRowVersion();

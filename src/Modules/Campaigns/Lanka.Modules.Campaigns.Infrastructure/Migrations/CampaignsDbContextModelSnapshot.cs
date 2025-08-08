@@ -460,6 +460,10 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
 
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric")
+                                .HasColumnName("price_amount");
+
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasColumnType("text")
@@ -498,6 +502,10 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                             b1.Property<Guid>("OfferId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric")
+                                .HasColumnName("price_amount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()

@@ -28,14 +28,13 @@ internal sealed class GetBloggerPactQueryHandler
                  p.id AS Id,
                  p.blogger_id AS {nameof(PactResponse.BloggerId)},
                  p.content AS {nameof(PactResponse.Content)},
-                 1 AS SplitOn,
-                 o. AS {nameof(OfferResponse.Id)},
+                 o.id AS {nameof(OfferResponse.Id)},
                  o.name AS {nameof(OfferResponse.Name)},
                  o.price_amount AS {nameof(OfferResponse.PriceAmount)},
                  o.price_currency AS {nameof(OfferResponse.PriceCurrency)},
-                 o.description AS {nameof(OfferResponse.Description)},
-             FROM campaign.pacts p
-             LEFT JOIN campaign.offers o ON p.id = o.pact_id
+                 o.description AS {nameof(OfferResponse.Description)}
+             FROM campaigns.pacts p
+             LEFT JOIN campaigns.offers o ON p.id = o.pact_id
              WHERE p.blogger_id = @BloggerId;
              """;
 
@@ -61,7 +60,7 @@ internal sealed class GetBloggerPactQueryHandler
                 return pactResponse;
             },
             new { request.BloggerId },
-            splitOn: "SplitOn"
+            splitOn: nameof(OfferResponse.Id)
         );
 
         return pactResponse ?? Result.Failure<PactResponse>(PactErrors.NotFound);
