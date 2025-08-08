@@ -9,6 +9,7 @@ using OpenTelemetry.Trace;
 using Polly;
 using Serilog;
 using Yarp.ReverseProxy.Forwarder;
+using CorsOptions = Lanka.Gateway.Cors.CorsOptions;
 
 namespace Lanka.Gateway.Extensions;
 
@@ -16,10 +17,12 @@ internal static class ApplicationExtensions
 {
     public static WebApplicationBuilder ConfigureCors(this WebApplicationBuilder builder)
     {
+        CorsOptions corsOptions = builder.Configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>()!;
+        
         builder.Services.AddCors(options =>
-            options.AddPolicy("AllowLankaClient", corsPolicyBuilder =>
+            options.AddPolicy(CorsOptions.PolicyName, corsPolicyBuilder =>
                 corsPolicyBuilder
-                    .WithOrigins("https://localhost:4200")
+                    .WithOrigins(corsOptions.AllowedOrigins)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
             )
@@ -137,7 +140,7 @@ internal static class ApplicationExtensions
 
     public static WebApplication ConfigureMiddleware(this WebApplication app)
     {
-        app.UseCors("AllowLankaClient");
+        app.UseCors(CorsOptions.PolicyName);
 
         app.UseLogContextTraceLogging();
         app.UseSerilogRequestLogging();
