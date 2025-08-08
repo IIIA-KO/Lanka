@@ -19,8 +19,22 @@ public sealed class RenewInstagramAccessSaga : MassTransitStateMachine<RenewInst
     public RenewInstagramAccessSaga()
     {
         this.Event(() => this.EventAccessRenewed, c => c.CorrelateById(m => m.Message.UserId));
-        this.Event(() => this.EventAccountDataFetched, c => c.CorrelateById(m => m.Message.UserId));
-        this.Event(() => this.EventRenewalFailed, c => c.CorrelateById(m => m.Message.UserId));
+        this.Event(
+            () => this.EventAccountDataFetched,
+            c =>
+            {
+                c.CorrelateById(m => m.Message.UserId);
+                c.OnMissingInstance(m => m.Discard());
+            }
+        );
+        this.Event(
+            () => this.EventRenewalFailed,
+            c =>
+            {
+                c.CorrelateById(m => m.Message.UserId);
+                c.OnMissingInstance(m => m.Discard());
+            }
+        );
 
         this.Schedule(
             () => this.RenewalTimeout,
