@@ -22,7 +22,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly InstagramOptions _instagramOptions;
     private readonly IInstagramAccountsService _instagramAccountsService;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly RateLimiter _rateLimiter;
     private readonly ILogger<UpdateInstagramAccountsJob> _logger;
 
@@ -31,7 +30,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         IDateTimeProvider dateTimeProvider,
         IOptions<InstagramOptions> instagramOptions,
         IInstagramAccountsService instagramAccountsService,
-        IUnitOfWork unitOfWork,
         RateLimiter rateLimiter,
         ILogger<UpdateInstagramAccountsJob> logger
     )
@@ -40,7 +38,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         this._dateTimeProvider = dateTimeProvider;
         this._instagramOptions = instagramOptions.Value;
         this._instagramAccountsService = instagramAccountsService;
-        this._unitOfWork = unitOfWork;
         this._rateLimiter = rateLimiter;
         this._logger = logger;
     }
@@ -80,7 +77,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             try
             {
                 await this.UpdateInstagramAccountMetadataAsync(connection, transaction, account);
-                await this._unitOfWork.SaveChangesAsync();
 
                 successCount++;
 
@@ -99,6 +95,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                     "Exception occurred while processing Instagram account {AccountId}", account.Id);
 
                 await transaction.RollbackAsync();
+                return;
             }
         }
 
@@ -116,6 +113,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                       SELECT
                           id as {nameof(InstagramAccountResponse.Id)},
                           user_id as {nameof(InstagramAccountResponse.UserId)},
+                          facebook_page_id as {nameof(InstagramAccountResponse.FacebookPageId)},
                           metadata_id as {nameof(InstagramAccountResponse.MetadataId)},
                           metadata_ig_id as {nameof(InstagramAccountResponse.MetadataIgId)},
                           metadata_user_name as {nameof(InstagramAccountResponse.MetadataUserName)},
@@ -155,11 +153,14 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         TokenResponse? token = await connection.QueryFirstOrDefaultAsync<TokenResponse>(
             $"""
              SELECT
-                 *
+                 id AS {nameof(TokenResponse.Id)},
+                 user_id AS {nameof(TokenResponse.UserId)},
+                 access_token AS {nameof(TokenResponse.AccessToken)},
+                 expires_at_utc AS {nameof(TokenResponse.ExpiresAtUtc)}
              FROM analytics.tokens
-             WHERE user_id = @UserId
+             WHERE instagram_account_id = @InstagramAccountId
              """,
-            new { UserId = userId },
+            new { InstagramAccountId = account.Id },
             transaction: transaction
         );
 
@@ -174,7 +175,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         }
 
         Result<InstagramUserInfo> instagramAccountResult = await this._instagramAccountsService
-            .GetUserInfoAsync(token.AccessToken);
+            .GetUserInfoAsync(token.AccessToken, account.FacebookPageId, account.MetadataUserName);
 
         if (instagramAccountResult.IsFailure)
         {
@@ -209,7 +210,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                 metadata_followers_count = @MetadataFollowersCount,
                 metadata_media_count = @MetadataMediaCount,
                 last_updated_at_utc = @LastUpdatedAtUtc
-            WHERE id = @Id
+            WHERE id = @AccountId
             """;
 
         await connection.ExecuteAsync(
@@ -222,7 +223,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                 MetadataFollowersCount = latestAccount.Metadata.FollowersCount,
                 MetadataMediaCount = latestAccount.Metadata.MediaCount,
                 LastUpdatedAtUtc = this._dateTimeProvider.UtcNow,
-                latestAccount.Id
+                AccountId = account.Id
             },
             transaction: transaction
         );
