@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Migrations;
-using EFCore.NamingConventions;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Database;
 
