@@ -5,6 +5,7 @@ using Lanka.Modules.Users.Application.Users.Login;
 using Lanka.Modules.Users.Presentation.Users;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 
 namespace Lanka.IntegrationTests.Abstractions;
 
@@ -17,12 +18,14 @@ public class BaseIntegrationTest
     protected readonly ISender _sender;
     protected static readonly Faker Faker = new();
     protected readonly HttpClient _httpClient;
+    protected readonly IMongoClient _mongoClient;
 
     protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
     {
         this._scope = factory.Services.CreateScope();
         this._sender = this._scope.ServiceProvider.GetRequiredService<ISender>();
         this._httpClient = factory.CreateClient();
+        this._mongoClient = this._scope.ServiceProvider.GetRequiredService<IMongoClient>();
     }
 
     public void Dispose()

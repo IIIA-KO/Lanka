@@ -23,6 +23,9 @@
     "Token": {
       "IntervalInHours": 24,
       "RenewalThresholdInDays": 30
+    },
+    "Encryption": {
+      "Key": "<your-secret-that-should-be-exactly-32-bytes-long-encryption-key>"
     }
   }
 }

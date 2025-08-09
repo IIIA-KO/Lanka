@@ -14,6 +14,7 @@ using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.CheckTokens;
 using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.CleanupExpiredAnalytics;
 using Lanka.Modules.Analytics.Infrastructure.BackgroundJobs.UpdateAccount;
 using Lanka.Modules.Analytics.Infrastructure.Database;
+using Lanka.Modules.Analytics.Infrastructure.Encryption;
 using Lanka.Modules.Analytics.Infrastructure.Inbox;
 using Lanka.Modules.Analytics.Infrastructure.Instagram;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
@@ -144,6 +145,9 @@ public static class AnalyticsModule
                 .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention());
 
+        services.Configure<EncryptionOptions>(configuration.GetSection("Analytics:Encryption"));
+        services.AddTransient<EncryptionService>();
+        
         services.AddScoped<IInstagramAccountRepository, InstagramAccountRepository>();
         services.AddScoped<ITokenRepository, TokenRepository>();
 

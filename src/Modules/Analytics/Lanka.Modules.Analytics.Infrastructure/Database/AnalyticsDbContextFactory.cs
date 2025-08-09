@@ -1,6 +1,8 @@
+using Lanka.Modules.Analytics.Infrastructure.Encryption;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Options;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Database;
 
@@ -27,10 +29,10 @@ public sealed class AnalyticsDbContextFactory : IDesignTimeDbContextFactory<Anal
     public AnalyticsDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AnalyticsDbContext>();
-        
+
         // Get connection string from environment or use local development default
         string connectionString = GetConnectionString();
-        
+
         // Configure PostgreSQL with module-specific schema and naming conventions
         // Note: Runtime interceptors (like InsertOutboxMessagesInterceptor) are intentionally excluded
         // as they are not needed for schema migrations and would cause dependency issues
@@ -41,7 +43,16 @@ public sealed class AnalyticsDbContextFactory : IDesignTimeDbContextFactory<Anal
                     .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Analytics))
             .UseSnakeCaseNamingConvention();
 
-        return new AnalyticsDbContext(optionsBuilder.Options);
+        // Create EncryptionService for design-time use
+        IOptions<EncryptionOptions> encryptionOptions = Options.Create(
+            new EncryptionOptions 
+            { 
+                Key = "YOUR-DEV-MASTER-KEY-HERE" 
+            }
+        );
+        var encryptionService = new EncryptionService(encryptionOptions);
+
+        return new AnalyticsDbContext(optionsBuilder.Options, encryptionService);
     }
 
     /// <summary>
@@ -53,6 +64,7 @@ public sealed class AnalyticsDbContextFactory : IDesignTimeDbContextFactory<Anal
     {
         // Check for environment variable first (useful for CI/CD or different dev environments)
         string? envConnectionString = Environment.GetEnvironmentVariable("DESIGN_TIME_CONNECTION_STRING");
+
         if (!string.IsNullOrEmpty(envConnectionString))
         {
             return envConnectionString;

@@ -1,6 +1,7 @@
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Domain.Tokens;
 using Lanka.Modules.Analytics.Domain.Tokens.AccessTokens;
+using Lanka.Modules.Analytics.Infrastructure.Encryption;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +9,13 @@ namespace Lanka.Modules.Analytics.Infrastructure.Tokens;
 
 internal sealed class TokenConfiguration : IEntityTypeConfiguration<Token>
 {
+    private readonly EncryptionService _encryptionService;
+
+    public TokenConfiguration(EncryptionService encryptionService)
+    {
+        this._encryptionService = encryptionService;
+    }
+
     public void Configure(EntityTypeBuilder<Token> builder)
     {
         builder.ToTable("tokens");
@@ -22,8 +30,8 @@ internal sealed class TokenConfiguration : IEntityTypeConfiguration<Token>
         builder
             .Property(token => token.AccessToken)
             .HasConversion(
-                accessToken => accessToken.Value,
-                value => AccessToken.Create(value).Value
+                accessToken => this._encryptionService.Encrypt(accessToken.Value),
+                value => AccessToken.Create(this._encryptionService.Decrypt(value)).Value
             )
             .IsRequired();
 
