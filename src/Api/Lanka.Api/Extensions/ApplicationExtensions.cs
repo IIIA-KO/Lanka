@@ -10,6 +10,7 @@ using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using RabbitMQ.Client;
+using Scalar.AspNetCore;
 using Serilog;
 
 namespace Lanka.Api.Extensions;
@@ -18,10 +19,11 @@ internal static class ApplicationExtensions
 {
     public static WebApplicationBuilder ConfigureBasicServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddOpenApi();
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
         builder.Services.AddEndpointsApiExplorer();
+
+        builder.Services.AddOpenApi();
 
         return builder;
     }
@@ -75,7 +77,7 @@ internal static class ApplicationExtensions
     {
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-       
+
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
         builder.Services
             .AddSingleton<IConnection>(_ =>
@@ -110,8 +112,8 @@ internal static class ApplicationExtensions
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.UseSwaggerUI(options =>
-                options.SwaggerEndpoint("/openapi/v1.json", "Lanka.Api"));
+            app.MapScalarApiReference();
+
             app.ApplyMigrations();
         }
 
