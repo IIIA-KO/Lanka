@@ -34,7 +34,7 @@ internal sealed class KeycloakAuthDelegatingHandler : DelegatingHandler
         {
             new("client_id", this._options.ConfidentialClientId),
             new("client_secret", this._options.ConfidentialClientSecret),
-            new("scope", "openid"),
+            new("scope", "openid email"),
             new("grant_type", "client_credentials")
         };
 

@@ -4,11 +4,6 @@ namespace Lanka.Modules.Users.Application.Abstractions.Identity;
 
 public interface IKeycloakAdminService
 {
-    Task<string> RegisterUserAsync(
-        UserModel user,
-        CancellationToken cancellationToken = default
-    );
-
     Task<Result> TerminateUserSession(
         string userIdentityId,
         CancellationToken cancellationToken = default

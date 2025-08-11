@@ -9,9 +9,9 @@ public static class ClaimsPrincipalExtensions
     {
         string? userId = principal?.FindFirst(CustomClaims.Sub)?.Value;
 
-        return Guid.TryParse(userId, out Guid parsedUserId) ?
-            parsedUserId :
-            throw new LankaException("User identifier is unavailable");
+        return Guid.TryParse(userId, out Guid parsedUserId)
+            ? parsedUserId
+            : throw new LankaException("User identifier is unavailable");
     }
 
     public static string GetIdentityId(this ClaimsPrincipal? principal)
