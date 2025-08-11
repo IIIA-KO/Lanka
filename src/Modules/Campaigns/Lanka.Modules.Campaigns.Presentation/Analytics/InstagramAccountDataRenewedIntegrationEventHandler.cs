@@ -7,18 +7,18 @@ using MediatR;
 
 namespace Lanka.Modules.Campaigns.Presentation.Analytics;
 
-internal sealed class InstagramAccountDataFetchedIntegrationEventHandler
-    : IntegrationEventHandler<InstagramAccountDataFetchedIntegrationEvent>
+internal sealed class InstagramAccountDataRenewedIntegrationEventHandler
+    : IntegrationEventHandler<InstagramAccountDataRenewedIntegrationEvent>
 {
     private readonly ISender _sender;
 
-    public InstagramAccountDataFetchedIntegrationEventHandler(ISender sender)
+    public InstagramAccountDataRenewedIntegrationEventHandler(ISender sender)
     {
         this._sender = sender;
     }
 
     public override async Task Handle(
-        InstagramAccountDataFetchedIntegrationEvent integrationEvent,
+        InstagramAccountDataRenewedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default
     )
     {

@@ -1,21 +1,38 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AgentService } from '../../../core/api/agent';
 import { SignalRService, InstagramStatusNotification } from '../../../core/services/signalr.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-link-instagram-callback',
-  templateUrl: './link-instagram-callback.component.html',
+  selector: 'app-renew-instagram-callback',
+  template: `
+    <div class="flex items-center justify-center h-screen bg-gray-50">
+      <div class="text-center">
+        <div class="text-[1.50rem] text-gray-700 mb-8">
+          {{ message }}
+        </div>
+        <div *ngIf="isProcessing" class="mt-4">
+          <div class="inline-flex items-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-gray-600">Processing...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
   imports: [CommonModule, TranslateModule],
 })
-export class LinkInstagramCallbackComponent implements OnInit, OnDestroy {
+export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
   message = 'Loading...';
   isProcessing = false;
   private isFetched = false;
-  private returnUrl = '/pact';
+  private returnUrl = '/profile';
   private subscriptions: Subscription[] = [];
   private fallbackTimeout?: number;
 
@@ -23,26 +40,22 @@ export class LinkInstagramCallbackComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private api: AgentService,
-    private signalRService: SignalRService,
-    private translate: TranslateService
+    private signalRService: SignalRService
   ) {
-    // Get returnUrl from query params if available
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/pact';
+    // Get returnUrl from query params if available, default to profile for renewal
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
   }
 
   ngOnInit() {
     if (this.isFetched) {
       return;
     }
-
     this.isFetched = true;
-    this.message = 'Linking Your Instagram Account...';
+    this.message = 'Renewing Instagram Access...';
 
     // Set up SignalR subscription for real-time updates
-    console.log('🔔 Setting up SignalR subscription for Instagram linking');
-    const signalRSub = this.signalRService.instagramLinking$.subscribe({
+    const signalRSub = this.signalRService.instagramRenewal$.subscribe({
       next: (notification: InstagramStatusNotification) => {
-        console.log('🎯 Received notification in component:', notification);
         this.handleStatusUpdate(notification);
       },
       error: (error) => {
@@ -50,7 +63,7 @@ export class LinkInstagramCallbackComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(signalRSub);
-    
+
     // Also check connection state
     this.signalRService.connectionState.subscribe(state => {
       console.log('🔗 SignalR connection state:', state);
@@ -58,50 +71,46 @@ export class LinkInstagramCallbackComponent implements OnInit, OnDestroy {
 
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
-    console.log('Linking Instagram with code:', code);
 
     if (code) {
-      this.api.Users.linkInstagram(code).subscribe({
+      this.api.Users.renewInstagramAccess(code).subscribe({
         next: (response) => {
           if (response.status === 202) {
-            this.message = 'Linking your Instagram account...';
+            this.message = 'Renewing your Instagram access...';
             this.isProcessing = true;
-            // Now we wait for SignalR notifications for real-time updates
           } else {
-            // In case backend still returns 204 for some paths
-            this.message = 'Instagram account linked successfully!';
+            this.message = 'Instagram access renewed successfully!';
             this.isProcessing = false;
             setTimeout(() => this.router.navigate([this.returnUrl]), 2000);
           }
         },
         error: (error) => {
-          this.message = 'Failed to start linking Instagram account';
+          this.message = 'Failed to start access renewal';
           this.isProcessing = false;
           console.error('Error:', error);
         },
       });
     } else {
-      this.message = 'No code provided for linking Instagram account';
-      console.warn('No code found in URL parameters');
+      this.message = 'No code provided for renewal';
       this.router.navigate([this.returnUrl]);
     }
   }
 
   private handleStatusUpdate(notification: InstagramStatusNotification) {
-    console.log('Received linking status update:', notification);
-    
+    console.log('Received renewal status update:', notification);
+
     switch (notification.status) {
       case 'processing':
-        this.message = 'Processing Instagram account linking...';
+        this.message = 'Processing Instagram access renewal...';
         this.isProcessing = true;
         break;
       case 'completed':
-        this.message = 'Instagram account linked successfully!';
+        this.message = 'Instagram access renewed successfully!';
         this.isProcessing = false;
         setTimeout(() => this.router.navigate([this.returnUrl]), 1500);
         break;
       case 'failed':
-        this.message = notification.message || 'Failed to link Instagram account';
+        this.message = notification.message || 'Failed to renew Instagram access';
         this.isProcessing = false;
         break;
       default:
@@ -117,3 +126,5 @@ export class LinkInstagramCallbackComponent implements OnInit, OnDestroy {
     }
   }
 }
+
+

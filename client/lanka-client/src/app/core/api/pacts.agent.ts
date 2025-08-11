@@ -4,7 +4,6 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { IPact, ICreatePactRequest, IEditPactRequest } from '../models/campaigns';
 import { AuthService } from '../services/auth/auth.service';
-import { JwtService } from '../services/jwt/jwt.service';
 
 const BASE_URL = environment.apiUrl;
 
@@ -14,8 +13,7 @@ const BASE_URL = environment.apiUrl;
 export class PactsAgent {
   constructor(
     private http: HttpClient,
-    private authService: AuthService,
-    private jwtService: JwtService
+    private authService: AuthService
   ) {}
 
   private handleError(error: any) {
@@ -34,7 +32,7 @@ export class PactsAgent {
     if (!bloggerId) {
       return throwError(() => new Error('User not authenticated'));
     }
-    
+
     return this.http
       .get<IPact>(`${BASE_URL}/pacts/${bloggerId}`)
       .pipe(catchError(this.handleError));
@@ -50,11 +48,6 @@ export class PactsAgent {
    * Gets the current user's blogger ID from the JWT token
    */
   private getBloggerId(): string | null {
-    const token = this.authService.getToken();
-    if (!token) {
-      return null;
-    }
-    
-    return this.jwtService.getUserIdFromToken(token);
+    return this.authService.getUserIdFromToken();
   }
 }

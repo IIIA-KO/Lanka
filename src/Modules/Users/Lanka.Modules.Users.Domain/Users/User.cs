@@ -21,7 +21,7 @@ public class User : Entity<UserId>
 
     public string IdentityId { get; private set; }
 
-    public DateTimeOffset? InstagramAccountLinkedOnUtc { get; private set; }
+    public DateTimeOffset? InstagramAccountLinkedOnUtc { get; set; }
 
     public IReadOnlyCollection<Role> Roles => this._roles;
 
@@ -125,7 +125,6 @@ public class User : Entity<UserId>
 
     public void LinkInstagramAccount(string code)
     {
-        this.InstagramAccountLinkedOnUtc = DateTimeOffset.UtcNow;
         this.RaiseDomainEvent(new InstagramAccountLinkedDomainEvent(this.Id, code));
     }
 

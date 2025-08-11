@@ -16,6 +16,12 @@ public interface IInstagramAccountRepository
         UserId userId,
         CancellationToken cancellationToken = default
     );
+    
+    Task<InstagramAccount[]> GetOldAccountsAsync(
+        int renewalThresholdInDays,
+        int batchSize,
+        CancellationToken cancellationToken = default
+    );
 
     void Add(InstagramAccount instagramAccount);
 

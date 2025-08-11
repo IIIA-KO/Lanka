@@ -97,6 +97,17 @@ public class InstagramAccount : Entity<InstagramAccountId>
     public void Update(Metadata metadata)
     {
         this.Metadata = metadata;
+        this.LastUpdatedAtUtc = DateTimeOffset.UtcNow;
+        
+        this.RaiseDomainEvent(
+            new InstagramAccountDataRenewedDomainEvent(
+                this.UserId,
+                this.Metadata.UserName,
+                this.Metadata.FollowersCount,
+                this.Metadata.MediaCount,
+                this.Metadata.Id
+            )
+        );
     }
 
     private static Result<(FacebookPageId, AdvertisementAccountId, Metadata)> Validate(

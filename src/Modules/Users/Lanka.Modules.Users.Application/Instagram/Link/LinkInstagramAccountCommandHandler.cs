@@ -6,6 +6,7 @@ using Lanka.Modules.Users.Application.Abstractions;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Application.Abstractions.Instagram;
+using Lanka.Modules.Users.Application.Instagram.Models;
 using Lanka.Modules.Users.Domain.Users;
 
 namespace Lanka.Modules.Users.Application.Instagram.Link;
@@ -59,12 +60,22 @@ internal sealed class LinkInstagramAccountCommandHandler
             user.Id.Value.ToString(),
             cancellationToken
         );
-        
+
         if (alreadyLinking)
         {
             return Result.Failure(InstagramLinkingRepositoryErrors.AlreadyLinking);
         }
-        
+
+        var status = new InstagramOperationStatus(
+            InstagramOperationType.Linking,
+            InstagramOperationStatuses.Pending,
+            "Instagram linking started",
+            DateTime.UtcNow
+        );
+
+        string cacheKey = $"instagram_linking_status_{user.Id.Value}";
+        await this._cacheService.SetAsync(cacheKey, status, TimeSpan.FromMinutes(10), cancellationToken);
+
         user.LinkInstagramAccount(request.Code);
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);

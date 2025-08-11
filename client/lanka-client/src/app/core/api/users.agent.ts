@@ -49,13 +49,25 @@ export class UsersAgent {
 
   linkInstagram(code: string): Observable<any> {
     return this.http
-      .post(`${BASE_URL}/users/link-instagram`, { code })
+      .post(`${BASE_URL}/users/link-instagram`, { code }, { observe: 'response' })
       .pipe(catchError(this.handleError));
   }
 
   renewInstagramAccess(code: string): Observable<any> {
     return this.http
-      .post(`${BASE_URL}/users/renew-instagram-access`, { code })
+      .post(`${BASE_URL}/users/renew-instagram-access`, { code }, { observe: 'response' })
+      .pipe(catchError(this.handleError));
+  }
+
+  getLinkInstagramStatus(): Observable<{ status: string }> {
+    return this.http
+      .get<{ status: string }>(`${BASE_URL}/users/link-instagram/status`)
+      .pipe(catchError(this.handleError));
+  }
+
+  getRenewInstagramStatus(): Observable<{ status: string }> {
+    return this.http
+      .get<{ status: string }>(`${BASE_URL}/users/renew-instagram-access/status`)
       .pipe(catchError(this.handleError));
   }
 

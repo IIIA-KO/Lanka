@@ -26,6 +26,7 @@ using Lanka.Modules.Analytics.Infrastructure.Tokens;
 using Lanka.Modules.Analytics.Infrastructure.UserActivities;
 using Lanka.Modules.Users.IntegrationEvents;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
+using Lanka.Modules.Users.IntegrationEvents.RenewInstagramAccess;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -63,13 +64,17 @@ public static class AnalyticsModule
 
         AddOutbox(services, configuration);
 
-        ConfigureBackgroundJobs(services, configuration);
+        AddBackgroundJobs(services, configuration);
     }
 
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingStartedIntegrationEvent>>()
+            .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+        registrationConfigurator
+            .AddConsumer<IntegrationEventConsumer<InstagramAccessRenewalStartedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
 
         registrationConfigurator
@@ -147,7 +152,7 @@ public static class AnalyticsModule
 
         services.Configure<EncryptionOptions>(configuration.GetSection("Analytics:Encryption"));
         services.AddTransient<EncryptionService>();
-        
+
         services.AddScoped<IInstagramAccountRepository, InstagramAccountRepository>();
         services.AddScoped<ITokenRepository, TokenRepository>();
 
@@ -178,7 +183,7 @@ public static class AnalyticsModule
         services.ConfigureOptions<ConfigureProcessInboxJob>();
     }
 
-    private static void ConfigureBackgroundJobs(IServiceCollection services, IConfiguration configuration)
+    private static void AddBackgroundJobs(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<TokenOptions>(configuration.GetSection("Analytics:Token"));
         services.ConfigureOptions<CheckTokensJobSetup>();

@@ -8,6 +8,7 @@ using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
+using Lanka.Common.Infrastructure.Notifications;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using RabbitMQ.Client;
 using Scalar.AspNetCore;
@@ -70,6 +71,8 @@ internal static class ApplicationExtensions
         builder.Services.AddCampaignsModule(builder.Configuration);
         builder.Services.AddAnalyticsModule(builder.Configuration);
 
+        builder.Services.AddSignalR();
+
         return builder;
     }
 
@@ -117,16 +120,19 @@ internal static class ApplicationExtensions
             app.ApplyMigrations();
         }
 
+        app.UseLogContextTraceLogging();
+        app.UseSerilogRequestLogging();
+        app.UseExceptionHandler();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.MapEndpoints();
         app.MapHealthChecks("/healthz",
             new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
         );
 
-        app.UseLogContextTraceLogging();
-        app.UseSerilogRequestLogging();
-        app.UseExceptionHandler();
-        app.UseAuthentication();
-        app.UseAuthorization();
+        app.MapHub<InstagramHub>("/hubs/instagram");
 
         return app;
     }

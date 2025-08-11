@@ -17,6 +17,7 @@ using Lanka.Modules.Users.Infrastructure.Inbox;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
+using Lanka.Modules.Users.IntegrationEvents.RenewInstagramAccess;
 using Lanka.Modules.Users.Presentation.LinkInstagramSaga;
 using Lanka.Modules.Users.Presentation.RenewInstagramAccessSaga;
 using MassTransit;
@@ -53,9 +54,29 @@ public static class UsersModule
         return (registration, instanceId) =>
         {
             registration
+                .AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+            registration
                 .AddSagaStateMachine<LinkInstagramSaga, LinkInstagramState>()
                 .Endpoint(c => c.InstanceId = instanceId)
                 .RedisRepository(redisConnectionString);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingFailureCleanedUpIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramLinkingFailedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingCompletedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
 
             registration
                 .AddSagaStateMachine<RenewInstagramAccessSaga, RenewInstagramAccessState>()
@@ -63,19 +84,19 @@ public static class UsersModule
                 .RedisRepository(redisConnectionString);
 
             registration
-                .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingFailureCleanedUpIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
-            
-            registration
-                .AddConsumer<IntegrationEventConsumer<InstagramLinkingFailedIntegrationEvent>>()
+                .AddConsumer<IntegrationEventConsumer<InstagramAccountDataRenewedIntegrationEvent>>()
                 .Endpoint(configuration => configuration.InstanceId = instanceId);
 
             registration
-                .AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
+                .AddConsumer<IntegrationEventConsumer<InstagramRenewalAccessFailureCleanedUpIntegrationEvent>>()
                 .Endpoint(configuration => configuration.InstanceId = instanceId);
 
             registration
-                .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
+                .AddConsumer<IntegrationEventConsumer<InstagramRenewalFailedIntegrationEvent>>()
+                .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<InstagramAccessRenewalCompletedIntegrationEvent>>()
                 .Endpoint(configuration => configuration.InstanceId = instanceId);
         };
     }
@@ -108,6 +129,17 @@ public static class UsersModule
             .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
 
         services
+            .AddRefitClient<IKeycloakUserApi>()
+            .ConfigureHttpClient((serviceProvider, httpClient) =>
+            {
+                KeycloakOptions keycloakOptions = serviceProvider
+                    .GetRequiredService<IOptions<KeycloakOptions>>().Value;
+
+                httpClient.BaseAddress = new Uri(keycloakOptions.AdminUrl);
+            })
+            .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
+
+        services
             .AddRefitClient<IKeycloakTokenApi>()
             .ConfigureHttpClient((serviceProvider, httpClient) =>
             {
@@ -115,8 +147,8 @@ public static class UsersModule
                     .GetRequiredService<IOptions<KeycloakOptions>>().Value;
 
                 httpClient.BaseAddress = new Uri(keycloakOptions.TokenUrl);
-            })
-            .AddHttpMessageHandler<KeycloakAuthDelegatingHandler>();
+            });
+        //.AddHttpMessageHandler<KeycloakAuthDelegatingHandler>()
 
         services.AddTransient<IKeycloakAdminService, KeycloakAdminService>();
         services.AddTransient<IKeycloakTokenService, KeycloakTokenService>();

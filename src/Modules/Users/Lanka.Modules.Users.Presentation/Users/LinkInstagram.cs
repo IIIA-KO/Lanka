@@ -25,7 +25,7 @@ internal sealed class LinkInstagram : UsersEndpointBase
                         cancellationToken
                     );
 
-                    return result.Match(Results.NoContent, ApiResult.Problem);
+                    return result.Match(() => Results.Accepted(), ApiResult.Problem);
                 }
             )
             .WithTags(Tags.Users);

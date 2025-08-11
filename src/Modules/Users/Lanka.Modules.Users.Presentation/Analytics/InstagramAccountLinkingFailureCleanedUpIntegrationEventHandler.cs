@@ -1,3 +1,4 @@
+using Lanka.Common.Application.Caching;
 using Lanka.Common.Application.EventBus;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
 using Microsoft.Extensions.Logging;
@@ -8,15 +9,18 @@ internal sealed class InstagramAccountLinkingFailureCleanedUpIntegrationEventHan
     : IntegrationEventHandler<InstagramAccountLinkingFailureCleanedUpIntegrationEvent>
 {
     private readonly ILogger<InstagramAccountLinkingFailureCleanedUpIntegrationEventHandler> _logger;
+    private readonly ICacheService _cacheService;
 
     public InstagramAccountLinkingFailureCleanedUpIntegrationEventHandler(
-        ILogger<InstagramAccountLinkingFailureCleanedUpIntegrationEventHandler> logger
+        ILogger<InstagramAccountLinkingFailureCleanedUpIntegrationEventHandler> logger,
+        ICacheService cacheService
     )
     {
         this._logger = logger;
+        this._cacheService = cacheService;
     }
 
-    public override Task Handle(
+    public override async Task Handle(
         InstagramAccountLinkingFailureCleanedUpIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default
     )
@@ -25,7 +29,7 @@ internal sealed class InstagramAccountLinkingFailureCleanedUpIntegrationEventHan
             "Instagram account linking failure cleaned up for CorrelationId {CorrelationId} with error: {Error}",
             integrationEvent.CorrelationId, integrationEvent.Reason
         );
-        
-        return Task.CompletedTask;
+        string cacheKey = $"ig:link:{integrationEvent.CorrelationId}";
+        await this._cacheService.SetAsync(cacheKey, "failed", TimeSpan.FromMinutes(10), cancellationToken);
     }
 }
