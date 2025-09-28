@@ -28,6 +28,10 @@ internal sealed class CancelCampaign : CampaignsEndpointBase
                     
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("CancelCampaign")
+            .WithSummary("Cancel campaign")
+            .WithDescription("Cancels an existing campaign")
+            .WithOpenApi();
     }
 }

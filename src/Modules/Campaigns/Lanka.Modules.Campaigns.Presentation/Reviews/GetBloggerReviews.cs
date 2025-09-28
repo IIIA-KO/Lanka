@@ -30,6 +30,10 @@ internal sealed class GetBloggerReviews : ReviewEndpointBase
                 return result.Match(Results.Ok, ApiResult.Problem);
             }
         )
-        .WithTags(Tags.Reviews);
+        .WithTags(Tags.Reviews)
+        .WithName("GetBloggerReviews")
+        .WithSummary("Get blogger reviews")
+        .WithDescription("Retrieves all reviews for a specific blogger")
+        .WithOpenApi();
     }
 }

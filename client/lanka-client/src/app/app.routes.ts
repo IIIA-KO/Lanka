@@ -15,6 +15,7 @@ import { LogoutComponent } from './features/auth/logout/logout.component';
 import { ProfileResolver } from './core/api/profile.resolver';
 import { LinkInstagramComponent } from './pages/link-instagram/link-instagram.component';
 import { LinkInstagramCallbackComponent } from './pages/link-instagram/link-instagram-callback/link-instagram-callback.component';
+import { RenewInstagramCallbackComponent } from './pages/link-instagram/renew-instagram-callback/renew-instagram-callback.component';
 
 import { authGuard } from './core/guards/auth.guard';
 import { unauthGuard } from './core/guards/unauth.guard';
@@ -50,6 +51,11 @@ export const routes: Routes = [
       {
         path: 'link-instagram/callback',
         component: LinkInstagramCallbackComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'renew-instagram/callback',
+        component: RenewInstagramCallbackComponent,
         canActivate: [authGuard],
       },
       {

@@ -3,22 +3,29 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Application.Users.Login;
 using Lanka.Modules.Users.Domain.Users.Emails;
+using Lanka.Modules.Users.Infrastructure.Identity.Apis;
+using Lanka.Modules.Users.Infrastructure.Identity.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Lanka.Modules.Users.Infrastructure.Identity.Services;
 
 internal sealed class IdentityProviderService : IIdentityProviderService
 {
+    private const string PasswordCredentialType = "Password";
+
+    private readonly IKeycloakUserApi _keycloakUserApi;
     private readonly IKeycloakTokenService _keycloakTokenService;
     private readonly IKeycloakAdminService _keycloakAdminService;
     private readonly ILogger<IdentityProviderService> _logger;
 
     public IdentityProviderService(
+        IKeycloakUserApi keycloakUserApi,
         IKeycloakTokenService keycloakTokenService,
         IKeycloakAdminService keycloakAdminService,
         ILogger<IdentityProviderService> logger
     )
     {
+        this._keycloakUserApi = keycloakUserApi;
         this._keycloakTokenService = keycloakTokenService;
         this._keycloakAdminService = keycloakAdminService;
         this._logger = logger;
@@ -31,9 +38,28 @@ internal sealed class IdentityProviderService : IIdentityProviderService
     {
         try
         {
-            string identityId = await this._keycloakAdminService.RegisterUserAsync(user, cancellationToken);
+            var representation = new UserRepresentation(
+                user.Email,
+                user.Email,
+                user.FirstName,
+                user.LastName,
+                EmailVerified: true,
+                Enabled: true,
+                Credentials:
+                [
+                    new CredentialRepresentation(
+                        PasswordCredentialType,
+                        user.Password,
+                        Temporary: false
+                    )
+                ]
+            );
 
-            return identityId;
+            HttpResponseMessage response = await this._keycloakUserApi
+                .CreateUserAsync(representation);
+            response.EnsureSuccessStatusCode();
+
+            return ExtractIdentityIdFromLocationHeader(response);
         }
         catch (HttpRequestException exception)
             when (exception.StatusCode == HttpStatusCode.Conflict)
@@ -42,6 +68,22 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
             return Result.Failure<string>(IdentityProviderErrors.EmailIsNotUnique);
         }
+    }
+
+    private static string ExtractIdentityIdFromLocationHeader(HttpResponseMessage httpResponseMessage)
+    {
+        const string usersSegmentName = "users/";
+
+        string? locationHeader = httpResponseMessage.Headers.Location?.PathAndQuery
+                                 ?? throw new InvalidOperationException("Location header is null");
+
+        int userSegmentValueIndex = locationHeader.IndexOf(
+            usersSegmentName,
+            StringComparison.InvariantCultureIgnoreCase);
+
+        string identityId = locationHeader.Substring(userSegmentValueIndex + usersSegmentName.Length);
+
+        return identityId;
     }
 
     public async Task<Result<AccessTokenResponse>> GetAccessTokenAsync(
@@ -60,7 +102,7 @@ internal sealed class IdentityProviderService : IIdentityProviderService
             ? Result.Failure<AccessTokenResponse>(IdentityProviderErrors.EmailIsNotUnique)
             : tokenResponse;
     }
-    
+
     public async Task<Result<AccessTokenResponse>> RefreshTokenAsync(
         string refreshToken,
         CancellationToken cancellationToken = default
@@ -76,7 +118,8 @@ internal sealed class IdentityProviderService : IIdentityProviderService
             : tokenResponse;
     }
 
-    public async Task<Result> TerminateUserSessionAsync(string userIdentityId, CancellationToken cancellationToken = default)
+    public async Task<Result> TerminateUserSessionAsync(string userIdentityId,
+        CancellationToken cancellationToken = default)
     {
         Result result = await this._keycloakAdminService.TerminateUserSession(
             userIdentityId,
@@ -85,7 +128,7 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
         return result;
     }
-    
+
     public async Task<Result> DeleteUserAsync(string userIdentityId, CancellationToken cancellationToken = default)
     {
         Result result = await this._keycloakAdminService.DeleteAccountAsync(
@@ -95,7 +138,7 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
         return result;
     }
-    
+
     public async Task<Result> LinkExternalAccountToUserAsync(
         string userIdentityId,
         string providerName,
@@ -114,7 +157,7 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
         return result;
     }
-    
+
     public async Task<bool> IsExternalAccountLinkedAsync(
         string userIdentityId,
         string providerName,
@@ -129,7 +172,7 @@ internal sealed class IdentityProviderService : IIdentityProviderService
 
         return isLinked;
     }
-    
+
     public async Task<bool> CheckUserExistsInKeycloak(
         string email,
         CancellationToken cancellationToken = default

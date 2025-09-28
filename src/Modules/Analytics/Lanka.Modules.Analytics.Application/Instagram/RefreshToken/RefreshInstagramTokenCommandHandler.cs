@@ -5,6 +5,7 @@ using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 using Lanka.Modules.Analytics.Application.Abstractions.Models;
 using Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
 using Lanka.Modules.Analytics.Domain.Tokens;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.RefreshToken;
@@ -35,7 +36,7 @@ internal sealed class RefreshInstagramTokenCommandHandler
 
     public async Task<Result> Handle(RefreshInstagramTokenCommand request, CancellationToken cancellationToken)
     {
-        Result<FacebookTokenResponse> fbTokenResult = await this._facebookService.GetAccessTokenAsync(
+        Result<FacebookTokenResponse> fbTokenResult = await this._facebookService.RenewAccessTokenAsync(
             request.Code,
             cancellationToken
         );
@@ -55,16 +56,7 @@ internal sealed class RefreshInstagramTokenCommandHandler
             return Result.Failure(igUserInfo.Error);
         }
 
-        Result<InstagramAccount> igAccountResult = igUserInfo.Value.CreateInstagramAccount(new UserId(request.UserId));
-
-        if (igAccountResult.IsFailure)
-        {
-            return Result.Failure(igAccountResult.Error);
-        }
-
-        InstagramAccount fetchedInstagramAccount = igAccountResult.Value;
-
-        this._instagramAccountRepository.Add(fetchedInstagramAccount);
+        InstagramUserInfo fetchedInstagramAccount = igUserInfo.Value;
 
         InstagramAccount? existingInstagramAccount = await this._instagramAccountRepository.GetByUserIdAsync(
             new UserId(request.UserId),
@@ -76,38 +68,37 @@ internal sealed class RefreshInstagramTokenCommandHandler
             return Result.Failure(InstagramAccountErrors.NotFound);
         }
 
-        if (existingInstagramAccount.Metadata.Id != fetchedInstagramAccount.Metadata.Id)
+        if (existingInstagramAccount.Metadata.Id != fetchedInstagramAccount.BusinessDiscovery.Id)
         {
             return Result.Failure(InstagramAccountErrors.WrongInstagramAccount);
         }
 
-        existingInstagramAccount.Update(fetchedInstagramAccount.Metadata);
+        Result<Metadata> metadataResult = Metadata.Create(
+            fetchedInstagramAccount.BusinessDiscovery.Id,
+            fetchedInstagramAccount.BusinessDiscovery.IgId,
+            fetchedInstagramAccount.BusinessDiscovery.Username,
+            fetchedInstagramAccount.BusinessDiscovery.FollowersCount,
+            fetchedInstagramAccount.BusinessDiscovery.MediaCount
+        );
+
+        if (metadataResult.IsFailure)
+        {
+            return metadataResult;
+        }
+
+        existingInstagramAccount.Update(metadataResult.Value);
 
         Token existingToken = await this._tokenRepository.GetByUserIdAsync(
             new UserId(request.UserId),
             cancellationToken
         );
-        
+
         if (existingToken is null)
         {
             return Result.Failure(TokenErrors.NotFound);
         }
 
-        this._tokenRepository.Remove(existingToken!);
-
-        Result<Token> fetchedTokenResult = Token.Create(
-            request.UserId,
-            fbTokenResult.Value.AccessToken,
-            fbTokenResult.Value.ExpiresAtUtc,
-            fetchedInstagramAccount.Id
-        );
-
-        if (fetchedTokenResult.IsFailure)
-        {
-            return Result.Failure(fetchedTokenResult.Error);
-        }
-
-        this._tokenRepository.Add(fetchedTokenResult.Value);
+        existingToken.Update(fbTokenResult.Value.AccessToken, fbTokenResult.Value.ExpiresAtUtc);
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
 

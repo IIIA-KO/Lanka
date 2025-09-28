@@ -5,16 +5,11 @@ namespace Lanka.Modules.Users.Infrastructure.Identity.Apis;
 
 internal interface IKeycloakAdminApi
 {
-    [Post("/users")]
-    Task<HttpResponseMessage> CreateUserAsync(
-        [Body] UserRepresentation user
-    );
-    
     [Post("/users/{userId}/logout")]
     Task<HttpResponseMessage> LogoutUserAsync(
         [AliasAs("userId")] string userIdentityId
     );
-    
+
     [Delete("/users/{userId}")]
     Task<HttpResponseMessage> DeleteUserAsync(
         [AliasAs("userId")] string userIdentityId

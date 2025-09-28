@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Application\Lanka.Common.Application.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Matching.Domain\Lanka.Modules.Matching.Domain.csproj" />
+        <ProjectReference Include="..\..\Campaigns\Lanka.Modules.Campaigns.IntegrationEvents\Lanka.Modules.Campaigns.IntegrationEvents.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Lanka.Modules.Matching.Application.UnitTests"/>
+    </ItemGroup>
+
+</Project>

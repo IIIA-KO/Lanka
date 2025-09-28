@@ -41,6 +41,23 @@ internal sealed class InstagramAccountRepository : IInstagramAccountRepository
             .FirstOrDefaultAsync(igAccount => igAccount.UserId == userId, cancellationToken);
     }
 
+    public async Task<InstagramAccount[]> GetOldAccountsAsync(
+        int renewalThresholdInDays,
+        int batchSize,
+        CancellationToken cancellationToken = default
+    )
+    {
+        DateTimeOffset cutoff = DateTimeOffset.UtcNow.AddDays(-renewalThresholdInDays);
+
+        return await this._dbContext.InstagramAccounts
+            .Where(igAccount =>
+                igAccount.LastUpdatedAtUtc == null
+                || igAccount.LastUpdatedAtUtc <= cutoff)
+            .OrderBy(igAccount => igAccount.LastUpdatedAtUtc)
+            .Take(batchSize)
+            .ToArrayAsync(cancellationToken);
+    }
+
     public void Add(InstagramAccount instagramAccount)
     {
         this._dbContext.Attach(instagramAccount.Category);

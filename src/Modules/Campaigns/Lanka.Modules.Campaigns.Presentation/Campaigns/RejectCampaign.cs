@@ -28,6 +28,10 @@ internal sealed class RejectCampaign : CampaignsEndpointBase
 
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("RejectCampaign")
+            .WithSummary("Reject campaign")
+            .WithDescription("Rejects a pending campaign")
+            .WithOpenApi();
     }
 }

@@ -25,10 +25,14 @@ internal sealed class LinkInstagram : UsersEndpointBase
                         cancellationToken
                     );
 
-                    return result.Match(Results.NoContent, ApiResult.Problem);
+                    return result.Match(() => Results.Accepted(), ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Users);
+            .WithTags(Tags.Users)
+            .WithName("LinkInstagram")
+            .WithSummary("Link Instagram account")
+            .WithDescription("Links an Instagram account to the user profile using OAuth authorization code")
+            .WithOpenApi();
     }
 
     internal sealed class LinkInstagramRequest

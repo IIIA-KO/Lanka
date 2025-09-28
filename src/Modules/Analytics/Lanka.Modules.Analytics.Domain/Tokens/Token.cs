@@ -8,7 +8,7 @@ public class Token : Entity<TokenId>
 {
     public UserId UserId { get; init; }
 
-    public AccessToken AccessToken { get; init; }
+    public AccessToken AccessToken { get; private set; }
 
     public DateTimeOffset LastCheckedOnUtc { get; }
 
@@ -36,12 +36,12 @@ public class Token : Entity<TokenId>
 
     public static Result<Token> Create(
         Guid userId,
-        string accessToke,
+        string accessToken,
         DateTimeOffset expiresAtUtc,
         InstagramAccountId instagramAccountId
     )
     {
-        Result<AccessToken> validationResult = Validate(accessToke);
+        Result<AccessToken> validationResult = Validate(accessToken);
 
         if (validationResult.IsFailure)
         {
@@ -57,6 +57,21 @@ public class Token : Entity<TokenId>
         );
 
         return token;
+    }
+
+    public Result Update(string accessToken, DateTimeOffset expiresAtUtc)
+    {
+        Result<AccessToken> validationResult = Validate(accessToken);
+
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure<Token>(validationResult.Error);
+        }
+
+        this.AccessToken = validationResult.Value;
+        this.ExpiresAtUtc = expiresAtUtc;
+        
+        return Result.Success();
     }
 
     private static Result<AccessToken> Validate(string accessToken)

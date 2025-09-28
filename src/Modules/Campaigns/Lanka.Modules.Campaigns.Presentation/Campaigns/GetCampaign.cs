@@ -28,6 +28,10 @@ internal sealed class GetCampaign : CampaignsEndpointBase
                     
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("GetCampaign")
+            .WithSummary("Get campaign")
+            .WithDescription("Retrieves campaign details by ID")
+            .WithOpenApi();
     }
 }

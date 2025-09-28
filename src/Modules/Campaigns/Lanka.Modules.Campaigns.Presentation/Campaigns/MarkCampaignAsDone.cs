@@ -28,6 +28,10 @@ internal sealed class MarkCampaignAsDone : CampaignsEndpointBase
                     
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("MarkCampaignAsDone")
+            .WithSummary("Mark campaign as done")
+            .WithDescription("Marks a campaign as done by the blogger")
+            .WithOpenApi();
     }
 }

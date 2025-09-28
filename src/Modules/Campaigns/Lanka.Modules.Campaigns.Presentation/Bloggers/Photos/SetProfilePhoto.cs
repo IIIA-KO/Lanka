@@ -29,6 +29,10 @@ internal sealed class SetProfilePhoto : BloggerEndpointBase
                 }
             )
             .WithTags(Tags.Bloggers)
+            .WithName("SetProfilePhoto")
+            .WithSummary("Set profile photo")
+            .WithDescription("Uploads and sets a new profile photo for the blogger")
+            .WithOpenApi()
             .DisableAntiforgery();
     }
 }

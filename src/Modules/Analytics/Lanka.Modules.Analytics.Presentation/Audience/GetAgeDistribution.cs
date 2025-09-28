@@ -30,6 +30,10 @@ internal sealed class GetAgeDistribution : AnalyticsEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Analytics);
+            .WithTags(Tags.Analytics)
+            .WithName("GetAgeDistribution")
+            .WithSummary("Get audience age distribution")
+            .WithDescription("Retrieves age distribution data for Instagram account audience")
+            .WithOpenApi();
     }
 }

@@ -33,7 +33,11 @@ internal sealed class EditReview : ReviewEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Reviews);
+            .WithTags(Tags.Reviews)
+            .WithName("EditReview")
+            .WithSummary("Edit review")
+            .WithDescription("Updates an existing review")
+            .WithOpenApi();
     }
 
     internal sealed class EditReviewRequest

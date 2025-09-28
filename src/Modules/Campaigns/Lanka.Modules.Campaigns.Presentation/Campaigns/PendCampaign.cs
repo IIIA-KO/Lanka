@@ -32,7 +32,11 @@ internal sealed class PendCampaign : CampaignsEndpointBase
 
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("PendCampaign")
+            .WithSummary("Create pending campaign")
+            .WithDescription("Creates a new campaign in pending status")
+            .WithOpenApi();
     }
 
     internal sealed class PendCampaignRequest

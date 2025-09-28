@@ -45,19 +45,19 @@ public static class CampaignsModule
 
         return services;
     }
-    
+
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<UserRegisteredIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
-        
+
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<UserDeletedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
-        
+
         registrationConfigurator
-            .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
+            .AddConsumer<IntegrationEventConsumer<InstagramAccountDataRenewedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
 
@@ -143,7 +143,7 @@ public static class CampaignsModule
             services.Decorate(integrationEventHandler, closedIdempotentHandler);
         }
     }
-    
+
     private static void AddCloudinary(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<CloudinaryOptions>(configuration.GetSection("Campaigns:Cloudinary"));

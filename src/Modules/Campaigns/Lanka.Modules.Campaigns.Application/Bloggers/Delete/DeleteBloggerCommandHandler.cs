@@ -22,16 +22,18 @@ internal sealed class DeleteBloggerCommandHandler : ICommandHandler<DeleteBlogge
             new BloggerId(request.BloggerId),
             cancellationToken
         );
-        
+
         if (blogger is null)
         {
             return Result.Failure(BloggerErrors.NotFound);
         }
-        
+
+        blogger.Delete();
+
         this._bloggerRepository.Remove(blogger);
-        
+
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return Result.Success();
     }
 }

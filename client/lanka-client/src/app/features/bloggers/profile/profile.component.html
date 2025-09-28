@@ -14,6 +14,11 @@
   <p>Followers: {{profile.instagramFollowersCount}}</p>
   <p>Media: {{profile.instagramMediaCount}}</p>
   <p>Username: {{profile.instagramUsername}}</p>
+  <div *ngIf="profile.instagramUsername">
+    <button (click)="handleRenewInstagramAccess()" class="p-button p-component">
+      Renew Instagram Access
+    </button>
+  </div>
 
   <analytics-chart *ngIf="age.labels && age.values" [type]="'pie'" [title]="'Age Distribution'" [labels]="age!.labels"
     [values]="age!.values"></analytics-chart>

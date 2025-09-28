@@ -29,12 +29,14 @@ The Lanka system is organized into the following key modules, each with a clear 
   - Fetching and processing Instagram statistics through API integration.
   - Generating domain events like `DataIngested`.
 
-### 3. **Search**
+### 3. **Matching**
 
-- **Purpose:** Implement logic for matching and recommendations between users, such as connecting bloggers and brands for collaborations.
+- **Purpose:** Implement advanced search capabilities, content matching algorithms, and intelligent recommendations for connecting bloggers and brands for collaborations.
 - **Key Responsibilities:**
-  - Computing matching criteria and logic.
-  - Generating domain events such as `MatchRequested` and `MatchFound`.
+  - Advanced search functionality across campaigns, influencers, offers, and reviews.
+  - Content indexing and relevance scoring.
+  - ML-powered recommendations and personalized suggestions.
+  - Generating domain events such as `ContentIndexed` and `RecommendationGenerated`.
 
 ### 4. **Campaigns**
 

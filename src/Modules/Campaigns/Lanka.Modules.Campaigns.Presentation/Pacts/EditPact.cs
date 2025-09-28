@@ -29,7 +29,11 @@ internal sealed class EditPact : PactEndpointBase
 
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
-            .WithTags(Tags.Pacts);
+            .WithTags(Tags.Pacts)
+            .WithName("EditPact")
+            .WithSummary("Edit pact")
+            .WithDescription("Updates an existing pact's content")
+            .WithOpenApi();
     }
 
     internal sealed class EditPactRequest

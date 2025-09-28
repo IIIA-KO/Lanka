@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AgentService } from '../../../core/api/agent';
+import { instagramClientId, instagramRenewRedirectUri, instagramScope, instagramResponseType, instagramConfigId } from '../../../core/constants/instagram.constants';
 import { AnalyticsChartComponent } from '../../analytics/chart/chart.component';
 import { LocationType } from '../../../core/models/analytics/analytics.audience';
 
@@ -21,7 +22,6 @@ export class ProfileComponent {
     labels: [],
     values: [],
   };
-
   constructor(private route: ActivatedRoute, private api: AgentService) {}
 
   ngOnInit(): void {
@@ -60,5 +60,10 @@ export class ProfileComponent {
       error: (error) =>
         console.error('Error loading location distribution:', error),
     });
+  }
+
+  handleRenewInstagramAccess(): void {
+    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${instagramClientId}&redirect_uri=${instagramRenewRedirectUri}&scope=${instagramScope}&response_type=${instagramResponseType}&config_id=${instagramConfigId}`;
+    window.location.href = authUrl;
   }
 }

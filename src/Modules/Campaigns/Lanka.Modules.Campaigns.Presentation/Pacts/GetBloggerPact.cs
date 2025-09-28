@@ -29,6 +29,10 @@ internal sealed class GetBloggerPact : PactEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Pacts);
+            .WithTags(Tags.Pacts)
+            .WithName("GetBloggerPact")
+            .WithSummary("Get blogger pact")
+            .WithDescription("Retrieves pact information for a specific blogger")
+            .WithOpenApi();
     }
 }

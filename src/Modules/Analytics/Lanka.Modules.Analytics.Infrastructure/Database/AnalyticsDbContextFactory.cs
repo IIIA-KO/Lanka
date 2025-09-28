@@ -1,3 +1,4 @@
+using System.Text;
 using Lanka.Modules.Analytics.Infrastructure.Encryption;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -45,9 +46,9 @@ public sealed class AnalyticsDbContextFactory : IDesignTimeDbContextFactory<Anal
 
         // Create EncryptionService for design-time use
         IOptions<EncryptionOptions> encryptionOptions = Options.Create(
-            new EncryptionOptions 
-            { 
-                Key = "YOUR-DEV-MASTER-KEY-HERE" 
+            new EncryptionOptions
+            {
+                Key = Convert.ToBase64String(Encoding.UTF8.GetBytes("YOUR-DEV-MASTER-KEY-HERE"))
             }
         );
         var encryptionService = new EncryptionService(encryptionOptions);

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Presentation\Lanka.Common.Presentation.csproj" />
+        <ProjectReference Include="..\Lanka.Modules.Matching.Application\Lanka.Modules.Matching.Application.csproj" />
+        <ProjectReference Include="..\..\Users\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Campaigns\Lanka.Modules.Campaigns.IntegrationEvents\Lanka.Modules.Campaigns.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Analytics\Lanka.Modules.Analytics.IntegrationEvents\Lanka.Modules.Analytics.IntegrationEvents.csproj" />
+    </ItemGroup>
+
+</Project>

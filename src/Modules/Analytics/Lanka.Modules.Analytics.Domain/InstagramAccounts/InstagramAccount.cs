@@ -83,6 +83,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
 
         igAccount.RaiseDomainEvent(
             new InstagramAccountDataFetchedDomainEvent(
+                igAccount.Id,
                 igAccount.UserId,
                 igAccount.Metadata.UserName,
                 igAccount.Metadata.FollowersCount,
@@ -97,6 +98,23 @@ public class InstagramAccount : Entity<InstagramAccountId>
     public void Update(Metadata metadata)
     {
         this.Metadata = metadata;
+        this.LastUpdatedAtUtc = DateTimeOffset.UtcNow;
+        
+        this.RaiseDomainEvent(
+            new InstagramAccountDataRenewedDomainEvent(
+                this.Id,
+                this.UserId,
+                this.Metadata.UserName,
+                this.Metadata.FollowersCount,
+                this.Metadata.MediaCount,
+                this.Metadata.Id
+            )
+        );
+    }
+
+    public void Delete()
+    {
+        this.RaiseDomainEvent(new InstagramAccountDeletedDomainEvent(this.Id, this.UserId));
     }
 
     private static Result<(FacebookPageId, AdvertisementAccountId, Metadata)> Validate(

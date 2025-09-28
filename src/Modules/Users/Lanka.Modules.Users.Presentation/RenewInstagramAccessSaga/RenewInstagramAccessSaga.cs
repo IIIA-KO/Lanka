@@ -7,10 +7,10 @@ namespace Lanka.Modules.Users.Presentation.RenewInstagramAccessSaga;
 public sealed class RenewInstagramAccessSaga : MassTransitStateMachine<RenewInstagramAccessState>
 {
     public State RenewalStarted { get; init; }
-    public State InstagramAccountDataFetched { get; init; }
+    public State InstagramAccountDataRenewed { get; init; }
 
     public Event<InstagramAccessRenewedIntegrationEvent> EventAccessRenewed { get; init; }
-    public Event<InstagramAccountDataFetchedIntegrationEvent> EventAccountDataFetched { get; init; }
+    public Event<InstagramAccountDataRenewedIntegrationEvent> EventAccountDataRenewed { get; init; }
     public Event<InstagramRenewalFailedIntegrationEvent> EventRenewalFailed { get; init; }
     public Event InstagramAccessRenewalCompleted { get; init; }
 
@@ -19,22 +19,8 @@ public sealed class RenewInstagramAccessSaga : MassTransitStateMachine<RenewInst
     public RenewInstagramAccessSaga()
     {
         this.Event(() => this.EventAccessRenewed, c => c.CorrelateById(m => m.Message.UserId));
-        this.Event(
-            () => this.EventAccountDataFetched,
-            c =>
-            {
-                c.CorrelateById(m => m.Message.UserId);
-                c.OnMissingInstance(m => m.Discard());
-            }
-        );
-        this.Event(
-            () => this.EventRenewalFailed,
-            c =>
-            {
-                c.CorrelateById(m => m.Message.UserId);
-                c.OnMissingInstance(m => m.Discard());
-            }
-        );
+        this.Event(() => this.EventAccountDataRenewed, c => c.CorrelateById(m => m.Message.UserId));
+        this.Event(() => this.EventRenewalFailed, c => c.CorrelateById(m => m.Message.UserId));
 
         this.Schedule(
             () => this.RenewalTimeout,
@@ -69,15 +55,15 @@ public sealed class RenewInstagramAccessSaga : MassTransitStateMachine<RenewInst
         );
 
         this.During(this.RenewalStarted,
-            this.When(this.EventAccountDataFetched)
+            this.When(this.EventAccountDataRenewed)
                 .Unschedule(this.RenewalTimeout)
-                .TransitionTo(this.InstagramAccountDataFetched)
+                .TransitionTo(this.InstagramAccountDataRenewed)
         );
 
         this.CompositeEvent(
             () => this.InstagramAccessRenewalCompleted,
             state => state.RenewalCompletedStatus,
-            this.EventAccountDataFetched
+            this.EventAccountDataRenewed
         );
 
         this.DuringAny(

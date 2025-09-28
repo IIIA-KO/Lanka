@@ -27,7 +27,8 @@ internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserC
     {
         Result<string> result = await this._identityProviderService.RegisterUserAsync(
             new UserModel(request.Email, request.Password, request.FirstName, request.LastName),
-            cancellationToken);
+            cancellationToken
+        );
 
         if (result.IsFailure)
         {

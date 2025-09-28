@@ -30,7 +30,11 @@ internal sealed class RefreshToken : UsersEndpointBase
             }
         )
         .AllowAnonymous()
-        .WithTags(Tags.Users);
+        .WithTags(Tags.Users)
+        .WithName("RefreshToken")
+        .WithSummary("Refresh access token")
+        .WithDescription("Refreshes an expired access token using a valid refresh token")
+        .WithOpenApi();
     }
     
     internal sealed class RefreshTokenRequest

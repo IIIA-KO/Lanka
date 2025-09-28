@@ -11,12 +11,12 @@ graph TB
 
     %% Matching Domain
     subgraph Matching Domain
-        Match[Match Aggregate]
-        MatchRequested[MatchRequestedEvent]
-        MatchFound[MatchFoundEvent]
+        SearchableItem[SearchableItem Aggregate]
+        ContentIndexed[ContentIndexedEvent]
+        RecommendationGenerated[RecommendationGeneratedEvent]
         
-        Match --> MatchRequested
-        Match --> MatchFound
+        SearchableItem --> ContentIndexed
+        SearchableItem --> RecommendationGenerated
     end
 
     %% Cooperation Domain
@@ -134,6 +134,6 @@ graph TB
     User --> |Seller| Cooperation
     Cooperation --> |Completed| Review
     User --> Notifications
-    User --> |Initiates| Match
-    Match --> |Leads to| Cooperation
+    User --> |Searches| SearchableItem
+    SearchableItem --> |Enables Discovery| Cooperation
     Campaign --> |Drives| Cooperation

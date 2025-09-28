@@ -9,7 +9,9 @@ using Lanka.Common.Infrastructure.Caching;
 using Lanka.Common.Infrastructure.Clock;
 using Lanka.Common.Infrastructure.Data;
 using Lanka.Common.Infrastructure.EventBus;
+using Lanka.Common.Infrastructure.Notifications;
 using Lanka.Common.Infrastructure.Outbox;
+using Lanka.Common.Application.Notifications;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -54,6 +56,8 @@ public static class InfrastructureConfiguration
         AddEventBus(services, serviceName, moduleConfigureConsumers, rabbitMqSettings);
 
         AddTracing(services, serviceName, mongoConnectionString);
+
+        AddNotifications(services);
 
         return services;
     }
@@ -192,5 +196,10 @@ public static class InfrastructureConfiguration
         });
 
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+    }
+
+    private static void AddNotifications(IServiceCollection services)
+    {
+        services.TryAddScoped<INotificationService, SignalRNotificationService>();
     }
 }

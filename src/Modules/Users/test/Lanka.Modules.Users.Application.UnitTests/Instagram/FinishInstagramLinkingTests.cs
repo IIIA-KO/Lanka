@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions;
+using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Application.Instagram.FinishLinking;
 using Lanka.Modules.Users.Application.UnitTests.Users;
@@ -19,6 +20,7 @@ public class FinishInstagramLinkingTests
     );
 
     private readonly IUserRepository _userRepositoryMock;
+    private readonly IUnitOfWork _unitOfWorkMock;
     private readonly IIdentityProviderService _identityProviderServiceMock;
 
     private readonly FinishInstagramLinkingCommandHandler _handler;
@@ -26,10 +28,12 @@ public class FinishInstagramLinkingTests
     public FinishInstagramLinkingTests()
     {
         this._userRepositoryMock = Substitute.For<IUserRepository>();
+        this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
         this._identityProviderServiceMock = Substitute.For<IIdentityProviderService>();
 
         this._handler = new FinishInstagramLinkingCommandHandler(
             this._userRepositoryMock,
+            this._unitOfWorkMock,
             this._identityProviderServiceMock
         );
     }

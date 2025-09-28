@@ -9,7 +9,7 @@ import {
 import { throwError, Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SnackbarService } from '../services/snackbar/snackbar.service';
-import { Router, NavigationExtras } from '@angular/router';
+import { Router } from '@angular/router';
 
 /**
  * Determines if error display should be skipped for certain endpoints
@@ -19,12 +19,12 @@ function shouldSkipErrorDisplay(url: string, status: number): boolean {
   if (url.includes('/pact') && status === 404) {
     return true;
   }
-  
+
   // Skip 404 errors for optional profile data
   if (url.includes('/profile') && status === 404) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -89,7 +89,7 @@ export const errorInterceptor: HttpInterceptorFn = (
       }
 
       const errorMessage = getUserFriendlyErrorMessage(err);
-      
+
       if (err.status === 400) {
         const errors = err.error?.errors;
 

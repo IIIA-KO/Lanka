@@ -1,6 +1,7 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions;
+using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
 
@@ -10,14 +11,17 @@ internal sealed class FinishInstagramLinkingCommandHandler
     : ICommandHandler<FinishInstagramLinkingCommand>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IIdentityProviderService _identityProviderService;
 
     public FinishInstagramLinkingCommandHandler(
         IUserRepository userRepository,
+        IUnitOfWork unitOfWork,
         IIdentityProviderService identityProviderService
     )
     {
         this._userRepository = userRepository;
+        this._unitOfWork = unitOfWork;
         this._identityProviderService = identityProviderService;
     }
 
@@ -37,12 +41,15 @@ internal sealed class FinishInstagramLinkingCommandHandler
             request.Username,
             cancellationToken
         );
-        
+
         if (result.IsFailure)
         {
             return result;
         }
-        
+
+        user.InstagramAccountLinkedOnUtc = DateTimeOffset.UtcNow;
+        await this._unitOfWork.SaveChangesAsync(cancellationToken);
+
         return Result.Success();
     }
 }

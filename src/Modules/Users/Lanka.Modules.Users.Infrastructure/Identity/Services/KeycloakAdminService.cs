@@ -8,8 +8,6 @@ namespace Lanka.Modules.Users.Infrastructure.Identity.Services;
 
 internal sealed class KeycloakAdminService : IKeycloakAdminService
 {
-    private const string PasswordCredentialType = "Password";
-
     private readonly IKeycloakAdminApi _api;
     private readonly ILogger<KeycloakAdminService> _logger;
 
@@ -19,53 +17,6 @@ internal sealed class KeycloakAdminService : IKeycloakAdminService
     {
         this._api = api;
         this._logger = logger;
-    }
-
-    public async Task<string> RegisterUserAsync(
-        UserModel user,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var representation = new UserRepresentation(
-            user.Email,
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            EmailVerified: true,
-            Enabled: true,
-            Credentials:
-            [
-                new CredentialRepresentation(
-                    PasswordCredentialType,
-                    user.Password,
-                    Temporary: false
-                )
-            ]
-        );
-        
-        HttpResponseMessage response = await this._api
-            .CreateUserAsync(representation);
-        response.EnsureSuccessStatusCode();
-
-
-        return ExtractIdentityIdFromLocationHeader(response);
-    }
-
-    private static string ExtractIdentityIdFromLocationHeader(
-        HttpResponseMessage httpResponseMessage)
-    {
-        const string usersSegmentName = "users/";
-
-        string? locationHeader = httpResponseMessage.Headers.Location?.PathAndQuery
-                                 ?? throw new InvalidOperationException("Location header is null");
-
-        int userSegmentValueIndex = locationHeader.IndexOf(
-            usersSegmentName,
-            StringComparison.InvariantCultureIgnoreCase);
-
-        string identityId = locationHeader.Substring(userSegmentValueIndex + usersSegmentName.Length);
-
-        return identityId;
     }
 
     public async Task<Result> TerminateUserSession(

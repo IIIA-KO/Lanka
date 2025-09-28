@@ -30,7 +30,7 @@ internal sealed class UpdateBloggerDomainEventHandler
     )
     {
         Result<BloggerResponse> result = await this._sender.Send(
-            new GetBloggerQuery(domainEvent.BloggerId),
+            new GetBloggerQuery(domainEvent.BloggerId.Value),
             cancellationToken
         );
         
@@ -43,7 +43,7 @@ internal sealed class UpdateBloggerDomainEventHandler
             new BloggerUpdatedIntegrationEvent(
                 domainEvent.Id,
                 domainEvent.OccurredOnUtc,
-                domainEvent.BloggerId,
+                domainEvent.BloggerId.Value,
                 result.Value.FirstName,
                 result.Value.LastName,
                 result.Value.BirthDate,

@@ -3,6 +3,7 @@ import { ITokenResponse, IRefreshTokenRequest } from '../../models/auth';
 import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
 import { UsersAgent } from '../../api/users.agent';
 import { Router } from '@angular/router';
+import { SignalRService } from '../signalr.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -20,9 +21,10 @@ export class AuthService {
 
   private refreshTimer: any;
 
-  constructor(private usersAgent: UsersAgent, private router: Router) {
+  constructor(private usersAgent: UsersAgent, private router: Router, private signalRService: SignalRService) {
     if (this.isAuthenticated()) {
       this.startTokenRefreshTimer();
+      this.startSignalRConnection();
     }
   }
 
@@ -34,11 +36,13 @@ export class AuthService {
     this.storeTokens(tokenResponse);
     this.isAuthenticatedSubject.next(true);
     this.startTokenRefreshTimer();
+    this.startSignalRConnection();
   }
 
   logout(): void {
     this.clearTokens();
     this.stopTokenRefreshTimer();
+    this.stopSignalRConnection();
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/auth/login']);
   }
@@ -48,10 +52,73 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    if (this.isTokenExpired()) {
+    const token = localStorage.getItem(this.ACCESS_TOKEN_KEY);
+    if (!token) {
       return null;
     }
-    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+
+    // Check both our stored expiry and the actual JWT expiry
+    if (this.isTokenExpired() || this.isJwtTokenExpired(token)) {
+      console.warn('Token expired, clearing tokens');
+      this.clearTokens();
+      return null;
+    }
+
+    return token;
+  }
+
+  private isJwtTokenExpired(token: string): boolean {
+    try {
+      const payload = this.decodeToken(token);
+      if (!payload?.exp) return true;
+      
+      // Add a small buffer (30 seconds) to prevent race conditions
+      const bufferTime = 30 * 1000;
+      return Date.now() + bufferTime >= payload.exp * 1000;
+    } catch (error) {
+      console.error('Error checking JWT expiration:', error);
+      return true;
+    }
+  }
+
+  /**
+   * Decodes JWT token and extracts user ID from 'sub' claim
+   */
+  getUserIdFromToken(token?: string): string | null {
+    const tokenToUse = token || this.getToken();
+    if (!tokenToUse) {
+      return null;
+    }
+
+    try {
+      const payload = this.decodeToken(tokenToUse);
+      return payload?.sub || null;
+    } catch (error) {
+      console.error('Error extracting user ID from token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Decodes JWT token payload
+   */
+  private decodeToken(token: string): any {
+    if (!token) {
+      return null;
+    }
+
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT token format');
+    }
+
+    try {
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch (error) {
+      throw new Error('Failed to decode JWT token');
+    }
   }
 
   getRefreshToken(): string | null {
@@ -175,6 +242,27 @@ export class AuthService {
     if (this.refreshTimer) {
       this.refreshTimer.unsubscribe();
       this.refreshTimer = null;
+    }
+  }
+
+  private async startSignalRConnection(): Promise<void> {
+    try {
+      const token = this.getToken();
+      if (token) {
+        await this.signalRService.startConnection(token);
+        console.log('SignalR connection started');
+      }
+    } catch (error) {
+      console.error('Failed to start SignalR connection:', error);
+    }
+  }
+
+  private async stopSignalRConnection(): Promise<void> {
+    try {
+      await this.signalRService.stopConnection();
+      console.log('SignalR connection stopped');
+    } catch (error) {
+      console.error('Failed to stop SignalR connection:', error);
     }
   }
 }

@@ -28,7 +28,8 @@ internal sealed class ProcessOutboxJob : IJob
         IServiceScopeFactory serviceScopeFactory,
         IDateTimeProvider dateTimeProvider,
         IOptions<OutboxOptions> outboxOptions,
-        ILogger<ProcessOutboxJob> logger)
+        ILogger<ProcessOutboxJob> logger
+    )
     {
         this._dbConnectionFactory = dbConnectionFactory;
         this._serviceScopeFactory = serviceScopeFactory;

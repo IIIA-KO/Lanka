@@ -32,11 +32,17 @@ internal sealed class GetCampaignQueryHandler
                  client_id AS {nameof(CampaignResponse.ClientId)},
                  creator_id AS {nameof(CampaignResponse.CreatorId)},
                  scheduled_on_utc AS {nameof(CampaignResponse.ScheduledOnUtc)},
+                 pended_on_utc AS {nameof(CampaignResponse.PendedOnUtc)},
+                 confirmed_on_utc AS {nameof(CampaignResponse.ConfirmedOnUtc)},
+                 rejected_on_utc AS {nameof(CampaignResponse.RejectedOnUtc)},
+                 cancelled_on_utc AS {nameof(CampaignResponse.CancelledOnUtc)},
+                 done_on_utc AS {nameof(CampaignResponse.DoneOnUtc)},
+                 completed_on_utc AS {nameof(CampaignResponse.CompletedOnUtc)}
               FROM campaigns.campaigns
               WHERE id = @CampaignId
              """;
         CampaignResponse campaign = await connection.QuerySingleOrDefaultAsync<CampaignResponse>(
-            sql, 
+            sql,
             new { request.CampaignId }
         );
 

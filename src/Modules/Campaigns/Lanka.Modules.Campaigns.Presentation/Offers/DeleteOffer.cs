@@ -29,6 +29,10 @@ internal sealed class DeleteOffer : OfferEndpointBase
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Offers);
+            .WithTags(Tags.Offers)
+            .WithName("DeleteOffer")
+            .WithSummary("Delete offer")
+            .WithDescription("Deletes an existing offer")
+            .WithOpenApi();
     }
 }
