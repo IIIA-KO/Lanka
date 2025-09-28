@@ -6,7 +6,7 @@
 
 **"The right match at the right time creates magic."**
 
-[![Status](https://img.shields.io/badge/Status-Development-yellow?style=for-the-badge)](.)
+[![Status](https://img.shields.io/badge/Status-Active-green?style=for-the-badge)](.)
 [![Domain](https://img.shields.io/badge/Domain-Search%20%26%20Discovery-blue?style=for-the-badge)](.)
 [![Integration](https://img.shields.io/badge/Integration-Cross%20Module-orange?style=for-the-badge)](.)
 
