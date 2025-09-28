@@ -5,4 +5,8 @@
         <ProjectReference Include="..\..\Campaigns\Lanka.Modules.Campaigns.IntegrationEvents\Lanka.Modules.Campaigns.IntegrationEvents.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Lanka.Modules.Matching.Application.UnitTests"/>
+    </ItemGroup>
+
 </Project>
