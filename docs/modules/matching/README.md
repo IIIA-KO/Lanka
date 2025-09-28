@@ -4,11 +4,11 @@
 
 *Advanced Search and Content Discovery Engine for Lanka Platform*
 
-**"The right match at the right time creates magic."**
+**"The right search at the right time creates discovery."**
 
 [![Status](https://img.shields.io/badge/Status-Active-green?style=for-the-badge)](.)
 [![Domain](https://img.shields.io/badge/Domain-Search%20%26%20Discovery-blue?style=for-the-badge)](.)
-[![Integration](https://img.shields.io/badge/Integration-Cross%20Module-orange?style=for-the-badge)](.)
+[![Integration](https://img.shields.io/badge/Integration-Elasticsearch-orange?style=for-the-badge)](.)
 
 </div>
 
@@ -16,791 +16,414 @@
 
 ## 🎯 **Module Overview**
 
-The Matching Module is the intelligent discovery engine of the Lanka platform, responsible for **advanced search capabilities**, **content matching algorithms**, **relevance scoring**, and **intelligent recommendations**. It provides sophisticated search functionality across campaigns, influencers, offers, and reviews, enabling users to find exactly what they're looking for with precision and speed.
+The Matching Module provides **search and indexing capabilities** for the Lanka platform. It handles document indexing, search queries, and content discovery across all platform entities. The module integrates with Elasticsearch for powerful full-text search functionality and automatically synchronizes with other modules through integration events.
 
-### **🏗️ Architecture**
+### **🏗️ Current Architecture**
 
 ```mermaid
 graph TB
     subgraph "🔍 Matching Module"
         subgraph "🌐 Presentation Layer"
-            MP[Matching.Presentation<br/>🔍 Search APIs & Endpoints]
+            MP[Search APIs<br/>🔍 Search Endpoints]
+            SYNC[Sync Handlers<br/>📥 Event Processing]
         end
         
         subgraph "📋 Application Layer"
-            MA[Matching.Application<br/>🎯 Search Logic & Algorithms]
             SCH[Search Handlers<br/>🔍 Query Processing]
-            ICH[Index Handlers<br/>📊 Content Indexing]
-            RCH[Recommendation Handlers<br/>🎯 ML-based Suggestions]
+            ICH[Index Handlers<br/>📊 Document Management]
         end
         
         subgraph "💎 Domain Layer"
-            SI[SearchableItem<br/>📄 Indexed Content]
-            MC[MatchingCriteria<br/>🎯 Search Parameters]
-            MR[MatchResult<br/>⭐ Search Results]
-            SIT[SearchableItemType<br/>🏷️ Content Categories]
-            REPO[Repositories<br/>🔍 Data Access Interfaces]
+            SD[SearchableDocument<br/>📄 Indexed Content Entity]
+            SQ[SearchQuery<br/>🎯 Search Parameters]
+            SR[SearchResult<br/>⭐ Search Results]
+            SI[SearchableItem<br/>📋 Search Item Types]
         end
         
         subgraph "🔧 Infrastructure Layer"
-            SEARCH[Search Engine<br/>🔍 Elasticsearch/Azure Search]
-            IMPL[Repository Implementation<br/>🗃️ Database Access]
-            INDEX[Indexing Service<br/>📊 Content Processing]
-            ML[ML Service<br/>🤖 Recommendation Engine]
-            INBOX[Inbox Pattern<br/>📥 Event Processing]
+            ES[Elasticsearch<br/>🔍 Search Engine]
+            PG[PostgreSQL<br/>🗃️ Metadata Storage]
+            JOBS[Background Jobs<br/>⚙️ Event Processing]
         end
     end
     
-    subgraph "🌐 External Systems"
-        ES[Elasticsearch<br/>🔍 Search Engine]
-        POSTGRES[(PostgreSQL<br/>🗃️ Metadata Storage)]
-        REDIS[(Redis<br/>⚡ Caching)]
-        MB[(RabbitMQ<br/>📮 Message Bus)]
-        AZURE[Azure Cognitive Search<br/>🧠 AI-Powered Search]
+    subgraph "📡 External Events"
+        CAMPAIGNS[Campaigns Module<br/>📊 Campaign Events]
+        USERS[Users Module<br/>👥 User Events]
+        ANALYTICS[Analytics Module<br/>📈 Analytics Events]
     end
     
-    subgraph "📊 Data Sources"
-        USERS[Users Module<br/>👥 User Profiles]
-        CAMPAIGNS[Campaigns Module<br/>🎪 Campaign Data]
-        ANALYTICS[Analytics Module<br/>📊 Performance Data]
-    end
-    
-    MP --> MA
-    MA --> SCH & ICH & RCH
-    SCH & ICH & RCH --> SI & MC & MR & SIT
-    SI & MC & MR & SIT --> REPO
-    REPO --> IMPL & SEARCH
-    IMPL --> POSTGRES
-    SEARCH --> ES & AZURE
-    INDEX --> REDIS
-    ML --> AZURE
-    MB --> INBOX
-    USERS & CAMPAIGNS & ANALYTICS --> MB
-    
-    classDef moduleStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef infraStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef dataStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    classDef sourceStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    
-    class MP,MA,SCH,ICH,RCH,SI,MC,MR,SIT,REPO,IMPL,SEARCH,INDEX,ML,INBOX moduleStyle
-    class ES,AZURE,MB infraStyle
-    class POSTGRES,REDIS dataStyle
-    class USERS,CAMPAIGNS,ANALYTICS sourceStyle
+    MP --> SCH & ICH
+    SCH --> SD & SQ & SR
+    ICH --> SD
+    SD --> ES & PG
+    SYNC --> ICH
+    CAMPAIGNS --> SYNC
+    USERS --> SYNC
+    ANALYTICS --> SYNC
 ```
 
 ---
 
-## 🎭 **Domain Model**
+## 🎯 **Currently Implemented Features**
 
-### **🏛️ Core Entities & Value Objects**
+### **🔍 Advanced Search Capabilities**
+- ✅ **Full-Text Search**: Multi-field search across title, content, and tags
+- ✅ **Fuzzy Search**: Configurable distance matching for typo tolerance
+- ✅ **Faceted Search**: Multi-dimensional filtering by type, date, metadata
+- ✅ **Numeric Filters**: Range-based filtering for numerical values
+- ✅ **Date Range Filtering**: Time-based content filtering
+- ✅ **Search Highlighting**: Automatic highlighting of matching terms
+- ✅ **Pagination**: Efficient result pagination with configurable page sizes
+- ✅ **Similarity Search**: Find similar content based on existing items
+- ✅ **Synonym Support**: Query expansion with synonyms
 
-<table>
-<tr>
-<td width="50%">
+### **📊 Document Management**
+- ✅ **Document Indexing**: `IndexDocumentCommand` - Add content to search index
+- ✅ **Content Updates**: `UpdateSearchableDocumentContentCommand` - Modify indexed content
+- ✅ **Document Removal**: `RemoveDocumentCommand` - Remove from search index
+- ✅ **Document Activation/Deactivation**: Control document visibility in search
+- ✅ **Bulk Operations**: Efficient batch processing of multiple documents
 
-#### **📄 SearchableItem**
-The primary entity representing indexed content across the platform.
+### **🔄 Event-Driven Synchronization**
+- ✅ **Automatic Sync**: Real-time updates from all other modules
+- ✅ **Blogger Sync**: Profile and content updates from Campaigns module
+- ✅ **Campaign Sync**: Campaign data indexing for search
+- ✅ **Review Sync**: Review content indexing
+- ✅ **Offer Sync**: Service offering search integration
+- ✅ **Pact Sync**: Contract content indexing
+- ✅ **Instagram Sync**: Instagram account data from Analytics module
 
-**Key Properties:**
-- `Id` - Unique identifier (Guid)
-- `Type` - Content category (SearchableItemType)
-- `Title` - Display title for search results
-- `Content` - Full-text searchable content
-- `Tags` - Collection of searchable tags
-- `LastUpdated` - Content freshness timestamp
-- `IsActive` - Visibility and searchability flag
-
-**Key Operations:**
-- `Create()` - Factory method for item creation
-- `UpdateContent()` - Refresh indexed content
-- `Deactivate()` - Remove from search index
-- `AddTags()` - Enhance searchability
-
-#### **🎯 MatchingCriteria**
-Value object representing search parameters and filters.
-
-**Key Properties:**
-- `Query` - Search text/keywords
-- `MinimumRelevance` - Quality threshold
-- `Facets` - Category filters
-- `PageNumber` - Result pagination
-- `PageSize` - Results per page
-
-</td>
-<td width="50%">
-
-#### **⭐ MatchResult**
-Value object representing search result with relevance scoring.
-
-**Key Properties:**
-- `Item` - The matched searchable item
-- `RelevanceScore` - Matching accuracy (0.0-1.0)
-- `MatchedFields` - Which fields contributed to match
-- `Highlights` - Emphasized matching text
-- `Rank` - Position in result set
-
-#### **🏷️ SearchableItemType**
-Enum defining categories of searchable content.
-
-**Values:**
-- `Blogger` - Influencer profiles
-- `Campaign` - Marketing campaigns
-- `Offer` - Business proposals
-- `Review` - Performance evaluations
-- `User` - Platform users (limited scope)
-
-</td>
-</tr>
-</table>
-
-### **⚡ Domain Events**
-
-The Matching module operates primarily through event consumption for index updates:
-
-| Event | Purpose | Triggered By |
-|-------|---------|--------------|
-| `ContentIndexedDomainEvent` | New content added to search | Content indexing |
-| `SearchPerformedDomainEvent` | Search analytics tracking | Search queries |
-| `RecommendationGeneratedDomainEvent` | ML-based suggestions created | Recommendation engine |
-| `IndexUpdatedDomainEvent` | Search index refreshed | Batch updates |
+### **⚡ Performance & Caching**
+- ✅ **Query Caching**: 3-minute cache for search results
+- ✅ **Idempotent Processing**: Duplicate event handling prevention
+- ✅ **Background Processing**: Asynchronous event processing
+- ✅ **Outbox/Inbox Pattern**: Reliable event processing
 
 ---
 
-## 🎯 **Use Cases & Features**
+## 🏛️ **Domain Model**
 
-### **🔍 Search Capabilities**
+### **🎯 Core Entities**
 
-<table>
-<tr>
-<td width="50%">
-
-#### **📊 Advanced Search Features**
-1. **Full-text Search** across all content types
-2. **Faceted Search** with category filtering
-3. **Fuzzy Matching** for typo tolerance
-4. **Semantic Search** with AI understanding
-5. **Geo-spatial Search** for location-based results
-6. **Time-based Filtering** for content freshness
-
-#### **🔑 Key Commands**
-- `IndexContentCommand` - Add content to search
-- `UpdateIndexCommand` - Refresh indexed content
-- `RemoveFromIndexCommand` - Remove content
-- `RebuildIndexCommand` - Full index reconstruction
-
-</td>
-<td width="50%">
-
-#### **🎯 Intelligent Matching**
-1. **Relevance Scoring** with custom algorithms
-2. **Personalized Results** based on user behavior
-3. **ML-powered Recommendations** for discovery
-4. **Auto-complete Suggestions** for query assistance
-5. **Similar Content** recommendations
-6. **Trending Content** identification
-
-#### **📊 Key Queries**
-- `SearchContentQuery` - Primary search functionality
-- `GetRecommendationsQuery` - Personalized suggestions
-- `GetSimilarContentQuery` - Related content discovery
-- `GetTrendingContentQuery` - Popular content
-- `AutoCompleteQuery` - Search assistance
-
-</td>
-</tr>
-</table>
-
-### **🔄 Search Flow**
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant API as Search API
-    participant MS as Matching Service
-    participant ES as Search Engine
-    participant ML as ML Service
-    participant CACHE as Redis Cache
+#### **SearchableDocument (Entity)**
+```csharp
+public sealed class SearchableDocument : Entity<SearchableDocumentId>
+{
+    public SearchableItemType Type { get; private set; }
+    public Title Title { get; private set; }
+    public Content Content { get; private set; }
+    public IReadOnlyCollection<string> Tags { get; private set; }
+    public IReadOnlyDictionary<string, object> Metadata { get; private set; }
+    public DateTimeOffset LastUpdated { get; private set; }
+    public bool IsActive { get; private set; }
+    public Guid SourceEntityId { get; private set; }
     
-    U->>API: Search Query "fashion bloggers"
-    API->>MS: Process Search Request
-    MS->>CACHE: Check Cached Results
+    // Methods: Create, Update, Activate, Deactivate
+}
+```
+
+#### **SearchQuery (Value Object)**
+```csharp
+public sealed class SearchQuery
+{
+    public SearchText Text { get; }
+    public bool EnableFuzzySearch { get; }
+    public bool EnableSynonyms { get; }
+    public double FuzzyDistance { get; }
+    public IReadOnlyCollection<SearchableItemType> ItemTypes { get; }
+    public IDictionary<string, object> NumericFilters { get; }
+    public IDictionary<string, IReadOnlyCollection<string>> FacetFilters { get; }
+    public DateRange? DateRange { get; }
+    public bool OnlyActive { get; }
+    public Pagination Pagination { get; }
     
-    alt Cache Hit
-        CACHE-->>MS: Return Cached Results
-    else Cache Miss
-        MS->>ES: Execute Search Query
-        ES->>ES: Apply Filters & Ranking
-        ES-->>MS: Return Search Results
-        MS->>ML: Get Personalized Ranking
-        ML-->>MS: Enhanced Results
-        MS->>CACHE: Cache Results (TTL: 5min)
-    end
-    
-    MS->>MS: Apply Business Rules
-    MS->>API: Return Ranked Results
-    API-->>U: Search Results with Pagination
-    
-    Note over MS: Log Search Analytics
-    MS->>MS: Track Search Metrics
+    // Factory methods with validation
+}
+```
+
+#### **SearchResult (Value Object)**
+```csharp
+public sealed class SearchResult
+{
+    public IReadOnlyCollection<SearchResultItem> Items { get; }
+    public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Facets { get; }
+    public long TotalCount { get; }
+    public int Page { get; }
+    public int Size { get; }
+    public TimeSpan ExecutionTime { get; }
+}
+```
+
+### **🏷️ Searchable Item Types**
+```csharp
+public enum SearchableItemType
+{
+    Unknown = 0,
+    Blogger = 1,           // Influencer profiles
+    Campaign = 2,          // Marketing campaigns
+    Offer = 3,             // Service offerings
+    Review = 4,            // Campaign reviews
+    Pact = 5,              // Contracts
+    InstagramAccount = 6   // Instagram profiles
+}
 ```
 
 ---
 
-## 🔧 **Technical Implementation**
+## 🚀 **Application Layer**
 
-### **🗃️ Database & Search Schema**
+### **📋 Document Management Commands**
+- ✅ `IndexDocumentCommand` - Index new document in search engine
+- ✅ `UpdateSearchableDocumentContentCommand` - Update existing document content
+- ✅ `RemoveDocumentCommand` - Remove document from search index
+- ✅ `ActivateSearchableDocumentCommand` - Make document searchable
+- ✅ `DeactivateSearchableDocumentCommand` - Hide document from search
 
-<table>
-<tr>
-<td width="50%">
+### **🔍 Search Queries**
+- ✅ `SearchDocumentsQuery` - Main search functionality with all advanced features
+- ✅ `SearchSimilarQuery` - Find similar content based on source item
 
-#### **📊 PostgreSQL (Metadata)**
+### **🎯 Search Features**
 
-```sql
--- Search Metadata
-CREATE TABLE SearchMetadata (
-    Id UUID PRIMARY KEY,
-    ItemId UUID NOT NULL,
-    ItemType VARCHAR(50) NOT NULL,
-    Title VARCHAR(500) NOT NULL,
-    Content TEXT,
-    Tags TEXT[], -- PostgreSQL array
-    LastIndexed TIMESTAMPTZ NOT NULL,
-    IsActive BOOLEAN DEFAULT true,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL,
-    ModifiedOnUtc TIMESTAMPTZ
-);
-
--- Search Analytics
-CREATE TABLE SearchAnalytics (
-    Id UUID PRIMARY KEY,
-    Query VARCHAR(1000) NOT NULL,
-    UserId UUID,
-    ResultCount INTEGER NOT NULL,
-    ClickedResultId UUID,
-    SearchType VARCHAR(100),
-    ExecutionTimeMs INTEGER,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL
-);
-
--- Search Trends
-CREATE TABLE SearchTrends (
-    Id UUID PRIMARY KEY,
-    Query VARCHAR(500) NOT NULL,
-    SearchCount INTEGER NOT NULL,
-    Period DATE NOT NULL,
-    Category VARCHAR(100),
-    Region VARCHAR(100),
-    CreatedOnUtc TIMESTAMPTZ NOT NULL
-);
+#### **SearchDocumentsQuery Parameters**
+```csharp
+public sealed record SearchDocumentsQuery(
+    string Query,                                                    // Search text
+    bool EnableFuzzySearch = true,                                  // Typo tolerance
+    bool EnableSynonyms = true,                                     // Synonym expansion
+    double FuzzyDistance = 0.8,                                     // Fuzzy matching threshold
+    string? ItemTypes = null,                                       // Filter by content types
+    IDictionary<string, object>? NumericFilters = null,            // Numeric range filters
+    IDictionary<string, IReadOnlyCollection<string>>? FacetFilters = null, // Facet filters
+    DateTimeOffset? CreatedAfter = null,                           // Date range start
+    DateTimeOffset? CreatedBefore = null,                          // Date range end
+    bool OnlyActive = true,                                        // Include only active content
+    int Page = 1,                                                  // Pagination page
+    int Size = 20                                                  // Results per page
+) : ICachedQuery<SearchDocumentsResponse>;
 ```
 
-</td>
-<td width="50%">
+---
 
-#### **🔍 Elasticsearch Schema**
+## 🔄 **Integration Events**
 
+### **📥 Consumed Events (Auto-Sync)**
+
+| Event | Source | Purpose |
+|-------|--------|---------|
+| `BloggerSearchSyncIntegrationEvent` | Campaigns | Sync blogger profiles for search |
+| `CampaignSearchSyncIntegrationEvent` | Campaigns | Index campaign data |
+| `ReviewSearchSyncIntegrationEvent` | Campaigns | Index review content |
+| `OfferSearchSyncIntegrationEvent` | Campaigns | Index service offerings |
+| `PactSearchSyncIntegrationEvent` | Campaigns | Index contract content |
+| `InstagramAccountSearchSyncIntegrationEvent` | Analytics | Sync Instagram account data |
+
+### **📤 Published Events**
+*The Matching module is primarily a read-side projection and does not publish domain events. It only consumes events from other modules to maintain its search index.*
+
+---
+
+## 🔧 **Infrastructure**
+
+### **🔍 Elasticsearch Integration**
+
+#### **Modern .NET Client**
+- **Elastic.Clients.Elasticsearch**: Latest official client
+- **Automatic Index Management**: Schema creation and mapping
+- **Complex Query Building**: Multi-field search with boosting
+- **Aggregations**: Facet computation and analytics
+- **Highlighting**: Search term highlighting with customizable tags
+
+#### **Search Configuration**
 ```json
 {
-  "mappings": {
-    "properties": {
-      "id": { "type": "keyword" },
-      "itemType": { "type": "keyword" },
-      "title": {
-        "type": "text",
-        "analyzer": "standard",
-        "fields": {
-          "keyword": { "type": "keyword" },
-          "suggest": { "type": "completion" }
-        }
-      },
-      "content": {
-        "type": "text",
-        "analyzer": "standard"
-      },
-      "tags": { "type": "keyword" },
-      "lastUpdated": { "type": "date" },
-      "isActive": { "type": "boolean" },
-      "metadata": {
-        "type": "object",
-        "properties": {
-          "category": { "type": "keyword" },
-          "location": { "type": "geo_point" },
-          "price": { "type": "scaled_float" },
-          "rating": { "type": "float" },
-          "popularity": { "type": "float" }
-        }
-      }
-    }
-  },
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "custom_text_analyzer": {
-          "type": "custom",
-          "tokenizer": "standard",
-          "filter": [
-            "lowercase",
-            "asciifolding",
-            "synonyms",
-            "stemmer"
-          ]
-        }
-      }
+  "Matching": {
+    "ElasticSearch": {
+      "BaseUrl": "http://localhost:9200",
+      "DefaultIndex": "lanka-search",
+      "Username": "elastic",
+      "Password": "password"
     }
   }
 }
 ```
 
-</td>
-</tr>
-</table>
+### **🗄️ Data Storage**
 
----
+#### **PostgreSQL Schema: `matching`**
+- `searchable_documents` - Document metadata (minimal, mainly for tracking)
+- Standard outbox/inbox tables for event processing
+- **Note**: Primary search data is stored in Elasticsearch
 
-## 🔄 **Integration & Communication**
-
-### **📥 Consumed Events**
-
-The Matching module primarily consumes events to maintain its search index:
-
-<table>
-<tr>
-<td width="50%">
-
-#### **From Users Module**
-- `UserCreatedIntegrationEvent`
-  - Index new user profiles (limited scope)
-  - Update recommendation models
-
-- `UserDeletedIntegrationEvent`
-  - Remove user from search index
-  - Clean up associated recommendations
-
-#### **From Analytics Module**
-- `InstagramAccountDataFetchedIntegrationEvent`
-  - Update blogger performance metrics
-  - Refresh search relevance scores
-
-</td>
-<td width="50%">
-
-#### **From Campaigns Module**
-- `BloggerJoinedIntegrationEvent`
-  - Index new influencer profiles
-  - Update blogger search metadata
-
-- `CampaignCreatedIntegrationEvent`
-  - Index new campaigns for discovery
-  - Update campaign search data
-
-- `OfferCreatedIntegrationEvent`
-  - Index new offers for matching
-  - Enable offer discovery
-
-- `ReviewSubmittedIntegrationEvent`
-  - Index new reviews for reputation
-  - Update quality scores
-
-</td>
-</tr>
-</table>
-
-### **📤 Published Events**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **Search Intelligence Events**
-- `SearchTrendDetectedIntegrationEvent`
-  - Popular search patterns identified
-  - Informs content strategy
-
-- `RecommendationGeneratedIntegrationEvent`
-  - ML-powered suggestions created
-  - Triggers personalization updates
-
-</td>
-<td width="50%">
-
-#### **Performance Events**
-- `ContentIndexedIntegrationEvent`
-  - New content available for search
-  - Search index updated
-
-- `SearchPerformanceIntegrationEvent`
-  - Search quality metrics
-  - System performance insights
-
-</td>
-</tr>
-</table>
-
----
-
-## ⚡ **Performance & Scalability**
-
-### **📊 Performance Characteristics**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **🚀 Search Performance**
-- **Basic text search**: < 50ms response time
-- **Complex faceted search**: < 200ms response time
-- **Auto-complete suggestions**: < 20ms response time
-- **Recommendation queries**: < 300ms response time
-
-#### **📊 Index Performance**
-- **Real-time indexing**: < 1s for single items
-- **Bulk indexing**: 1000 items/minute
-- **Index optimization**: Runs during off-peak hours
-- **Index size**: Supports millions of documents
-
-</td>
-<td width="50%">
-
-#### **📈 Scalability Features**
-- **Horizontal scaling** with Elasticsearch clusters
-- **Read replicas** for query distribution
-- **Sharding strategies** for large datasets
-- **Caching layers** for frequent queries
-
-#### **⚡ Optimization Strategies**
-- **Query result caching** with Redis
-- **Index warming** for common queries
-- **Lazy loading** for large result sets
-- **Pagination optimization** for performance
-
-</td>
-</tr>
-</table>
-
-### **🔍 Search Quality Metrics**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **📊 Relevance Metrics**
-- **Click-through rate** - Search result engagement
-- **Conversion rate** - Search to action ratio
-- **Result quality score** - Manual evaluation
-- **User satisfaction** - Feedback and ratings
-
-#### **⚡ Performance Metrics**
-- **Query latency** - Response time tracking
-- **Index freshness** - Data currency monitoring
-- **Search success rate** - Queries returning results
-- **Error rate** - Failed query tracking
-
-</td>
-<td width="50%">
-
-#### **🎯 Business Metrics**
-- **Search usage patterns** - Popular queries
-- **Discovery effectiveness** - Content findability
-- **Recommendation accuracy** - ML model performance
-- **User engagement** - Search-driven actions
-
-#### **🚨 Alert Conditions**
-- **Search latency** > 500ms
-- **Index lag** > 5 minutes
-- **Error rate** > 1%
-- **Result quality** degradation
-
-</td>
-</tr>
-</table>
-
----
-
-## 🧪 **Testing Strategy**
-
-### **📊 Test Coverage**
-
-<table>
-<tr>
-<td width="33%">
-
-#### **🔬 Unit Tests**
-- **Search algorithm** validation
-- **Relevance scoring** logic
-- **Query parsing** accuracy
-- **Filter application** correctness
-- **Business rule** enforcement
-
-**Coverage:** 95%+
-
-</td>
-<td width="33%">
-
-#### **🔗 Integration Tests**
-- **Search engine** integration
-- **Index operations** testing
-- **ML service** integration
-- **Cache behavior** validation
-- **Event processing** testing
-
-**Coverage:** 90%+
-
-</td>
-<td width="33%">
-
-#### **🏗️ Performance Tests**
-- **Query response time** validation
-- **Concurrent user** load testing
-- **Index size** scalability testing
-- **Memory usage** optimization
-- **Throughput** benchmarking
-
-**Coverage:** Key scenarios
-
-</td>
-</tr>
-</table>
-
-### **🎯 Key Test Scenarios**
-
-```csharp
-// Search Functionality Testing
-[Test]
-public async Task SearchContent_ShouldReturnRelevantResults()
+#### **Elasticsearch Index Structure**
+```json
 {
-    // Arrange
-    var criteria = new MatchingCriteria(
-        query: "fashion blogger",
-        minimumRelevance: 0.7,
-        facets: ["blogger"],
-        pageNumber: 1,
-        pageSize: 10);
-    
-    // Act
-    var result = await searchService.SearchAsync(criteria);
-    
-    // Assert
-    result.Should().NotBeNull();
-    result.Results.Should().NotBeEmpty();
-    result.Results.Should().AllSatisfy(r => 
-        r.RelevanceScore.Should().BeGreaterOrEqualTo(0.7));
-}
-
-// Performance Testing
-[Test]
-public async Task SearchContent_ShouldReturnWithin50Ms()
-{
-    // Arrange
-    var criteria = new MatchingCriteria("test query");
-    var stopwatch = Stopwatch.StartNew();
-    
-    // Act
-    var result = await searchService.SearchAsync(criteria);
-    stopwatch.Stop();
-    
-    // Assert
-    stopwatch.ElapsedMilliseconds.Should().BeLessThan(50);
-    result.Should().NotBeNull();
-}
-
-// Relevance Testing
-[Test]
-public async Task SearchWithExactMatch_ShouldHaveHighestRelevance()
-{
-    // Arrange
-    await IndexTestContent();
-    var criteria = new MatchingCriteria("Exact Title Match");
-    
-    // Act
-    var result = await searchService.SearchAsync(criteria);
-    
-    // Assert
-    var topResult = result.Results.First();
-    topResult.RelevanceScore.Should().BeGreaterThan(0.9);
-    topResult.Item.Title.Should().Contain("Exact Title Match");
-}
-
-// ML Recommendations Testing
-[Test]
-public async Task GetRecommendations_ShouldReturnPersonalizedResults()
-{
-    // Arrange
-    var userId = Guid.NewGuid();
-    await SetupUserPreferences(userId);
-    
-    // Act
-    var recommendations = await recommendationService
-        .GetPersonalizedRecommendationsAsync(userId, 10);
-    
-    // Assert
-    recommendations.Should().NotBeEmpty();
-    recommendations.Should().AllSatisfy(r => 
-        r.RelevanceScore.Should().BeGreaterThan(0.5));
+  "mappings": {
+    "properties": {
+      "sourceEntityId": { "type": "keyword" },
+      "type": { "type": "keyword" },
+      "title": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": { "keyword": { "type": "keyword" } }
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "tags": { 
+        "type": "keyword" 
+      },
+      "metadata": { 
+        "type": "object", 
+        "dynamic": true 
+      },
+      "lastUpdated": { "type": "date" },
+      "isActive": { "type": "boolean" }
+    }
+  }
 }
 ```
 
 ---
 
-## 🚀 **Development Guidelines**
+## 📊 **Data Flow**
 
-### **📝 Adding New Search Features**
+### **🔄 Document Indexing Flow**
+1. Other module publishes integration event (e.g., `CampaignSearchSyncIntegrationEvent`)
+2. Matching module consumes event via `IntegrationEventConsumer`
+3. Event handler processes data and creates `IndexDocumentCommand`
+4. `IndexDocumentCommandHandler` creates `SearchableDocument`
+5. Document indexed in Elasticsearch via `ElasticSearchIndexService`
+6. Document metadata stored in PostgreSQL for tracking
 
-1. **Define Search Domain** - Create new searchable item types or criteria
-2. **Implement Indexing** - Add content processing and index mapping
-3. **Add Search Logic** - Implement query processing and ranking algorithms
-4. **Create APIs** - Expose search functionality through endpoints
-5. **Add ML Components** - Enhance with recommendation algorithms
-6. **Optimize Performance** - Add caching and query optimization
-7. **Add Tests** - Comprehensive testing including performance tests
-8. **Monitor Quality** - Implement relevance and quality metrics
+### **🔍 Search Query Flow**
+1. User submits search via `SearchDocumentsQuery`
+2. `SearchDocumentsQueryHandler` validates and processes query
+3. Query converted to Elasticsearch DSL
+4. Elasticsearch executes search with highlighting and facets
+5. Results converted to domain objects
+6. Response cached for 3 minutes
+7. Structured results returned to client
 
-### **🔄 Common Patterns**
+### **⚡ Real-time Sync Flow**
+1. Campaign module updates blogger profile
+2. `BloggerUpdatedDomainEvent` published
+3. `BloggerSearchSyncIntegrationEvent` published to message bus
+4. Matching module consumes event
+5. `UpdateSearchableDocumentContentCommand` executed
+6. Elasticsearch index updated in real-time
+7. Search results immediately reflect changes
 
-<table>
-<tr>
-<td width="50%">
+---
 
-#### **Search Query Pattern**
-```csharp
-public sealed record SearchContentQuery(
-    string Query,
-    string[]? ItemTypes = null,
-    string[]? Categories = null,
-    double? MinRelevance = null,
-    int PageNumber = 1,
-    int PageSize = 20) : ICachedQuery<SearchResultResponse>
+## 🛡️ **Performance & Reliability**
+
+### **⚡ Performance Features**
+- **Query Caching**: 3-minute cache for identical search queries
+- **Elasticsearch Optimization**: Proper index mapping and query optimization
+- **Pagination**: Efficient result pagination to handle large datasets
+- **Background Processing**: Asynchronous event processing to avoid blocking
+
+### **🔒 Reliability Features**
+- **Idempotent Processing**: Prevents duplicate event processing
+- **Outbox/Inbox Pattern**: Ensures reliable event delivery
+- **Error Handling**: Graceful degradation when Elasticsearch is unavailable
+- **Retry Logic**: Automatic retry for failed operations
+
+---
+
+## 📋 **API Endpoints**
+
+### **Search Operations**
+- `GET /search` - Main search endpoint with all advanced features
+- `GET /search/similar` - Find similar content
+- `GET /search/suggestions` - Get search autocomplete suggestions
+
+### **Document Management** *(Internal APIs)*
+- `POST /documents/index` - Index new document
+- `PUT /documents/{id}` - Update document content
+- `DELETE /documents/{id}` - Remove document
+- `PUT /documents/{id}/activate` - Activate document
+- `PUT /documents/{id}/deactivate` - Deactivate document
+
+---
+
+## 🚀 **Future Enhancements**
+
+*The following features are planned but not yet implemented:*
+
+### **🤖 Machine Learning Features**
+- **Personalized Search**: User-specific result ranking
+- **Recommendation Engine**: ML-based content recommendations
+- **Search Analytics**: Query performance and user behavior analysis
+- **A/B Testing**: Search algorithm experimentation
+
+### **📊 Advanced Analytics**
+- **Search Metrics**: Query performance tracking
+- **Popular Searches**: Trending search terms
+- **User Search History**: Personal search tracking
+- **Click-through Analytics**: Result engagement metrics
+
+### **🎯 Enhanced Search Features**
+- **Semantic Search**: Natural language understanding
+- **Image Search**: Visual content search capabilities
+- **Voice Search**: Speech-to-text search integration
+- **Geolocation Search**: Location-based content discovery
+
+### **🔧 Advanced Configuration**
+- **Custom Analyzers**: Domain-specific text analysis
+- **Search Templates**: Predefined search configurations
+- **Multi-language Support**: Internationalization features
+- **Custom Scoring**: Business-specific relevance algorithms
+
+---
+
+## 🔧 **Configuration**
+
+### **Elasticsearch Settings**
+```json
 {
-    public string CacheKey => 
-        $"search:{Query}:{string.Join(",", ItemTypes ?? [])}";
-    
-    public TimeSpan? Expiration => TimeSpan.FromMinutes(5);
-}
-```
-
-#### **Indexing Pattern**
-```csharp
-public class BloggerCreatedEventHandler 
-    : INotificationHandler<BloggerCreatedIntegrationEvent>
-{
-    public async Task Handle(
-        BloggerCreatedIntegrationEvent notification,
-        CancellationToken cancellationToken)
-    {
-        var searchableItem = new SearchableItem(
-            notification.BloggerId,
-            SearchableItemType.Blogger,
-            notification.Name,
-            notification.Bio,
-            notification.Categories);
-            
-        await indexingService.IndexAsync(searchableItem);
+  "Matching": {
+    "ElasticSearch": {
+      "BaseUrl": "http://localhost:9200",
+      "DefaultIndex": "lanka-search",
+      "Username": "elastic",
+      "Password": "password",
+      "RequestTimeout": "00:00:30",
+      "MaxRetries": 3
+    }
     }
 }
 ```
 
-</td>
-<td width="50%">
-
-#### **Relevance Scoring Pattern**
-```csharp
-public class RelevanceCalculator
+### **Caching Configuration**
+```json
 {
-    public double CalculateRelevance(
-        SearchableItem item,
-        MatchingCriteria criteria)
-    {
-        var baseScore = CalculateTextRelevance(
-            item.Content, criteria.Query);
-        
-        var categoryBoost = CalculateCategoryBoost(
-            item.Type, criteria.Facets);
-        
-        var freshnessBoost = CalculateFreshnessBoost(
-            item.LastUpdated);
-        
-        return Math.Min(1.0, 
-            baseScore * categoryBoost * freshnessBoost);
+  "Matching": {
+    "Cache": {
+      "SearchResults": {
+        "ExpirationMinutes": 3,
+        "MaxSize": 1000
+      }
+    }
     }
 }
 ```
 
-#### **Caching Pattern**
-```csharp
-public class SearchCacheService
+### **Event Processing**
+```json
 {
-    public async Task<SearchResultResponse?> GetCachedResultAsync(
-        string cacheKey,
-        CancellationToken cancellationToken = default)
-    {
-        var cachedJson = await redis.GetStringAsync(cacheKey);
-        return cachedJson is not null 
-            ? JsonSerializer.Deserialize<SearchResultResponse>(cachedJson)
-            : null;
+  "Matching": {
+    "Outbox": {
+      "IntervalInSeconds": 10,
+      "BatchSize": 15
+    },
+    "Inbox": {
+      "IntervalInSeconds": 10,
+      "BatchSize": 15
     }
-    
-    public async Task CacheResultAsync(
-        string cacheKey,
-        SearchResultResponse result,
-        TimeSpan expiration)
-    {
-        var json = JsonSerializer.Serialize(result);
-        await redis.SetStringAsync(cacheKey, json, expiration);
     }
 }
 ```
-
-</td>
-</tr>
-</table>
-
----
-
-## 🔗 **Related Documentation**
-
-<table>
-<tr>
-<td width="50%">
-
-### **📚 Core Concepts**
-- [💎 Value Object](../../catalog-of-terms/value-object/) - Immutable descriptors
-- [⚡ Domain Event](../../catalog-of-terms/domain-event/) - Event modeling
-- [🔄 CQRS](../../catalog-of-terms/cqrs/) - Command Query separation
-- [✅ Result Pattern](../../catalog-of-terms/result-pattern/) - Error handling
-
-</td>
-<td width="50%">
-
-### **🔧 Implementation Guides**
-- [📥 Inbox Pattern](../../catalog-of-terms/inbox-pattern/) - Event processing
-- [🛡️ Resilience](../../catalog-of-terms/resilience/) - Circuit breakers
-- [⏱️ Rate Limiting](../../catalog-of-terms/rate-limiting/) - Traffic control
-- [🧪 Testing Strategies](../../development/testing/) - Quality assurance
-
-</td>
-</tr>
-</table>
-
----
-
-## 🎯 **Quick Actions**
-
-<div align="center">
-
-[![View Code](https://img.shields.io/badge/📁-View%20Source%20Code-blue?style=for-the-badge)](../../../src/Modules/Matching/)
-[![Search APIs](https://img.shields.io/badge/🔍-Search%20APIs-green?style=for-the-badge)](../../../src/Modules/Matching/Lanka.Modules.Matching.Presentation/)
-[![ML Components](https://img.shields.io/badge/🤖-ML%20Components-purple?style=for-the-badge)](../../../src/Modules/Matching/Lanka.Modules.Matching.Infrastructure/MachineLearning/)
-[![Performance Tests](https://img.shields.io/badge/⚡-Performance%20Tests-orange?style=for-the-badge)](../../../test/)
-
-</div>
-
----
-
-<div align="center">
-
-*"The best search is the one that finds what you need before you know you need it."*
-
-**Search with intelligence! 🔍**
-
-</div>
-

@@ -16,9 +16,9 @@
 
 ## 🎯 **Module Overview**
 
-The Campaigns Module is the business orchestration heart of the Lanka platform, responsible for **campaign management**, **influencer collaboration**, **offer negotiations**, **contract management**, and **performance tracking**. It connects brands with influencers through a sophisticated workflow that ensures successful campaign execution and measurable results.
+The Campaigns Module handles **campaign lifecycle management**, **influencer collaboration**, **offer management**, and **review systems** for the Lanka platform. It provides the core business logic for connecting brands with influencers through campaigns, offers, and pacts.
 
-### **🏗️ Architecture**
+### **🏗️ Current Architecture**
 
 ```mermaid
 graph TB
@@ -28,845 +28,390 @@ graph TB
         end
         
         subgraph "📋 Application Layer"
-            CA[Campaigns.Application<br/>🎯 Business Logic & Use Cases]
-            CCH[Campaign Handlers<br/>🚀 Campaign Management]
+            CCH[Campaign Handlers<br/>🚀 Campaign Lifecycle Management]
+            BCH[Blogger Handlers<br/>👥 Influencer Management]
             OCH[Offer Handlers<br/>💼 Offer Processing]
             PCH[Pact Handlers<br/>📋 Contract Management]
             RCH[Review Handlers<br/>⭐ Review Processing]
-            BCH[Blogger Handlers<br/>👥 Influencer Management]
         end
         
         subgraph "💎 Domain Layer"
-            CAMP[Campaign Entity<br/>🎪 Campaign Aggregate]
+            CAMP[Campaign Entity<br/>🎪 Campaign State Machine]
             BLOG[Blogger Entity<br/>👤 Influencer Profile]
             OFFER[Offer Entity<br/>💰 Proposal Management]
             PACT[Pact Entity<br/>📋 Contract Agreement]
             REV[Review Entity<br/>⭐ Performance Review]
-            REPO[Repositories<br/>🔍 Data Access Interfaces]
         end
         
         subgraph "🔧 Infrastructure Layer"
-            IMPL[Repository Implementation<br/>🗃️ PostgreSQL]
-            PHOTO[Photo Service<br/>📸 Media Management]
-            INBOX[Inbox Pattern<br/>📥 Event Processing]
-            OUTBOX[Outbox Pattern<br/>📤 Event Publishing]
+            PG[PostgreSQL<br/>🗃️ Campaign Data Storage]
+            CLOUDINARY[Cloudinary<br/>📸 Photo Management]
+            MASSTRANSIT[MassTransit<br/>🚌 Event Bus]
         end
     end
-    
-    subgraph "🌐 External Systems"
-        POSTGRES[(PostgreSQL<br/>🗃️ Campaign Data)]
-        BLOB[Azure Blob Storage<br/>📸 Media Files]
-        MB[(RabbitMQ<br/>📮 Message Bus)]
-        ANALYTICS[Analytics Module<br/>📊 Performance Data]
-        USERS[Users Module<br/>👥 User Management]
-    end
-    
-    CP --> CA
-    CA --> CCH & OCH & PCH & RCH & BCH
-    CCH & OCH & PCH & RCH & BCH --> CAMP & BLOG & OFFER & PACT & REV
-    CAMP & BLOG & OFFER & PACT & REV --> REPO
-    REPO --> IMPL
-    IMPL --> POSTGRES
-    PHOTO --> BLOB
-    OUTBOX --> MB
-    MB --> INBOX
-    MB --> ANALYTICS & USERS
-    
-    classDef moduleStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef infraStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef dataStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    
-    class CP,CA,CCH,OCH,PCH,RCH,BCH,CAMP,BLOG,OFFER,PACT,REV,REPO,IMPL,PHOTO,INBOX,OUTBOX moduleStyle
-    class BLOB,MB,ANALYTICS,USERS infraStyle
-    class POSTGRES dataStyle
 ```
 
 ---
 
-## 🎭 **Domain Model**
+## 🎯 **Currently Implemented Features**
 
-### **🏛️ Core Aggregates & Entities**
+### **🎪 Campaign Lifecycle Management**
+- ✅ **Campaign Creation**: `PendCampaignCommand` - Create campaigns in pending state
+- ✅ **Campaign Confirmation**: `ConfirmCampaignCommand` - Accept campaign proposals
+- ✅ **Campaign Rejection**: `RejectCampaignCommand` - Decline campaign proposals
+- ✅ **Campaign Completion**: `MarkCampaignAsDoneCommand` → `CompleteCampaignCommand`
+- ✅ **Campaign Cancellation**: `CancelCampaignCommand` - Cancel confirmed campaigns
+- ✅ **Campaign Retrieval**: `GetCampaignQuery` - Get campaign details
 
-<table>
-<tr>
-<td width="50%">
+### **👤 Blogger Management**
+- ✅ **Blogger Registration**: `CreateBloggerCommand` - Register new influencers
+- ✅ **Profile Management**: `UpdateBloggerCommand` - Update blogger profiles
+- ✅ **Photo Management**: `SetProfilePhotoCommand`, `DeleteProfilePhotoCommand`
+- ✅ **Account Deletion**: `DeleteBloggerCommand` - Remove blogger accounts
+- ✅ **Instagram Integration**: Automatic metadata sync from Users module
+- ✅ **Blogger Retrieval**: `GetBloggerQuery` - Get blogger profiles
 
-#### **🎪 Campaign (Entity)**
-The central entity representing a marketing campaign.
+### **💼 Offer Management**
+- ✅ **Offer Creation**: `CreateOfferCommand` - Create new offers
+- ✅ **Offer Updates**: `EditOfferCommand` - Modify existing offers
+- ✅ **Offer Deletion**: `DeleteOfferCommand` - Remove offers
+- ✅ **Offer Retrieval**: `GetOfferQuery` - Get offer details
+- ✅ **Price Analytics**: `GetBloggerAverageOfferPricesQuery` - Pricing insights
 
-**Key Properties:**
-- `CampaignId` - Unique identifier
-- `Name` - Campaign title
-- `Description` - Campaign details
-- `Price` - Campaign budget
-- `OfferId` - Associated offer reference
-- `ClientId` - Campaign owner (brand)
-- `Status` - Current campaign state
-- `CreatedOnUtc` - Creation timestamp
-- `StartOnUtc` / `EndOnUtc` - Campaign timeline
+### **📋 Pact (Contract) Management**
+- ✅ **Pact Creation**: `CreatePactCommand` - Create blogger contracts
+- ✅ **Pact Updates**: `EditPactCommand` - Modify contract terms
+- ✅ **Pact Retrieval**: `GetBloggerPactQuery` - Get blogger contracts
 
-**Key Operations:**
-- `Create()` - Factory method for campaign creation
-- `Start()` - Begin campaign execution
-- `Complete()` - Mark campaign as finished
-- `Cancel()` - Cancel active campaign
-- `UpdateDetails()` - Modify campaign information
-
-#### **👤 Blogger (Entity)**
-Represents an influencer in the platform.
-
-**Key Properties:**
-- `BloggerId` - Unique identifier
-- `UserId` - Platform user reference
-- `Name` - Display name
-- `Bio` - Profile description
-- `InstagramHandle` - Social media handle
-- `FollowersCount` - Audience size
-- `EngagementRate` - Performance metric
-- `Categories` - Content niches
-
-</td>
-<td width="50%">
-
-#### **💰 Offer (Entity)**
-Represents a campaign proposal.
-
-**Key Properties:**
-- `OfferId` - Unique identifier
-- `Name` - Offer title
-- `Description` - Offer details
-- `Price` - Compensation amount
-- `Currency` - Payment currency
-- `Status` - Current offer state
-- `ExpiresOnUtc` - Offer validity
-- `ClientId` - Offer creator
-
-#### **📋 Pact (Entity)**
-Represents a contractual agreement.
-
-**Key Properties:**
-- `PactId` - Unique identifier
-- `CampaignId` - Associated campaign
-- `BloggerId` - Contracted influencer
-- `Terms` - Agreement terms
-- `Status` - Contract state
-- `SignedOnUtc` - Agreement timestamp
-
-#### **⭐ Review (Entity)**
-Represents campaign performance evaluation.
-
-**Key Properties:**
-- `ReviewId` - Unique identifier
-- `CampaignId` - Reviewed campaign
-- `BloggerId` - Reviewed influencer
-- `Rating` - Performance score
-- `Comment` - Detailed feedback
-- `Status` - Review state
-
-</td>
-</tr>
-</table>
-
-### **⚡ Domain Events**
-
-The Campaigns module publishes comprehensive domain events for workflow coordination:
-
-| Event | Purpose | Triggered By |
-|-------|---------|--------------|
-| `CampaignCreatedDomainEvent` | New campaign registered | Campaign creation |
-| `CampaignStartedDomainEvent` | Campaign execution begins | Campaign activation |
-| `CampaignCompletedDomainEvent` | Campaign finished | Campaign completion |
-| `OfferCreatedDomainEvent` | New offer published | Offer creation |
-| `OfferAcceptedDomainEvent` | Offer accepted by influencer | Offer acceptance |
-| `PactSignedDomainEvent` | Contract agreement finalized | Pact signing |
-| `ReviewSubmittedDomainEvent` | Performance review added | Review submission |
-| `BloggerJoinedDomainEvent` | Influencer joined platform | Blogger registration |
+### **⭐ Review System**
+- ✅ **Review Creation**: `CreateReviewCommand` - Create campaign reviews
+- ✅ **Review Updates**: `EditReviewCommand` - Modify reviews
+- ✅ **Review Deletion**: `DeleteReviewCommand` - Remove reviews
+- ✅ **Review Retrieval**: `GetReviewQuery`, `GetBloggerReviewQuery`
 
 ---
 
-## 🎯 **Use Cases & Features**
+## 🏛️ **Domain Model**
 
-### **🚀 Campaign Management**
+### **🎯 Core Entities**
 
-<table>
-<tr>
-<td width="50%">
-
-#### **📋 Campaign Lifecycle**
-1. **Campaign Creation** with goals and budget
-2. **Influencer Discovery** and selection
-3. **Offer Management** and negotiations
-4. **Contract Finalization** with legal terms
-5. **Execution Monitoring** and tracking
-6. **Performance Review** and evaluation
-7. **Payment Processing** and completion
-
-#### **🔑 Key Commands**
-- `CreateCampaignCommand` - New campaign creation
-- `StartCampaignCommand` - Campaign activation
-- `CompleteCampaignCommand` - Campaign finalization
-- `CancelCampaignCommand` - Campaign termination
-- `UpdateCampaignCommand` - Campaign modification
-
-</td>
-<td width="50%">
-
-#### **💼 Business Operations**
-1. **Offer Negotiations** between brands and influencers
-2. **Contract Management** with legal compliance
-3. **Performance Tracking** with KPI monitoring
-4. **Quality Assurance** through review system
-5. **Payment Coordination** with financial tracking
-6. **Relationship Management** for long-term partnerships
-
-#### **📊 Key Queries**
-- `GetCampaignDetailsQuery` - Campaign information
-- `GetCampaignsByStatusQuery` - Status-based filtering
-- `GetCampaignPerformanceQuery` - Performance metrics
-- `GetBloggerCampaignsQuery` - Influencer campaigns
-- `GetCampaignAnalyticsQuery` - Business intelligence
-
-</td>
-</tr>
-</table>
-
-### **🔄 Campaign Workflow**
-
-```mermaid
-sequenceDiagram
-    participant B as Brand
-    participant API as Lanka API
-    participant C as Campaign Service
-    participant O as Offer Service
-    participant I as Influencer
-    participant P as Pact Service
-    participant A as Analytics
+#### **Campaign (Aggregate Root)**
+```csharp
+public class Campaign : Entity<CampaignId>
+{
+    public Name Name { get; private set; }
+    public Description Description { get; private set; }
+    public Money Price { get; init; }
+    public OfferId OfferId { get; init; }
+    public BloggerId ClientId { get; init; }
+    public BloggerId CreatorId { get; init; }
+    public CampaignStatus Status { get; private set; }
     
-    B->>API: Create Campaign
-    API->>C: Process Campaign Creation
-    C->>C: Validate Campaign Data
-    C->>API: Campaign Created
-    
-    B->>API: Create Offer for Campaign
-    API->>O: Process Offer Creation
-    O->>O: Set Offer Terms
-    O->>API: Offer Published
-    
-    I->>API: Accept Offer
-    API->>O: Process Offer Acceptance
-    O->>P: Create Pact
-    P->>P: Generate Contract Terms
-    P->>API: Pact Ready for Signing
-    
-    I->>API: Sign Pact
-    API->>P: Process Pact Signing
-    P->>C: Update Campaign Status
-    C->>A: Track Campaign Start
-    API->>I: Campaign Started
-    
-    Note over I,A: Campaign Execution Period
-    
-    B->>API: Submit Review
-    API->>C: Process Campaign Completion
-    C->>A: Track Campaign Completion
-    API->>I: Campaign Completed
+    // Lifecycle methods: Confirm, Reject, MarkAsDone, Complete, Cancel
+}
+```
+
+**Campaign Status Flow:**
+```
+Pending → Confirmed → Done → Completed
+   ↓         ↓
+Rejected   Cancelled
+```
+
+#### **Blogger**
+```csharp
+public class Blogger : Entity<BloggerId>
+{
+    public FirstName FirstName { get; private set; }
+    public LastName LastName { get; private set; }
+    public Email Email { get; private set; }
+    public BirthDate BirthDate { get; private set; }
+    public Bio Bio { get; private set; }
+    public Photo? ProfilePhoto { get; private set; }
+    public InstagramMetadata InstagramMetadata { get; private set; }
+    public Pact? Pact { get; init; }
+}
+```
+
+#### **Offer**
+```csharp
+public class Offer : Entity<OfferId>
+{
+    public PactId PactId { get; init; }
+    public Name Name { get; private set; }
+    public Description Description { get; private set; }
+    public Money Price { get; private set; }
+    public DateTimeOffset? LastCooperatedOnUtc { get; private set; }
+}
+```
+
+#### **Pact**
+```csharp
+public sealed class Pact : Entity<PactId>
+{
+    public BloggerId BloggerId { get; init; }
+    public Content Content { get; private set; }
+    public DateTimeOffset LastUpdatedOnUtc { get; private set; }
+    public IReadOnlyCollection<Offer> Offers { get; }
+}
+```
+
+#### **Review**
+```csharp
+public sealed class Review : Entity<ReviewId>
+{
+    public BloggerId ClientId { get; init; }
+    public BloggerId CreatorId { get; init; }
+    public OfferId OfferId { get; init; }
+    public CampaignId CampaignId { get; init; }
+    public Rating Rating { get; private set; }
+    public Comment Comment { get; private set; }
+    public DateTimeOffset CreatedOnUtc { get; private set; }
+}
 ```
 
 ---
 
-## 🔧 **Technical Implementation**
+## 📨 **Domain Events**
 
-### **🗃️ Database Schema**
+### **🎯 Campaign Events**
+| Event | Trigger | Purpose |
+|-------|---------|---------|
+| `CampaignPendedDomainEvent` | Campaign created | Notify stakeholders of new campaign |
+| `CampaignConfirmedDomainEvent` | Campaign accepted | Start campaign execution |
+| `CampaignRejectedDomainEvent` | Campaign declined | Handle rejection workflow |
+| `CampaignMarkedAsDoneDomainEvent` | Work completed | Mark campaign as finished |
+| `CampaignCompletedDomainEvent` | Campaign finalized | Trigger completion processes |
+| `CampaignCancelledDomainEvent` | Campaign cancelled | Handle cancellation cleanup |
 
-```sql
--- Campaigns table (Entity)
-CREATE TABLE Campaigns (
-    Id UUID PRIMARY KEY,
-    Name VARCHAR(200) NOT NULL,
-    Description TEXT,
-    Price DECIMAL(18,2) NOT NULL,
-    Currency VARCHAR(3) NOT NULL,
-    OfferId UUID NOT NULL,
-    ClientId UUID NOT NULL,
-    Status VARCHAR(50) NOT NULL,
-    StartOnUtc TIMESTAMPTZ,
-    EndOnUtc TIMESTAMPTZ,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL,
-    ModifiedOnUtc TIMESTAMPTZ
-);
-
--- Bloggers table (Entity)
-CREATE TABLE Bloggers (
-    Id UUID PRIMARY KEY,
-    UserId UUID NOT NULL,
-    Name VARCHAR(200) NOT NULL,
-    Bio TEXT,
-    InstagramHandle VARCHAR(100),
-    FollowersCount INTEGER DEFAULT 0,
-    EngagementRate DECIMAL(5,2) DEFAULT 0,
-    Status VARCHAR(50) NOT NULL,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL,
-    ModifiedOnUtc TIMESTAMPTZ
-);
-
--- Blogger Categories (Many-to-Many)
-CREATE TABLE BloggerCategories (
-    BloggerId UUID NOT NULL REFERENCES Bloggers(Id),
-    Category VARCHAR(100) NOT NULL,
-    PRIMARY KEY (BloggerId, Category)
-);
-
--- Offers table (Entity)
-CREATE TABLE Offers (
-    Id UUID PRIMARY KEY,
-    Name VARCHAR(200) NOT NULL,
-    Description TEXT,
-    Price DECIMAL(18,2) NOT NULL,
-    Currency VARCHAR(3) NOT NULL,
-    Status VARCHAR(50) NOT NULL,
-    ClientId UUID NOT NULL,
-    ExpiresOnUtc TIMESTAMPTZ,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL,
-    ModifiedOnUtc TIMESTAMPTZ
-);
-
--- Pacts table (Entity)
-CREATE TABLE Pacts (
-    Id UUID PRIMARY KEY,
-    CampaignId UUID NOT NULL REFERENCES Campaigns(Id),
-    BloggerId UUID NOT NULL REFERENCES Bloggers(Id),
-    Terms TEXT NOT NULL,
-    Status VARCHAR(50) NOT NULL,
-    SignedOnUtc TIMESTAMPTZ,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL,
-    ModifiedOnUtc TIMESTAMPTZ
-);
-
--- Reviews table (Entity)
-CREATE TABLE Reviews (
-    Id UUID PRIMARY KEY,
-    CampaignId UUID NOT NULL REFERENCES Campaigns(Id),
-    BloggerId UUID NOT NULL REFERENCES Bloggers(Id),
-    Rating INTEGER NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
-    Comment TEXT,
-    Status VARCHAR(50) NOT NULL,
-    CreatedOnUtc TIMESTAMPTZ NOT NULL,
-    ModifiedOnUtc TIMESTAMPTZ
-);
-
--- Outbox Events
-CREATE TABLE CampaignsModuleOutboxMessages (
-    Id UUID PRIMARY KEY,
-    Type VARCHAR(255) NOT NULL,
-    Content JSONB NOT NULL,
-    OccurredOnUtc TIMESTAMPTZ NOT NULL,
-    ProcessedOnUtc TIMESTAMPTZ,
-    Error TEXT
-);
-
--- Inbox Events  
-CREATE TABLE CampaignsModuleInboxMessages (
-    Id UUID PRIMARY KEY,
-    Type VARCHAR(255) NOT NULL,
-    Content JSONB NOT NULL,
-    OccurredOnUtc TIMESTAMPTZ NOT NULL,
-    ProcessedOnUtc TIMESTAMPTZ,
-    Error TEXT
-);
-```
+### **🎯 Other Entity Events**
+- `BloggerCreatedDomainEvent`, `BloggerUpdatedDomainEvent`, `BloggerDeletedDomainEvent`
+- `OfferCreatedDomainEvent`, `OfferUpdatedDomainEvent`, `OfferDeletedDomainEvent`
+- `PactCreatedDomainEvent`, `PactUpdatedDomainEvent`, `PactDeletedDomainEvent`
+- `ReviewCreatedDomainEvent`, `ReviewUpdatedDomainEvent`, `ReviewDeletedDomainEvent`
 
 ---
 
-## 🔄 **Integration & Communication**
+## 🚀 **Application Layer**
+
+### **📋 Campaign Commands**
+- ✅ `PendCampaignCommand` - Create new campaign (pending state)
+- ✅ `ConfirmCampaignCommand` - Accept campaign proposal
+- ✅ `RejectCampaignCommand` - Decline campaign proposal
+- ✅ `MarkCampaignAsDoneCommand` - Mark work as completed
+- ✅ `CompleteCampaignCommand` - Finalize campaign
+- ✅ `CancelCampaignCommand` - Cancel confirmed campaign
+
+### **📋 Blogger Commands**
+- ✅ `CreateBloggerCommand` - Register new blogger
+- ✅ `UpdateBloggerCommand` - Update blogger profile
+- ✅ `DeleteBloggerCommand` - Remove blogger account
+- ✅ `SetProfilePhotoCommand` - Upload profile photo
+- ✅ `DeleteProfilePhotoCommand` - Remove profile photo
+- ✅ `UpdateInstagramDataCommand` - Sync Instagram metadata
+
+### **📋 Offer Commands**
+- ✅ `CreateOfferCommand` - Create new offer
+- ✅ `EditOfferCommand` - Update existing offer
+- ✅ `DeleteOfferCommand` - Remove offer
+
+### **📋 Pact Commands**
+- ✅ `CreatePactCommand` - Create blogger contract
+- ✅ `EditPactCommand` - Update contract terms
+
+### **📋 Review Commands**
+- ✅ `CreateReviewCommand` - Create campaign review
+- ✅ `EditReviewCommand` - Update review
+- ✅ `DeleteReviewCommand` - Remove review
+
+### **🔍 Queries**
+- ✅ `GetCampaignQuery` - Retrieve campaign details
+- ✅ `GetBloggerQuery` - Retrieve blogger profile
+- ✅ `GetOfferQuery` - Retrieve offer details
+- ✅ `GetBloggerPactQuery` - Retrieve blogger contract
+- ✅ `GetReviewQuery` - Retrieve review details
+- ✅ `GetBloggerReviewQuery` - Retrieve blogger reviews
+- ✅ `GetBloggerAverageOfferPricesQuery` - Get pricing analytics
+
+---
+
+## 🔄 **Integration Events**
 
 ### **📤 Published Events**
 
-The Campaigns module publishes comprehensive integration events:
-
-<table>
-<tr>
-<td width="50%">
-
-#### **Campaign Lifecycle Events**
-- `CampaignCreatedIntegrationEvent`
-  - New campaign registered
-  - Triggers analytics baseline creation
-  
-- `CampaignStartedIntegrationEvent`
-  - Campaign execution begins
-  - Initiates performance monitoring
-
-- `CampaignCompletedIntegrationEvent`
-  - Campaign finished successfully
-  - Triggers final analytics calculation
-
-#### **Business Process Events**
-- `OfferCreatedIntegrationEvent`
-  - New offer published
-  - Notifies matching system
-
-- `OfferAcceptedIntegrationEvent`
-  - Influencer accepted offer
-  - Triggers contract generation
-
-</td>
-<td width="50%">
-
-#### **Collaboration Events**
-- `BloggerJoinedIntegrationEvent`
-  - New influencer registered
-  - Updates search index
-
-- `PactSignedIntegrationEvent`
-  - Contract finalized
-  - Legal compliance tracking
-
-- `ReviewSubmittedIntegrationEvent`
-  - Performance review added
-  - Reputation system update
-
-#### **Performance Events**
-- `CampaignPerformanceIntegrationEvent`
-  - Performance metrics updated
-  - Analytics dashboard refresh
-
-</td>
-</tr>
-</table>
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| `CampaignPendedIntegrationEvent` | Campaign created | Analytics (tracking) |
+| `CampaignConfirmedIntegrationEvent` | Campaign accepted | Analytics (metrics) |
+| `CampaignRejectedIntegrationEvent` | Campaign declined | Analytics (metrics) |
+| `CampaignMarkedAsDoneIntegrationEvent` | Work completed | Analytics (completion) |
+| `CampaignCompletedIntegrationEvent` | Campaign finalized | Analytics (final metrics) |
+| `CampaignSearchSyncIntegrationEvent` | Campaign changes | Matching (search sync) |
+| `BloggerUpdatedIntegrationEvent` | Blogger profile updated | Users (profile sync) |
 
 ### **📥 Consumed Events**
 
-<table>
-<tr>
-<td width="50%">
-
-#### **From Users Module**
-- `UserCreatedIntegrationEvent`
-  - Creates blogger profile eligibility
-  - Initializes campaign access
-
-- `UserDeletedIntegrationEvent`
-  - Cleanup campaign associations
-  - Archive blogger data
-
-- `InstagramAccountLinkedIntegrationEvent`
-  - Enable influencer features
-  - Update blogger metrics
-
-</td>
-<td width="50%">
-
-#### **From Analytics Module**
-- `InstagramAccountDataFetchedIntegrationEvent`
-  - Update blogger performance metrics
-  - Refresh influencer statistics
-
-- `AnalyticsInsightGeneratedIntegrationEvent`
-  - Update campaign recommendations
-  - Optimize targeting strategies
-
-</td>
-</tr>
-</table>
+| Event | Source | Purpose |
+|-------|--------|---------|
+| `UserRegisteredIntegrationEvent` | Users | Create blogger profile |
+| `UserDeletedIntegrationEvent` | Users | Clean up blogger data |
+| `InstagramAccountDataRenewedIntegrationEvent` | Users | Update Instagram metadata |
 
 ---
 
-## 🛡️ **Business Rules & Compliance**
+## 🔧 **Infrastructure**
 
-### **💼 Business Logic Enforcement**
+### **🗄️ Data Storage**
 
-<table>
-<tr>
-<td width="50%">
+#### **PostgreSQL Schema: `campaigns`**
+- `campaigns` - Campaign data and lifecycle
+- `bloggers` - Influencer profiles and metadata
+- `offers` - Pricing and service offerings
+- `pacts` - Contract agreements
+- `reviews` - Rating and feedback system
+- Standard outbox/inbox tables for event processing
 
-#### **Campaign Rules**
-- **Budget validation** against offer amounts
-- **Timeline consistency** checks
-- **Status transition** validation
-- **Completion criteria** enforcement
-- **Cancellation policies** application
+### **🔗 External Integrations**
 
-#### **Offer Management**
-- **Price negotiation** limits
-- **Expiration handling** automation
-- **Counter-offer** validation
-- **Acceptance workflows** enforcement
-- **Competition rules** compliance
+#### **Cloudinary (Photo Management)**
+- **Profile Photo Upload**: Secure image storage
+- **Image Transformation**: Automatic resizing and optimization
+- **CDN Delivery**: Fast global image delivery
 
-</td>
-<td width="50%">
-
-#### **Contract Management**
-- **Legal terms** validation
-- **Signature requirements** enforcement
-- **Compliance tracking** automation
-- **Dispute resolution** workflows
-- **Payment terms** management
-
-#### **Performance Standards**
-- **Quality metrics** enforcement
-- **Delivery timelines** monitoring
-- **Review criteria** validation
-- **Rating consistency** checks
-- **Reputation system** maintenance
-
-</td>
-</tr>
-</table>
-
-### **🔒 Security & Privacy**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **Data Protection**
-- **Campaign confidentiality** maintenance
-- **Influencer privacy** protection
-- **Financial data** encryption
-- **Contract security** enforcement
-- **Audit trail** maintenance
-
-#### **Access Control**
-- **Role-based permissions** for campaign access
-- **Influencer verification** requirements
-- **Brand authentication** validation
-- **Data sharing** consent management
-
-</td>
-<td width="50%">
-
-#### **Compliance Features**
-- **GDPR compliance** with data portability
-- **Contract law** compliance checking
-- **Tax reporting** data collection
-- **Industry regulations** adherence
-- **International law** considerations
-
-#### **Audit & Monitoring**
-- **Complete activity logging** for compliance
-- **Financial transaction** tracking
-- **Performance metrics** validation
-- **Dispute documentation** management
-
-</td>
-</tr>
-</table>
+#### **Instagram Integration**
+- **Metadata Sync**: Automatic profile data updates
+- **Account Linking**: Integration with Users module OAuth flow
 
 ---
 
-## ⚡ **Performance & Scalability**
+## 📊 **Data Flow Examples**
 
-### **📊 Performance Characteristics**
+### **🎪 Campaign Creation Flow**
+1. User creates campaign via `PendCampaignCommand`
+2. Campaign entity created with `Pending` status
+3. `CampaignPendedDomainEvent` raised
+4. `CampaignPendedIntegrationEvent` published
+5. Analytics module tracks new campaign
 
-<table>
-<tr>
-<td width="50%">
+### **👤 Blogger Registration Flow**
+1. User registers via Users module
+2. `UserRegisteredIntegrationEvent` consumed
+3. `CreateBloggerCommand` automatically triggered
+4. Blogger profile created
+5. `BloggerCreatedDomainEvent` raised
 
-#### **🚀 Query Performance**
-- **Campaign queries**: < 300ms response time
-- **Blogger search**: < 200ms response time
-- **Offer processing**: < 500ms response time
-- **Performance analytics**: < 1s response time
-
-#### **💼 Business Metrics**
-- **Campaign creation**: < 2s end-to-end
-- **Offer negotiations**: Real-time updates
-- **Contract generation**: < 5s processing
-- **Review submission**: < 1s response
-
-</td>
-<td width="50%">
-
-#### **📈 Scalability Features**
-- **Horizontal scaling** through stateless design
-- **Database partitioning** by campaign status
-- **Read replicas** for analytics queries
-- **Caching strategies** for frequent data
-
-#### **⚡ Optimization Strategies**
-- **Query optimization** with proper indexing
-- **Batch processing** for bulk operations
-- **Asynchronous workflows** for long operations
-- **CDN caching** for static content
-
-</td>
-</tr>
-</table>
-
-### **📊 Monitoring & Observability**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **📈 Business Metrics**
-- **Campaign success rates**
-- **Offer acceptance rates**
-- **Contract completion rates**
-- **Review satisfaction scores**
-- **Revenue per campaign**
-
-#### **🔧 Technical Metrics**
-- **API response times**
-- **Database query performance**
-- **Event processing latency**
-- **Error rates and patterns**
-
-</td>
-<td width="50%">
-
-#### **🚨 Alert Conditions**
-- **Campaign deadline** approaching
-- **Offer expiration** warnings
-- **Contract signing** delays
-- **Performance degradation** alerts
-- **System failure** notifications
-
-#### **📊 Dashboards**
-- **Campaign performance** overview
-- **Influencer network** health
-- **Business KPI** tracking
-- **System health** monitoring
-
-</td>
-</tr>
-</table>
+### **⭐ Review Creation Flow**
+1. Campaign completed successfully
+2. Client creates review via `CreateReviewCommand`
+3. Review entity created with rating and comment
+4. `ReviewCreatedDomainEvent` raised
+5. Analytics tracks review metrics
 
 ---
 
-## 🧪 **Testing Strategy**
+## 🛡️ **Security & Authorization**
 
-### **📊 Test Coverage**
+### **🔒 Access Control**
+- **Campaign Access**: Only clients and creators can modify their campaigns
+- **Blogger Profiles**: Users can only modify their own profiles
+- **Review System**: Only campaign participants can create reviews
 
-<table>
-<tr>
-<td width="33%">
-
-#### **🔬 Unit Tests**
-- **Domain model** behavior validation
-- **Business rules** enforcement testing
-- **Workflow logic** verification
-- **Error handling** scenarios
-- **Value object** validation
-
-**Coverage:** 95%+
-
-</td>
-<td width="33%">
-
-#### **🔗 Integration Tests**
-- **End-to-end workflows** testing
-- **Database operations** validation
-- **Event publishing/consuming**
-- **API contract** compliance
-- **External service** integration
-
-**Coverage:** 90%+
-
-</td>
-<td width="33%">
-
-#### **🏗️ Architecture Tests**
-- **Module boundaries** enforcement
-- **Dependency rules** validation
-- **Performance requirements**
-- **Security constraints**
-- **Design pattern** compliance
-
-**Coverage:** 100%
-
-</td>
-</tr>
-</table>
-
-### **🎯 Key Test Scenarios**
-
-```csharp
-// Domain Model Testing
-[Test]
-public void Campaign_Start_ShouldRaiseCampaignStartedEvent()
-{
-    // Arrange
-    var campaign = Campaign.Create(/* parameters */);
-    
-    // Act
-    var result = campaign.Start();
-    
-    // Assert
-    result.IsSuccess.Should().BeTrue();
-    campaign.GetDomainEvents()
-        .Should().ContainSingle()
-        .Which.Should().BeOfType<CampaignStartedDomainEvent>();
-}
-
-// Workflow Testing
-[Test]
-public async Task CompleteOfferWorkflow_ShouldCreatePactWhenAccepted()
-{
-    // Arrange
-    var createOfferCommand = new CreateOfferCommand(/* parameters */);
-    var acceptOfferCommand = new AcceptOfferCommand(offerId, bloggerId);
-    
-    // Act
-    var offerResult = await Sender.Send(createOfferCommand);
-    var acceptResult = await Sender.Send(acceptOfferCommand);
-    
-    // Assert
-    offerResult.IsSuccess.Should().BeTrue();
-    acceptResult.IsSuccess.Should().BeTrue();
-    
-    // Verify pact created
-    var pact = await GetPactByOfferIdAsync(offerResult.Value);
-    pact.Should().NotBeNull();
-    pact.Status.Should().Be(PactStatus.Pending);
-}
-
-// Performance Testing
-[Test]
-public async Task SearchBloggers_ShouldReturnResultsWithin200Ms()
-{
-    // Arrange
-    var query = new SearchBloggersQuery("fashion", categories: ["lifestyle"]);
-    var stopwatch = Stopwatch.StartNew();
-    
-    // Act
-    var result = await Sender.Send(query);
-    stopwatch.Stop();
-    
-    // Assert
-    stopwatch.ElapsedMilliseconds.Should().BeLessThan(200);
-    result.IsSuccess.Should().BeTrue();
-    result.Value.Should().NotBeEmpty();
-}
-```
+### **🔑 Data Validation**
+- **Input Validation**: Comprehensive validation for all commands
+- **Business Rules**: Domain-driven validation (e.g., campaign status transitions)
+- **Authorization Checks**: User context validation for all operations
 
 ---
 
-## 🚀 **Development Guidelines**
+## 📋 **API Endpoints**
 
-### **📝 Adding New Campaign Features**
+### **Campaign Management**
+- `POST /campaigns` - Create new campaign (pend)
+- `GET /campaigns/{id}` - Get campaign details
+- `PUT /campaigns/{id}/confirm` - Confirm campaign
+- `PUT /campaigns/{id}/reject` - Reject campaign
+- `PUT /campaigns/{id}/mark-done` - Mark as done
+- `PUT /campaigns/{id}/complete` - Complete campaign
+- `PUT /campaigns/{id}/cancel` - Cancel campaign
 
-1. **Define Domain Model** - Create entities and value objects for new concepts
-2. **Add Business Rules** - Implement domain logic and validation
-3. **Create Use Cases** - Add commands/queries for the new feature
-4. **Implement Workflows** - Add event handlers for process coordination
-5. **Expose APIs** - Create endpoints for external access
-6. **Add Integration Events** - Enable cross-module communication
-7. **Add Tests** - Comprehensive testing at all levels
-8. **Update Documentation** - Keep this guide current
+### **Blogger Management**
+- `POST /bloggers` - Create blogger profile
+- `GET /bloggers/{id}` - Get blogger profile
+- `PUT /bloggers/{id}` - Update blogger profile
+- `DELETE /bloggers/{id}` - Delete blogger account
+- `POST /bloggers/{id}/photos` - Upload profile photo
+- `DELETE /bloggers/{id}/photos` - Delete profile photo
 
-### **🔄 Common Patterns**
+### **Offer Management**
+- `POST /offers` - Create new offer
+- `GET /offers/{id}` - Get offer details
+- `PUT /offers/{id}` - Update offer
+- `DELETE /offers/{id}` - Delete offer
+- `GET /bloggers/{id}/offers/average-prices` - Get pricing analytics
 
-<table>
-<tr>
-<td width="50%">
+### **Pact Management**
+- `POST /pacts` - Create new pact
+- `GET /bloggers/{id}/pact` - Get blogger pact
+- `PUT /pacts/{id}` - Update pact
 
-#### **Campaign Command Pattern**
-```csharp
-public sealed record CreateCampaignCommand(
-    string Name,
-    string Description,
-    Money Price,
-    OfferId OfferId,
-    BloggerId ClientId,
-    DateTimeOffset? StartOnUtc,
-    DateTimeOffset? EndOnUtc) : ICommand<CampaignId>;
-```
+### **Review Management**
+- `POST /reviews` - Create review
+- `GET /reviews/{id}` - Get review details
+- `PUT /reviews/{id}` - Update review
+- `DELETE /reviews/{id}` - Delete review
+- `GET /bloggers/{id}/reviews` - Get blogger reviews
 
-#### **Domain Event Pattern**
-```csharp
-public sealed record CampaignCreatedDomainEvent(
-    CampaignId CampaignId,
-    string Name,
-    Money Price,
-    DateTimeOffset OccurredOnUtc) : DomainEvent;
-```
+---
 
-</td>
-<td width="50%">
+## 🚀 **Future Enhancements**
 
-#### **Business Workflow Pattern**
-```csharp
-public class OfferAcceptedEventHandler 
-    : INotificationHandler<OfferAcceptedDomainEvent>
+*The following features are planned but not yet implemented:*
+
+### **📊 Advanced Queries**
+- **Campaign Lists**: `GetCampaignsQuery` with pagination and filtering
+- **Search Functionality**: `SearchCampaignsQuery`, `SearchBloggersQuery`
+- **Bulk Operations**: Multi-campaign management
+
+### **🎯 Campaign Features**
+- **Campaign Templates**: Reusable campaign configurations
+- **Campaign Analytics**: Advanced performance metrics
+- **Campaign Scheduling**: Future-dated campaign execution
+
+### **👥 Social Features**
+- **Blogger Discovery**: Advanced search and matching
+- **Collaboration Tools**: Enhanced communication features
+- **Portfolio Management**: Showcase past campaigns
+
+### **📈 Analytics Integration**
+- **Performance Tracking**: Detailed campaign metrics
+- **ROI Analysis**: Return on investment calculations
+- **Trend Analysis**: Market insights and recommendations
+
+---
+
+## 🔧 **Configuration**
+
+### **Cloudinary Settings**
+```json
 {
-    public async Task Handle(
-        OfferAcceptedDomainEvent notification,
-        CancellationToken cancellationToken)
-    {
-        // Create pact from accepted offer
-        // Update campaign status
-        // Publish integration event
+  "Campaigns": {
+    "Cloudinary": {
+      "CloudName": "your-cloud-name",
+      "ApiKey": "your-api-key",
+      "ApiSecret": "your-api-secret"
     }
+  }
 }
 ```
 
-#### **Repository Pattern**
-```csharp
-public interface ICampaignRepository
+### **Database Configuration**
+```json
 {
-    Task<Campaign?> GetByIdAsync(
-        CampaignId id, 
-        CancellationToken cancellationToken = default);
-    
-    Task<Result<CampaignId>> AddAsync(
-        Campaign campaign,
-        CancellationToken cancellationToken = default);
+  "Campaigns": {
+    "Database": {
+      "ConnectionString": "Host=localhost;Database=lanka_campaigns;Username=postgres;Password=password"
+    }
+  }
 }
 ```
-
-</td>
-</tr>
-</table>
-
----
-
-## 🔗 **Related Documentation**
-
-<table>
-<tr>
-<td width="50%">
-
-### **📚 Core Concepts**
-- [🎭 Entity](../../catalog-of-terms/entity/) - Entity design patterns
-- [💎 Value Object](../../catalog-of-terms/value-object/) - Immutable descriptors
-- [⚡ Domain Event](../../catalog-of-terms/domain-event/) - Event modeling
-- [🏛️ Aggregate Root](../../catalog-of-terms/aggregate-root/) - Consistency boundaries
-
-</td>
-<td width="50%">
-
-### **🔧 Implementation Guides**
-- [🔄 CQRS](../../catalog-of-terms/cqrs/) - Command Query separation
-- [📤 Outbox Pattern](../../catalog-of-terms/outbox-pattern/) - Reliable event publishing
-- [📥 Inbox Pattern](../../catalog-of-terms/inbox-pattern/) - Idempotent processing
-- [✅ Result Pattern](../../catalog-of-terms/result-pattern/) - Error handling
-
-</td>
-</tr>
-</table>
-
----
-
-## 🎯 **Quick Actions**
-
-<div align="center">
-
-[![View Code](https://img.shields.io/badge/📁-View%20Source%20Code-blue?style=for-the-badge)](../../../src/Modules/Campaigns/)
-[![API Documentation](https://img.shields.io/badge/🌐-API%20Docs-green?style=for-the-badge)](../../../src/Modules/Campaigns/Lanka.Modules.Campaigns.Presentation/)
-[![Domain Model](https://img.shields.io/badge/💎-Domain%20Model-purple?style=for-the-badge)](../../../src/Modules/Campaigns/Lanka.Modules.Campaigns.Domain/)
-[![Workflows](https://img.shields.io/badge/🔄-Workflows-orange?style=for-the-badge)](../../../src/Modules/Campaigns/Lanka.Modules.Campaigns.Application/)
-
-</div>
-
----
-
-<div align="center">
-
-*"A campaign is not about winning a battle, it's about orchestrating victory."*
-
-**Campaign with confidence! 🎪**
-
-</div>
 
