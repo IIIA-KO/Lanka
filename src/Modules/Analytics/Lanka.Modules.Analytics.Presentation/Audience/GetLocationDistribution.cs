@@ -34,6 +34,10 @@ internal sealed class GetLocationDistribution : AnalyticsEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Analytics);
+            .WithTags(Tags.Analytics)
+            .WithName("GetLocationDistribution")
+            .WithSummary("Get audience location distribution")
+            .WithDescription("Retrieves location distribution data for Instagram account audience by location type")
+            .WithOpenApi();
     }
 }

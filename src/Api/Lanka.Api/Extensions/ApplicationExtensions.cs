@@ -7,9 +7,12 @@ using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Campaigns.Infrastructure;
+using Lanka.Modules.Matching.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
 using Lanka.Common.Infrastructure.Notifications;
+using Lanka.Modules.Matching.Infrastructure.Search;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using Scalar.AspNetCore;
 using Serilog;
@@ -45,7 +48,8 @@ internal static class ApplicationExtensions
         builder.Services.AddApplication([
             Modules.Users.Application.AssemblyReference.Assembly,
             Modules.Campaigns.Application.AssemblyReference.Assembly,
-            Modules.Analytics.Application.AssemblyReference.Assembly
+            Modules.Analytics.Application.AssemblyReference.Assembly,
+            Modules.Matching.Application.AssemblyReference.Assembly
         ]);
 
         string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
@@ -58,7 +62,8 @@ internal static class ApplicationExtensions
             [
                 UsersModule.ConfigureConsumers(redisConnectionString),
                 CampaignsModule.ConfigureConsumers,
-                AnalyticsModule.ConfigureConsumers
+                AnalyticsModule.ConfigureConsumers,
+                MatchingModule.ConfigureConsumers
             ],
             rabbitMqSettings,
             databaseConnectionString,
@@ -66,10 +71,11 @@ internal static class ApplicationExtensions
             mongoConnectionString
         );
 
-        builder.Configuration.AddModuleConfiguration(["users", "campaigns", "analytics"]);
+        builder.Configuration.AddModuleConfiguration(["users", "campaigns", "analytics", "matching"]);
         builder.Services.AddUsersModule(builder.Configuration);
         builder.Services.AddCampaignsModule(builder.Configuration);
         builder.Services.AddAnalyticsModule(builder.Configuration);
+        builder.Services.AddMatchingModule(builder.Configuration);
 
         builder.Services.AddSignalR();
 
@@ -82,6 +88,12 @@ internal static class ApplicationExtensions
         string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
 
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
+
+        using IServiceScope scope = builder.Services.BuildServiceProvider().CreateScope();
+        IServiceProvider serviceProvider = scope.ServiceProvider;
+        string elasticBaseUrl = serviceProvider.GetRequiredService<IOptions<ElasticSearchOptions>>()
+            .Value.BaseUrl;
+
         builder.Services
             .AddSingleton<IConnection>(_ =>
                 {
@@ -101,6 +113,11 @@ internal static class ApplicationExtensions
             .AddRedis(redisConnectionString)
             .AddRabbitMQ()
             .AddMongoDb()
+            .AddUrlGroup(
+                new Uri(elasticBaseUrl),
+                HttpMethod.Get,
+                "elasticsearch"
+            )
             .AddUrlGroup(
                 new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
                 HttpMethod.Get,

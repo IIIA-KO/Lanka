@@ -27,7 +27,11 @@ internal sealed class RenewInstagramAccess : UsersEndpointBase
 
                     return result.Match(() => Results.Accepted(), ApiResult.Problem);
                 })
-            .WithTags(Tags.Users);
+            .WithTags(Tags.Users)
+            .WithName("RenewInstagramAccess")
+            .WithSummary("Renew Instagram access token")
+            .WithDescription("Renews the Instagram access token using a fresh authorization code")
+            .WithOpenApi();
     }
 
     internal sealed class RenewInstagramAccessRequest

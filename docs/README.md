@@ -28,6 +28,7 @@
 
 ### 🏛️ **Architecture & Design**
 - [🏗️ Architecture Overview](architecture/README.md)
+- [🧩 Modules Documentation](modules/README.md)
 
 </td>
 <td width="50%">
@@ -39,6 +40,7 @@
 
 ### 📚 **Reference**
 - [📖 Catalog of Terms](catalog-of-terms/README.md)
+- [🧩 Modules Reference](modules/README.md)
 - [🎯 Architecture Decisions](architecure-decision-log/README.md)
 - [🛠️ Tools & Utilities](tools/README.md)
 - [❓ FAQ & Common Issues](development/faq.md)
@@ -108,13 +110,16 @@ graph TB
 
 ## 🎯 **Core Modules**
 
+> **📖 [Complete Modules Documentation](modules/README.md)** - Detailed guides for each module
+
 <div align="center">
 
-| Module | Purpose | Key Features |
-|--------|---------|--------------|
-| 👥 **Users** | Identity & Access Management | Authentication, Authorization, User Profiles |
-| 📊 **Analytics** | Social Media Intelligence | Instagram Analytics, Audience Insights, Performance Metrics |
-| 🎪 **Campaigns** | Campaign Orchestration | Campaign Creation, Blogger Management, Content Planning |
+| Module | Purpose | Key Features | Status |
+|--------|---------|--------------|---------|
+| 👥 **[Users](modules/users/)** | Identity & Access Management | Authentication, Authorization, User Profiles | ✅ Active |
+| 📊 **[Analytics](modules/analytics/)** | Social Media Intelligence | Instagram Analytics, Audience Insights, Performance Metrics | ✅ Active |
+| 🎪 **[Campaigns](modules/campaigns/)** | Campaign Orchestration | Campaign Creation, Blogger Management, Content Planning | ✅ Active |
+| 🔍 **[Matching](modules/matching/)** | Search & Discovery | Advanced Search, Content Matching, Recommendations | 🚧 Development |
 
 </div>
 
@@ -219,6 +224,7 @@ graph TB
 This documentation is organized into several key areas:
 
 - **🏗️ [Architecture](architecture/)** - Deep dives into system design and patterns
+- **🧩 [Modules](modules/)** - Detailed module documentation and guides
 - **👨‍💻 [Development](development/)** - Practical guides for building features
 - **📚 [Reference](catalog-of-terms/)** - Terminology and concepts
 - **🎯 [Decisions](architecure-decision-log/)** - Architecture decision records
@@ -243,8 +249,8 @@ We believe great documentation is a team effort! Here's how you can help:
 
 [![Get Started](https://img.shields.io/badge/🚀-Get%20Started-blue?style=for-the-badge)](development/quick-start.md)
 [![View Architecture](https://img.shields.io/badge/🏗️-Architecture-green?style=for-the-badge)](architecture/README.md)
+[![Modules Guide](https://img.shields.io/badge/🧩-Modules-purple?style=for-the-badge)](modules/README.md)
 [![FAQ](https://img.shields.io/badge/❓-FAQ-orange?style=for-the-badge)](development/faq.md)
-[![Troubleshooting](https://img.shields.io/badge/🐛-Troubleshooting-red?style=for-the-badge)](development/faq.md)
 
 </div>
 

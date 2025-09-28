@@ -34,6 +34,10 @@ internal sealed class GetReachDistribution : AnalyticsEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Analytics);
+            .WithTags(Tags.Analytics)
+            .WithName("GetReachDistribution")
+            .WithSummary("Get audience reach distribution")
+            .WithDescription("Retrieves reach distribution data for Instagram account audience within specified period")
+            .WithOpenApi();
     }
 }

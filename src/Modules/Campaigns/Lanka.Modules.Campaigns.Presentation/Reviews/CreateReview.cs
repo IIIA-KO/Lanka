@@ -31,7 +31,11 @@ internal sealed class CreateReview : ReviewEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Reviews);
+            .WithTags(Tags.Reviews)
+            .WithName("CreateReview")
+            .WithSummary("Create review")
+            .WithDescription("Creates a new review for a campaign")
+            .WithOpenApi();
     }
 
     internal sealed class CreateReviewRequest

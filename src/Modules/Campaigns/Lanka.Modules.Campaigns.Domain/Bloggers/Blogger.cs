@@ -56,7 +56,7 @@ public class Blogger : Entity<BloggerId>
         DateOnly birthDate
     )
     {
-        return new Blogger(
+        var blogger = new Blogger(
             new BloggerId(bloggerId),
             FirstName.Create(firstName).Value,
             LastName.Create(lastName).Value,
@@ -64,6 +64,10 @@ public class Blogger : Entity<BloggerId>
             BirthDate.Create(birthDate).Value,
             Bio.Create(string.Empty).Value
         );
+
+        blogger.RaiseDomainEvent(new BloggerCreatedDomainEvent(blogger.Id));
+
+        return blogger;
     }
 
     public Result Update(
@@ -94,9 +98,14 @@ public class Blogger : Entity<BloggerId>
         this.BirthDate = validationResult.Value.Item3;
         this.Bio = validationResult.Value.Item4;
 
-        this.RaiseDomainEvent(new BloggerUpdatedDomainEvent(this.Id.Value));
+        this.RaiseDomainEvent(new BloggerUpdatedDomainEvent(this.Id));
 
         return Result.Success();
+    }
+
+    public void Delete()
+    {
+        this.RaiseDomainEvent(new BloggerDeletedDomainEvent(this.Id));
     }
 
     public void UpdateInstagramData(string? username, int? followersCount, int? mediaCount)

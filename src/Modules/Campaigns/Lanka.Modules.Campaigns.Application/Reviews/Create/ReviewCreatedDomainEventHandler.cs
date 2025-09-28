@@ -23,7 +23,7 @@ internal sealed class ReviewCreatedDomainEventHandler
     }
 
     public override async Task Handle(
-        ReviewCreatedDomainEvent notification, 
+        ReviewCreatedDomainEvent notification,
         CancellationToken cancellationToken = default
     )
     {
@@ -31,12 +31,12 @@ internal sealed class ReviewCreatedDomainEventHandler
             new GetReviewQuery(notification.ReviewId.Value),
             cancellationToken
         );
-        
+
         if (result.IsFailure)
         {
             throw new LankaException(nameof(GetReviewQuery), CampaignErrors.NotFound);
         }
-        
+
         await this._eventBus.PublishAsync(
             new ReviewCreatedIntegrationEvent(
                 notification.Id,

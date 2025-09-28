@@ -28,7 +28,11 @@ internal sealed class CreatePact : PactEndpointBase
 
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
-            .WithTags(Tags.Pacts);
+            .WithTags(Tags.Pacts)
+            .WithName("CreatePact")
+            .WithSummary("Create pact")
+            .WithDescription("Creates a new pact with specified content")
+            .WithOpenApi();
     }
 
     internal sealed class CreatePactRequest

@@ -73,15 +73,20 @@ internal sealed class RefreshInstagramTokenCommandHandler
             return Result.Failure(InstagramAccountErrors.WrongInstagramAccount);
         }
 
-        existingInstagramAccount.Update(
-            Metadata.Create(
-                fetchedInstagramAccount.BusinessDiscovery.Id,
-                fetchedInstagramAccount.BusinessDiscovery.IgId,
-                fetchedInstagramAccount.BusinessDiscovery.Username,
-                fetchedInstagramAccount.BusinessDiscovery.FollowersCount,
-                fetchedInstagramAccount.BusinessDiscovery.MediaCount
-            ).Value
+        Result<Metadata> metadataResult = Metadata.Create(
+            fetchedInstagramAccount.BusinessDiscovery.Id,
+            fetchedInstagramAccount.BusinessDiscovery.IgId,
+            fetchedInstagramAccount.BusinessDiscovery.Username,
+            fetchedInstagramAccount.BusinessDiscovery.FollowersCount,
+            fetchedInstagramAccount.BusinessDiscovery.MediaCount
         );
+
+        if (metadataResult.IsFailure)
+        {
+            return metadataResult;
+        }
+
+        existingInstagramAccount.Update(metadataResult.Value);
 
         Token existingToken = await this._tokenRepository.GetByUserIdAsync(
             new UserId(request.UserId),

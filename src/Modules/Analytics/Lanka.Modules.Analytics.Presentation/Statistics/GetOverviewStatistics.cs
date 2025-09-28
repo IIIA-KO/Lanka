@@ -32,6 +32,10 @@ internal sealed class GetOverviewStatistics : AnalyticsEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Analytics);
+            .WithTags(Tags.Analytics)
+            .WithName("GetOverviewStatistics")
+            .WithSummary("Get overview statistics")
+            .WithDescription("Retrieves overview statistics for Instagram account within specified period")
+            .WithOpenApi();
     }
 }

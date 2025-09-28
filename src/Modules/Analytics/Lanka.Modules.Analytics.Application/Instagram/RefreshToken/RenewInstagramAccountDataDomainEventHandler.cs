@@ -5,7 +5,7 @@ using Lanka.Modules.Analytics.IntegrationEvents;
 
 namespace Lanka.Modules.Analytics.Application.Instagram.RefreshToken;
 
-public class RenewInstagramAccountDataDomainEventHandler
+internal sealed class RenewInstagramAccountDataDomainEventHandler
     : DomainEventHandler<InstagramAccountDataRenewedDomainEvent>
 {
     private readonly IEventBus _eventBus;

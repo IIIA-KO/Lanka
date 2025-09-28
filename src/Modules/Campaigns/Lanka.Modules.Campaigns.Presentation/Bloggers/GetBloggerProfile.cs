@@ -23,6 +23,10 @@ internal sealed class GetBloggerProfile : BloggerEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Bloggers);
+            .WithTags(Tags.Bloggers)
+            .WithName("GetBloggerProfile")
+            .WithSummary("Get blogger profile")
+            .WithDescription("Retrieves the current blogger's profile information")
+            .WithOpenApi();
     }
 }

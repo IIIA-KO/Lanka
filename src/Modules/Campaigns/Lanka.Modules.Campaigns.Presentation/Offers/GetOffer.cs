@@ -29,6 +29,10 @@ internal sealed class GetOffer : OfferEndpointBase
                 return result.Match(Results.Ok, ApiResult.Problem);
             }
         )
-        .WithTags(Tags.Offers);
+        .WithTags(Tags.Offers)
+        .WithName("GetOffer")
+        .WithSummary("Get offer")
+        .WithDescription("Retrieves offer details by ID")
+        .WithOpenApi();
     }
 }

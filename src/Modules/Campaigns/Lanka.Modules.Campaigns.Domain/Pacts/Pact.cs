@@ -3,6 +3,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Offers.Names;
 using Lanka.Modules.Campaigns.Domain.Pacts.Contents;
+using Lanka.Modules.Campaigns.Domain.Pacts.DomainEvents;
 
 namespace Lanka.Modules.Campaigns.Domain.Pacts;
 
@@ -48,6 +49,8 @@ public sealed class Pact : Entity<PactId>
 
         var pact = new Pact(PactId.New(), userId, validationResult.Value);
 
+        pact.RaiseDomainEvent(new PactCreatedDomainEvent(pact.Id, userId));
+
         return pact;
     }
 
@@ -62,7 +65,14 @@ public sealed class Pact : Entity<PactId>
 
         this.Content = validationResult.Value;
 
+        this.RaiseDomainEvent(new PactUpdatedDomainEvent(this.Id, this.BloggerId));
+
         return Result.Success();
+    }
+
+    public void Delete()
+    {
+        this.RaiseDomainEvent(new PactDeletedDomainEvent(this.Id, this.BloggerId));
     }
 
     private static Result<Content> Validate(string content)

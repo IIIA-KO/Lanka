@@ -20,6 +20,10 @@ internal sealed class DeleteUser : UsersEndpointBase
                 return result.Match(Results.NoContent, ApiResult.Problem);
             }
         )
-        .WithTags(Tags.Users);
+        .WithTags(Tags.Users)
+        .WithName("DeleteUser")
+        .WithSummary("Delete user account")
+        .WithDescription("Permanently deletes the current user's account and all associated data")
+        .WithOpenApi();
     }
 }

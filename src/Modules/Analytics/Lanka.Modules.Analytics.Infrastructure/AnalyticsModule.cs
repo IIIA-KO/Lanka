@@ -148,7 +148,8 @@ public static class AnalyticsModule
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Analytics))
                 .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention()
+        );
 
         services.Configure<EncryptionOptions>(configuration.GetSection("Analytics:Encryption"));
         services.AddTransient<EncryptionService>();

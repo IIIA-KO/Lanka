@@ -46,7 +46,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnSuccess()
     {
         // Arrange
-        this._facebookServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.RenewAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -81,7 +81,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenTokenServiceFails()
     {
         // Arrange
-        this._facebookServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.RenewAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -99,7 +99,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenInstagramUserInfoFetchFails()
     {
         // Arrange
-        this._facebookServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.RenewAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -123,7 +123,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenInstagramAccountCreationFails()
     {
         // Arrange
-        this._facebookServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.RenewAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )
@@ -157,7 +157,7 @@ public class RefreshTokenTests
     public async Task Handle_ShouldReturnFailure_WhenTokenRepositoryFails()
     {
         // Arrange
-        this._facebookServiceMock.GetAccessTokenAsync(
+        this._facebookServiceMock.RenewAccessTokenAsync(
                 Arg.Any<string>(),
                 Arg.Any<CancellationToken>()
             )

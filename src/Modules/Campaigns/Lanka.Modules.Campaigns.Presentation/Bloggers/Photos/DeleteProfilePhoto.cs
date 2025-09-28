@@ -26,6 +26,10 @@ internal sealed class DeleteProfilePhoto : BloggerEndpointBase
                 return result.Match(Results.NoContent, ApiResult.Problem);
             }
         )
-        .WithTags(Tags.Bloggers);
+        .WithTags(Tags.Bloggers)
+        .WithName("DeleteProfilePhoto")
+        .WithSummary("Delete profile photo")
+        .WithDescription("Deletes the current blogger's profile photo")
+        .WithOpenApi();
     }
 }

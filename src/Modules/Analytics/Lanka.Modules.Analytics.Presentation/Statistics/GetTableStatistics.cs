@@ -32,6 +32,10 @@ internal sealed class GetTableStatistics : AnalyticsEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 }
             )
-            .WithTags(Tags.Analytics);
+            .WithTags(Tags.Analytics)
+            .WithName("GetTableStatistics")
+            .WithSummary("Get table statistics")
+            .WithDescription("Retrieves detailed metrics statistics for Instagram account within specified period")
+            .WithOpenApi();
     }
 }

@@ -28,7 +28,11 @@ internal sealed class Login : UsersEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
             .AllowAnonymous()
-            .WithTags(Tags.Users);
+            .WithTags(Tags.Users)
+            .WithName("LoginUser")
+            .WithSummary("User login")
+            .WithDescription("Authenticates a user with email and password, returns access and refresh tokens")
+            .WithOpenApi();
     }
 
     internal sealed class LoginUserRequest

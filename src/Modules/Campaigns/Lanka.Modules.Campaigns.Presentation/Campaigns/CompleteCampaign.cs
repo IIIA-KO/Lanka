@@ -28,6 +28,10 @@ internal sealed class CompleteCampaign : CampaignsEndpointBase
                     
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("CompleteCampaign")
+            .WithSummary("Complete campaign")
+            .WithDescription("Marks a campaign as completed")
+            .WithOpenApi();
     }
 }

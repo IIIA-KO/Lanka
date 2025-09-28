@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Elastic.Clients.Elasticsearch" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Matching.Application\Lanka.Modules.Matching.Application.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Matching.Presentation\Lanka.Modules.Matching.Presentation.csproj"/>
+        <ProjectReference Include="..\..\Users\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Campaigns\Lanka.Modules.Campaigns.IntegrationEvents\Lanka.Modules.Campaigns.IntegrationEvents.csproj" />
+        <ProjectReference Include="..\..\Analytics\Lanka.Modules.Analytics.IntegrationEvents\Lanka.Modules.Analytics.IntegrationEvents.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -151,7 +151,6 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             return;
         }
 
-
         InstagramUserInfo fetchedInstagramAccount = instagramAccountResult.Value;
 
         InstagramAccount? existingInstagramAccount = await this._instagramAccountRepository.GetByUserIdAsync(

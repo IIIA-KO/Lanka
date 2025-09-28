@@ -3,6 +3,7 @@ using Lanka.Common.Domain;
 namespace Lanka.Modules.Analytics.Domain.InstagramAccounts.DomainEvents;
 
 public sealed class InstagramAccountDataFetchedDomainEvent(
+    InstagramAccountId instagramAccountId,
     UserId userId,
     string username,
     int followersCount,
@@ -10,6 +11,7 @@ public sealed class InstagramAccountDataFetchedDomainEvent(
     string providerId
 ) : DomainEvent
 {
+    public InstagramAccountId InstagramAccountId { get; init; } = instagramAccountId;
     public UserId UserId { get; init; } = userId;
     public string Username { get; init; } = username;
     public int FollowersCount { get; init; } = followersCount;

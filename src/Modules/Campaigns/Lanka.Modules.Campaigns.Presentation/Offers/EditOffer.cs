@@ -35,7 +35,11 @@ internal sealed class EditOffer : OfferEndpointBase
                 return result.Match(Results.Ok, ApiResult.Problem);
             }
         )
-        .WithTags(Tags.Offers);
+        .WithTags(Tags.Offers)
+        .WithName("EditOffer")
+        .WithSummary("Edit offer")
+        .WithDescription("Updates an existing offer")
+        .WithOpenApi();
     }
 
     internal sealed class EditOfferRequest

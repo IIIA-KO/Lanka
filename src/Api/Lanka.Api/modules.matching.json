@@ -1,0 +1,20 @@
+{
+  "Matching": {
+    "Outbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "Inbox": {
+      "IntervalInSeconds": 5,
+      "BatchSize": 50
+    },
+    "ElasticSearch": {
+      "BaseUrl": "",
+      "DefaultIndex": "",
+      "Username": "",
+      "Password": "",
+      "PageSize": 10,
+      "MaxPageSize": 100
+    }
+  }
+}

@@ -110,4 +110,9 @@ public sealed class Review : Entity<ReviewId>
             .Add(commentResult)
             .Build(() => (ratingResult.Value, commentResult.Value));
     }
+    
+    public void Delete()
+    {
+        this.RaiseDomainEvent(new ReviewDeletedDomainEvent(this.Id));
+    }
 }

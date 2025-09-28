@@ -28,6 +28,10 @@ internal sealed class ConfirmCampaign : CampaignsEndpointBase
 
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
-            .WithTags(Tags.Campaigns);
+            .WithTags(Tags.Campaigns)
+            .WithName("ConfirmCampaign")
+            .WithSummary("Confirm campaign")
+            .WithDescription("Confirms a pending campaign")
+            .WithOpenApi();
     }
 }

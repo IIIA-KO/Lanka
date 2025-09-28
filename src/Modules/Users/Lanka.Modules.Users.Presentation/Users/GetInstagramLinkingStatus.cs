@@ -29,6 +29,10 @@ internal sealed class GetInstagramLinkingStatus : UsersEndpointBase
                     );
                 })
             .WithTags(Tags.Users)
+            .WithName("GetInstagramLinkingStatus")
+            .WithSummary("Get Instagram linking status")
+            .WithDescription("Retrieves the current status of Instagram account linking operation")
+            .WithOpenApi()
             .RequireAuthorization();
     }
 }

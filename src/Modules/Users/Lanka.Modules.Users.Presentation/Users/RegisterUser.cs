@@ -31,7 +31,11 @@ public class RegisterUser : UsersEndpointBase
                     return result.Match(Results.Ok, ApiResult.Problem);
                 })
             .AllowAnonymous()
-            .WithTags(Tags.Users);
+            .WithTags(Tags.Users)
+            .WithName("RegisterUser")
+            .WithSummary("Register a new user")
+            .WithDescription("Creates a new user account with email, password, and basic profile information")
+            .WithOpenApi();
     }
 
     internal sealed class RegisterUserRequest
