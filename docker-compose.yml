@@ -25,7 +25,7 @@
       - lanka.api
   
   lanka.database:
-    image: postgres:latest
+    image: postgres:17.6
     container_name: Lanka.Database
     environment:
       - POSTGRES_DB=lanka
@@ -37,7 +37,7 @@
       - "5432:5432"
   
   lanka.seq:
-    image: datalust/seq:latest
+    image: datalust/seq:2024
     container_name: Lanka.Seq
     environment:
       - ACCEPT_EULA=Y
@@ -46,14 +46,14 @@
       - "8081:80"
   
   lanka.redis:
-    image: redis:latest
+    image: redis:8.2
     container_name: Lanka.Redis
     restart: always
     ports:
       - "6379:6379"
   
   lanka.identity:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:26.4
     container_name: Lanka.Identity
     command: start-dev --import-realm
     environment:
@@ -68,7 +68,7 @@
       - "9000:9000"
   
   lanka.jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.74.0
     container_name: Lanka.Jaeger
     ports:
       - "4317:4317"
@@ -95,7 +95,7 @@
       - "15672:15672"
 
   lanka.mongo:
-    image: mongo:latest
+    image: mongo:8.0
     container_name: Lanka.Mongo
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
