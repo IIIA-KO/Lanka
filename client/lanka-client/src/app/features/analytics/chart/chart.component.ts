@@ -1,8 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 
 @Component({
-  selector: 'analytics-chart',
+  selector: 'app-analytics-chart',
   standalone: true,
   imports: [ChartModule],
   template: `
@@ -14,16 +14,30 @@ import { ChartModule } from 'primeng/chart';
   `,
 })
 export class AnalyticsChartComponent implements OnChanges {
-  @Input() type: 'pie' | 'bar' | 'line' = 'pie';
-  @Input() labels: string[] = [];
-  @Input() values: number[] = [];
-  @Input() title: string = '';
-  @Input() customColors?: string[];
+  @Input() public type: 'pie' | 'bar' | 'line' = 'pie';
+  @Input() public labels: string[] = [];
+  @Input() public values: number[] = [];
+  @Input() public title = '';
+  @Input() public customColors?: string[];
 
-  chartData: any;
-  chartOptions: any;
+  public chartData: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      backgroundColor: string[];
+    }[];
+  };
 
-  ngOnChanges(changes: SimpleChanges): void {
+  public chartOptions: {
+    responsive: boolean;
+    plugins: {
+      legend: { position: 'top' };
+      tooltip: { enabled: boolean };
+    };
+  };
+
+  public ngOnChanges(): void {
     const colors = this.customColors ?? this.generateColors(this.values.length);
 
     this.chartData = {

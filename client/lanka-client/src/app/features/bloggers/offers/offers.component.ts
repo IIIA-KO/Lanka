@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, catchError, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -30,34 +30,31 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
   styleUrls: ['./offers.component.css']
 })
 export class OffersComponent implements OnInit {
-  offers: IOffer[] = [];
-  loading = false;
-  error: string | null = null;
+  public offers: IOffer[] = [];
+  public loading = false;
+  public error: string | null = null;
 
-  constructor(
-    private offersAgent: OffersAgent,
-    private router: Router,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly offersAgent = inject(OffersAgent);
+  private readonly router = inject(Router);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
-    // For now, we'll show a placeholder since there's no "get all offers" endpoint
-    // This would typically load the user's offers
+  public ngOnInit(): void {
+    this.loadOffers();
   }
 
-  navigateToCreate(): void {
+  public navigateToCreate(): void {
     this.router.navigate(['/offers/create']);
   }
 
-  viewOffer(id: string): void {
+  public viewOffer(id: string): void {
     this.router.navigate(['/offers', id]);
   }
 
-  editOffer(id: string): void {
+  public editOffer(id: string): void {
     this.router.navigate(['/offers', id, 'edit']);
   }
 
-  deleteOffer(id: string): void {
+  public deleteOffer(id: string): void {
     if (confirm('Are you sure you want to delete this offer?')) {
       this.loading = true;
       this.offersAgent.deleteOffer(id).pipe(
@@ -78,7 +75,7 @@ export class OffersComponent implements OnInit {
     }
   }
 
-  onOfferAction(event: any, offerId: string): void {
+  public onOfferAction(event: { value?: string } | string, offerId: string): void {
     const action = event.value || event;
     switch (action) {
       case 'view':
@@ -91,5 +88,26 @@ export class OffersComponent implements OnInit {
         this.deleteOffer(offerId);
         break;
     }
+  }
+
+  private loadOffers(): void {
+    this.loading = true;
+    this.error = null;
+    
+    // For now, we'll show a placeholder since there's no "get all offers" endpoint
+    // This would typically load the user's offers
+    this.offers = [
+      {
+        id: '1',
+        name: 'Sample Offer 1',
+        description: 'This is a sample offer description',
+        priceAmount: 100,
+        priceCurrency: 'USD',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+    
+    this.loading = false;
   }
 } 

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -29,24 +29,24 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, TranslateModule],
 })
 export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
-  message = 'Loading...';
-  isProcessing = false;
+  public message = 'Loading...';
+  public isProcessing = false;
   private isFetched = false;
   private returnUrl = '/profile';
-  private subscriptions: Subscription[] = [];
-  private fallbackTimeout?: number;
+  private readonly subscriptions: Subscription[] = [];
+  private fallbackTimeout?: ReturnType<typeof setTimeout>;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private api: AgentService,
-    private signalRService: SignalRService
-  ) {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly api = inject(AgentService);
+  private readonly signalRService = inject(SignalRService);
+
+  constructor() {
     // Get returnUrl from query params if available, default to profile for renewal
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
   }
 
-  ngOnInit() {
+  public ngOnInit(): void {
     if (this.isFetched) {
       return;
     }
@@ -59,14 +59,14 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
         this.handleStatusUpdate(notification);
       },
       error: (error) => {
-        console.error('❌ SignalR notification error:', error);
+        console.error('[RenewInstagramCallback] SignalR notification error:', error);
       }
     });
     this.subscriptions.push(signalRSub);
 
     // Also check connection state
     this.signalRService.connectionState.subscribe(state => {
-      console.log('🔗 SignalR connection state:', state);
+      console.warn('[RenewInstagramCallback] SignalR connection state:', state);
     });
 
     const params = new URLSearchParams(window.location.search);
@@ -75,7 +75,8 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
     if (code) {
       this.api.Users.renewInstagramAccess(code).subscribe({
         next: (response) => {
-          if (response.status === 202) {
+          const res = response as { status: number };
+          if (res.status === 202) {
             this.message = 'Renewing your Instagram access...';
             this.isProcessing = true;
           } else {
@@ -87,7 +88,7 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
         error: (error) => {
           this.message = 'Failed to start access renewal';
           this.isProcessing = false;
-          console.error('Error:', error);
+          console.error('[RenewInstagramCallback] Error:', error);
         },
       });
     } else {
@@ -96,8 +97,15 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleStatusUpdate(notification: InstagramStatusNotification) {
-    console.log('Received renewal status update:', notification);
+  public ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    if (this.fallbackTimeout) {
+      clearTimeout(this.fallbackTimeout);
+    }
+  }
+
+  private handleStatusUpdate(notification: InstagramStatusNotification): void {
+    console.warn('[RenewInstagramCallback] Received renewal status update:', notification);
 
     switch (notification.status) {
       case 'processing':
@@ -118,13 +126,5 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
         this.isProcessing = false;
     }
   }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    if (this.fallbackTimeout) {
-      clearTimeout(this.fallbackTimeout);
-    }
-  }
 }
-
 

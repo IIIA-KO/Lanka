@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,15 +12,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
-import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 const NAME_MAX = 100;
 const EMAIL_MAX = 255;
 
 @Component({
   standalone: true,
-  selector: 'lnk-register',
+  selector: 'app-register',
   imports: [
     ReactiveFormsModule,
     RouterModule,
@@ -34,14 +33,14 @@ const EMAIL_MAX = 255;
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  form: FormGroup;
+  public form: FormGroup;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private agent: AgentService,
-    private translate: TranslateService
-  ) {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly agent = inject(AgentService);
+  private readonly translate = inject(TranslateService);
+
+  constructor() {
     this.form = this.formBuilder.group({
       firstName: [
         '',
@@ -83,7 +82,7 @@ export class RegisterComponent {
     });
   }
 
-  submit() {
+  public submit(): void {
     if (this.form.invalid) return;
 
     this.agent.Users.register(this.form.value).subscribe({

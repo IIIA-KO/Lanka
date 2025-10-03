@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
@@ -16,9 +16,10 @@ import { MessageModule } from 'primeng/message';
   templateUrl: './server-error.component.html',
 })
 export class ServerErrorComponent {
-  error?: any;
+  public error?: { message: string; details?: string };
+  private readonly router = inject(Router);
 
-  constructor(private router: Router) {
+  constructor() {
     const navigation = this.router.getCurrentNavigation();
     this.error = navigation?.extras.state?.['error'];
   }

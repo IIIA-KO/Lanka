@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -37,23 +37,21 @@ import { SnackbarService } from '../../../../core/services/snackbar/snackbar.ser
   styleUrls: ['./create-offer.component.css']
 })
 export class CreateOfferComponent implements OnInit {
-  offerForm!: FormGroup;
-  loading = false;
-  currencies = [
+  public offerForm!: FormGroup;
+  public loading = false;
+  public currencies = [
     { label: 'US Dollar (USD)', value: Currency.USD },
     { label: 'Euro (EUR)', value: Currency.EUR },
     { label: 'Ukrainian Hryvnia (UAH)', value: Currency.UAH },
     { label: 'British Pound (GBP)', value: Currency.GBP }
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private offersAgent: OffersAgent,
-    private router: Router,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly offersAgent = inject(OffersAgent);
+  private readonly router = inject(Router);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.offerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
@@ -62,7 +60,7 @@ export class CreateOfferComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
+  public onSubmit(): void {
     if (this.offerForm.valid) {
       this.loading = true;
       const request: ICreateOfferRequest = this.offerForm.value;
@@ -86,11 +84,11 @@ export class CreateOfferComponent implements OnInit {
     }
   }
 
-  onCancel(): void {
+  public onCancel(): void {
     this.router.navigate(['/offers']);
   }
 
-  getFieldError(fieldName: string): string | null {
+  public getFieldError(fieldName: string): string | null {
     const field = this.offerForm.get(fieldName);
     if (field && field.touched && field.errors) {
       if (field.errors['required']) {
@@ -103,7 +101,7 @@ export class CreateOfferComponent implements OnInit {
         return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must not exceed ${field.errors['maxlength'].requiredLength} characters`;
       }
       if (field.errors['min']) {
-        return `Price must be greater than 0`;
+        return 'Price must be greater than 0';
       }
     }
     return null;

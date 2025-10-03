@@ -14,14 +14,24 @@ export interface InstagramStatusNotification {
   providedIn: 'root',
 })
 export class SignalRService {
-  private hubConnection: HubConnection | null = null;
-  private connectionState$ = new BehaviorSubject<'disconnected' | 'connecting' | 'connected'>('disconnected');
-
   // Observables for different notification types
   public instagramLinking$ = new Subject<InstagramStatusNotification>();
   public instagramRenewal$ = new Subject<InstagramStatusNotification>();
+  
+  private hubConnection: HubConnection | null = null;
+  private connectionState$ = new BehaviorSubject<'disconnected' | 'connecting' | 'connected'>('disconnected');
 
-  constructor() {}
+  constructor() {
+    // Empty constructor
+  }
+
+  public get connectionState(): typeof this.connectionState$ {
+    return this.connectionState$.asObservable();
+  }
+
+  public get isConnected(): boolean {
+    return this.hubConnection?.state === 'Connected';
+  }
 
   public async startConnection(accessToken: string): Promise<void> {
     if (this.hubConnection?.state === 'Connected') {
@@ -48,23 +58,23 @@ export class SignalRService {
     });
 
     this.hubConnection.onclose(() => {
-      console.log('SignalR connection closed');
+      console.warn('[SignalRService] Connection closed');
       this.connectionState$.next('disconnected');
     });
 
     this.hubConnection.onreconnected(() => {
-      console.log('SignalR reconnected');
+      console.warn('[SignalRService] Reconnected');
       this.connectionState$.next('connected');
       this.joinUserGroup();
     });
 
     try {
       await this.hubConnection.start();
-      console.log('SignalR connection established');
+      console.warn('[SignalRService] Connection established');
       this.connectionState$.next('connected');
       await this.joinUserGroup();
     } catch (error) {
-      console.error('Error starting SignalR connection:', error);
+      console.error('[SignalRService] Error starting connection:', error);
       this.connectionState$.next('disconnected');
       throw error;
     }
@@ -87,7 +97,7 @@ export class SignalRService {
           await this.hubConnection.invoke('JoinUserGroup', userId);
         }
       } catch (error) {
-        console.error('Error joining user group:', error);
+        console.error('[SignalRService] Error joining user group:', error);
       }
     }
   }
@@ -100,16 +110,9 @@ export class SignalRService {
         return payload.sub || payload.user_id || payload.userId || payload.id;
       }
     } catch (error) {
-      console.error('Error getting user ID:', error);
+      console.error('[SignalRService] Error getting user ID:', error);
     }
     return null;
   }
 
-  public get connectionState() {
-    return this.connectionState$.asObservable();
-  }
-
-  public get isConnected(): boolean {
-    return this.hubConnection?.state === 'Connected';
-  }
 }

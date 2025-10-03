@@ -1,31 +1,24 @@
-import { HttpHandlerFn, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth/auth.service';
 import {
-  HttpEvent,
-  HttpRequest,
-  HttpErrorResponse,
-} from '@angular/common/http';
-import {
-  catchError,
-  Observable,
-  switchMap,
-  throwError,
   BehaviorSubject,
+  Observable,
+  catchError,
   filter,
+  switchMap,
   take,
+  throwError,
 } from 'rxjs';
-import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<any>,
+  req: HttpRequest<unknown>,
   next: HttpHandlerFn
-): Observable<HttpEvent<any>> => {
+): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
-  const router = inject(Router);
 
   if (isAuthRequest(req.url)) {
-    console.log('Skipping auth interceptor for request:', req.url);
+    console.warn('[AuthInterceptor] Skipping auth interceptor for request:', req.url);
     return next(req);
   }
 
@@ -33,16 +26,16 @@ export const authInterceptor: HttpInterceptorFn = (
   let authReq = req;
 
   if (token) {
-    console.log('Adding Authorization header to request:', req.url);
+    console.warn('[AuthInterceptor] Adding Authorization header to request:', req.url);
     authReq = addAuthHeader(req, token);
   } else {
-    console.warn('No valid token available for request:', req.url);
+    console.warn('[AuthInterceptor] No valid token available for request:', req.url);
   }
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !isAuthRequest(req.url)) {
-        console.log('401 error, attempting token refresh for:', req.url);
+        console.warn('[AuthInterceptor] 401 error, attempting token refresh for:', req.url);
         return handle401Error(req, next, authService);
       }
       return throwError(() => error);
@@ -51,29 +44,29 @@ export const authInterceptor: HttpInterceptorFn = (
 };
 
 let isRefreshing = false;
-let refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 function handle401Error(
-  request: HttpRequest<any>,
+  request: HttpRequest<unknown>,
   next: HttpHandlerFn,
   authService: AuthService
-): Observable<HttpEvent<any>> {
+): Observable<HttpEvent<unknown>> {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
 
-    console.log('Starting token refresh process');
+    console.warn('[AuthInterceptor] Starting token refresh process');
     return authService.refreshToken().pipe(
-      switchMap((tokenResponse: any) => {
+      switchMap((tokenResponse: { accessToken: string }) => {
         isRefreshing = false;
         refreshTokenSubject.next(tokenResponse.accessToken);
-        console.log('Token refreshed successfully, retrying request');
+        console.warn('[AuthInterceptor] Token refreshed successfully, retrying request');
 
         // Retry the original request with the new token
         return next(addAuthHeader(request, tokenResponse.accessToken));
       }),
       catchError((error) => {
-        console.error('Token refresh failed:', error);
+        console.error('[AuthInterceptor] Token refresh failed:', error);
         isRefreshing = false;
         refreshTokenSubject.next(null);
         authService.logout();
@@ -82,12 +75,12 @@ function handle401Error(
     );
   } else {
     // Wait for the refresh to complete, then retry with the new token
-    console.log('Waiting for ongoing token refresh');
+    console.warn('[AuthInterceptor] Waiting for ongoing token refresh');
     return refreshTokenSubject.pipe(
       filter((token) => token !== null),
       take(1),
       switchMap((token) => {
-        console.log('Using refreshed token for queued request');
+        console.warn('[AuthInterceptor] Using refreshed token for queued request');
         return next(addAuthHeader(request, token));
       })
     );
@@ -95,9 +88,9 @@ function handle401Error(
 }
 
 function addAuthHeader(
-  request: HttpRequest<any>,
+  request: HttpRequest<unknown>,
   token: string
-): HttpRequest<any> {
+): HttpRequest<unknown> {
   return request.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,
@@ -106,7 +99,7 @@ function addAuthHeader(
 }
 
 function isAuthRequest(url: string): boolean {
-  console.log('Checking if request is for auth endpoint:', url);
+  console.warn('[AuthInterceptor] Checking if request is for auth endpoint:', url);
   return (
     url.includes('/users/login') ||
     url.includes('/users/register') ||

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
@@ -12,26 +12,21 @@ const BASE_URL = environment.apiUrl;
   providedIn: 'root',
 })
 export class AnalyticsAgent {
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
-  private handleError(error: any) {
-    const message = error.error?.message || error.message || 'Unknown error';
-    return throwError(() => new Error(message));
-  }
-
-  getAgeDistribution() : Observable<IAgeDistribution> {
+  public getAgeDistribution(): Observable<IAgeDistribution> {
     return this.http
       .get<IAgeDistribution>(`${BASE_URL}/analytics/audience/age-distribution`)
       .pipe(catchError(this.handleError));
   }
 
-  getGenderDistribution() : Observable<IGenderDistribution> {
+  public getGenderDistribution(): Observable<IGenderDistribution> {
     return this.http
       .get<IGenderDistribution>(`${BASE_URL}/analytics/audience/gender-distribution`)
       .pipe(catchError(this.handleError));
   }
 
-  getLocationDistribution(locationType?: LocationType) : Observable<ILocationDistribution> {
+  public getLocationDistribution(locationType?: LocationType): Observable<ILocationDistribution> {
     let params = new HttpParams();
 
     if (locationType) {
@@ -43,7 +38,7 @@ export class AnalyticsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  getReachDistribution(period: StatisticsPeriod) : Observable<IReachDistribution> {
+  public getReachDistribution(period: StatisticsPeriod): Observable<IReachDistribution> {
     let params = new HttpParams();
 
     if (period) {
@@ -56,7 +51,7 @@ export class AnalyticsAgent {
   }
 
   // Posts Analytics
-  getPosts(queryParams?: IPostsQueryParams): Observable<IPostsResponse> {
+  public getPosts(queryParams?: IPostsQueryParams): Observable<IPostsResponse> {
     let params = new HttpParams();
 
     if (queryParams) {
@@ -73,7 +68,7 @@ export class AnalyticsAgent {
   }
 
   // Statistics Analytics
-  getOverviewStatistics(period: StatisticsPeriod): Observable<IOverviewStatisticsResponse> {
+  public getOverviewStatistics(period: StatisticsPeriod): Observable<IOverviewStatisticsResponse> {
     let params = new HttpParams();
     if (period) params = params.set('period', period);
 
@@ -82,7 +77,7 @@ export class AnalyticsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  getEngagementStatistics(period: StatisticsPeriod): Observable<IEngagementStatisticsResponse> {
+  public getEngagementStatistics(period: StatisticsPeriod): Observable<IEngagementStatisticsResponse> {
     let params = new HttpParams();
     if (period) params = params.set('period', period);
 
@@ -91,7 +86,7 @@ export class AnalyticsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  getInteractionStatistics(period: StatisticsPeriod): Observable<IInteractionStatisticsResponse> {
+  public getInteractionStatistics(period: StatisticsPeriod): Observable<IInteractionStatisticsResponse> {
     let params = new HttpParams();
     if (period) params = params.set('period', period);
 
@@ -100,12 +95,17 @@ export class AnalyticsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  getTableStatistics(period: StatisticsPeriod): Observable<IMetricsStatisticsResponse> {
+  public getTableStatistics(period: StatisticsPeriod): Observable<IMetricsStatisticsResponse> {
     let params = new HttpParams();
     if (period) params = params.set('period', period);
 
     return this.http
       .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/statistics/table`, { params })
       .pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
+    const message = error.error?.message || error.message || 'Unknown error';
+    return throwError(() => new Error(message));
   }
 }

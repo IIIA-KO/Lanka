@@ -57,7 +57,7 @@
                 appendTo="body"
                 *ngIf="getAvailableActions(campaign.status).length > 0">
                 <ng-template pTemplate="trigger">
-                  <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-text p-button-sm"></button>
+                  <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-text p-button-sm" aria-label="Campaign actions"></button>
                 </ng-template>
               </p-select>
             </div>

@@ -1,35 +1,30 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { catchError, Observable, throwError } from "rxjs";
-import { IBloggerProfile } from "../models/blogger";
-import { environment } from "../../../environments/environment.development";
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs';
+import { IBloggerProfile } from '../models/blogger';
+import { environment } from '../../../environments/environment.development';
 
 const BASE_URL = environment.apiUrl;
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class BloggersAgent {
-    constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
-    private handleError(error: any) {
-      const message = error.error?.message || error.message || "Unknown error";
-      return throwError(() => new Error(message));
-    }
-
-    getProfile(): Observable<IBloggerProfile> {
+  public getProfile(): Observable<IBloggerProfile> {
       return this.http
         .get<IBloggerProfile>(`${BASE_URL}/bloggers/profile`)
         .pipe(catchError(this.handleError));
     }
 
-    updateProfile(profileData: { firstName: string; lastName: string; birthDate: string; bio: string }): Observable<IBloggerProfile> {
+  public updateProfile(profileData: { firstName: string; lastName: string; birthDate: string; bio: string }): Observable<IBloggerProfile> {
       return this.http
         .put<IBloggerProfile>(`${BASE_URL}/bloggers`, profileData)
         .pipe(catchError(this.handleError));
     }
 
-    uploadProfilePhoto(file: File): Observable<any> {
+  public uploadProfilePhoto(file: File): Observable<unknown> {
       const formData = new FormData();
       formData.append('photo', file);
       return this.http
@@ -37,9 +32,14 @@ export class BloggersAgent {
         .pipe(catchError(this.handleError));
     }
 
-    deleteProfilePhoto(): Observable<any> {
+  public deleteProfilePhoto(): Observable<unknown> {
       return this.http
         .delete(`${BASE_URL}/bloggers/photos`)
         .pipe(catchError(this.handleError));
     }
+
+  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
+    const message = error.error?.message || error.message || 'Unknown error';
+    return throwError(() => new Error(message));
   }
+}

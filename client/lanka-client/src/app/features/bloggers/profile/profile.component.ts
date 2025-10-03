@@ -1,5 +1,5 @@
 import { IBloggerProfile } from '../../../core/models/blogger';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AgentService } from '../../../core/api/agent';
@@ -14,22 +14,32 @@ import { LocationType } from '../../../core/models/analytics/analytics.audience'
   standalone: true,
   styleUrl: './profile.component.css',
 })
-export class ProfileComponent {
-  profile!: IBloggerProfile;
-  age: { labels: string[]; values: number[] } = { labels: [], values: [] };
-  gender: { labels: string[]; values: number[] } = { labels: [], values: [] };
-  location: { labels: string[]; values: number[] } = {
+export class ProfileComponent implements OnInit {
+  public profile!: IBloggerProfile;
+  public age: { labels: string[]; values: number[] } = { labels: [], values: [] };
+  public gender: { labels: string[]; values: number[] } = { labels: [], values: [] };
+  public location: { labels: string[]; values: number[] } = {
     labels: [],
     values: [],
   };
-  constructor(private route: ActivatedRoute, private api: AgentService) {}
+  private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(AgentService);
 
-  ngOnInit(): void {
+  constructor() {
+    // Empty constructor
+  }
+
+  public ngOnInit(): void {
     this.profile = this.route.snapshot.data['profile'] ?? null;
 
     if (this.profile) {
       this.loadAnalytics();
     }
+  }
+
+  public handleRenewInstagramAccess(): void {
+    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${instagramClientId}&redirect_uri=${instagramRenewRedirectUri}&scope=${instagramScope}&response_type=${instagramResponseType}&config_id=${instagramConfigId}`;
+    window.location.href = authUrl;
   }
 
   private loadAnalytics(): void {
@@ -38,7 +48,7 @@ export class ProfileComponent {
         this.age.labels = data.agePercentages.map((p) => p.ageGroup);
         this.age.values = data.agePercentages.map((p) => p.percentage);
       },
-      error: (error) => console.error('Error loading age distribution:', error),
+      error: (error) => console.error('[ProfileComponent] Error loading age distribution:', error),
     });
 
     this.api.Analytics.getGenderDistribution().subscribe({
@@ -47,7 +57,7 @@ export class ProfileComponent {
         this.gender.values = data.genderPercentages.map((p) => p.percentage);
       },
       error: (error) =>
-        console.error('Error loading gender distribution:', error),
+        console.error('[ProfileComponent] Error loading gender distribution:', error),
     });
 
     this.api.Analytics.getLocationDistribution(LocationType.country).subscribe({
@@ -58,12 +68,7 @@ export class ProfileComponent {
         );
       },
       error: (error) =>
-        console.error('Error loading location distribution:', error),
+        console.error('[ProfileComponent] Error loading location distribution:', error),
     });
-  }
-
-  handleRenewInstagramAccess(): void {
-    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${instagramClientId}&redirect_uri=${instagramRenewRedirectUri}&scope=${instagramScope}&response_type=${instagramResponseType}&config_id=${instagramConfigId}`;
-    window.location.href = authUrl;
   }
 }

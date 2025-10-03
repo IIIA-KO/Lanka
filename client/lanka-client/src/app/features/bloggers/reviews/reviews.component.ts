@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, catchError, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -39,36 +39,175 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
   styleUrls: ['./reviews.component.css']
 })
 export class ReviewsComponent implements OnInit {
-  reviews: IReview[] = [];
-  loading = false;
-  error: string | null = null;
-  
+  public reviews: IReview[] = [];
+  public loading = false;
+  public error: string | null = null;
+
   // Dialog state
-  showCreateDialog = false;
-  showEditDialog = false;
-  
+  public showCreateDialog = false;
+  public showEditDialog = false;
+
   // Forms
-  createReviewForm!: FormGroup;
-  editReviewForm!: FormGroup;
-  editingReview: IReview | null = null;
-  
+  public createReviewForm!: FormGroup;
+  public editReviewForm!: FormGroup;
+  public editingReview: IReview | null = null;
+
   // Mock campaign data for demonstration
-  availableCampaigns = [
+  public availableCampaigns = [
     { label: 'Summer Collection Campaign', value: 'campaign-1' },
     { label: 'Tech Product Review', value: 'campaign-2' },
     { label: 'Fitness Brand Partnership', value: 'campaign-3' }
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private reviewsAgent: ReviewsAgent,
-    private router: Router,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly reviewsAgent = inject(ReviewsAgent);
+  private readonly router = inject(Router);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
+  constructor() {
+    // Empty constructor
+  }
+
+  public ngOnInit(): void {
     this.initializeForms();
     this.loadReviews();
+  }
+
+  public openCreateDialog(): void {
+    this.createReviewForm.reset();
+    this.createReviewForm.patchValue({ rating: 1 });
+    this.showCreateDialog = true;
+  }
+
+  public openEditDialog(review: IReview): void {
+    this.editingReview = review;
+    this.editReviewForm.patchValue({
+      rating: review.rating,
+      comment: review.comment
+    });
+    this.showEditDialog = true;
+  }
+
+  public closeCreateDialog(): void {
+    this.showCreateDialog = false;
+    this.createReviewForm.reset();
+  }
+
+  public closeEditDialog(): void {
+    this.showEditDialog = false;
+    this.editReviewForm.reset();
+    this.editingReview = null;
+  }
+
+  public onCreateReview(): void {
+    if (this.createReviewForm.valid) {
+      this.loading = true;
+      const request: ICreateReviewRequest = this.createReviewForm.value;
+
+      this.reviewsAgent.createReview(request).pipe(
+        catchError(error => {
+          this.snackbarService.showError('Error creating review: ' + error.message);
+          return of(null);
+        })
+      ).subscribe({
+        next: (result) => {
+          if (result) {
+            this.snackbarService.showSuccess('Review created successfully');
+            this.closeCreateDialog();
+            this.loadReviews();
+          }
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  public onEditReview(): void {
+    if (this.editReviewForm.valid && this.editingReview) {
+      this.loading = true;
+      const request: IEditReviewRequest = {
+        reviewId: this.editingReview.id,
+        rating: this.editReviewForm.value.rating,
+        comment: this.editReviewForm.value.comment
+      };
+
+      this.reviewsAgent.editReview(request).pipe(
+        catchError(error => {
+          this.snackbarService.showError('Error editing review: ' + error.message);
+          return of(null);
+        })
+      ).subscribe({
+        next: (result) => {
+          if (result) {
+            this.snackbarService.showSuccess('Review updated successfully');
+            this.closeEditDialog();
+            this.loadReviews();
+          }
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  public deleteReview(review: IReview): void {
+    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+      this.loading = true;
+      this.reviewsAgent.deleteReview(review.id).pipe(
+        catchError(error => {
+          this.snackbarService.showError('Error deleting review: ' + error.message);
+          return of(null);
+        })
+      ).subscribe({
+        next: () => {
+          this.snackbarService.showSuccess('Review deleted successfully');
+          this.loadReviews();
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  public getFieldError(form: FormGroup, fieldName: string): string | null {
+    const field = form.get(fieldName);
+    if (field && field.touched && field.errors) {
+      if (field.errors['required']) {
+        return 'This field is required';
+      }
+      if (field.errors['minlength']) {
+        return `Minimum length is ${field.errors['minlength'].requiredLength} characters`;
+      }
+      if (field.errors['maxlength']) {
+        return `Maximum length is ${field.errors['maxlength'].requiredLength} characters`;
+      }
+      if (field.errors['min']) {
+        return 'Rating must be at least 1';
+      }
+      if (field.errors['max']) {
+        return 'Rating must not exceed 5';
+      }
+    }
+    return null;
+  }
+
+  public getRatingArray(rating: number): boolean[] {
+    return Array(5).fill(false).map((_, i) => i < rating);
+  }
+
+  public onReviewAction(action: string, review: IReview): void {
+    switch (action) {
+      case 'edit':
+        this.openEditDialog(review);
+        break;
+      case 'delete':
+        this.deleteReview(review);
+        break;
+    }
   }
 
   private initializeForms(): void {
@@ -100,141 +239,4 @@ export class ReviewsComponent implements OnInit {
       }
     });
   }
-
-  openCreateDialog(): void {
-    this.createReviewForm.reset();
-    this.createReviewForm.patchValue({ rating: 1 });
-    this.showCreateDialog = true;
-  }
-
-  openEditDialog(review: IReview): void {
-    this.editingReview = review;
-    this.editReviewForm.patchValue({
-      rating: review.rating,
-      comment: review.comment
-    });
-    this.showEditDialog = true;
-  }
-
-  closeCreateDialog(): void {
-    this.showCreateDialog = false;
-    this.createReviewForm.reset();
-  }
-
-  closeEditDialog(): void {
-    this.showEditDialog = false;
-    this.editReviewForm.reset();
-    this.editingReview = null;
-  }
-
-  onCreateReview(): void {
-    if (this.createReviewForm.valid) {
-      this.loading = true;
-      const request: ICreateReviewRequest = this.createReviewForm.value;
-      
-      this.reviewsAgent.createReview(request).pipe(
-        catchError(error => {
-          this.snackbarService.showError('Error creating review: ' + error.message);
-          return of(null);
-        })
-      ).subscribe({
-        next: (result) => {
-          if (result) {
-            this.snackbarService.showSuccess('Review created successfully');
-            this.closeCreateDialog();
-            this.loadReviews();
-          }
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
-    }
-  }
-
-  onEditReview(): void {
-    if (this.editReviewForm.valid && this.editingReview) {
-      this.loading = true;
-      const request: IEditReviewRequest = {
-        reviewId: this.editingReview.id,
-        rating: this.editReviewForm.value.rating,
-        comment: this.editReviewForm.value.comment
-      };
-      
-      this.reviewsAgent.editReview(request).pipe(
-        catchError(error => {
-          this.snackbarService.showError('Error updating review: ' + error.message);
-          return of(null);
-        })
-      ).subscribe({
-        next: (result) => {
-          if (result) {
-            this.snackbarService.showSuccess('Review updated successfully');
-            this.closeEditDialog();
-            this.loadReviews();
-          }
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
-    }
-  }
-
-  deleteReview(review: IReview): void {
-    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-      this.loading = true;
-      this.reviewsAgent.deleteReview(review.id).pipe(
-        catchError(error => {
-          this.snackbarService.showError('Error deleting review: ' + error.message);
-          return of(null);
-        })
-      ).subscribe({
-        next: () => {
-          this.snackbarService.showSuccess('Review deleted successfully');
-          this.loadReviews();
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
-    }
-  }
-
-  getFieldError(form: FormGroup, fieldName: string): string | null {
-    const field = form.get(fieldName);
-    if (field && field.touched && field.errors) {
-      if (field.errors['required']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      }
-      if (field.errors['minlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['minlength'].requiredLength} characters`;
-      }
-      if (field.errors['maxlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must not exceed ${field.errors['maxlength'].requiredLength} characters`;
-      }
-      if (field.errors['min']) {
-        return 'Rating must be at least 1';
-      }
-      if (field.errors['max']) {
-        return 'Rating must not exceed 5';
-      }
-    }
-    return null;
-  }
-
-  getRatingArray(rating: number): boolean[] {
-    return Array(5).fill(false).map((_, i) => i < rating);
-  }
-
-  onReviewAction(action: string, review: IReview): void {
-    switch (action) {
-      case 'edit':
-        this.openEditDialog(review);
-        break;
-      case 'delete':
-        this.deleteReview(review);
-        break;
-    }
-  }
-} 
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
@@ -33,12 +33,12 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
   styleUrls: ['./campaigns.component.css']
 })
 export class CampaignsComponent implements OnInit {
-  campaigns: ICampaign[] = [];
-  loading = false;
-  error: string | null = null;
+  public campaigns: ICampaign[] = [];
+  public loading = false;
+  public error: string | null = null;
   
   // Mock data for demonstration - in real app this would come from API
-  mockCampaigns: ICampaign[] = [
+  public mockCampaigns: ICampaign[] = [
     {
       id: '1',
       name: 'Summer Collection Campaign',
@@ -61,22 +61,20 @@ export class CampaignsComponent implements OnInit {
     }
   ];
 
-  constructor(
-    private campaignsAgent: CampaignsAgent,
-    private router: Router,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly campaignsAgent = inject(CampaignsAgent);
+  private readonly router = inject(Router);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.loadCampaigns();
   }
 
-  loadCampaigns(): void {
+  public loadCampaigns(): void {
     // Using mock data for now since there's no "get all campaigns" endpoint
     this.campaigns = this.mockCampaigns;
   }
 
-  getStatusColor(status: string): string {
+  public getStatusColor(status: string): string {
     switch (status) {
       case CampaignStatus.Pending: return 'warning';
       case CampaignStatus.Confirmed: return 'success';
@@ -88,7 +86,7 @@ export class CampaignsComponent implements OnInit {
     }
   }
 
-  getStatusIcon(status: string): string {
+  public getStatusIcon(status: string): string {
     switch (status) {
       case CampaignStatus.Pending: return 'pi pi-clock';
       case CampaignStatus.Confirmed: return 'pi pi-check';
@@ -100,10 +98,10 @@ export class CampaignsComponent implements OnInit {
     }
   }
 
-  onCampaignAction(event: any, campaignId: string): void {
+  public onCampaignAction(event: { value?: string }, campaignId: string): void {
     const action = event.value || event;
     this.loading = true;
-    let actionObservable: Observable<any>;
+    let actionObservable: Observable<unknown>;
 
     switch (action) {
       case 'confirm':
@@ -145,7 +143,7 @@ export class CampaignsComponent implements OnInit {
     });
   }
 
-  viewCampaign(campaignId: string): void {
+  public viewCampaign(campaignId: string): void {
     // For now, just show campaign details in the console
     // In a real app, this would navigate to a campaign details page
     const campaign = this.campaigns.find(c => c.id === campaignId);
@@ -154,7 +152,7 @@ export class CampaignsComponent implements OnInit {
     }
   }
 
-  getAvailableActions(status: string): {label: string, value: string, icon: string}[] {
+  public getAvailableActions(status: string): {label: string, value: string, icon: string}[] {
     const actions = [];
     
     switch (status) {

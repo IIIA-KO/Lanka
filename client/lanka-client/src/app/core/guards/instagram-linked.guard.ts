@@ -23,7 +23,7 @@ export const instagramLinkedGuard: CanActivateFn = (route, state) => {
 
   return api.Bloggers.getProfile().pipe(
     map((profile) => {
-      console.log('Instagram account is linked:', profile.instagramUsername);
+      console.warn('[InstagramLinkedGuard] Instagram account is linked:', profile.instagramUsername);
       if (profile && profile.instagramUsername) {
         return true;
       } else {

@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -14,14 +15,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
-import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 const EMAIL_MAX = 255;
 
 @Component({
   standalone: true,
-  selector: 'lnk-login',
+  selector: 'app-login',
   imports: [
     ReactiveFormsModule,
     RouterModule,
@@ -35,17 +35,17 @@ const EMAIL_MAX = 255;
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  returnUrl = '/pact';
+  public loginForm: FormGroup;
+  public returnUrl = '/pact';
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private agent: AgentService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private translate: TranslateService
-  ) {
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly agent = inject(AgentService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
+
+  constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.maxLength(EMAIL_MAX)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -55,7 +55,15 @@ export class LoginComponent {
       this.route.snapshot.queryParams['returnUrl'] || '/pact';
   }
 
-  onSubmit(): void {
+  public get email(): AbstractControl | null {
+    return this.loginForm.get('email');
+  }
+
+  public get password(): AbstractControl | null {
+    return this.loginForm.get('password');
+  }
+
+  public onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -68,23 +76,15 @@ export class LoginComponent {
 
     this.agent.Users.login(loginRequest).subscribe({
       next: (tokenResponse) => {
-        console.log('Login successful:', tokenResponse);
+        console.warn('[LoginComponent] Login successful');
 
         this.authService.login(tokenResponse);
 
         this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        console.error('Login failed:', error);
+        console.error('[LoginComponent] Login failed:', error);
       },
     });
-  }
-
-  get email() {
-    return this.loginForm.get('email');
-  }
-
-  get password() {
-    return this.loginForm.get('password');
   }
 }

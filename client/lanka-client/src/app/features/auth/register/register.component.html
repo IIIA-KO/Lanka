@@ -79,8 +79,9 @@
   <button
     pButton
     type="submit"
-    [label]="'REGISTER.BUTTON' | translate"
     class="w-full"
     style="background-color: var(--primary-color)"
-  [disabled]="form.invalid"></button>
+    [disabled]="form.invalid">
+    {{ 'REGISTER.BUTTON' | translate }}
+  </button>
 </form>

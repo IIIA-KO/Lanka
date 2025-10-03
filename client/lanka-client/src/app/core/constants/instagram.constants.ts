@@ -1,4 +1,4 @@
-import { environment } from "../../../environments/environment.development";
+import { environment } from '../../../environments/environment.development';
 
 export const instagramClientId = environment.instagramClientId;
 export const instagramConfigId = environment.instagramConfigId;

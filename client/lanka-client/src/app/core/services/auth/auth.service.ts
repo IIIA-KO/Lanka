@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ITokenResponse, IRefreshTokenRequest } from '../../models/auth';
-import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, throwError, timer } from 'rxjs';
 import { UsersAgent } from '../../api/users.agent';
 import { Router } from '@angular/router';
 import { SignalRService } from '../signalr.service';
@@ -19,27 +19,31 @@ export class AuthService {
     this.hasValidToken()
   );
 
-  private refreshTimer: any;
+  private refreshTimer: Subscription | null = null;
 
-  constructor(private usersAgent: UsersAgent, private router: Router, private signalRService: SignalRService) {
+  private readonly usersAgent = inject(UsersAgent);
+  private readonly router = inject(Router);
+  private readonly signalRService = inject(SignalRService);
+
+  constructor() {
     if (this.isAuthenticated()) {
       this.startTokenRefreshTimer();
       this.startSignalRConnection();
     }
   }
 
-  get isAuthenticated$(): Observable<boolean> {
+  public get isAuthenticated$(): Observable<boolean> {
     return this.isAuthenticatedSubject.asObservable();
   }
 
-  login(tokenResponse: ITokenResponse): void {
+  public login(tokenResponse: ITokenResponse): void {
     this.storeTokens(tokenResponse);
     this.isAuthenticatedSubject.next(true);
     this.startTokenRefreshTimer();
     this.startSignalRConnection();
   }
 
-  logout(): void {
+  public logout(): void {
     this.clearTokens();
     this.stopTokenRefreshTimer();
     this.stopSignalRConnection();
@@ -47,11 +51,11 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  isAuthenticated(): boolean {
+  public isAuthenticated(): boolean {
     return this.hasValidToken();
   }
 
-  getToken(): string | null {
+  public getToken(): string | null {
     const token = localStorage.getItem(this.ACCESS_TOKEN_KEY);
     if (!token) {
       return null;
@@ -59,7 +63,7 @@ export class AuthService {
 
     // Check both our stored expiry and the actual JWT expiry
     if (this.isTokenExpired() || this.isJwtTokenExpired(token)) {
-      console.warn('Token expired, clearing tokens');
+      console.warn('[AuthService] Token expired, clearing tokens');
       this.clearTokens();
       return null;
     }
@@ -67,24 +71,7 @@ export class AuthService {
     return token;
   }
 
-  private isJwtTokenExpired(token: string): boolean {
-    try {
-      const payload = this.decodeToken(token);
-      if (!payload?.exp) return true;
-      
-      // Add a small buffer (30 seconds) to prevent race conditions
-      const bufferTime = 30 * 1000;
-      return Date.now() + bufferTime >= payload.exp * 1000;
-    } catch (error) {
-      console.error('Error checking JWT expiration:', error);
-      return true;
-    }
-  }
-
-  /**
-   * Decodes JWT token and extracts user ID from 'sub' claim
-   */
-  getUserIdFromToken(token?: string): string | null {
+  public getUserIdFromToken(token?: string): string | null {
     const tokenToUse = token || this.getToken();
     if (!tokenToUse) {
       return null;
@@ -93,39 +80,17 @@ export class AuthService {
     try {
       const payload = this.decodeToken(tokenToUse);
       return payload?.sub || null;
-    } catch (error) {
-      console.error('Error extracting user ID from token:', error);
+    } catch {
+      console.error('[AuthService] Error extracting user ID from token');
       return null;
     }
   }
 
-  /**
-   * Decodes JWT token payload
-   */
-  private decodeToken(token: string): any {
-    if (!token) {
-      return null;
-    }
-
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      throw new Error('Invalid JWT token format');
-    }
-
-    try {
-      const payload = parts[1];
-      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-      return JSON.parse(decoded);
-    } catch (error) {
-      throw new Error('Failed to decode JWT token');
-    }
-  }
-
-  getRefreshToken(): string | null {
+  public getRefreshToken(): string | null {
     return localStorage.getItem(this.REFRESH_TOKEN_KEY);
   }
 
-  isTokenExpired(): boolean {
+  public isTokenExpired(): boolean {
     const expiry = localStorage.getItem(this.TOKEN_EXPIRY_KEY);
     if (!expiry) return true;
 
@@ -136,7 +101,7 @@ export class AuthService {
     return currentTime + bufferTime >= expiryTime;
   }
 
-  refreshToken(): Observable<ITokenResponse> {
+  public refreshToken(): Observable<ITokenResponse> {
     const refreshToken = this.getRefreshToken();
 
     if (!refreshToken) {
@@ -158,12 +123,51 @@ export class AuthService {
           observer.complete();
         },
         error: (error) => {
-          console.error('Token refresh failed:', error);
+          console.error('[AuthService] Token refresh failed:', error);
           this.logout();
           observer.error(error);
         },
       });
     });
+  }
+
+  public clearTokens(): void {
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
+  }
+
+  private isJwtTokenExpired(token: string): boolean {
+    try {
+      const payload = this.decodeToken(token);
+      if (!payload?.exp) return true;
+      
+      // Add a small buffer (30 seconds) to prevent race conditions
+      const bufferTime = 30 * 1000;
+      return Date.now() + bufferTime >= payload.exp * 1000;
+    } catch {
+      console.error('[AuthService] Error checking JWT expiration');
+      return true;
+    }
+  }
+
+  private decodeToken(token: string): { sub?: string; exp?: number } | null {
+    if (!token) {
+      return null;
+    }
+
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT token format');
+    }
+
+    try {
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch {
+      throw new Error('Failed to decode JWT token');
+    }
   }
 
   private hasValidToken(): boolean {
@@ -178,12 +182,6 @@ export class AuthService {
     // Calculate and store expiry time
     const expiryTime = Date.now() + tokenResponse.expiresIn * 1000;
     localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTime.toString());
-  }
-
-  public clearTokens(): void {
-    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
   }
 
   private calculateBufferTime(remainingTime: number): number {
@@ -206,7 +204,7 @@ export class AuthService {
     const remainingTime = expiryTime - currentTime;
 
     if (remainingTime <= 0) {
-      console.warn('Token has already expired, refreshing immediately');
+      console.warn('[AuthService] Token has already expired, refreshing immediately');
       this.refreshToken().subscribe();
       return;
     }
@@ -216,24 +214,24 @@ export class AuthService {
     const refreshTime = remainingTime - bufferTime;
 
     if (refreshTime > 0) {
-      console.log(
-        `Token will be refreshed in ${Math.round(
+      console.warn(
+        `[AuthService] Token will be refreshed in ${Math.round(
           refreshTime / 1000 / 60
         )} minutes`
       );
 
       this.refreshTimer = timer(refreshTime).subscribe(() => {
-        console.log('Automatically refreshing token...');
+        console.warn('[AuthService] Automatically refreshing token...');
         this.refreshToken().subscribe({
-          next: () => console.log('Token refreshed successfully'),
+          next: () => console.warn('[AuthService] Token refreshed successfully'),
           error: (error) => {
-            console.error('Automatic token refresh failed:', error);
+            console.error('[AuthService] Automatic token refresh failed:', error);
             this.logout();
           },
         });
       });
     } else {
-      console.log('Token is about to expire, refreshing now...');
+      console.warn('[AuthService] Token is about to expire, refreshing now...');
       this.refreshToken().subscribe();
     }
   }
@@ -250,19 +248,19 @@ export class AuthService {
       const token = this.getToken();
       if (token) {
         await this.signalRService.startConnection(token);
-        console.log('SignalR connection started');
+        console.warn('[AuthService] SignalR connection started');
       }
     } catch (error) {
-      console.error('Failed to start SignalR connection:', error);
+      console.error('[AuthService] Failed to start SignalR connection:', error);
     }
   }
 
   private async stopSignalRConnection(): Promise<void> {
     try {
       await this.signalRService.stopConnection();
-      console.log('SignalR connection stopped');
+      console.warn('[AuthService] SignalR connection stopped');
     } catch (error) {
-      console.error('Failed to stop SignalR connection:', error);
+      console.error('[AuthService] Failed to stop SignalR connection:', error);
     }
   }
 }

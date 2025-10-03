@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -37,28 +37,76 @@ import { SnackbarService } from '../../../../core/services/snackbar/snackbar.ser
   styleUrls: ['./edit-offer.component.css']
 })
 export class EditOfferComponent implements OnInit {
-  offerForm!: FormGroup;
-  loading = false;
-  offerId!: string;
-  currencies = [
+  public offerForm!: FormGroup;
+  public loading = false;
+  public offerId!: string;
+  public currencies = [
     { label: 'US Dollar (USD)', value: Currency.USD },
     { label: 'Euro (EUR)', value: Currency.EUR },
     { label: 'Ukrainian Hryvnia (UAH)', value: Currency.UAH },
     { label: 'British Pound (GBP)', value: Currency.GBP }
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private offersAgent: OffersAgent,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly offersAgent = inject(OffersAgent);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.offerId = this.route.snapshot.params['id'];
     this.initializeForm();
     this.loadOffer();
+  }
+
+  public onSubmit(): void {
+    if (this.offerForm.valid) {
+      this.loading = true;
+      const request: IEditOfferRequest = {
+        offerId: this.offerId,
+        ...this.offerForm.value
+      };
+      
+      this.offersAgent.editOffer(request).pipe(
+        catchError(error => {
+          this.snackbarService.showError('Error updating offer: ' + error.message);
+          return of(null);
+        })
+      ).subscribe({
+        next: (result) => {
+          if (result) {
+            this.snackbarService.showSuccess('Offer updated successfully');
+            this.router.navigate(['/offers', this.offerId]);
+          }
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  public onCancel(): void {
+    this.router.navigate(['/offers', this.offerId]);
+  }
+
+  public getFieldError(fieldName: string): string | null {
+    const field = this.offerForm.get(fieldName);
+    if (field && field.touched && field.errors) {
+      if (field.errors['required']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+      }
+      if (field.errors['minlength']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['minlength'].requiredLength} characters`;
+      }
+      if (field.errors['maxlength']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must not exceed ${field.errors['maxlength'].requiredLength} characters`;
+      }
+      if (field.errors['min']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['min'].min}`;
+      }
+    }
+    return null;
   }
 
   private initializeForm(): void {
@@ -93,55 +141,5 @@ export class EditOfferComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  onSubmit(): void {
-    if (this.offerForm.valid) {
-      this.loading = true;
-      const request: IEditOfferRequest = {
-        offerId: this.offerId,
-        ...this.offerForm.value
-      };
-      
-      this.offersAgent.editOffer(request).pipe(
-        catchError(error => {
-          this.snackbarService.showError('Error updating offer: ' + error.message);
-          return of(null);
-        })
-      ).subscribe({
-        next: (result) => {
-          if (result) {
-            this.snackbarService.showSuccess('Offer updated successfully');
-            this.router.navigate(['/offers', this.offerId]);
-          }
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
-    }
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/offers', this.offerId]);
-  }
-
-  getFieldError(fieldName: string): string | null {
-    const field = this.offerForm.get(fieldName);
-    if (field && field.touched && field.errors) {
-      if (field.errors['required']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      }
-      if (field.errors['minlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['minlength'].requiredLength} characters`;
-      }
-      if (field.errors['maxlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must not exceed ${field.errors['maxlength'].requiredLength} characters`;
-      }
-      if (field.errors['min']) {
-        return `Price must be greater than 0`;
-      }
-    }
-    return null;
   }
 }

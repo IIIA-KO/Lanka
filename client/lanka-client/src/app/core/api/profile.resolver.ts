@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Resolve } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -7,9 +7,9 @@ import { IBloggerProfile } from '../models/blogger';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileResolver implements Resolve<IBloggerProfile | null> {
-  constructor(private bloggersAgent: BloggersAgent) {}
+  private readonly bloggersAgent = inject(BloggersAgent);
 
-  resolve(): Observable<IBloggerProfile | null> {
+  public resolve(): Observable<IBloggerProfile | null> {
     return this.bloggersAgent.getProfile().pipe(
       catchError(() => of(null))
     );

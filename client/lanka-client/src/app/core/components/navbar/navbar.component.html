@@ -27,6 +27,9 @@
       (keydown.enter)="confirmLogout()"
       (keydown.space)="confirmLogout()"
       style="cursor: pointer;"
+      tabindex="0"
+      role="button"
+      aria-label="Logout"
       >
       <img src="/icons/logout-icon.svg" alt="Logout" class="icon" />
       <span class="label" [class.visible]="open">Logout</span>

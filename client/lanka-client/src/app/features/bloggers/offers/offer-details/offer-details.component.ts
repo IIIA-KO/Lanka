@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -28,20 +28,48 @@ import { SnackbarService } from '../../../../core/services/snackbar/snackbar.ser
   styleUrls: ['./offer-details.component.css']
 })
 export class OfferDetailsComponent implements OnInit {
-  offer: IOffer | null = null;
-  loading = false;
-  offerId!: string;
+  public offer: IOffer | null = null;
+  public loading = false;
+  public offerId!: string;
 
-  constructor(
-    private offersAgent: OffersAgent,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly offersAgent = inject(OffersAgent);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.offerId = this.route.snapshot.params['id'];
     this.loadOffer();
+  }
+
+  public onEdit(): void {
+    this.router.navigate(['/offers', this.offerId, 'edit']);
+  }
+
+  public onDelete(): void {
+    if (confirm('Are you sure you want to delete this offer?')) {
+      this.loading = true;
+      this.offersAgent.deleteOffer(this.offerId).pipe(
+        catchError(error => {
+          this.snackbarService.showError('Error deleting offer: ' + error.message);
+          return of(null);
+        })
+      ).subscribe({
+        next: (result) => {
+          if (result !== null) {
+            this.snackbarService.showSuccess('Offer deleted successfully');
+            this.router.navigate(['/offers']);
+          }
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  public onBack(): void {
+    this.router.navigate(['/offers']);
   }
 
   private loadOffer(): void {
@@ -60,33 +88,5 @@ export class OfferDetailsComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  onEdit(): void {
-    this.router.navigate(['/offers', this.offerId, 'edit']);
-  }
-
-  onDelete(): void {
-    if (confirm('Are you sure you want to delete this offer? This action cannot be undone.')) {
-      this.loading = true;
-      this.offersAgent.deleteOffer(this.offerId).pipe(
-        catchError(error => {
-          this.snackbarService.showError('Error deleting offer: ' + error.message);
-          return of(null);
-        })
-      ).subscribe({
-        next: () => {
-          this.snackbarService.showSuccess('Offer deleted successfully');
-          this.router.navigate(['/offers']);
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
-    }
-  }
-
-  onBack(): void {
-    this.router.navigate(['/offers']);
   }
 }

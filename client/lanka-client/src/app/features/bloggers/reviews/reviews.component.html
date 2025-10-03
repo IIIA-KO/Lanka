@@ -59,9 +59,9 @@
               [showClear]="false"
               appendTo="body">
               <ng-template pTemplate="trigger">
-                <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-text p-button-sm"></button>
+                <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-text p-button-sm" aria-label="Actions"></button>
               </ng-template>
-            </p-dropdown>
+            </p-select>
           </div>
         </ng-template>
         
@@ -125,7 +125,7 @@
         placeholder="Select a campaign to review"
         class="w-full"
         styleClass="w-full">
-      </p-dropdown>
+      </p-select>
       <small class="p-error block mt-1" *ngIf="getFieldError(createReviewForm, 'campaignId')">
         {{ getFieldError(createReviewForm, 'campaignId') }}
       </small>

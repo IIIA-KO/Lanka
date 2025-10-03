@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
@@ -11,23 +11,16 @@ const BASE_URL = environment.apiUrl;
   providedIn: 'root',
 })
 export class PactsAgent {
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
 
-  private handleError(error: any) {
-    const message = error.error?.message || error.message || 'Unknown error';
-    return throwError(() => new Error(message));
-  }
-
-  createPact(request: ICreatePactRequest): Observable<string> {
+  public createPact(request: ICreatePactRequest): Observable<string> {
     return this.http
       .post<string>(`${BASE_URL}/pacts`, request)
       .pipe(catchError(this.handleError));
   }
 
-  getBloggerPact(): Observable<IPact> {
+  public getBloggerPact(): Observable<IPact> {
     const bloggerId = this.getBloggerId();
     if (!bloggerId) {
       return throwError(() => new Error('User not authenticated'));
@@ -38,7 +31,7 @@ export class PactsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  editPact(request: IEditPactRequest): Observable<IPact> {
+  public editPact(request: IEditPactRequest): Observable<IPact> {
     return this.http
       .put<IPact>(`${BASE_URL}/pacts/${request.pactId}`, request)
       .pipe(catchError(this.handleError));
@@ -49,5 +42,10 @@ export class PactsAgent {
    */
   private getBloggerId(): string | null {
     return this.authService.getUserIdFromToken();
+  }
+
+  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
+    const message = error.error?.message || error.message || 'Unknown error';
+    return throwError(() => new Error(message));
   }
 }

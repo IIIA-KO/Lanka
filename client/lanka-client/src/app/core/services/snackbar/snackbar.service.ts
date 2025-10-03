@@ -8,7 +8,7 @@ export class SnackbarService {
   private snackBar: MatSnackBar = inject(MatSnackBar);
   private zone: NgZone = inject(NgZone);
 
-  showSuccess(message: string, title?: string) {
+  public showSuccess(message: string): void {
     this.zone.run(() => {
       this.snackBar.open(message, 'Close', {
         duration: 5000,
@@ -17,7 +17,7 @@ export class SnackbarService {
     });
   }
 
-  showError(message: string, title?: string) {
+  public showError(message: string): void {
     this.zone.run(() => {
       this.snackBar.open(message, 'Close', {
         duration: 5000,

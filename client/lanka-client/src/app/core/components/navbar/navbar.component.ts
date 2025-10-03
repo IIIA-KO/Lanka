@@ -1,6 +1,6 @@
+import { Component, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { PanelMenuModule } from 'primeng/panelmenu';
-import { Component, HostBinding } from '@angular/core';
-import { RouterModule, Router } from '@angular/router';
 
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -12,7 +12,7 @@ interface MenuItem {
 }
 
 @Component({
-  selector: 'lnk-navbar',
+  selector: 'app-navbar',
   imports: [PanelMenuModule, RouterModule, ConfirmDialogModule],
   standalone: true,
   templateUrl: './navbar.component.html',
@@ -20,9 +20,9 @@ interface MenuItem {
   providers: [ConfirmationService],
 })
 export class NavbarComponent {
-  open = false;
+  public open = false;
 
-  menu: MenuItem[] = [
+  public menu: MenuItem[] = [
     { title: 'Profile', icon: '/icons/profile-icon.svg', path: '/profile' },
     { title: 'Search', icon: '/icons/search-icon.svg', path: '/search' },
     { title: 'Statistics', icon: '/icons/statistics-icon.svg', path: '/statistics' },
@@ -31,12 +31,10 @@ export class NavbarComponent {
     { title: 'Pacts', icon: '/icons/pact-icon.svg', path: '/pact' },
   ];
 
-  constructor(
-    private router: Router,
-    private confirmationService: ConfirmationService
-  ) {}
+  private readonly router = inject(Router);
+  private readonly confirmationService = inject(ConfirmationService);
 
-  confirmLogout(): void{
+  public confirmLogout(): void {
     this.confirmationService.confirm({
       message: 'Are you sure you want to log out?',
       header: 'Confirm Logout',

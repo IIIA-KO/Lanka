@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, catchError, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -14,7 +14,7 @@ import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 
 import { PactsAgent } from '../../../core/api/pacts.agent';
-import { IPact, ICreatePactRequest, IEditPactRequest, IOffer } from '../../../core/models/campaigns';
+import { IPact, ICreatePactRequest, IEditPactRequest } from '../../../core/models/campaigns';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
 
 @Component({
@@ -36,47 +36,28 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
   styleUrls: ['./pact.component.css']
 })
 export class PactComponent implements OnInit {
-  pact: IPact | null = null;
-  pactForm!: FormGroup;
-  loading = false;
-  isEditing = false;
-  error: string | null = null;
+  public pact: IPact | null = null;
+  public pactForm!: FormGroup;
+  public loading = false;
+  public isEditing = false;
+  public error: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private pactsAgent: PactsAgent,
-    private router: Router,
-    private snackbarService: SnackbarService
-  ) {}
+  private readonly fb = inject(FormBuilder);
+  private readonly pactsAgent = inject(PactsAgent);
+  private readonly router = inject(Router);
+  private readonly snackbarService = inject(SnackbarService);
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.initializeForm();
     this.loadPact();
   }
 
-  /**
-   * Initializes form with sample content for first-time users
-   */
-  private initializeFormWithSample(): void {
-    if (!this.pact && this.isEditing) {
-      this.pactForm.patchValue({
-        content: this.getSamplePactContent()
-      });
-    }
-  }
-
-  private initializeForm(): void {
-    this.pactForm = this.fb.group({
-      content: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(2000)]]
-    });
-  }
-
-  loadPact(): void {
+  public loadPact(): void {
     this.loading = true;
     this.error = null; // Clear any previous errors
     
     this.pactsAgent.getBloggerPact().pipe(
-      catchError(error => {
+      catchError((error) => {
         // No pact exists yet - this is normal for new users, don't show as error
         if (error.status === 404 || error.status === 204) {
           return of(null);
@@ -102,7 +83,7 @@ export class PactComponent implements OnInit {
     });
   }
 
-  startEditing(): void {
+  public startEditing(): void {
     this.isEditing = true;
     this.error = null; // Clear any errors when starting to edit
     
@@ -110,7 +91,7 @@ export class PactComponent implements OnInit {
     this.initializeFormWithSample();
   }
 
-  cancelEditing(): void {
+  public cancelEditing(): void {
     this.isEditing = false;
     this.error = null; // Clear any errors when canceling
     
@@ -123,7 +104,7 @@ export class PactComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
+  public onSubmit(): void {
     if (this.pactForm.valid) {
       this.loading = true;
       
@@ -135,7 +116,7 @@ export class PactComponent implements OnInit {
         };
         
         this.pactsAgent.editPact(request).pipe(
-          catchError(error => {
+          catchError(() => {
             // Let the error interceptor handle the user notification
             return of(null);
           })
@@ -158,7 +139,7 @@ export class PactComponent implements OnInit {
         };
         
         this.pactsAgent.createPact(request).pipe(
-          catchError(error => {
+          catchError(() => {
             // Let the error interceptor handle the user notification
             return of(null);
           })
@@ -178,14 +159,14 @@ export class PactComponent implements OnInit {
     }
   }
 
-  navigateToOffers(): void {
+  public navigateToOffers(): void {
     this.router.navigate(['/offers']);
   }
 
   /**
    * Resets the form content to the sample template
    */
-  resetToSample(): void {
+  public resetToSample(): void {
     this.pactForm.patchValue({
       content: this.getSamplePactContent()
     });
@@ -194,7 +175,7 @@ export class PactComponent implements OnInit {
     this.pactForm.get('content')?.markAsTouched();
   }
 
-  getFieldError(fieldName: string): string | null {
+  public getFieldError(fieldName: string): string | null {
     const field = this.pactForm.get(fieldName);
     if (field && field.touched && field.errors) {
       if (field.errors['required']) {
@@ -213,7 +194,7 @@ export class PactComponent implements OnInit {
   /**
    * Provides sample pact content for first-time users
    */
-  getSamplePactContent(): string {
+  public getSamplePactContent(): string {
     return `Partnership Terms & Collaboration Guidelines
 
 🤝 About Me
@@ -243,5 +224,22 @@ I only partner with brands that align with my values and audience interests. Thi
 Ready to create something amazing together? I'm excited to discuss how we can bring your brand vision to life through engaging, authentic content.
 
 Note: These are general guidelines. Specific terms will be customized for each partnership based on campaign requirements and objectives.`;
+  }
+
+  /**
+   * Initializes form with sample content for first-time users
+   */
+  private initializeFormWithSample(): void {
+    if (!this.pact && this.isEditing) {
+      this.pactForm.patchValue({
+        content: this.getSamplePactContent()
+      });
+    }
+  }
+
+  private initializeForm(): void {
+    this.pactForm = this.fb.group({
+      content: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(2000)]]
+    });
   }
 }

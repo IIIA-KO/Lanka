@@ -9,7 +9,6 @@ import {
 import { throwError, Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SnackbarService } from '../services/snackbar/snackbar.service';
-import { Router } from '@angular/router';
 
 /**
  * Determines if error display should be skipped for certain endpoints
@@ -75,10 +74,9 @@ function getUserFriendlyErrorMessage(err: HttpErrorResponse): string {
 }
 
 export const errorInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<any>,
+  req: HttpRequest<unknown>,
   next: HttpHandlerFn
-): Observable<HttpEvent<any>> => {
-  const router = inject(Router);
+): Observable<HttpEvent<unknown>> => {
   const snackbar = inject(SnackbarService);
 
   return next(req).pipe(
@@ -94,25 +92,25 @@ export const errorInterceptor: HttpInterceptorFn = (
         const errors = err.error?.errors;
 
         if (Array.isArray(errors)) {
-          const descriptions = errors.map(e => e.description).filter(Boolean);
+          const descriptions = errors.map((e: { description: string }) => e.description).filter(Boolean);
           const message = descriptions.join('\n');
           snackbar.showError(message || errorMessage);
         } else {
-          snackbar.showError(err.error?.title || errorMessage);
+          snackbar.showError((err.error as { title?: string })?.title || errorMessage);
         }
       } else if (err.status === 401) {
-        snackbar.showError(err.error?.title || errorMessage);
+        snackbar.showError((err.error as { title?: string })?.title || errorMessage);
       } else if (err.status === 403) {
         snackbar.showError(errorMessage);
       } else if (err.status === 404) {
         // Only show 404 errors for non-optional resources
         if (!isOptionalResource(req.url)) {
-          snackbar.showError(err.error?.detail || errorMessage);
+          snackbar.showError((err.error as { detail?: string })?.detail || errorMessage);
         }
       } else if (err.status === 409) {
-        snackbar.showError(err.error?.detail || errorMessage);
+        snackbar.showError((err.error as { detail?: string })?.detail || errorMessage);
       } else if (err.status === 422) {
-        snackbar.showError(err.error?.detail || errorMessage);
+        snackbar.showError((err.error as { detail?: string })?.detail || errorMessage);
       } else if (err.status >= 500) {
         snackbar.showError(errorMessage);
         // Optionally navigate to error page for severe errors

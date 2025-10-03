@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 @Component({
@@ -8,9 +8,11 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'lanka-client';
-  constructor(private translate: TranslateService) {
-    const browserLang = translate.getBrowserLang();
-    translate.use(browserLang?.match(/en|uk/) ? browserLang : 'en');
+  public title = 'lanka-client';
+  private readonly translate = inject(TranslateService);
+
+  constructor() {
+    const browserLang = this.translate.getBrowserLang();
+    this.translate.use(browserLang?.match(/en|uk/) ? browserLang : 'en');
   }
 }

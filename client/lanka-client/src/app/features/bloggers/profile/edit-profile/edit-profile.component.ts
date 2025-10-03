@@ -1,17 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { IBloggerProfile } from '../../../../core/models/blogger';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AgentService } from '../../../../core/api/agent';
-import {
-  ImageCropperComponent,
-  ImageCroppedEvent,
-  LoadedImage,
-} from 'ngx-image-cropper';
-import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth/auth.service';
+import { IBloggerProfile } from '../../../../core/models/blogger';
+import {
+  ImageCroppedEvent,
+  ImageCropperComponent,
+} from 'ngx-image-cropper';
 
 @Component({
   imports: [
@@ -24,28 +20,35 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
   styleUrl: './edit-profile.component.css',
 })
 export class EditProfileComponent implements OnInit {
-  profile: IBloggerProfile | null = null;
-  editForm: FormGroup;
+  public profile: IBloggerProfile | null = null;
+  public editForm: FormGroup;
 
   // Avatar/photo logic
-  photoPreview: string | ArrayBuffer | null = null;
-  photoFile: File | null = null;
-  cropping = false;
-  imageChangedEvent: any = '';
-  croppedImage: string | null = null;
-  uploading = false;
+  public photoPreview: string | ArrayBuffer | null = null;
+  public photoFile: File | null = null;
+  public cropping = false;
+  public imageChangedEvent: Event | null = null;
+  public croppedImage: string | null = null;
+  public uploading = false;
 
-  constructor(
-    private api: AgentService,
-    private router: Router,
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private auth: AuthService
-  ) {
+  // Danger zone (account deletion)
+  public deleteCountdown = 0;
+  public confirmingDelete = false;
+  public deletingAccount = false;
+  public deleteError: string | null = null;
+
+  private readonly api = inject(AgentService);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
+  private deleteTimer: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
     const nav = this.router.getCurrentNavigation();
     if (nav?.extras?.state?.['profile']) {
       this.profile = nav.extras.state['profile'];
-      console.log('Profile from navigation state:', this.profile);
+      console.warn('[EditProfileComponent] Profile from navigation state:', this.profile);
     }
 
     this.editForm = this.fb.group({
@@ -56,14 +59,190 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  // Danger zone (account deletion)
-  deleteCountdown = 0;
-  private deleteTimer: any;
-  confirmingDelete = false;
-  deletingAccount = false;
-  deleteError: string | null = null;
+  public get firstName() {
+    return this.editForm.get('firstName');
+  }
 
-  startDeleteCountdown(): void {
+  public get lastName() {
+    return this.editForm.get('lastName');
+  }
+
+  public get birthDate() {
+    return this.editForm.get('birthDate');
+  }
+
+  public get bio() {
+    return this.editForm.get('bio');
+  }
+
+  // Avatar/photo logic
+  public get photoUri(): string | null {
+    return this.profile?.profilePhotoUri ?? null;
+  }
+
+  public ngOnInit(): void {
+    if (!this.profile) {
+      this.profile = this.route.snapshot.data['profile'] ?? null;
+      console.warn('[EditProfileComponent] Profile from route data:', this.profile);
+    }
+
+    if (this.profile) {
+      this.editForm.patchValue({
+        firstName: this.profile.firstName,
+        lastName: this.profile.lastName,
+        birthDate: this.profile.birthDate,
+        bio: this.profile.bio,
+      });
+    }
+  }
+
+  public onSubmit(): void {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+    this.api.Bloggers.updateProfile(this.editForm.value).subscribe({
+      next: () => {
+        this.router.navigate(['/profile']);
+      },
+    });
+  }
+
+  public onCancel(): void {
+    this.router.navigate(['/profile']);
+  }
+
+  public onFileChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    console.warn('[EditProfileComponent] File selected:', target.files?.[0]);
+    if (target.files && target.files[0]) {
+      this.imageChangedEvent = event;
+      this.cropping = true;
+      console.warn('[EditProfileComponent] Cropping mode activated');
+    }
+  }
+
+  // Add this method to handle image loading
+  public imageLoaded(): void {
+    console.warn('[EditProfileComponent] Image loaded successfully');
+    // Image loaded successfully
+  }
+
+  // Add this method to handle crop ready
+  public cropperReady(): void {
+    console.warn('[EditProfileComponent] Cropper ready');
+    // Cropper ready
+  }
+
+  // Add this method to handle load failed
+  public loadImageFailed(): void {
+    console.warn('[EditProfileComponent] Image load failed');
+    alert('Failed to load image. Please try again.');
+  }
+
+  public imageCropped(event: ImageCroppedEvent): void {
+    console.warn('[EditProfileComponent] Image cropped event:', event);
+
+    if (event.base64) {
+      this.croppedImage = event.base64;
+      this.photoPreview = event.base64;
+
+      // Convert to File object
+      this.photoFile = this.base64ToFile(event.base64, 'profile.jpg');
+      console.warn('[EditProfileComponent] Cropped image set, photoFile:', this.photoFile);
+    } else if (event.blob) {
+      // Alternative: use blob if base64 is not available
+      this.photoFile = new File([event.blob], 'profile.jpg', {
+        type: 'image/jpeg',
+      });
+
+      // Convert blob to base64 for preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.photoPreview = reader.result;
+        this.croppedImage = reader.result as string;
+      };
+      reader.readAsDataURL(event.blob);
+      console.warn('[EditProfileComponent] Cropped image set from blob, photoFile:', this.photoFile);
+    }
+  }
+
+  public uploadPhoto(): void {
+    console.warn('[EditProfileComponent] Upload photo clicked, photoFile:', this.photoFile);
+
+    if (!this.photoFile) {
+      alert('No photo file to upload!');
+      return;
+    }
+
+    // Validate file size (e.g., max 5MB)
+    if (this.photoFile.size > 5 * 1024 * 1024) {
+      alert('File size too large. Please select a smaller image.');
+      return;
+    }
+
+    // Debug: Log file details
+    console.warn('[EditProfileComponent] File details:', {
+      name: this.photoFile.name,
+      size: this.photoFile.size,
+      type: this.photoFile.type,
+    });
+
+    this.uploading = true;
+
+    this.api.Bloggers.uploadProfilePhoto(this.photoFile).subscribe({
+      next: (response) => {
+        console.warn('[EditProfileComponent] Upload successful:', response);
+        this.cropping = false;
+        this.resetPhotoState();
+        this.uploading = false;
+
+        // Refresh profile data
+        this.refreshProfile();
+      },
+      error: (err) => {
+        console.error('[EditProfileComponent] Upload error:', err);
+        this.uploading = false;
+        alert('Upload failed: ' + (err?.message || 'Unknown error'));
+      },
+    });
+  }
+
+  public removePhoto(): void {
+    if (!confirm('Are you sure you want to remove your profile photo?')) {
+      return;
+    }
+
+    this.uploading = true;
+
+    this.api.Bloggers.deleteProfilePhoto().subscribe({
+      next: () => {
+        console.warn('[EditProfileComponent] Photo removed successfully');
+        this.uploading = false;
+        this.refreshProfile();
+      },
+      error: (err) => {
+        console.error('[EditProfileComponent] Remove photo error:', err);
+        this.uploading = false;
+        alert('Failed to remove photo');
+      },
+    });
+  }
+
+  public cancelCrop(): void {
+    this.cropping = false;
+    this.resetPhotoState();
+
+    // Reset file input
+    const fileInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  public startDeleteCountdown(): void {
     if (this.deletingAccount) return;
     this.deleteError = null;
     this.confirmingDelete = true;
@@ -79,20 +258,13 @@ export class EditProfileComponent implements OnInit {
     }, 1000);
   }
 
-  cancelDeleteCountdown(): void {
+  public cancelDeleteCountdown(): void {
     this.clearDeleteTimer();
     this.confirmingDelete = false;
     this.deleteCountdown = 0;
   }
 
-  private clearDeleteTimer(): void {
-    if (this.deleteTimer) {
-      clearInterval(this.deleteTimer);
-      this.deleteTimer = null;
-    }
-  }
-
-  performDelete(): void {
+  public performDelete(): void {
     this.deletingAccount = true;
     this.api.Users.deleteAccount().subscribe({
       next: () => {
@@ -109,111 +281,14 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    if (!this.profile) {
-      this.profile = this.route.snapshot.data['profile'] ?? null;
-      console.log('Profile from route data:', this.profile);
-    }
-
-    if (this.profile) {
-      this.editForm.patchValue({
-        firstName: this.profile.firstName,
-        lastName: this.profile.lastName,
-        birthDate: this.profile.birthDate,
-        bio: this.profile.bio,
-      });
+  private clearDeleteTimer(): void {
+    if (this.deleteTimer) {
+      clearInterval(this.deleteTimer);
+      this.deleteTimer = null;
     }
   }
 
-  onSubmit(): void {
-    if (this.editForm.invalid) {
-      this.editForm.markAllAsTouched();
-      return;
-    }
-    this.api.Bloggers.updateProfile(this.editForm.value).subscribe({
-      next: () => {
-        this.router.navigate(['/profile']);
-      },
-    });
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/profile']);
-  }
-
-  get firstName() {
-    return this.editForm.get('firstName');
-  }
-  get lastName() {
-    return this.editForm.get('lastName');
-  }
-  get birthDate() {
-    return this.editForm.get('birthDate');
-  }
-  get bio() {
-    return this.editForm.get('bio');
-  }
-
-  // Avatar/photo logic
-  get photoUri(): string | null {
-    return this.profile?.profilePhotoUri ?? null;
-  }
-
-  onFileChange(event: any): void {
-    console.log('File selected:', event.target.files[0]);
-    if (event.target.files && event.target.files[0]) {
-      this.imageChangedEvent = event;
-      this.cropping = true;
-      console.log('Cropping mode activated');
-    }
-  }
-
-  // Add this method to handle image loading
-  imageLoaded(image: LoadedImage) {
-    console.log('Image loaded successfully');
-    // Image loaded successfully
-  }
-
-  // Add this method to handle crop ready
-  cropperReady() {
-    console.log('Cropper ready');
-    // Cropper ready
-  }
-
-  // Add this method to handle load failed
-  loadImageFailed() {
-    console.log('Image load failed');
-    alert('Failed to load image. Please try again.');
-  }
-
-  imageCropped(event: ImageCroppedEvent) {
-    console.log('Image cropped event:', event);
-
-    if (event.base64) {
-      this.croppedImage = event.base64;
-      this.photoPreview = event.base64;
-
-      // Convert to File object
-      this.photoFile = this.base64ToFile(event.base64, 'profile.jpg');
-      console.log('Cropped image set, photoFile:', this.photoFile);
-    } else if (event.blob) {
-      // Alternative: use blob if base64 is not available
-      this.photoFile = new File([event.blob], 'profile.jpg', {
-        type: 'image/jpeg',
-      });
-
-      // Convert blob to base64 for preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.photoPreview = reader.result;
-        this.croppedImage = reader.result as string;
-      };
-      reader.readAsDataURL(event.blob);
-      console.log('Cropped image set from blob, photoFile:', this.photoFile);
-    }
-  }
-
-  base64ToFile(dataurl: string, filename: string): File {
+  private base64ToFile(dataurl: string, filename: string): File {
     try {
       const arr = dataurl.split(',');
       const mimeMatch = arr[0].match(/:(.*?);/);
@@ -228,101 +303,26 @@ export class EditProfileComponent implements OnInit {
 
       return new File([u8arr], filename, { type: mime });
     } catch (error) {
-      console.error('Error converting base64 to file:', error);
+      console.error('[EditProfileComponent] Error converting base64 to file:', error);
       throw new Error('Failed to convert image');
     }
   }
 
-  uploadPhoto() {
-    console.log('Upload photo clicked, photoFile:', this.photoFile);
-
-    if (!this.photoFile) {
-      alert('No photo file to upload!');
-      return;
-    }
-
-    // Validate file size (e.g., max 5MB)
-    if (this.photoFile.size > 5 * 1024 * 1024) {
-      alert('File size too large. Please select a smaller image.');
-      return;
-    }
-
-    // Debug: Log file details
-    console.log('File details:', {
-      name: this.photoFile.name,
-      size: this.photoFile.size,
-      type: this.photoFile.type,
-    });
-
-    this.uploading = true;
-
-    this.api.Bloggers.uploadProfilePhoto(this.photoFile).subscribe({
-      next: (response) => {
-        console.log('Upload successful:', response);
-        this.cropping = false;
-        this.resetPhotoState();
-        this.uploading = false;
-
-        // Refresh profile data
-        this.refreshProfile();
-      },
-      error: (err) => {
-        console.error('Upload error:', err);
-        this.uploading = false;
-        alert('Upload failed: ' + (err?.message || 'Unknown error'));
-      },
-    });
-  }
-
-  removePhoto() {
-    if (!confirm('Are you sure you want to remove your profile photo?')) {
-      return;
-    }
-
-    this.uploading = true;
-
-    this.api.Bloggers.deleteProfilePhoto().subscribe({
-      next: () => {
-        console.log('Photo removed successfully');
-        this.uploading = false;
-        this.refreshProfile();
-      },
-      error: (err) => {
-        console.error('Remove photo error:', err);
-        this.uploading = false;
-        alert('Failed to remove photo');
-      },
-    });
-  }
-
-  cancelCrop() {
-    this.cropping = false;
-    this.resetPhotoState();
-
-    // Reset file input
-    const fileInput = document.querySelector(
-      'input[type="file"]'
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  }
-
-  private resetPhotoState() {
+  private resetPhotoState(): void {
     this.photoFile = null;
     this.photoPreview = null;
     this.croppedImage = null;
-    this.imageChangedEvent = '';
+    this.imageChangedEvent = null;
   }
 
-  private refreshProfile() {
+  private refreshProfile(): void {
     this.api.Bloggers.getProfile().subscribe({
-      next: (profile: any) => {
+      next: (profile: IBloggerProfile) => {
         this.profile = profile;
-        console.log('Profile refreshed:', profile);
+        console.warn('[EditProfileComponent] Profile refreshed:', profile);
       },
       error: (err) => {
-        console.error('Error refreshing profile:', err);
+        console.error('[EditProfileComponent] Error refreshing profile:', err);
       },
     });
   }
