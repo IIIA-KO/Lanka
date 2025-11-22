@@ -4,5 +4,5 @@ namespace Lanka.Modules.Analytics.Domain.Tokens;
 
 public sealed record TokenId(Guid Value) : TypedEntityId(Value)
 {
-    public static TokenId New() => new(Guid.NewGuid());
+    public static TokenId New() => new(Guid.CreateVersion7());
 }

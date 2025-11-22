@@ -4,5 +4,5 @@ namespace Lanka.Modules.Campaigns.Domain.Offers;
 
 public sealed record OfferId(Guid Value) : TypedEntityId(Value)
 {
-    public static OfferId New() => new(Guid.NewGuid());
+    public static OfferId New() => new(Guid.CreateVersion7());
 }

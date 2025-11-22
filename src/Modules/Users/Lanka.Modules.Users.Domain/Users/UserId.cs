@@ -4,5 +4,5 @@ namespace Lanka.Modules.Users.Domain.Users;
 
 public record UserId(Guid Value) : TypedEntityId(Value)
 {
-    public static UserId New() => new(Guid.NewGuid());
+    public static UserId New() => new(Guid.CreateVersion7());
 }
