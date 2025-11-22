@@ -93,6 +93,13 @@ public static class InfrastructureConfiguration
             services.AddDistributedMemoryCache();
         }
 
+        services.AddHybridCache(options =>
+        {
+            options.MaximumPayloadBytes = 50 * 1024 * 1024;
+            options.MaximumKeyLength = 256;
+            options.DefaultEntryOptions = CacheOptions.CreateHybrid();
+        });
+
         services.TryAddSingleton<ICacheService, CacheService>();
     }
 

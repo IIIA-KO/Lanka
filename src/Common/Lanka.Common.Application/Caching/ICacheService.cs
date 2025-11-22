@@ -14,4 +14,11 @@ public interface ICacheService
     );
 
     Task RemoveAsync(string key, CancellationToken cancellationToken = default);
+
+    Task<T> GetOrCreateAsync<T>(
+        string key,
+        Func<CancellationToken, ValueTask<T>> factory,
+        TimeSpan? expiration = null,
+        CancellationToken cancellationToken = default
+    );
 }

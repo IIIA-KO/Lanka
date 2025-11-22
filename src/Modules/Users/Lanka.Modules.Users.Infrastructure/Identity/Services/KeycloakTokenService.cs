@@ -34,53 +34,58 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
     public async Task<Result<AccessTokenResponse>> GetAccessTokenAsync(
         Email email,
         string password,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
-        CachedAuthorizationToken? cached = await this.GetCachedAuthorizationTokenAsync(
-            email.Value,
-            cancellationToken
-        );
-        
-        if (cached is not null)
-        {
-            return new AccessTokenResponse(
-                cached.AccessToken,
-                ExpiresIn: CalculateRemainingTime(cached),
-                cached.RefreshToken,
-                cached.RefreshExpiresIn
-            );
-        }
-
-        KeyValuePair<string, string>[] parameters = this.BuildGrantParameters(
-            "password",
-            new Dictionary<string, string>
+        CachedAuthorizationToken cached = await this._cacheService.GetOrCreateAsync(
+            $"{_cacheKeyPrefix}{email.Value}",
+            factory: async _ =>
             {
-                ["username"] = email.Value,
-                ["password"] = password
-            }
-        );
-        
-        using var content = new FormUrlEncodedContent(parameters);
-        AuthorizationToken token = await this._api.GetTokenAsync(content);
+                KeyValuePair<string, string>[] parameters = this.BuildGrantParameters(
+                    "password",
+                    new Dictionary<string, string>
+                    {
+                        ["username"] = email.Value,
+                        ["password"] = password
+                    }
+                );
 
-        if (string.IsNullOrEmpty(token.AccessToken))
+                using var content = new FormUrlEncodedContent(parameters);
+                AuthorizationToken token = await this._api.GetTokenAsync(content);
+
+                if (string.IsNullOrEmpty(token.AccessToken))
+                {
+                    throw new InvalidOperationException("Authentication failed");
+                }
+
+                return new CachedAuthorizationToken(
+                    token.AccessToken,
+                    token.ExpiresIn,
+                    token.RefreshToken,
+                    token.RefreshExpiresIn,
+                    DateTimeOffset.UtcNow
+                );
+            },
+            cancellationToken: cancellationToken
+        );
+
+        if (string.IsNullOrEmpty(cached.AccessToken))
         {
             return Result.Failure<AccessTokenResponse>(IdentityProviderErrors.AuthenticationFailed);
         }
 
-        await this.CacheTokenAsync(email.Value, token, cancellationToken);
-
         return new AccessTokenResponse(
-            token.AccessToken,
-            token.ExpiresIn,
-            token.RefreshToken,
-            token.RefreshExpiresIn
+            cached.AccessToken,
+            ExpiresIn: CalculateRemainingTime(cached),
+            cached.RefreshToken,
+            cached.RefreshExpiresIn
         );
     }
 
     public async Task<Result<AccessTokenResponse>> RefreshTokenAsync(
         string refreshToken,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         this._logger.LogInformation("Refreshing access token");
 
@@ -107,10 +112,10 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
             token.RefreshExpiresIn
         );
     }
-    
+
 
     #region Private Helpers
-    
+
     private async Task<AuthorizationToken> RequestTokenInternalAsync(KeyValuePair<string, string>[] parameters)
     {
         using var content = new FormUrlEncodedContent(parameters);
@@ -142,36 +147,6 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
             ["client_secret"] = this._options.ConfidentialClientSecret,
             ["scope"] = "openid email"
         };
-    }
-
-    private async Task<CachedAuthorizationToken?> GetCachedAuthorizationTokenAsync(
-        string email,
-        CancellationToken cancellationToken)
-    {
-        return await this._cacheService
-            .GetAsync<CachedAuthorizationToken>(
-                $"{_cacheKeyPrefix}{email}",
-                cancellationToken
-            );
-    }
-
-    private async Task CacheTokenAsync(string email, AuthorizationToken tokenResult,
-        CancellationToken cancellationToken)
-    {
-        var cachedToken = new CachedAuthorizationToken(
-            tokenResult.AccessToken,
-            tokenResult.ExpiresIn,
-            tokenResult.RefreshToken,
-            tokenResult.RefreshExpiresIn,
-            DateTimeOffset.UtcNow
-        );
-
-        await this._cacheService.SetAsync(
-            $"{_cacheKeyPrefix}{email}",
-            cachedToken,
-            TimeSpan.FromSeconds(tokenResult.ExpiresIn),
-            cancellationToken
-        );
     }
 
     private static int CalculateRemainingTime(CachedAuthorizationToken cachedToken)

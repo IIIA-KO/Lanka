@@ -13,7 +13,8 @@ internal sealed class InstagramLinkingFailedIntegrationEventHandler
 
     public InstagramLinkingFailedIntegrationEventHandler(
         ILogger<InstagramLinkingFailedIntegrationEventHandler> logger,
-        ICacheService cacheService)
+        ICacheService cacheService
+    )
     {
         this._logger = logger;
         this._cacheService = cacheService;

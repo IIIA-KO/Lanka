@@ -1,14 +1,17 @@
-using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Lanka.Common.Infrastructure.Caching;
 
 public static class CacheOptions
 {
-    public static DistributedCacheEntryOptions DefaultExpiration =>
-        new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2) };
+    public static HybridCacheEntryOptions CreateHybrid(TimeSpan? expiration = null)
+    {
+        TimeSpan effectiveExpiration = expiration ?? TimeSpan.FromMinutes(2);
 
-    public static DistributedCacheEntryOptions Create(TimeSpan? expiration) =>
-        expiration is not null
-            ? new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration }
-            : DefaultExpiration;
+        return new HybridCacheEntryOptions
+        {
+            Expiration = effectiveExpiration,
+            LocalCacheExpiration = effectiveExpiration
+        };
+    }
 }
