@@ -58,7 +58,6 @@
     <!-- Api -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel.Https" Version="2.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.4.0" />
     <PackageVersion Include="Polly" Version="8.6.2" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
@@ -72,6 +71,7 @@
     <PackageVersion Include="MassTransit.Redis" Version="8.4.1" />
     <!-- Cache -->
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.0.0" />
     <!-- Background Jobs -->
     <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.14.0" />
     <!-- Search -->

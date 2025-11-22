@@ -28,24 +28,22 @@ public class Result
     public static Result Failure(Error error) => new(false, error);
 
     public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
-        
+
     public static implicit operator Result(Error error) => Failure(error);
 }
 
 public class Result<TValue> : Result
 {
-    private readonly TValue? _value;
-
     public Result(TValue? value, bool isSuccess, Error error)
         : base(isSuccess, error)
     {
-        this._value = value;
+        this.Value = value;
     }
 
     [NotNull]
     public TValue Value =>
         this.IsSuccess
-            ? this._value!
+            ? field!
             : throw new InvalidOperationException(
                 "The value of a failure result can't be accessed."
             );
