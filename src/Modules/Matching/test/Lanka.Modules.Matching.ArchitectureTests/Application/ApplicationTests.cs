@@ -2,7 +2,6 @@ using FluentValidation;
 using Lanka.Common.Application.Messaging;
 using Lanka.Modules.Matching.ArchitectureTests.Abstractions;
 using NetArchTest.Rules;
-using Xunit;
 using ICommand = System.Windows.Input.ICommand;
 
 namespace Lanka.Modules.Matching.ArchitectureTests.Application;

@@ -1,6 +1,5 @@
 using Lanka.Modules.Matching.ArchitectureTests.Abstractions;
 using NetArchTest.Rules;
-using Xunit;
 
 namespace Lanka.Modules.Matching.ArchitectureTests.Layers;
 

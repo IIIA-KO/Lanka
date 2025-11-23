@@ -3,7 +3,6 @@ using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Matching.ArchitectureTests.Abstractions;
 using NetArchTest.Rules;
-using Xunit;
 
 namespace Lanka.Modules.Matching.ArchitectureTests.Domain;
 

@@ -178,7 +178,7 @@ public class SearchQueryTests : BaseTest
     {
         // Arrange
         var originalQuery = SearchQuery.Simple(SearchQueryData.Text);
-        SearchableItemType[] itemTypes = new[] { SearchableItemType.Blogger, SearchableItemType.Campaign };
+        SearchableItemType[] itemTypes = [SearchableItemType.Blogger, SearchableItemType.Campaign];
 
         // Act
         SearchQuery updatedQuery = originalQuery.WithItemTypes(itemTypes);
@@ -186,7 +186,7 @@ public class SearchQueryTests : BaseTest
         // Assert
         updatedQuery.Should().NotBeNull();
         updatedQuery.ItemTypes.Should().BeEquivalentTo(itemTypes);
-        updatedQuery.Text.Should().Be(originalQuery.Text); // Other properties preserved
+        updatedQuery.Text.Should().Be(originalQuery.Text);
     }
 
     [Fact]
@@ -204,6 +204,6 @@ public class SearchQueryTests : BaseTest
         updatedQuery.Should().NotBeNull();
         updatedQuery.Page.Should().Be(newPage);
         updatedQuery.Size.Should().Be(newSize);
-        updatedQuery.Text.Should().Be(originalQuery.Text); // Other properties preserved
+        updatedQuery.Text.Should().Be(originalQuery.Text);
     }
 }

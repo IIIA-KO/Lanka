@@ -8,6 +8,7 @@
       <PackageReference Include="MassTransit.Redis" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+      <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
       <PackageReference Include="MongoDB.Driver" />
       <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" />
       <PackageReference Include="Newtonsoft.Json" />

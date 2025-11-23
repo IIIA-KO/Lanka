@@ -14,9 +14,10 @@ using Lanka.Modules.Matching.Application.Abstractions.Search;
 using Lanka.Modules.Matching.Infrastructure.Database;
 using Lanka.Modules.Matching.Infrastructure.Inbox;
 using Lanka.Modules.Matching.Infrastructure.Outbox;
-using Lanka.Modules.Matching.Infrastructure.Search;
-using Lanka.Modules.Matching.Infrastructure.Search.Index;
+using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
+using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Services;
 using Lanka.Modules.Matching.Presentation;
+using Lanka.Modules.Matching.Presentation.IntegrationEvents.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -34,8 +35,6 @@ public static class MatchingModule
         IConfiguration configuration
     )
     {
-        services.AddDomainEventHandlers();
-
         services.AddIntegrationEventHandlers();
 
         services.AddInfrastructure(configuration);
@@ -145,19 +144,6 @@ public static class MatchingModule
                 typeof(IdempotentIntegrationEventHandler<>).MakeGenericType(integrationEvent);
 
             services.Decorate(integrationEventHandler, closedIdempotentHandler);
-        }
-    }
-
-    private static void AddDomainEventHandlers(this IServiceCollection services)
-    {
-        Type[] domainEventHandlers = Application.AssemblyReference.Assembly
-            .GetTypes()
-            .Where(t => t.IsAssignableTo(typeof(IDomainEventHandler)))
-            .ToArray();
-
-        foreach (Type domainEventHandler in domainEventHandlers)
-        {
-            services.TryAddScoped(domainEventHandler);
         }
     }
 }

@@ -12,11 +12,11 @@ internal static class SearchableItemData
     
     public const string Content = "This is test content for the searchable item.";
     
-    public static readonly IEnumerable<string> Tags = new[] { "test", "item", "search" };
+    public static readonly IEnumerable<string> Tags = ["test", "item", "search"];
     
     public const string UpdatedTitle = "Updated Searchable Item Title";
     
     public const string UpdatedContent = "This is updated content for the searchable item.";
     
-    public static readonly IEnumerable<string> UpdatedTags = new[] { "updated", "modified", "item", "search", "test" };
+    public static readonly IEnumerable<string> UpdatedTags = ["updated", "modified", "item", "search", "test"];
 }

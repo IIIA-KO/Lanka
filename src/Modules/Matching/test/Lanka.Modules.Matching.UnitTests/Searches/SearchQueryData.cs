@@ -1,5 +1,3 @@
-using Lanka.Modules.Matching.Domain.SearchableItems;
-
 namespace Lanka.Modules.Matching.UnitTests.Searches;
 
 internal static class SearchQueryData
@@ -28,9 +26,9 @@ internal static class SearchQueryData
     
     public const int OversizedSize = 1500;
     
-    public static readonly DateTimeOffset CreatedAfter = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset CreatedAfter = new(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
     
-    public static readonly DateTimeOffset CreatedBefore = new DateTimeOffset(2024, 12, 31, 23, 59, 59, TimeSpan.Zero);
+    public static readonly DateTimeOffset CreatedBefore = new(2024, 12, 31, 23, 59, 59, TimeSpan.Zero);
     
     public const string ItemTypes = "1,2,3";
     
@@ -43,7 +41,7 @@ internal static class SearchQueryData
     public static readonly IDictionary<string, IReadOnlyCollection<string>> FacetFilters = 
         new Dictionary<string, IReadOnlyCollection<string>>
         {
-            ["categories"] = new[] { "Technology", "Programming", "Testing" },
-            ["regions"] = new[] { "North America", "Europe" }
+            ["categories"] = ["Technology", "Programming", "Testing"],
+            ["regions"] = ["North America", "Europe"]
         };
 }

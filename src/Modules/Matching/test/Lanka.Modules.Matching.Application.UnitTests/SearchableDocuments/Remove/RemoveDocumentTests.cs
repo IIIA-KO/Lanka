@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Matching.Application.Abstractions.Search;
-using Lanka.Modules.Matching.Application.SearchableDocuments.Remove;
+using Lanka.Modules.Matching.Application.Index.Remove;
 using Lanka.Modules.Matching.Domain.SearchableItems;
 using NSubstitute;
 

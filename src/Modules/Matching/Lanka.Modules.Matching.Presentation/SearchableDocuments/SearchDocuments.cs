@@ -15,7 +15,6 @@ internal sealed class SearchDocuments : SearchEndpointBase
         return app.MapGet(this.BuildRoute(string.Empty),
                 async (
                     string q,
-                    string? language,
                     bool? fuzzy,
                     bool? synonyms,
                     double? fuzzyDistance,
