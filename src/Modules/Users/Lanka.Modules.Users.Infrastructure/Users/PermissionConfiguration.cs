@@ -50,16 +50,25 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Member, Permission.ReadProfile),
                     CreateRolePermission(Role.Member, Permission.UpdateProfile),
                     CreateRolePermission(Role.Member, Permission.ReadBloggers),
+                    
+                    CreateRolePermission(Role.Member, Permission.ReadOffers),
+                    CreateRolePermission(Role.Member, Permission.CreateOffer),
+                    CreateRolePermission(Role.Member, Permission.UpdateOffer),
+                    CreateRolePermission(Role.Member, Permission.DeleteOffer),
+                    
                     CreateRolePermission(Role.Member, Permission.CreatePact),
                     CreateRolePermission(Role.Member, Permission.ReadPacts),
                     CreateRolePermission(Role.Member, Permission.UpdatePact),
+                    
                     CreateRolePermission(Role.Member, Permission.CreateCampaign),
                     CreateRolePermission(Role.Member, Permission.ReadCampaigns),
                     CreateRolePermission(Role.Member, Permission.UpdateCampaign),
+                    
                     CreateRolePermission(Role.Member, Permission.CreateReview),
                     CreateRolePermission(Role.Member, Permission.ReadReviews),
                     CreateRolePermission(Role.Member, Permission.UpdateReview),
                     CreateRolePermission(Role.Member, Permission.DeleteReview),
+                    
 
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.ReadProfile),
