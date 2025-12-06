@@ -12,6 +12,8 @@ internal static class DocumentDbSettings
     
     internal const string ReachDistribution = "audience-reach-distribution";
 
+    internal const string InstagramPosts = "instagram-posts";
+
     internal const string EnagementStatistics = "engagement-statistics";
 
     internal const string InteractionStatistics = "interaction-statistics";

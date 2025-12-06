@@ -1,6 +1,8 @@
 using Lanka.Modules.Analytics.Application.Abstractions.Data;
+using Lanka.Modules.Analytics.Application.Abstractions.Models.Posts;
 using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Domain.Audience;
+using Lanka.Modules.Analytics.Domain.Posts;
 using Lanka.Modules.Analytics.Domain.Statistics;
 using Lanka.Modules.Analytics.Domain.UserActivities;
 using Microsoft.Extensions.Logging;
@@ -55,7 +57,8 @@ internal sealed class MongoCleanupService : IMongoCleanupService
             this.DeleteExpiredDocumentsAsync<EngagementStatistics>(DocumentDbSettings.EnagementStatistics, "engagement statistics", cutoffTime, cancellationToken),
             this.DeleteExpiredDocumentsAsync<InteractionStatistics>(DocumentDbSettings.InteractionStatistics, "interaction statistics", cutoffTime, cancellationToken),
             this.DeleteExpiredDocumentsAsync<MetricsStatistics>(DocumentDbSettings.MetricsStatistics, "metrics statistics", cutoffTime, cancellationToken),
-            this.DeleteExpiredDocumentsAsync<OverviewStatistics>(DocumentDbSettings.OverviewStatistics, "overview statistics", cutoffTime, cancellationToken)
+            this.DeleteExpiredDocumentsAsync<OverviewStatistics>(DocumentDbSettings.OverviewStatistics, "overview statistics", cutoffTime, cancellationToken),
+            this.DeleteExpiredDocumentsAsync<InstagramPosts>(DocumentDbSettings.InstagramPosts, "instagram posts", cutoffTime, cancellationToken)
         ];
 
         await Task.WhenAll(cleanupTasks);

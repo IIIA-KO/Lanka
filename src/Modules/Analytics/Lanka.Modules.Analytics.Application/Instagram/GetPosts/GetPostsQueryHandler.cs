@@ -25,7 +25,7 @@ internal sealed class GetPostsQueryHandler : IQueryHandler<GetPostsQuery, PostsR
         CancellationToken cancellationToken
     )
     {
-        InstagramAccount? account = await this._instagramAccountRepository.GetByUserIdAsync(
+        InstagramAccount? account = await this._instagramAccountRepository.GetByUserIdWithTokenAsync(
             new UserId(request.UserId),
             cancellationToken
         );
@@ -35,9 +35,13 @@ internal sealed class GetPostsQueryHandler : IQueryHandler<GetPostsQuery, PostsR
             return Result.Failure<PostsResponse>(InstagramAccountErrors.NotFound);
         }
 
+        if (account.Token is null)
+        {
+            return Result.Failure<PostsResponse>(InstagramAccountErrors.TokenNotFound);
+        }
+
         Result<PostsResponse> result = await this._instagramPostService.GetUserPostsWithInsights(
-            account.Token!.AccessToken.Value,
-            account.Metadata.Id,
+            account,
             request.Limit,
             request.CursorType ?? string.Empty,
             request.Cursor ?? string.Empty,

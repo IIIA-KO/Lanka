@@ -21,6 +21,7 @@ using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Services;
 using Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Outbox;
+using Lanka.Modules.Analytics.Infrastructure.Posts;
 using Lanka.Modules.Analytics.Infrastructure.Statistics;
 using Lanka.Modules.Analytics.Infrastructure.Tokens;
 using Lanka.Modules.Analytics.Infrastructure.UserActivities;
@@ -161,6 +162,7 @@ public static class AnalyticsModule
         services.AddScoped<GenderDistributionRepository>();
         services.AddScoped<LocationDistributionRepository>();
         services.AddScoped<ReachDistributionRepository>();
+        services.AddScoped<InstagramPostsRepository>();
 
         services.AddScoped<EngagementRepository>();
         services.AddScoped<InteractionRepository>();

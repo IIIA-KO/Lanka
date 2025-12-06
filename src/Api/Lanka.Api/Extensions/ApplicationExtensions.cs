@@ -11,7 +11,6 @@ using Lanka.Modules.Matching.Infrastructure;
 using Lanka.Modules.Users.Infrastructure;
 using Lanka.Common.Infrastructure.Notifications;
 using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
-using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;

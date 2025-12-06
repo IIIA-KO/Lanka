@@ -18,10 +18,10 @@ public static class UserActivityCalculator
             .Count(r => r.CreatedAt > thirtyDaysAgo);
 
         double score =
-            loginPoints * 1.0
-            + completedAsClient * 2.0
-            + completedAsCreator * 3.0
-            + reviewPoints * 2.0;
+            (loginPoints * 1.0)
+            + (completedAsClient * 2.0)
+            + (completedAsCreator * 3.0)
+            + (reviewPoints * 2.0);
 
         UserActivityLevel level = score switch
         {

@@ -9,6 +9,11 @@ public static class InstagramAccountErrors
         "The Instagram account with the specified identifier was not found."
     );
 
+    public static Error TokenNotFound => Error.NotFound(
+        "InstagramAccount.TokenNotFound",
+        "The Instagram account token was not found. Please reconnect your Instagram account."
+    );
+
     public static Error FailedToGetFacebookPage => Error.Failure(
         "InstagramAccount.FailedToGetFacebookPage",
         "Failed to retrieve the Facebook Business Page associated with the Instagram account."

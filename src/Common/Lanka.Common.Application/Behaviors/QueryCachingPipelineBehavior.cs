@@ -10,6 +10,13 @@ public class QueryCachingPipelineBehavior<TRequest, TResponse>
     where TRequest : class, ICachedQuery
     where TResponse : Result
 {
+    private static readonly Action<ILogger, string, Exception?> CacheHitLog =
+        LoggerMessage.Define<string>(
+            LogLevel.Information,
+            new EventId(1001, nameof(RequestLoggingPipelineBehavior<,>)),
+            "Cache hit for {Query}"
+        );
+    
     private static readonly Action<ILogger, string, Exception?> CacheMissLog =
         LoggerMessage.Define<string>(
             LogLevel.Information,
@@ -41,15 +48,30 @@ public class QueryCachingPipelineBehavior<TRequest, TResponse>
 
         string name = typeof(TRequest).Name;
 
-        return await this._cacheService.GetOrCreateAsync(
+        TResponse? cachedResult = await this._cacheService.GetAsync<TResponse>(
             request.CacheKey,
-            factory: async _ =>
-            {
-                CacheMissLog(this._logger, name, null);
-                return await next(cancellationToken);
-            },
-            request.Expiration,
             cancellationToken
         );
+
+        if (cachedResult is not null)
+        {
+            CacheHitLog(this._logger, name, null);
+            return cachedResult;
+        }
+
+        CacheMissLog(this._logger, name, null);
+        TResponse result = await next(cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            await this._cacheService.SetAsync(
+                request.CacheKey,
+                result,
+                request.Expiration,
+                cancellationToken
+            );
+        }
+
+        return result;
     }
 }
