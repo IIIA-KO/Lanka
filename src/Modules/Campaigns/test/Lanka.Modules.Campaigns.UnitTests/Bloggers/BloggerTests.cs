@@ -41,7 +41,8 @@ public class BloggerTests : BaseTest
             "UpdatedFirstName",
             BloggerData.LastName,
             BloggerData.BirthDate,
-            BloggerData.Bio
+            BloggerData.Bio,
+            blogger.Category.Name
         );
 
         // Assert
@@ -66,7 +67,8 @@ public class BloggerTests : BaseTest
             blogger.FirstName.Value,
             blogger.LastName.Value,
             blogger.BirthDate.Value,
-            string.Empty
+            bio: string.Empty,
+            blogger.Category.Name
         );
 
         // Assert
@@ -90,7 +92,8 @@ public class BloggerTests : BaseTest
             string.Empty,
             blogger.LastName.Value,
             DateOnly.FromDateTime(DateTime.Today),
-            BloggerData.Bio
+            BloggerData.Bio,
+            blogger.Category.Name
         );
 
         // Assert
@@ -114,7 +117,8 @@ public class BloggerTests : BaseTest
             "UpdatedFirstName",
             "UpdatedLastName",
             blogger.BirthDate.Value,
-            BloggerData.Bio
+            BloggerData.Bio,
+            blogger.Category.Name
         );
 
         // Assert

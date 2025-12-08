@@ -1,17 +1,24 @@
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
+using Lanka.Modules.Campaigns.Application.Abstractions.Photos;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 
 namespace Lanka.Modules.Campaigns.Application.Bloggers.Delete;
 
 internal sealed class DeleteBloggerCommandHandler : ICommandHandler<DeleteBloggerCommand>
 {
+    private readonly IPhotoAccessor _photoAccessor;
     private readonly IBloggerRepository _bloggerRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteBloggerCommandHandler(IBloggerRepository bloggerRepository, IUnitOfWork unitOfWork)
+    public DeleteBloggerCommandHandler(
+        IPhotoAccessor photoAccessor,
+        IBloggerRepository bloggerRepository,
+        IUnitOfWork unitOfWork
+    )
     {
+        this._photoAccessor = photoAccessor;
         this._bloggerRepository = bloggerRepository;
         this._unitOfWork = unitOfWork;
     }
@@ -28,7 +35,10 @@ internal sealed class DeleteBloggerCommandHandler : ICommandHandler<DeleteBlogge
             return Result.Failure(BloggerErrors.NotFound);
         }
 
-        blogger.Delete();
+        if (blogger.ProfilePhoto is not null)
+        {
+            await this._photoAccessor.DeletePhotoAsync(blogger.ProfilePhoto.Id);
+        }
 
         this._bloggerRepository.Remove(blogger);
 

@@ -1,5 +1,7 @@
 using FluentValidation;
+using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Categories;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
 using Lanka.Modules.Campaigns.Domain.Bloggers.LastNames;
 
@@ -29,5 +31,11 @@ internal sealed class UpdateBloggerCommandValidator : AbstractValidator<UpdateBl
             .NotNull()
             .MaximumLength(Bio.MaxLength)
             .WithMessage(BioErrors.TooLong(Bio.MaxLength).Description);
+        
+        this.RuleFor(c => c.Category)
+            .NotEmpty()
+            .WithMessage("Category is required.")
+            .MaximumLength(Category.MaxLength)
+            .WithMessage(CategoryErrors.TooLong(Category.MaxLength).Description);
     }
 }

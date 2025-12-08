@@ -1,4 +1,5 @@
 using Lanka.Modules.Campaigns.Domain.Bloggers;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Categories;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Photos;
 
 namespace Lanka.Modules.Campaigns.Application.UnitTests.Bloggers;
@@ -24,6 +25,8 @@ internal static class BloggerData
 
     public static string Bio =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+
+    public static string Category = "None";
 
     public static DateOnly BirthDate => new(DateTime.Now.Year - 18, 1, 1);
 

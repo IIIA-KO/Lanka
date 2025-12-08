@@ -7,5 +7,6 @@ public sealed record UpdateBloggerCommand(
     string FirstName,
     string LastName,
     DateOnly BirthDate,
-    string Bio
+    string Bio,
+    string Category
 ) : ICommand<BloggerResponse>;

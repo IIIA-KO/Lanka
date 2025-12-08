@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
+using Lanka.Modules.Campaigns.Application.Abstractions.Photos;
 using Lanka.Modules.Campaigns.Application.Bloggers.Delete;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using NSubstitute;
@@ -10,16 +11,19 @@ namespace Lanka.Modules.Campaigns.Application.UnitTests.Bloggers;
 #pragma warning disable CA1515
 public class DeleteBloggerTests
 {
+    private readonly IPhotoAccessor _photoAccessor;
     private readonly IBloggerRepository _bloggerRepositoryMock;
     private readonly IUnitOfWork _unitOfWorkMock;
     private readonly DeleteBloggerCommandHandler _handler;
 
     public DeleteBloggerTests()
     {
+        this._photoAccessor = Substitute.For<IPhotoAccessor>();
         this._bloggerRepositoryMock = Substitute.For<IBloggerRepository>();
         this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
         this._handler = new DeleteBloggerCommandHandler(
+            this._photoAccessor,
             this._bloggerRepositoryMock,
             this._unitOfWorkMock
         );
@@ -40,7 +44,7 @@ public class DeleteBloggerTests
 
         this._bloggerRepositoryMock
             .GetByIdAsync(
-                Arg.Any<BloggerId>(), 
+                Arg.Any<BloggerId>(),
                 Arg.Any<CancellationToken>()
             ).Returns(blogger);
 

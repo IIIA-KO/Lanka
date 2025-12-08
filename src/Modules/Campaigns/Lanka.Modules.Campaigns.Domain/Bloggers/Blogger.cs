@@ -1,6 +1,7 @@
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
 using Lanka.Modules.Campaigns.Domain.Bloggers.BirthDates;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Categories;
 using Lanka.Modules.Campaigns.Domain.Bloggers.DomainEvents;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Emails;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
@@ -28,6 +29,8 @@ public class Blogger : Entity<BloggerId>
 
     public InstagramMetadata InstagramMetadata { get; private set; }
 
+    public Category Category { get; private set; }
+
     private Blogger() { }
 
     private Blogger(
@@ -36,7 +39,8 @@ public class Blogger : Entity<BloggerId>
         LastName lastName,
         Email email,
         BirthDate birthDate,
-        Bio bio
+        Bio bio,
+        Category category
     )
     {
         this.Id = bloggerId;
@@ -46,6 +50,7 @@ public class Blogger : Entity<BloggerId>
         this.BirthDate = birthDate;
         this.Bio = bio;
         this.InstagramMetadata = new InstagramMetadata(null, null, null);
+        this.Category = category;
     }
 
     public static Blogger Create(
@@ -62,7 +67,8 @@ public class Blogger : Entity<BloggerId>
             LastName.Create(lastName).Value,
             Email.Create(email).Value,
             BirthDate.Create(birthDate).Value,
-            Bio.Create(string.Empty).Value
+            Bio.Create(string.Empty).Value,
+            Category.None
         );
 
         blogger.RaiseDomainEvent(new BloggerCreatedDomainEvent(blogger.Id));
@@ -74,19 +80,21 @@ public class Blogger : Entity<BloggerId>
         string firstName,
         string lastName,
         DateOnly birthDate,
-        string bio
+        string bio,
+        string category
     )
     {
         if (this.FirstName.Value == firstName
             && this.LastName.Value == lastName
             && this.BirthDate.Value == birthDate
-            && this.Bio.Value == bio)
+            && this.Bio.Value == bio
+            && this.Category.Name == category)
         {
             return Result.Success();
         }
 
-        Result<(FirstName, LastName, BirthDate, Bio)> validationResult =
-            Validate(firstName, lastName, birthDate, bio);
+        Result<(FirstName, LastName, BirthDate, Bio, Category)> validationResult =
+            Validate(firstName, lastName, birthDate, bio, category);
 
         if (validationResult.IsFailure)
         {
@@ -97,6 +105,7 @@ public class Blogger : Entity<BloggerId>
         this.LastName = validationResult.Value.Item2;
         this.BirthDate = validationResult.Value.Item3;
         this.Bio = validationResult.Value.Item4;
+        this.Category = validationResult.Value.Item5;
 
         this.RaiseDomainEvent(new BloggerUpdatedDomainEvent(this.Id));
 
@@ -113,29 +122,33 @@ public class Blogger : Entity<BloggerId>
         this.InstagramMetadata = new InstagramMetadata(username, followersCount, mediaCount);
     }
 
-    private static Result<(FirstName, LastName, BirthDate, Bio)> Validate(
+    private static Result<(FirstName, LastName, BirthDate, Bio, Category)> Validate(
         string firstName,
         string lastName,
         DateOnly birthDate,
-        string bio
+        string bio,
+        string category
     )
     {
         Result<FirstName> firstNameResult = FirstName.Create(firstName);
         Result<LastName> lastNameResult = LastName.Create(lastName);
         Result<BirthDate> birthDateResult = BirthDate.Create(birthDate);
         Result<Bio> bioResult = Bio.Create(bio);
+        Result<Category> categoryResult = Category.FromName(category);
 
         return new ValidationBuilder()
             .Add(firstNameResult)
             .Add(lastNameResult)
             .Add(birthDateResult)
             .Add(bioResult)
+            .Add(categoryResult)
             .Build(() =>
                 (
                     firstNameResult.Value,
                     lastNameResult.Value,
                     birthDateResult.Value,
-                    bioResult.Value
+                    bioResult.Value,
+                    categoryResult.Value
                 )
             );
     }

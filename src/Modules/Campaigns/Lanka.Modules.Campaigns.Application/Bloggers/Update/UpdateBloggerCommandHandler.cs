@@ -37,7 +37,7 @@ internal sealed class UpdateBloggerCommandHandler
         {
             return Result.Failure<BloggerResponse>(BloggerErrors.NotFound);
         }
-        
+
         if (this._userContext.GetUserId() != blogger.Id.Value)
         {
             return Result.Failure<BloggerResponse>(Error.NotAuthorized);
@@ -47,17 +47,19 @@ internal sealed class UpdateBloggerCommandHandler
             request.FirstName,
             request.LastName,
             request.BirthDate,
-            request.Bio
+            request.Bio,
+            request.Category
         );
-        
+
         if (result.IsFailure)
         {
             return Result.Failure<BloggerResponse>(result.Error);
         }
 
+        this._bloggerRepository.AttachCategory(blogger.Category);
+        
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var response = BloggerResponse.FromBlogger(blogger);
-        return response;
+ 
+        return BloggerResponse.FromBlogger(blogger);
     }
 }

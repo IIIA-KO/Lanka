@@ -3,9 +3,10 @@ using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.IntegrationEvents;
 using Lanka.Modules.Matching.Domain.SearchableItems;
+using Lanka.Modules.Matching.Presentation.IntegrationEvents.Services;
 using Serilog;
 
-namespace Lanka.Modules.Matching.Presentation.InstagramAccounts;
+namespace Lanka.Modules.Matching.Presentation.IntegrationEvents.Handlers;
 
 internal sealed class InstagramAccountSearchSyncIntegrationEventHandler
     : IntegrationEventHandler<InstagramAccountSearchSyncIntegrationEvent>

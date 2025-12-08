@@ -15,12 +15,10 @@ public class InstagramAccount : Entity<InstagramAccountId>
 
     public AdvertisementAccountId AdvertisementAccountId { get; private set; }
 
-    public Category Category { get; private set; }
-
     public Metadata Metadata { get; private set; }
 
     public DateTimeOffset? LastUpdatedAtUtc { get; set; }
-    
+
     public Token? Token { get; set; }
 
     private InstagramAccount() { }
@@ -30,7 +28,6 @@ public class InstagramAccount : Entity<InstagramAccountId>
         UserId userId,
         FacebookPageId facebookPageId,
         AdvertisementAccountId advertisementAccountId,
-        Category category,
         Metadata metadata
     )
     {
@@ -38,7 +35,6 @@ public class InstagramAccount : Entity<InstagramAccountId>
         this.UserId = userId;
         this.FacebookPageId = facebookPageId;
         this.AdvertisementAccountId = advertisementAccountId;
-        this.Category = category;
         this.Metadata = metadata;
     }
 
@@ -77,7 +73,6 @@ public class InstagramAccount : Entity<InstagramAccountId>
             new UserId(userId),
             _fbPageId,
             _advertisementAccountId,
-            Category.None,
             metadata
         );
 
@@ -99,7 +94,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
     {
         this.Metadata = metadata;
         this.LastUpdatedAtUtc = DateTimeOffset.UtcNow;
-        
+
         this.RaiseDomainEvent(
             new InstagramAccountDataRenewedDomainEvent(
                 this.Id,

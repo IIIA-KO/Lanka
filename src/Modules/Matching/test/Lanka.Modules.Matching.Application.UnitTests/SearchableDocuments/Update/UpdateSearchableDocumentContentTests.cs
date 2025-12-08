@@ -3,7 +3,6 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Matching.Application.Abstractions.Search;
 using Lanka.Modules.Matching.Application.Index;
 using Lanka.Modules.Matching.Application.Index.Update;
-using Lanka.Modules.Matching.Domain.SearchableItems;
 using NSubstitute;
 
 namespace Lanka.Modules.Matching.Application.UnitTests.SearchableDocuments.Update;

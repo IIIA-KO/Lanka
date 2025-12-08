@@ -33,7 +33,8 @@ internal sealed class GetBloggerQueryHandler
                  profile_photo_uri AS {nameof(BloggerResponse.ProfilePhotoUri)},
                  instagram_metadata_username AS {nameof(BloggerResponse.InstagramUsername)},
                  instagram_metadata_followers_count AS {nameof(BloggerResponse.InstagramFollowersCount)},
-                 instagram_metadata_media_count AS {nameof(BloggerResponse.InstagramMediaCount)}
+                 instagram_metadata_media_count AS {nameof(BloggerResponse.InstagramMediaCount)},
+                 category_name AS {nameof(BloggerResponse.Category)}
              FROM campaigns.bloggers
              WHERE id = @BloggerId
              """;

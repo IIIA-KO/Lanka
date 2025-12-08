@@ -52,6 +52,10 @@ internal sealed class UpdateBloggerSearchSyncDomainEventHandler
                 {
                     "BirthDate",
                     result.Value.BirthDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                },
+                {
+                    "Category",
+                    result.Value.Category
                 }
             }
         );

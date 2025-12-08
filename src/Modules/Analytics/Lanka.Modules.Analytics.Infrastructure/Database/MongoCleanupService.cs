@@ -1,5 +1,4 @@
 using Lanka.Modules.Analytics.Application.Abstractions.Data;
-using Lanka.Modules.Analytics.Application.Abstractions.Models.Posts;
 using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Domain.Audience;
 using Lanka.Modules.Analytics.Domain.Posts;

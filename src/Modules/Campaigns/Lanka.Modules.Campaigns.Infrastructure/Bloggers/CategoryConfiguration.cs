@@ -1,8 +1,9 @@
-using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Campaigns.Domain.Bloggers;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Categories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
+namespace Lanka.Modules.Campaigns.Infrastructure.Bloggers;
 
 internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
@@ -15,8 +16,8 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(category => category.Name).HasMaxLength(100);
 
         builder
-            .HasMany<InstagramAccount>()
-            .WithOne(igAccount => igAccount.Category);
+            .HasMany<Blogger>()
+            .WithOne(blogger => blogger.Category);
 
         builder.HasData(
             Category.None,

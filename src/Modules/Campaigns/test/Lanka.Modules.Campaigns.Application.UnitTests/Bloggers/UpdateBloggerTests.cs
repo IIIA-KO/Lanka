@@ -18,7 +18,8 @@ public class UpdateBloggerTests
             BloggerData.FirstName,
             BloggerData.LastName,
             BloggerData.BirthDate,
-            BloggerData.Bio
+            BloggerData.Bio,
+            BloggerData.Category
         );
 
     private readonly IBloggerRepository _bloggerRepositoryMock;
@@ -115,7 +116,8 @@ public class UpdateBloggerTests
             string.Empty,
             string.Empty,
             BloggerData.BirthDate,
-            BloggerData.Bio
+            BloggerData.Bio,
+            BloggerData.Category
         );
 
         // Act

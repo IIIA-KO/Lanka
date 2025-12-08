@@ -9,4 +9,9 @@ public static class BloggerErrors
             "Blogger.NotFound",
             "The blogger with the specified identifier was not found"
         );
+    
+    public static Error InvalidCategory => Error.Validation(
+        "Blogger.InvalidCategory",
+        "The provided account category is not supported."
+    );
 }

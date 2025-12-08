@@ -40,7 +40,7 @@ internal sealed class InstagramAccountRepository : IInstagramAccountRepository
             .Include(igAccount => igAccount.Token)
             .FirstOrDefaultAsync(igAccount => igAccount.UserId == userId, cancellationToken);
     }
-
+    
     public async Task<InstagramAccount[]> GetOldAccountsAsync(
         int renewalThresholdInDays,
         int batchSize,
@@ -60,7 +60,6 @@ internal sealed class InstagramAccountRepository : IInstagramAccountRepository
 
     public void Add(InstagramAccount instagramAccount)
     {
-        this._dbContext.Attach(instagramAccount.Category);
         this._dbContext.InstagramAccounts.Add(instagramAccount);
     }
 

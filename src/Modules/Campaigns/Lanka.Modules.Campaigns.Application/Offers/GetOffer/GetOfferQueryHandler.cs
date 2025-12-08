@@ -29,7 +29,7 @@ internal sealed class GetOfferQueryHandler
                 price_amount AS {nameof(OfferResponse.PriceAmount)},
                 price_currency AS {nameof(OfferResponse.PriceCurrency)},
                 description AS {nameof(OfferResponse.Description)}    
-            FROM campaign.offers
+            FROM campaigns.offers
             WHERE id = @OfferId
             """;
 

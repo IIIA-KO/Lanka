@@ -338,6 +338,26 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         },
                         new
                         {
+                            PermissionCode = "offers:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "offers:create",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "offers:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "offers:delete",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
                             PermissionCode = "pacts:create",
                             RoleName = "Member"
                         },

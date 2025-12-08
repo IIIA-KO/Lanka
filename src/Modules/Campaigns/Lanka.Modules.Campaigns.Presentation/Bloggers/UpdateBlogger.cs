@@ -26,7 +26,8 @@ internal sealed class UpdateBlogger : BloggerEndpointBase
                         request.FirstName,
                         request.LastName,
                         request.BirthDate,
-                        request.Bio
+                        request.Bio,
+                        request.Category
                     ),
                     cancellation
                 );
@@ -50,5 +51,7 @@ internal sealed class UpdateBlogger : BloggerEndpointBase
         public DateOnly BirthDate { get; init; }
 
         public string Bio { get; init; }
+        
+        public string Category { get; init; }
     }
 }
