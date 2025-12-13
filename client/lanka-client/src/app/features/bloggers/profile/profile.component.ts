@@ -112,7 +112,7 @@ export class ProfileComponent implements OnInit {
         await navigator.share({ title: shareTitle, text: shareText, url });
         this.snackbar.showSuccess(this.translate.instant('PROFILE.SHARE.SHARED'));
         return;
-      } catch (error: unknown) {
+      } catch {
         // Ignore user cancellation and fall through to clipboard
       }
     }
@@ -122,7 +122,7 @@ export class ProfileComponent implements OnInit {
         await navigator.clipboard.writeText(url);
         this.snackbar.showSuccess(this.translate.instant('PROFILE.SHARE.COPIED'));
         return;
-      } catch (error: unknown) {
+      } catch {
         // Fall through to error snackbar
       }
     }

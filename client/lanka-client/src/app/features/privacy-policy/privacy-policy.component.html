@@ -1,8 +1,8 @@
 <div class="layout">
   <app-navbar class="sidebar" *ngIf="isAuthenticated$ | async"></app-navbar>
   <div class="content"
-       [class.no-sidebar]="!(isAuthenticated$ | async)"
-       [class.no-header]="!(isAuthenticated$ | async)">
+       [class.no-sidebar]="(isAuthenticated$ | async) === false"
+       [class.no-header]="(isAuthenticated$ | async) === false">
     <app-header *ngIf="isAuthenticated$ | async"></app-header>
 
     <div class="content-scroll">
@@ -10,7 +10,7 @@
         <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text p-button-sm" (click)="onBack()">
           {{ 'COMMON.BACK' | translate }}
         </button>
-        <div class="back-actions" *ngIf="!(isAuthenticated$ | async)">
+        <div class="back-actions" *ngIf="(isAuthenticated$ | async) === false">
           <app-language-switcher></app-language-switcher>
         </div>
       </div>

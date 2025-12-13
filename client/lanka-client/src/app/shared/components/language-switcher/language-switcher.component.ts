@@ -11,9 +11,15 @@ import { LanguageService } from '../../../core/services/language.service';
   styleUrl: './language-switcher.component.css',
 })
 export class LanguageSwitcherComponent {
+  public readonly languages: readonly string[];
+  public readonly currentLanguage$;
+
   private readonly languageService = inject(LanguageService);
-  public readonly languages = this.languageService.getSupportedLanguages();
-  protected readonly currentLanguage$ = this.languageService.language$;
+
+  constructor() {
+    this.languages = this.languageService.getSupportedLanguages();
+    this.currentLanguage$ = this.languageService.language$;
+  }
 
   public setLanguage(lang: string): void {
     this.languageService.setLanguage(lang as 'en' | 'uk');

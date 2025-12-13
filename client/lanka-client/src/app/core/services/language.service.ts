@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 const LANGUAGE_STORAGE_KEY = 'lanka-lang';
@@ -10,10 +10,14 @@ type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
   providedIn: 'root'
 })
 export class LanguageService {
+  public readonly language$: Observable<SupportedLanguage>;
+
   private readonly translate = inject(TranslateService);
   private readonly languageSubject = new BehaviorSubject<SupportedLanguage>('en');
 
-  public readonly language$ = this.languageSubject.asObservable();
+  constructor() {
+    this.language$ = this.languageSubject.asObservable();
+  }
 
   public init(): void {
     const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY) as SupportedLanguage | null;
