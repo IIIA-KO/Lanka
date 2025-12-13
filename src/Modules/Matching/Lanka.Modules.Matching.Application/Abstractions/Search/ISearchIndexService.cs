@@ -1,16 +1,16 @@
 using Lanka.Common.Domain;
-using Lanka.Modules.Matching.Domain.SearchableDocuments;
+using Lanka.Modules.Matching.Application.Index;
 using Lanka.Modules.Matching.Domain.SearchableItems;
 
 namespace Lanka.Modules.Matching.Application.Abstractions.Search;
 
 public interface ISearchIndexService
 {
-    Task<Result> IndexDocumentAsync(SearchableDocument document, CancellationToken cancellationToken = default);
+    Task<Result> IndexDocumentAsync(SearchDocument document, CancellationToken cancellationToken = default);
     
-    Task<Result> IndexDocumentsAsync(IEnumerable<SearchableDocument> documents, CancellationToken cancellationToken = default);
+    Task<Result> IndexDocumentsAsync(IEnumerable<SearchDocument> documents, CancellationToken cancellationToken = default);
     
-    Task<Result> UpdateDocumentAsync(SearchableDocument document, CancellationToken cancellationToken = default);
+    Task<Result> UpdateDocumentAsync(SearchDocument document, CancellationToken cancellationToken = default);
     
     Task<Result> RemoveDocumentAsync(Guid documentId, CancellationToken cancellationToken = default);
     

@@ -1,6 +1,7 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.Caching;
 using Lanka.Common.Application.Messaging;
+using Lanka.Common.Application.Notifications;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions;
 using Lanka.Modules.Users.Application.Abstractions.Data;
@@ -16,6 +17,7 @@ internal sealed class RenewInstagramCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IUserContext _userContext;
     private readonly IIdentityProviderService _identityProviderService;
+    private readonly INotificationService _notificationService;
     private readonly ICacheService _cacheService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -23,6 +25,7 @@ internal sealed class RenewInstagramCommandHandler
         IUserRepository userRepository,
         IUserContext userContext,
         IIdentityProviderService identityProviderService,
+        INotificationService notificationService,
         ICacheService cacheService,
         IUnitOfWork unitOfWork
     )
@@ -30,6 +33,7 @@ internal sealed class RenewInstagramCommandHandler
         this._userRepository = userRepository;
         this._userContext = userContext;
         this._identityProviderService = identityProviderService;
+        this._notificationService = notificationService;
         this._cacheService = cacheService;
         this._unitOfWork = unitOfWork;
     }
@@ -64,6 +68,13 @@ internal sealed class RenewInstagramCommandHandler
 
         string cacheKey = $"instagram_renewal_status_{user.Id.Value}";
         await this._cacheService.SetAsync(cacheKey, status, TimeSpan.FromMinutes(10), cancellationToken);
+
+        await this._notificationService.SendInstagramRenewalStatusAsync(
+            user.Id.Value.ToString(),
+            InstagramOperationStatuses.Pending,
+            status.Message,
+            cancellationToken
+        );
 
         user.RenewInstagramAccess(request.Code);
 

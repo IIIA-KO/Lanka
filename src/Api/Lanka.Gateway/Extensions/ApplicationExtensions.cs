@@ -25,6 +25,7 @@ internal static class ApplicationExtensions
                     .WithOrigins(corsOptions.AllowedOrigins)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
+                    .AllowCredentials()
             )
         );
 
@@ -145,6 +146,7 @@ internal static class ApplicationExtensions
         app.UseLogContextTraceLogging();
         app.UseSerilogRequestLogging();
 
+        app.UseWebSockets();
         app.UseAuthentication();
         app.UseAuthorization();
 

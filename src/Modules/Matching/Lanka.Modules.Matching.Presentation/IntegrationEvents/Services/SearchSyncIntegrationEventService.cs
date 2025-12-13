@@ -1,6 +1,5 @@
 using Lanka.Common.Domain;
 using Lanka.Common.IntegrationEvents;
-using Lanka.Modules.Matching.Application.Index;
 using Lanka.Modules.Matching.Application.Index.Create;
 using Lanka.Modules.Matching.Application.Index.Remove;
 using Lanka.Modules.Matching.Application.Index.Update;

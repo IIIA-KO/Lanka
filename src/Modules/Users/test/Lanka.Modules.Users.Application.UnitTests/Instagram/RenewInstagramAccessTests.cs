@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.Caching;
+using Lanka.Common.Application.Notifications;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions;
 using Lanka.Modules.Users.Application.Abstractions.Data;
@@ -20,6 +21,7 @@ public class RenewInstagramAccessTests
     private readonly IUserRepository _userRepositoryMock;
     private readonly IUserContext _userContextMock;
     private readonly IIdentityProviderService _identityProviderServiceMock;
+    private readonly INotificationService _notificationServiceMock;
     private readonly ICacheService _cacheServiceMock;
     private readonly IUnitOfWork _unitOfWorkMock;
 
@@ -30,6 +32,7 @@ public class RenewInstagramAccessTests
         this._userRepositoryMock = Substitute.For<IUserRepository>();
         this._userContextMock = Substitute.For<IUserContext>();
         this._identityProviderServiceMock = Substitute.For<IIdentityProviderService>();
+        this._notificationServiceMock = Substitute.For<INotificationService>();
         this._cacheServiceMock = Substitute.For<ICacheService>();
         this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
@@ -37,6 +40,7 @@ public class RenewInstagramAccessTests
             this._userRepositoryMock,
             this._userContextMock,
             this._identityProviderServiceMock,
+            this._notificationServiceMock,
             this._cacheServiceMock,
             this._unitOfWorkMock
         );

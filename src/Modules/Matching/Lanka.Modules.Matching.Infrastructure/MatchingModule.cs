@@ -1,6 +1,5 @@
 using Elastic.Clients.Elasticsearch;
 using Lanka.Common.Application.EventBus;
-using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.IntegrationEvents;
