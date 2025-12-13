@@ -1,0 +1,13 @@
+<app-loading></app-loading>
+<div class="layout">
+  @if (showNavigation$ | async) {
+  <app-navbar class="sidebar"></app-navbar>
+  }
+  <div class="content" [class.no-sidebar]="(showNavigation$ | async) === false">
+    <app-header></app-header>
+    <div class="content-scroll">
+      <router-outlet></router-outlet>
+    </div>
+    <app-footer></app-footer>
+  </div>
+</div>

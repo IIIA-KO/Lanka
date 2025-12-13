@@ -1,19 +1,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-// Import standalone components
-const OffersComponent = (): Promise<typeof import('./offers.component').OffersComponent> => import('./offers.component').then(m => m.OffersComponent);
-const CreateOfferComponent = (): Promise<typeof import('./create-offer/create-offer.component').CreateOfferComponent> => import('./create-offer/create-offer.component').then(m => m.CreateOfferComponent);
-const EditOfferComponent = (): Promise<typeof import('./edit-offer/edit-offer.component').EditOfferComponent> => import('./edit-offer/edit-offer.component').then(m => m.EditOfferComponent);
-const OfferDetailsComponent = (): Promise<typeof import('./offer-details/offer-details.component').OfferDetailsComponent> => import('./offer-details/offer-details.component').then(m => m.OfferDetailsComponent);
+
+// Lazy load the unified form component
+const OfferFormComponent = (): Promise<typeof import('./offer-form/offer-form.component').OfferFormComponent> => 
+  import('./offer-form/offer-form.component').then(m => m.OfferFormComponent);
+
+const OfferDetailsComponent = (): Promise<typeof import('./offer-details/offer-details.component').OfferDetailsComponent> => 
+  import('./offer-details/offer-details.component').then(m => m.OfferDetailsComponent);
 
 const routes: Routes = [
   {
     path: '',
-    loadComponent: OffersComponent,
+    redirectTo: '/pact', // List view removed, redirect to Pact page which has the list sidebar
+    pathMatch: 'full'
   },
   {
     path: 'create',
-    loadComponent: CreateOfferComponent,
+    loadComponent: OfferFormComponent,
   },
   {
     path: ':id',
@@ -21,7 +24,7 @@ const routes: Routes = [
   },
   {
     path: ':id/edit',
-    loadComponent: EditOfferComponent,
+    loadComponent: OfferFormComponent,
   },
 ];
 

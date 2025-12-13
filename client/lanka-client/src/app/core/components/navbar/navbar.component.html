@@ -1,40 +1,20 @@
-<div
-  class="sidebar-container"
-  (mouseenter)="open = true"
-  (mouseleave)="open = false"
-  >
-  <!-- Logo -->
-  <div class="logo-wrapper">
-    <img src="/logo/lanka-logo-white.svg" alt="Lanka" class="logo" />
-  </div>
+<div class="sidebar-container" [class.expanded]="open" (mouseenter)="open = true" (mouseleave)="open = false">
+    <!-- Menu -->
+    <ul class="menu-list">
+      @for (item of menu; track item) {
+      <li class="menu-item" routerLinkActive="active" [routerLink]="item.path" [title]="item.title">
+        <span class="icon-shell">
+          <!-- Support both SVG paths and PrimeIcons classes -->
+          <ng-container *ngIf="item.icon.startsWith('/')">
+            <img [src]="item.icon" [alt]="item.title" />
+          </ng-container>
+          <ng-container *ngIf="!item.icon.startsWith('/')">
+            <i [class]="item.icon"></i>
+          </ng-container>
+        </span>
 
-  <!-- Menu -->
-  <ul class="menu-list">
-    @for (item of menu; track item) {
-      <li
-        class="menu-item"
-        routerLinkActive="active"
-        [routerLink]="item.path"
-        >
-        <img [src]="item.icon" [alt]="item.title" class="icon" />
-        <span class="label" [class.visible]="open">{{ item.title }}</span>
+        <span class="label">{{ item.title }}</span>
       </li>
-    }
-
-    <li
-      class="menu-item"
-      (click)="confirmLogout()"
-      (keydown.enter)="confirmLogout()"
-      (keydown.space)="confirmLogout()"
-      style="cursor: pointer;"
-      tabindex="0"
-      role="button"
-      aria-label="Logout"
-      >
-      <img src="/icons/logout-icon.svg" alt="Logout" class="icon" />
-      <span class="label" [class.visible]="open">Logout</span>
-    </li>
-  </ul>
+      }
+    </ul>
 </div>
-
-<p-confirmDialog></p-confirmDialog>

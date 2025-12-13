@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { ICampaign } from '../models/campaigns';
+import { ICampaign, ICreateCampaignRequest, IPendCampaignRequest } from '../models/campaigns';
 
 const BASE_URL = environment.apiUrl;
 
@@ -11,6 +11,12 @@ const BASE_URL = environment.apiUrl;
 })
 export class CampaignsAgent {
   private readonly http = inject(HttpClient);
+
+  public createCampaign(request: ICreateCampaignRequest): Observable<string> {
+    return this.http
+      .post<string>(`${BASE_URL}/campaigns`, request)
+      .pipe(catchError(this.handleError));
+  }
 
   public getCampaign(id: string): Observable<ICampaign> {
     return this.http
@@ -51,6 +57,24 @@ export class CampaignsAgent {
   public pendCampaign(id: string): Observable<void> {
     return this.http
       .patch<void>(`${BASE_URL}/campaigns/${id}/pend`, {})
+      .pipe(catchError(this.handleError));
+  }
+
+  public proposeCampaign(request: IPendCampaignRequest): Observable<string> {
+    return this.http
+      .post<string>(`${BASE_URL}/campaigns`, request)
+      .pipe(catchError(this.handleError));
+  }
+
+  public getCampaigns(): Observable<ICampaign[]> {
+    return this.http
+      .get<ICampaign[]>(`${BASE_URL}/campaigns`)
+      .pipe(catchError(this.handleError));
+  }
+
+  public getCampaignsByStatus(status: string): Observable<ICampaign[]> {
+    return this.http
+      .get<ICampaign[]>(`${BASE_URL}/campaigns?status=${status}`)
       .pipe(catchError(this.handleError));
   }
 

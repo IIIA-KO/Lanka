@@ -1,0 +1,90 @@
+<div class="dashboard-container fade-in-up">
+    <div class="grid justify-content-center">
+        <div class="col-12 md:col-8 lg:col-6">
+
+            <!-- Back Link -->
+            <button pButton icon="pi pi-arrow-left" class="p-button-text mb-3 pl-0" (click)="onCancel()">
+                {{ 'OFFERS.FORM.BACK' | translate }}
+            </button>
+
+            <div class="card-style">
+                <div class="flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold m-0 text-color">
+                          {{ (isEditMode ? 'OFFERS.FORM.EDIT_TITLE' : 'OFFERS.FORM.CREATE_TITLE') | translate }}
+                        </h2>
+                        <p class="text-color-secondary mt-2">
+                          {{ (isEditMode ? 'OFFERS.FORM.EDIT_HINT' : 'OFFERS.FORM.CREATE_HINT') | translate }}
+                        </p>
+                    </div>
+                    <button *ngIf="isEditMode" pButton icon="pi pi-trash"
+                        class="p-button-danger p-button-text p-button-rounded" [pTooltip]="'OFFERS.DETAILS.DELETE' | translate"
+                        (click)="onDelete()" [attr.aria-label]="'OFFERS.DETAILS.DELETE' | translate"><span class="hidden">Delete</span></button>
+                </div>
+
+                <div *ngIf="loading" class="text-color-secondary p-3">{{ 'OFFERS.MESSAGES.LOAD_FAIL' | translate }}</div>
+
+                <div *ngIf="error" class="p-message-wrapper mb-4">
+                    <p-message severity="error" [text]="error" styleClass="w-full block"></p-message>
+                </div>
+
+                <form [formGroup]="offerForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+
+                    <div class="field mb-4">
+                        <label for="name" class="font-semibold block mb-2">{{ 'OFFERS.FORM.NAME_LABEL' | translate }}</label>
+                        <span class="p-input-icon-left w-full">
+                            <i class="pi pi-tag"></i>
+                            <input pInputText id="name" formControlName="name" [placeholder]="'OFFERS.FORM.NAME_PLACEHOLDER' | translate"
+                                class="w-full" />
+                        </span>
+                        <small class="p-error block mt-1"
+                            *ngIf="offerForm.get('name')?.invalid && offerForm.get('name')?.touched">
+                            {{ 'OFFERS.FORM.NAME_REQUIRED' | translate }}
+                        </small>
+                    </div>
+
+                    <div class="formgrid grid">
+                        <div class="field col-12 md:col-6 mb-4">
+                            <label for="priceAmount" class="font-semibold block mb-2">{{ 'OFFERS.FORM.PRICE_LABEL' | translate }}</label>
+                            <p-inputNumber id="priceAmount" formControlName="priceAmount" mode="currency"
+                                [currency]="offerForm.get('priceCurrency')?.value" locale="en-US" placeholder="0.00"
+                                class="w-full" [inputStyleClass]="'w-full'">
+                            </p-inputNumber>
+                            <small class="p-error block mt-1"
+                                *ngIf="offerForm.get('priceAmount')?.invalid && offerForm.get('priceAmount')?.touched">
+                                {{ 'OFFERS.FORM.NAME_REQUIRED' | translate }}
+                            </small>
+                        </div>
+                        <div class="field col-12 md:col-6 mb-4">
+                            <label for="priceCurrency" class="font-semibold block mb-2">{{ 'OFFERS.FORM.CURRENCY_LABEL' | translate }}</label>
+                            <p-select [options]="currencyOptions" formControlName="priceCurrency" optionLabel="label"
+                                optionValue="value" styleClass="w-full"></p-select>
+                        </div>
+                    </div>
+
+                    <div class="field mb-4">
+                        <label for="description" class="font-semibold block mb-2">{{ 'OFFERS.FORM.DESCRIPTION_LABEL' | translate }}</label>
+                        <textarea pTextarea id="description" formControlName="description" rows="5" class="w-full"
+                            [placeholder]="'OFFERS.FORM.DESCRIPTION_PLACEHOLDER' | translate"></textarea>
+                        <small class="text-right block text-color-secondary">{{
+                            offerForm.get('description')?.value?.length || 0 }}/500</small>
+                        <small class="p-error block"
+                            *ngIf="offerForm.get('description')?.invalid && offerForm.get('description')?.touched">
+                            {{ 'OFFERS.FORM.DESCRIPTION_REQUIRED' | translate }}
+                        </small>
+                    </div>
+
+                    <div class="flex justify-content-end gap-2 mt-4">
+                        <button pButton type="button" class="p-button-text" (click)="onCancel()"
+                            [disabled]="submitLoading">{{ 'OFFERS.FORM.CANCEL' | translate }}</button>
+                        <button pButton type="submit" [loading]="submitLoading"
+                            [disabled]="offerForm.invalid || submitLoading">
+                            {{ (isEditMode ? 'OFFERS.FORM.UPDATE_SUBMIT' : 'OFFERS.FORM.CREATE_SUBMIT') | translate }}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+<footer class="app-footer">
+  <div class="footer-content">
+
+    <!-- Brand Section -->
+    <div class="footer-brand">
+      <div class="brand-logo">
+        <i class="pi pi-bolt text-primary text-xl"></i>
+        <span>{{ 'COMMON.APP_NAME' | translate }}</span>
+      </div>
+      <p>
+        {{ 'FOOTER.DESCRIPTION' | translate }}
+      </p>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="footer-section">
+      <h3>{{ 'FOOTER.LEGAL' | translate }}</h3>
+      <nav class="footer-nav">
+        <a routerLink="/privacy-policy" routerLinkActive="active">{{ 'COMMON.PRIVACY_POLICY' | translate }}</a>
+        <a routerLink="/faq" routerLinkActive="active">{{ 'FOOTER.FAQ' | translate }}</a>
+        <!-- Placeholder for Terms -->
+        <!-- <a routerLink="/terms">Terms of Service</a> -->
+      </nav>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="footer-section">
+      <h3>{{ 'FOOTER.CONTACT' | translate }}</h3>
+      <nav class="footer-nav">
+        <a href="mailto:support&#64;lanka.app" class="contact-link">
+          <i class="pi pi-envelope"></i>
+          support&#64;lanka.app
+        </a>
+        <span class="helper-text">{{ 'FOOTER.RESPONSE_TIME' | translate }}</span>
+      </nav>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <div class="copyright">
+      &copy; {{ currentYear }} {{ 'COMMON.APP_NAME' | translate }}. {{ 'FOOTER.RIGHTS' | translate }}
+    </div>
+    <div class="social-links">
+      <!-- Placeholders for social links if needed, or remove -->
+      <!-- <a href="#" aria-label="Twitter"><i class="pi pi-twitter"></i></a> -->
+      <!-- <a href="#" aria-label="LinkedIn"><i class="pi pi-linkedin"></i></a> -->
+    </div>
+  </div>
+</footer>

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -13,8 +13,11 @@ import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { CampaignsAgent } from '../../../core/api/campaigns.agent';
+import { SearchAgent, ISearchResult } from '../../../core/api/search.agent';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { ICampaign, CampaignStatus } from '../../../core/models/campaigns';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
+import { FriendlyErrorService, FriendlyHttpError } from '../../../core/services/friendly-error.service';
 
 @Component({
   standalone: true,
@@ -36,42 +39,71 @@ export class CampaignsComponent implements OnInit {
   public campaigns: ICampaign[] = [];
   public loading = false;
   public error: string | null = null;
-  
-  // Mock data for demonstration - in real app this would come from API
-  public mockCampaigns: ICampaign[] = [
-    {
-      id: '1',
-      name: 'Summer Collection Campaign',
-      description: 'Promote our new summer fashion collection',
-      status: CampaignStatus.Pending,
-      offerId: 'offer-1',
-      clientId: 'client-1', 
-      creatorId: 'creator-1',
-      scheduledOnUtc: new Date().toISOString()
-    },
-    {
-      id: '2',
-      name: 'Tech Product Review',
-      description: 'Review our latest smartphone model',
-      status: CampaignStatus.Confirmed,
-      offerId: 'offer-2',
-      clientId: 'client-2',
-      creatorId: 'creator-2', 
-      scheduledOnUtc: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ];
+  public emptyStateMessage = 'Your campaigns from brands will appear here.';
 
   private readonly campaignsAgent = inject(CampaignsAgent);
+  private readonly searchAgent = inject(SearchAgent);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly friendlyErrorService = inject(FriendlyErrorService);
 
   public ngOnInit(): void {
     this.loadCampaigns();
   }
 
   public loadCampaigns(): void {
-    // Using mock data for now since there's no "get all campaigns" endpoint
-    this.campaigns = this.mockCampaigns;
+    this.loading = true;
+    this.error = null;
+
+    const currentUserId = this.authService.getUserIdFromToken()?.toLowerCase() ?? null;
+
+    this.searchAgent
+      .searchDocuments({
+        q: '*',
+        size: 50,
+        itemTypes: SearchableItemType.Campaign,
+        onlyActive: true,
+      })
+      .pipe(
+        map((response) =>
+          response.results
+            .map((result) => this.mapSearchResultToCampaign(result))
+            .filter((campaign): campaign is ICampaign => campaign !== null)
+            .filter((campaign) =>
+              !currentUserId || campaign.creatorId?.toLowerCase() === currentUserId
+            )
+            .sort(
+              (a, b) =>
+                new Date(b.scheduledOnUtc).getTime() - new Date(a.scheduledOnUtc).getTime()
+            )
+        ),
+        catchError((error: unknown) => {
+          const friendlyError =
+            error instanceof FriendlyHttpError
+              ? error
+              : this.friendlyErrorService.toFriendlyError(error, {
+                  fallbackMessage: 'We could not load your campaigns right now. Please try again shortly.',
+                });
+
+          if (friendlyError.status === 404 || friendlyError.status === 204) {
+            this.error = null;
+            this.emptyStateMessage = 'You have no active campaigns yet. They will appear here once brands add you to a campaign.';
+            return of([] as ICampaign[]);
+          }
+
+          this.error = friendlyError.message;
+          return of([] as ICampaign[]);
+        })
+      )
+      .subscribe({
+        next: (campaigns) => {
+          this.campaigns = campaigns;
+        },
+        complete: () => {
+          this.loading = false;
+        },
+      });
   }
 
   public getStatusColor(status: string): string {
@@ -98,8 +130,13 @@ export class CampaignsComponent implements OnInit {
     }
   }
 
-  public onCampaignAction(event: { value?: string }, campaignId: string): void {
-    const action = event.value || event;
+  public onCampaignAction(actionOrEvent: string | { value?: string }, campaignId: string): void {
+    const action = typeof actionOrEvent === 'string' ? actionOrEvent : actionOrEvent.value;
+
+    if (!action) {
+      return;
+    }
+
     this.loading = true;
     let actionObservable: Observable<unknown>;
 
@@ -144,17 +181,12 @@ export class CampaignsComponent implements OnInit {
   }
 
   public viewCampaign(campaignId: string): void {
-    // For now, just show campaign details in the console
-    // In a real app, this would navigate to a campaign details page
-    const campaign = this.campaigns.find(c => c.id === campaignId);
-    if (campaign) {
-      this.snackbarService.showSuccess(`Viewing campaign: ${campaign.name}`);
-    }
+    this.router.navigate(['/campaigns', campaignId]);
   }
 
   public getAvailableActions(status: string): {label: string, value: string, icon: string}[] {
     const actions = [];
-    
+
     switch (status) {
       case CampaignStatus.Pending:
         actions.push(
@@ -174,7 +206,88 @@ export class CampaignsComponent implements OnInit {
         );
         break;
     }
-    
+
     return actions;
   }
+
+  private mapSearchResultToCampaign(result: ISearchResult): ICampaign | null {
+    const metadata = result.metadata ?? {};
+
+    const status = this.normalizeStatus(metadata['status']);
+    const scheduledOnUtc = this.extractIsoString(metadata['scheduledOnUtc']);
+
+    if (!scheduledOnUtc) {
+      return null;
+    }
+
+    const offerId = this.extractGuidString(metadata['offerId']);
+    const clientId = this.extractGuidString(metadata['clientId']);
+    const creatorId = this.extractGuidString(metadata['creatorId']);
+
+    const price = metadata['price'] ? JSON.parse(String(metadata['price'])) : { amount: 0, currency: 'USD' };
+    const expectedCompletionDate = this.extractIsoString(metadata['expectedCompletionDate']) ?? new Date().toISOString();
+    const deliverables = metadata['deliverables'] ? JSON.parse(String(metadata['deliverables'])) : [];
+    const createdAt = this.extractIsoString(metadata['createdAt']) ?? new Date().toISOString();
+    const updatedAt = this.extractIsoString(metadata['updatedAt']) ?? new Date().toISOString();
+
+    return {
+      id: result.id,
+      name: result.title ?? 'Untitled Campaign',
+      description: result.content ?? '',
+      status,
+      offerId,
+      clientId,
+      creatorId,
+      price,
+      expectedCompletionDate,
+      deliverables,
+      scheduledOnUtc,
+      createdAt,
+      updatedAt
+    };
+  }
+
+  private normalizeStatus(statusValue: unknown): CampaignStatus {
+    const status = String(statusValue ?? '').toLowerCase();
+    switch (status) {
+      case 'pending':
+        return CampaignStatus.Pending;
+      case 'confirmed':
+        return CampaignStatus.Confirmed;
+      case 'rejected':
+        return CampaignStatus.Rejected;
+      case 'done':
+        return CampaignStatus.Done;
+      case 'completed':
+        return CampaignStatus.Completed;
+      case 'cancelled':
+        return CampaignStatus.Cancelled;
+      default:
+        return CampaignStatus.Pending;
+    }
+  }
+
+  private extractIsoString(value: unknown): string | null {
+    if (!value) {
+      return null;
+    }
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
+    return null;
+  }
+
+  private extractGuidString(value: unknown): string {
+    return value ? String(value) : '';
+  }
 }
+
+const SearchableItemType = {
+  Campaign: '2',
+} as const;

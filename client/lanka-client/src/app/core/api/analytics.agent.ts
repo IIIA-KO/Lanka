@@ -55,11 +55,25 @@ export class AnalyticsAgent {
     let params = new HttpParams();
 
     if (queryParams) {
-      if (queryParams.limit) params = params.set('limit', queryParams.limit.toString());
-      if (queryParams.after) params = params.set('after', queryParams.after);
-      if (queryParams.before) params = params.set('before', queryParams.before);
-      if (queryParams.since) params = params.set('since', queryParams.since);
-      if (queryParams.until) params = params.set('until', queryParams.until);
+      if (queryParams.limit) {
+        params = params.set('limit', queryParams.limit.toString());
+      }
+
+      if (queryParams.after) {
+        params = params.set('cursorType', 'after');
+        params = params.set('cursor', queryParams.after);
+      } else if (queryParams.before) {
+        params = params.set('cursorType', 'before');
+        params = params.set('cursor', queryParams.before);
+      }
+
+      if (queryParams.since) {
+        params = params.set('since', queryParams.since);
+      }
+
+      if (queryParams.until) {
+        params = params.set('until', queryParams.until);
+      }
     }
 
     return this.http
@@ -73,7 +87,7 @@ export class AnalyticsAgent {
     if (period) params = params.set('period', period);
 
     return this.http
-      .get<IOverviewStatisticsResponse>(`${BASE_URL}/analytics/statistics/overview`, { params })
+      .get<IOverviewStatisticsResponse>(`${BASE_URL}/analytics/overview-statistics`, { params })
       .pipe(catchError(this.handleError));
   }
 
@@ -82,7 +96,7 @@ export class AnalyticsAgent {
     if (period) params = params.set('period', period);
 
     return this.http
-      .get<IEngagementStatisticsResponse>(`${BASE_URL}/analytics/statistics/engagement`, { params })
+      .get<IEngagementStatisticsResponse>(`${BASE_URL}/analytics/engagement-statistics`, { params })
       .pipe(catchError(this.handleError));
   }
 
@@ -91,7 +105,7 @@ export class AnalyticsAgent {
     if (period) params = params.set('period', period);
 
     return this.http
-      .get<IInteractionStatisticsResponse>(`${BASE_URL}/analytics/statistics/interaction`, { params })
+      .get<IInteractionStatisticsResponse>(`${BASE_URL}/analytics/interaction-statistics`, { params })
       .pipe(catchError(this.handleError));
   }
 
@@ -100,7 +114,7 @@ export class AnalyticsAgent {
     if (period) params = params.set('period', period);
 
     return this.http
-      .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/statistics/table`, { params })
+      .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/table-statistics`, { params })
       .pipe(catchError(this.handleError));
   }
 

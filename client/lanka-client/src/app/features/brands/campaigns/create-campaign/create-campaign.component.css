@@ -1,0 +1,215 @@
+.create-campaign-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.card-header {
+  padding: 1.5rem;
+}
+
+.card-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-color);
+}
+
+.offer-info {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.95rem;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+/* Step Content */
+.step-content {
+  padding: 1.5rem 0;
+}
+
+.step-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+.helper-text {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+/* Form Fields */
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.error-text {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--red-500);
+  font-size: 0.85rem;
+}
+
+/* Price Negotiation */
+.price-negotiation {
+  padding: 1rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-color);
+}
+
+.offer-price {
+  margin: 0.5rem 0 1rem 0;
+  color: var(--text-color);
+}
+
+.custom-price-group {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* Deliverables */
+.deliverable-item {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--surface-border);
+}
+
+.deliverable-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.deliverable-header h4 {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.add-deliverable-btn {
+  margin-bottom: 1.5rem;
+}
+
+/* Review Section */
+.review-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+}
+
+.review-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.review-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.review-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.review-item .label {
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+.review-item .value {
+  color: var(--text-color);
+}
+
+.deliverable-review {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--surface-0);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-color);
+}
+
+.deliverable-review:last-child {
+  margin-bottom: 0;
+}
+
+.deliverable-review h5 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.deliverable-review p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}
+
+/* Step Actions */
+.step-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .create-campaign-container {
+    margin: 1rem auto;
+  }
+
+  .card-header {
+    padding: 1rem;
+  }
+
+  .step-content {
+    padding: 1rem 0;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .review-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .step-actions {
+    flex-wrap: wrap;
+  }
+}

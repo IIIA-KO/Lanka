@@ -1,0 +1,31 @@
+<header class="app-header">
+    <div class="header-left">
+        <div class="logo-wrapper">
+            <img src="/logo/lanka-logo-green.svg" [alt]="'COMMON.APP_NAME' | translate" class="logo" />
+        </div>
+    </div>
+
+    <div class="header-right">
+        <h1 class="page-title hidden md:block">{{ pageTitle$ | async }}</h1>
+
+        <div class="separator hidden md:block"></div>
+        <div class="language-wrapper">
+            <app-language-switcher></app-language-switcher>
+        </div>
+
+        <!-- User Menu -->
+        @let profile = profile$ | async;
+        <div class="user-profile" (click)="menu.toggle($event)" (keydown.enter)="menu.toggle($event)" tabindex="0"
+            role="button">
+            <div class="user-info">
+                <span class="user-name">{{ profile?.firstName }}</span>
+                <span class="user-role">{{ buildUserSubtitle(profile) }}</span>
+            </div>
+            <p-avatar [image]="profile?.profilePhotoUri || '/icons/no-profile.svg'" shape="circle" size="large"
+                styleClass="cursor-pointer border-2 border-transparent hover:border-primary transition-colors">
+            </p-avatar>
+        </div>
+
+        <p-menu #menu [model]="userMenuItems" [popup]="true" appendTo="body"></p-menu>
+    </div>
+</header>

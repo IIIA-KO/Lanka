@@ -1,0 +1,219 @@
+<div class="create-campaign-container">
+    <p-card>
+        <ng-template pTemplate="header">
+            <div class="card-header">
+                <h2>Create New Campaign</h2>
+                <p *ngIf="offer" class="offer-info">Based on offer: <strong>{{ offer.name }}</strong></p>
+            </div>
+        </ng-template>
+
+        <p-progressSpinner *ngIf="loadingOffer" styleClass="spinner"></p-progressSpinner>
+
+        <form [formGroup]="campaignForm" (ngSubmit)="onSubmit()" *ngIf="!loadingOffer">
+            <p-stepper>
+
+                <!-- Step 1: Campaign Details -->
+                <p-step label="Campaign Details">
+                    <ng-template pTemplate="content" let-nextCallback="nextCallback">
+                        <div class="step-content">
+                            <h3>Basic Information</h3>
+
+                            <div class="form-field">
+                                <label for="name">Campaign Name *</label>
+                                <input pInputText id="name" formControlName="name" placeholder="Enter campaign name"
+                                    class="w-full" />
+                                <small class="error-text"
+                                    *ngIf="campaignForm.get('name')?.invalid && campaignForm.get('name')?.touched">
+                                    Campaign name is required (5-100 characters)
+                                </small>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="description">Description *</label>
+                                <textarea pTextarea id="description" formControlName="description" rows="5"
+                                    placeholder="Describe your campaign goals, target audience, and key requirements..."
+                                    class="w-full"></textarea>
+                                <small class="error-text"
+                                    *ngIf="campaignForm.get('description')?.invalid && campaignForm.get('description')?.touched">
+                                    Description is required (20-1000 characters)
+                                </small>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="completion-date">Expected Completion Date *</label>
+                                <p-datePicker inputId="completion-date" formControlName="expectedCompletionDate"
+                                    [minDate]="minDate" [showIcon]="true" dateFormat="yy-mm-dd"
+                                    placeholder="Select completion date" styleClass="w-full"></p-datePicker>
+                                <small class="error-text"
+                                    *ngIf="campaignForm.get('expectedCompletionDate')?.invalid && campaignForm.get('expectedCompletionDate')?.touched">
+                                    Completion date is required
+                                </small>
+                            </div>
+
+                            <div class="form-field" *ngIf="offer">
+                                <div class="price-negotiation">
+                                    <div class="flex align-items-center gap-2 mb-2">
+                                        <p-checkbox formControlName="negotiatePrice" inputId="negotiate"></p-checkbox>
+                                        <label for="negotiate">Negotiate different price</label>
+                                    </div>
+                                    <p class="offer-price">Offer price: <strong>{{ offer.priceAmount }} {{
+                                            offer.priceCurrency }}</strong></p>
+
+                                    <div *ngIf="campaignForm.get('negotiatePrice')?.value" formGroupName="customPrice"
+                                        class="custom-price-group">
+                                        <div class="flex gap-2">
+                                            <div class="flex-1">
+                                                <label for="custom-amount">Your Proposed Price *</label>
+                                                <p-inputNumber inputId="custom-amount" formControlName="amount"
+                                                    mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+                                                    placeholder="0.00" class="w-full"></p-inputNumber>
+                                            </div>
+                                            <div style="width: 150px;">
+                                                <label for="custom-currency">Currency *</label>
+                                                <p-select inputId="custom-currency" formControlName="currency"
+                                                    [options]="currencies" optionLabel="label" optionValue="value"
+                                                    placeholder="Select currency" class="w-full"></p-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="step-actions">
+                                <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep()"
+                                    [disabled]="!canProceedToStep(1)"></p-button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step>
+
+                <!-- Step 2: Deliverables -->
+                <p-step label="Deliverables">
+                    <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
+                        <div class="step-content">
+                            <h3>Campaign Deliverables</h3>
+                            <p class="helper-text">Define what will be delivered as part of this campaign</p>
+
+                            <div formArrayName="deliverables">
+                                <div *ngFor="let deliverable of deliverables.controls; let i = index"
+                                    [formGroupName]="i" class="deliverable-item">
+                                    <div class="deliverable-header">
+                                        <h4>Deliverable {{ i + 1 }}</h4>
+                                        <p-button *ngIf="deliverables.length > 1" icon="pi pi-trash"
+                                            (onClick)="removeDeliverable(i)" [text]="true" severity="danger"
+                                            size="small"></p-button>
+                                    </div>
+
+                                    <div class="form-field flex-1">
+                                        <label for="deliverable-description-{{ i }}">Description *</label>
+                                        <textarea pTextarea formControlName="description" rows="3"
+                                            placeholder="E.g., Instagram post with product showcase..."
+                                            class="w-full"></textarea>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-field flex-1">
+                                            <label for="deliverable-format-{{ i }}">Format *</label>
+                                            <input pInputText formControlName="format"
+                                                placeholder="E.g., Photo, Video, Story, Reel" class="w-full" />
+                                        </div>
+                                        <div class="form-field flex-1">
+                                            <label for="deliverable-deadline-{{ i }}">Deadline (Optional)</label>
+                                            <p-datePicker inputId="deliverable-deadline-{{ i }}" [minDate]="minDate"
+                                                formControlName="deadline" styleClass="w-full"></p-datePicker>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="deliverable-requirements-{{ i }}">Additional Requirements
+                                            (Optional)</label>
+                                        <textarea pTextarea formControlName="requirements" rows="2"
+                                            placeholder="Any specific requirements for this deliverable..."
+                                            class="w-full"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p-button label="Add Another Deliverable" icon="pi pi-plus" (onClick)="addDeliverable()"
+                                [outlined]="true" class="add-deliverable-btn"></p-button>
+
+                            <div class="step-actions">
+                                <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevStep()"
+                                    [outlined]="true"></p-button>
+                                <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep()"
+                                    [disabled]="!canProceedToStep(2)"></p-button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step>
+
+                <!-- Step 3: Review & Submit -->
+                <p-step label="Review & Submit">
+                    <ng-template pTemplate="content" let-prevCallback="prevCallback">
+                        <div class="step-content">
+                            <h3>Review Your Campaign</h3>
+
+                            <div class="review-section">
+                                <h4>Campaign Details</h4>
+                                <div class="review-item">
+                                    <span class="label">Name:</span>
+                                    <span class="value">{{ campaignForm.get('name')?.value }}</span>
+                                </div>
+                                <div class="review-item">
+                                    <span class="label">Description:</span>
+                                    <span class="value">{{ campaignForm.get('description')?.value }}</span>
+                                </div>
+                                <div class="review-item">
+                                    <span class="label">Completion Date:</span>
+                                    <span class="value">{{ campaignForm.get('expectedCompletionDate')?.value |
+                                        date:'medium' }}</span>
+                                </div>
+                                <div class="review-item" *ngIf="campaignForm.get('negotiatePrice')?.value">
+                                    <span class="label">Proposed Price:</span>
+                                    <span class="value">
+                                        {{ campaignForm.get('customPrice')?.get('amount')?.value }}
+                                        {{ campaignForm.get('customPrice')?.get('currency')?.value }}
+                                    </span>
+                                </div>
+                                <div class="review-item" *ngIf="!campaignForm.get('negotiatePrice')?.value && offer">
+                                    <span class="label">Price:</span>
+                                    <span class="value">{{ offer.priceAmount }} {{ offer.priceCurrency }}</span>
+                                </div>
+                            </div>
+
+                            <div class="review-section">
+                                <h4>Deliverables ({{ deliverables.length }})</h4>
+                                <div *ngFor="let deliverable of deliverables.controls; let i = index"
+                                    class="deliverable-review">
+                                    <h5>{{ i + 1 }}. {{ deliverable.get('description')?.value }}</h5>
+                                    <p><strong>Format:</strong> {{ deliverable.get('format')?.value }}</p>
+                                    <p *ngIf="deliverable.get('deadline')?.value">
+                                        <strong>Deadline:</strong> {{ deliverable.get('deadline')?.value | date:'medium'
+                                        }}
+                                    </p>
+                                    <p *ngIf="deliverable.get('requirements')?.value">
+                                        <strong>Requirements:</strong> {{ deliverable.get('requirements')?.value }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p-message severity="info"
+                                text="Once submitted, the campaign creator will review your proposal."
+                                class="mb-3"></p-message>
+
+                            <div class="step-actions">
+                                <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevStep()"
+                                    [outlined]="true"></p-button>
+                                <p-button label="Cancel" (onClick)="onCancel()" [outlined]="true"
+                                    severity="secondary"></p-button>
+                                <p-button label="Submit Campaign" icon="pi pi-check" type="submit" [loading]="loading"
+                                    [disabled]="!campaignForm.valid"></p-button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step>
+
+            </p-stepper>
+        </form>
+    </p-card>
+</div>

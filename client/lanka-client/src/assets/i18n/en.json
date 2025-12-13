@@ -1,4 +1,237 @@
 {
+  "COMMON": {
+    "APP_NAME": "Lanka",
+    "LANGUAGE": "Language",
+    "CLOSE": "Close",
+    "BACK": "Back",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "SAVE_CHANGES": "Save changes",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "PRIVACY_POLICY": "Privacy Policy",
+    "BLOGGER": "Blogger"
+  },
+  "ERRORS": {
+    "UNEXPECTED": "An unexpected error occurred.",
+    "FORBIDDEN": "You do not have permission to perform this action.",
+    "NOT_FOUND": "Resource not found.",
+    "SERVER": "Server error."
+  },
+  "PAGE_TITLES": {
+    "PRIVACY_POLICY": "Privacy Policy",
+    "FAQ": "FAQ",
+    "LINK_INSTAGRAM": "Connect Instagram",
+    "PACT": "My Pact",
+    "CAMPAIGNS": "Campaigns",
+    "CAMPAIGN_DETAILS": "Campaign Details",
+    "CREATE_CAMPAIGN": "Create Campaign",
+    "SEARCH": "Discover Bloggers",
+    "PROFILE": "Profile",
+    "SETTINGS": "Settings",
+    "CALENDAR": "Calendar",
+    "PUBLIC_PROFILE": "Blogger Profile",
+    "OFFERS": "Offers",
+    "REVIEWS": "Reviews",
+    "ANALYTICS": "Analytics"
+  },
+  "NAV": {
+    "PROFILE": "Profile",
+    "SEARCH": "Search",
+    "CAMPAIGNS": "Campaigns",
+    "PACT": "Pact",
+    "SETTINGS": "Settings",
+    "LOGOUT": "Logout"
+  },
+  "PACT": {
+    "TITLE": "My Pact",
+    "SUBTITLE": "Your Purposeful, Actionable, Collaborative Terms agreement."
+  },
+  "OFFERS": {
+    "LIST_TITLE": "My Offers",
+    "NEW": "New Offer",
+    "EMPTY": "No offers linked yet.",
+    "CREATE": "Create Offer",
+    "FORM": {
+      "BACK": "Back to Pact",
+      "EDIT_TITLE": "Edit Offer",
+      "CREATE_TITLE": "Create New Offer",
+      "EDIT_HINT": "Update existing offer details.",
+      "CREATE_HINT": "Define a new service or package you can offer to brands.",
+      "NAME_LABEL": "Offer Name",
+      "NAME_PLACEHOLDER": "e.g. 1 Instagram Story",
+      "NAME_REQUIRED": "Name is required",
+      "PRICE_LABEL": "Price",
+      "CURRENCY_LABEL": "Currency",
+      "DESCRIPTION_LABEL": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Describe what is included in this offer...",
+      "DESCRIPTION_REQUIRED": "Description is required",
+      "CANCEL": "Cancel",
+      "UPDATE_SUBMIT": "Update Offer",
+      "CREATE_SUBMIT": "Create Offer"
+    },
+    "DETAILS": {
+      "TITLE": "Offer Details",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "DESCRIPTION": "Description",
+      "PRICE": "Price Information",
+      "INCLUDED": "Included Deliverables",
+      "OFFER_ID": "Offer ID",
+      "BACK": "Back to Offers",
+      "PROPOSE": "Propose Campaign",
+      "NOT_FOUND": "Offer not found"
+    },
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Offer created successfully",
+      "UPDATE_SUCCESS": "Offer updated successfully",
+      "DELETE_SUCCESS": "Offer deleted",
+      "CREATE_FAIL": "Failed to create offer. Please try again.",
+      "UPDATE_FAIL": "Failed to update offer. Please try again.",
+      "DELETE_FAIL": "Failed to delete offer.",
+      "LOAD_FAIL": "Unable to load offer details. It may not exist or you do not have permission.",
+      "NO_ID": "No offer id provided",
+      "LOAD_ERROR": "Error loading offer: {{message}}",
+      "DELETE_ERROR": "Error deleting offer: {{message}}",
+      "DELETE_CONFIRM_PROMPT": "Are you sure you want to delete this offer?"
+    }
+  },
+  "FOOTER": {
+    "DESCRIPTION": "Lanka is the one more thing that makes every creator-brand connection feel inevitable.",
+    "LEGAL": "Legal",
+    "FAQ": "FAQ",
+    "CONTACT": "Contact",
+    "RESPONSE_TIME": "Response within 24h",
+    "RIGHTS": "All rights reserved."
+  },
+  "SEARCH": {
+    "TITLE": "Discover Bloggers",
+    "SUBTITLE": "Find the perfect influencers for your brand",
+    "PLACEHOLDER": "Search by name, bio, location, niche...",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "FOLLOWERS": "Followers: {{range}}",
+      "ENGAGEMENT": "Engagement Rate"
+    },
+    "ENGAGEMENT_OPTIONS": {
+      "ANY": "Any",
+      "LOW": "Low (<2%)",
+      "MEDIUM": "Medium (2-5%)",
+      "HIGH": "High (>5%)"
+    },
+    "ACTIONS": {
+      "TRY_AGAIN": "Try Again",
+      "CLEAR": "Clear Search"
+    },
+    "EMPTY": {
+      "START_TITLE": "Start Searching",
+      "START_COPY": "Search for bloggers by name, bio, location, or niche",
+      "NO_RESULTS_TITLE": "No Bloggers Found",
+      "NO_RESULTS_COPY": "No bloggers found for \"{{query}}\". Try different keywords or adjust filters."
+    },
+    "RESULTS": {
+      "FOUND": "Found {{total}} bloggers",
+      "FOLLOWERS": "Followers",
+      "POSTS": "Posts",
+      "ENGAGEMENT": "Engagement",
+      "VIEW_PROFILE": "View Profile",
+      "PAGINATION": "Showing {first} to {last} of {totalRecords} bloggers"
+    }
+  },
+  "PROFILE": {
+    "ACTIONS": {
+      "EDIT": "Edit Profile",
+      "SHARE": "Share Profile",
+      "DELETE_CONFIRM": "Delete Account"
+    },
+    "METRICS": {
+      "FOLLOWERS": "Followers",
+      "PRICE_RANGE": "Ad Price Range",
+      "POSTS": "Posts"
+    },
+    "ABOUT": {
+      "TITLE": "About Me",
+      "EMPTY": "No bio provided yet."
+    },
+    "POSTS": {
+      "TITLE": "Recent Posts",
+      "VIEW_ALL": "View All",
+      "EMPTY": "No recent posts found",
+      "CONNECT_PROMPT": "Connect Instagram to see recent posts"
+    },
+    "ANALYTICS": {
+      "TITLE": "Audience Analytics",
+      "SUBTITLE": "Snapshots of your audience",
+      "AGE": "Age",
+      "GENDER": "Gender",
+      "LOCATION": "Location"
+    },
+    "CALENDAR": {
+      "TITLE": "Calendar",
+      "EMPTY": "No upcoming events"
+    },
+    "CONNECTION": {
+      "TITLE": "Instagram Connection",
+      "CONNECTED": "Connected",
+      "DISCONNECTED": "Not Connected",
+      "CONNECT": "Connect Instagram",
+      "REFRESH": "Refresh Connection"
+    },
+    "DELETE_SUCCESS": "Your account has been deleted.",
+    "DELETE_ERROR": "Failed to delete account. Please try again later.",
+    "SHARE": {
+      "TITLE": "My Lanka profile",
+      "MESSAGE": "Check out {{name}} on Lanka.",
+      "COPIED": "Profile link copied",
+      "SHARED": "Profile shared",
+      "UNAVAILABLE": "Share is unavailable on this device",
+      "DEFAULT_NAME": "my profile"
+    }
+  },
+  "SETTINGS": {
+    "TITLE": "Profile Settings",
+    "SUBTITLE": "Manage your personal information and account settings.",
+    "EDIT_TITLE": "Edit Profile",
+    "CHANGE_PHOTO": "Change Photo",
+    "CROP_IMAGE": "Crop Image",
+    "CATEGORY": "Category",
+    "CATEGORY_PLACEHOLDER": "Select category",
+    "BIO": "Bio",
+    "PRIVATE_INFO": {
+      "TITLE": "Private Information",
+      "DESCRIPTION": "This information is not visible to other users.",
+      "EMAIL_HELP": "Contact support to change your email address."
+    },
+    "PASSWORD": {
+      "LABEL": "Password",
+      "CHANGE": "Change Password"
+    },
+    "DANGER": {
+      "TITLE": "Danger Zone",
+      "DELETE_TITLE": "Delete Account",
+      "DESCRIPTION": "Once you delete your account, there is no going back. Please be certain.",
+      "DELETE_ACTION": "Delete Account",
+      "CONFIRM": "Confirm Delete"
+    },
+    "ERRORS": {
+      "FIRST_NAME_REQUIRED": "First name is required",
+      "LAST_NAME_REQUIRED": "Last name is required",
+      "CATEGORY_REQUIRED": "Category is required",
+      "BIRTHDATE_REQUIRED": "Date of birth is required"
+    },
+    "PROFILE_UPDATED": "Profile updated successfully",
+    "PROFILE_UPDATE_FAILED": "Failed to update profile",
+    "ACCOUNT_DELETED": "Account deleted successfully",
+    "ACCOUNT_DELETE_FAILED": "Failed to delete account",
+    "IMAGE_LOAD_FAILED": "Failed to load image",
+    "FILE_TOO_LARGE": "File size too large (max 5MB)",
+    "PHOTO_UPDATED": "Profile photo updated",
+    "UPLOAD_FAILED": "Failed to upload photo",
+    "PHOTO_REMOVED": "Photo removed",
+    "REMOVE_FAILED": "Failed to remove photo",
+    "REFRESH_FAILED": "Failed to refresh profile",
+    "CONFIRM_REMOVE_PHOTO": "Remove profile photo?"
+  },
   "AUTH_LAYOUT": {
     "SUBTITLE": "A network for successful cooperation with bloggers",
     "LOGIN": "Login",
@@ -12,7 +245,9 @@
     "ERRORS": {
       "PASSWORD_REQUIRED": "Password is required.",
       "PASSWORD_MIN": "Password must be at least 8 characters.",
-      "PASSWORD_PATTERN": "Password must contain uppercase, lowercase, number & one special (!?*.$)."
+      "PASSWORD_PATTERN": "Password must contain uppercase, lowercase, number & one special (!?*.$).",
+      "INVALID_CREDENTIALS": "Invalid email or password.",
+      "GENERIC": "An error occurred. Please try again."
     }
   },
   "REGISTER": {
@@ -20,19 +255,23 @@
     "LAST_NAME": "Last Name",
     "EMAIL": "E-mail",
     "PASSWORD": "Password",
+    "BIRTH_DATE": "Birth Date",
     "BUTTON": "Register",
     "ERRORS": {
       "EMAIL_REQUIRED": "Email is required.",
       "PASSWORD_REQUIRED": "Password is required.",
       "PASSWORD_MIN": "Password must be at least 8 characters.",
-      "PASSWORD_PATTERN": "Password must contain uppercase, lowercase, number & one special (!?*.$)."
+      "PASSWORD_MAX": "Password must be at most 16 characters.",
+      "PASSWORD_PATTERN": "Password must contain uppercase, lowercase, number & one special (!?*.$).",
+      "VALIDATION_FAILED": "Please check your input.",
+      "EMAIL_EXISTS": "User with this email already exists.",
+      "GENERIC": "Registration failed. Please try again."
     }
   },
   "PRIVACY_POLICY": {
     "TITLE": "Privacy Policy",
     "LAST_UPDATED": "Last updated: May 18, 2025",
     "INTRO": "Welcome to Lanka. Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your personal information when you use our platform.",
-
     "SECTIONS": {
       "1_TITLE": "1. Information We Collect",
       "1_CONTENT": {
@@ -40,7 +279,6 @@
         "CAMPAIGN": "Campaign Data: Activity, offers, performance details.",
         "SOCIAL": "Social Media: Instagram metrics if linked."
       },
-
       "2_TITLE": "2. How We Use Your Information",
       "2_CONTENT": {
         "ACCOUNT": "Account setup and management",
@@ -49,7 +287,6 @@
         "ANALYTICS": "Internal analytics",
         "COMMUNICATION": "Communications and updates"
       },
-
       "3_TITLE": "3. Sharing of Information",
       "3_INTRO": "We do not sell your personal data. Information may be shared with:",
       "3_LIST": {
@@ -57,28 +294,147 @@
         "PROVIDERS": "Trusted service providers",
         "LEGAL": "Legal authorities if required"
       },
-
       "4_TITLE": "4. Data Retention",
       "4_CONTENT": "We keep your data while your account is active or as required by law. You can request deletion anytime.",
-
       "5_TITLE": "5. Your Rights",
       "5_CONTENT": {
         "ACCESS": "Access, edit, or delete your data",
         "WITHDRAW": "Withdraw consent (e.g., disconnect Instagram)",
         "GDPR": "GDPR rights (EU users): data portability, complaints"
       },
-
       "6_TITLE": "6. Security",
       "6_CONTENT": "We apply best practices for data protection, but no system is 100% secure.",
-
       "7_TITLE": "7. Cookies & Tracking",
       "7_CONTENT": "Cookies help improve your experience. You can manage preferences via browser settings.",
-
       "8_TITLE": "8. Changes to This Policy",
       "8_CONTENT": "We may update this policy. Significant changes will be communicated or posted here.",
-
       "9_TITLE": "9. Contact Us",
       "9_CONTENT": "If you have any questions, reach out at:"
     }
+  },
+  "FAQ": {
+    "TITLE": "Frequently Asked Questions",
+    "SUBTITLE": "Answers to common questions about using Lanka.",
+    "SECTIONS": {
+      "GETTING_STARTED": {
+        "TITLE": "Getting Started",
+        "Q1": {
+          "QUESTION": "How do I connect my Instagram account?",
+          "ANSWER": "Go to <strong>Link Instagram</strong> from the sidebar and follow the secure authorization flow. We never store your Instagram password."
+        },
+        "Q2": {
+          "QUESTION": "Can I edit my profile later?",
+          "ANSWER": "Yes. Visit <strong>Settings &gt; Profile</strong> to update your bio, photo, and pricing details at any time."
+        }
+      },
+      "OFFERS": {
+        "TITLE": "Offers & Campaigns",
+        "Q1": {
+          "QUESTION": "How do I create an offer?",
+          "ANSWER": "Open <strong>My Pact</strong> and click <em>Create Offer</em>. Define the package, price, and deliverables you’re comfortable providing."
+        },
+        "Q2": {
+          "QUESTION": "What happens when a brand proposes a campaign?",
+          "ANSWER": "You’ll see it in <strong>Campaigns</strong>. Review details, then accept or reject. Once confirmed, you can mark deliverables as done and request completion."
+        }
+      },
+      "PAYMENTS": {
+        "TITLE": "Payments & Pricing",
+        "Q1": {
+          "QUESTION": "Can I negotiate pricing?",
+          "ANSWER": "Yes. Brands can propose custom pricing when creating a campaign. You decide whether to accept or suggest revisions."
+        },
+        "Q2": {
+          "QUESTION": "How do I set my price range?",
+          "ANSWER": "Your offers control your price range. Update offer prices in <strong>My Pact</strong> to reflect your current rates."
+        }
+      },
+      "SUPPORT": {
+        "TITLE": "Support & Safety",
+        "Q1": {
+          "QUESTION": "How do I report an issue?",
+          "ANSWER": "Email <a href=\"mailto:support@lanka.app\">support@lanka.app</a> with campaign or offer IDs and a short description. We respond within one business day."
+        },
+        "Q2": {
+          "QUESTION": "Who can see my offers?",
+          "ANSWER": "Your offers are visible to brands you collaborate with. Public visibility depends on the collaboration context and your account settings."
+        }
+      }
+    }
+  },
+  "LINK_INSTAGRAM": {
+    "TITLE": "Connect Instagram",
+    "SUBTITLE": "Unlock analytics and start collaborating with brands.",
+    "CTA": "Link Instagram Account",
+    "TERMS": "By connecting, you agree to grant read-only access to your professional account insights.",
+    "REQUIREMENTS": {
+      "PRO_ACCOUNT": {
+        "TITLE": "Professional Account",
+        "DESCRIPTION": "Must be a Business or Creator account."
+      },
+      "FACEBOOK": {
+        "TITLE": "Facebook Page",
+        "DESCRIPTION": "Must be linked to a Facebook Page you manage."
+      },
+      "INSIGHTS": {
+        "TITLE": "Insights Access",
+        "DESCRIPTION": "Required for verifying audience data."
+      }
+    }
+  },
+  "LINK_INSTAGRAM_CALLBACK": {
+    "LABEL": "Instagram linking",
+    "TITLE": "We're finalizing your Instagram connection",
+    "DESCRIPTION": "Thanks for completing the Facebook flow. Stay on this page while we confirm your account and pull the first set of insights.",
+    "STATUS_TITLE": "Instagram linking status",
+    "WAITING": "Waiting for Instagram to respond…",
+    "BACK": "Go back to dashboard",
+    "CONTINUE": "Continue",
+    "PREPARING": "Preparing your Instagram linking session...",
+    "LINKED_REDIRECT": "Instagram account linked successfully! Redirecting…",
+    "STARTING": "Starting Instagram account linking…",
+    "WAITING_CONFIRMATION": "Waiting for Instagram to confirm the account link…",
+    "LINKED_SUCCESS": "Instagram account linked successfully.",
+    "START_FAILED": "Failed to start linking Instagram account.",
+    "NO_CODE": "No code provided for linking Instagram account."
+  },
+  "RENEW_INSTAGRAM_CALLBACK": {
+    "LABEL": "Access renewal",
+    "TITLE": "We're refreshing your Instagram permissions",
+    "DESCRIPTION": "Hang tight while we confirm the new token with Instagram. You'll be routed back to your profile as soon as we receive the latest data.",
+    "STATUS_TITLE": "Instagram access renewal status",
+    "WAITING": "Waiting for Instagram to respond…",
+    "WAITING_TOKEN": "Waiting for Instagram to issue a fresh token…",
+    "RETURN": "Return to profile",
+    "CONTINUE": "Continue to profile",
+    "PREPARING": "Preparing Instagram access renewal…",
+    "SUCCESS_REDIRECT": "Instagram access renewed successfully! Redirecting…",
+    "STARTING": "Starting Instagram access renewal…",
+    "WAITING_CONFIRMATION": "Waiting for Instagram to confirm the new access token…",
+    "SUCCESS": "Instagram access renewed successfully.",
+    "REJECTED": "Instagram rejected this renewal attempt. Please restart the flow from your profile.",
+    "START_FAILED": "Failed to start Instagram access renewal. Please try again.",
+    "NETWORK_ERROR": "We cannot reach Instagram right now. Please check your connection and retry.",
+    "NO_CODE": "No code provided for Instagram access renewal."
+  },
+  "SERVER_ERROR": {
+    "TITLE": "Internal server error",
+    "ERROR_LABEL": "Error:",
+    "SOURCE": "This error comes from the server, not Angular.",
+    "NEXT_STEPS": "What to do next?",
+    "STEP_CHECK_NETWORK": "Check the network tab in DevTools.",
+    "STEP_REPRODUCE": "Reproduce the error in Postman. If it happens there too, no need to debug Angular code.",
+    "STACK_TRACE": "Stack trace"
+  },
+  "INSTAGRAM_STATUS": {
+    "DEFAULT_TITLE": "Instagram status",
+    "NO_OPERATIONS": "No Instagram operations in progress",
+    "PENDING": "Waiting for confirmation",
+    "PROCESSING": "Processing with Instagram",
+    "COMPLETED": "Completed successfully",
+    "FAILED": "Action required",
+    "UNAVAILABLE": "Status unavailable",
+    "CONNECT_PROMPT": "Connect your Instagram account to start tracking status updates.",
+    "UPDATED_AT": "Updated {{date}}"
   }
 }

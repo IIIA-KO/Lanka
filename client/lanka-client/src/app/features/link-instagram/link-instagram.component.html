@@ -1,0 +1,47 @@
+@let linkStatus = linkStatus$ | async;
+
+<main class="instagram-link">
+  <div class="link-container fade-in-up">
+    <div class="header-section">
+      <h1>{{ 'LINK_INSTAGRAM.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'LINK_INSTAGRAM.SUBTITLE' | translate }}</p>
+    </div>
+
+    <!-- Main Action Card -->
+    <div class="action-card glass-panel">
+      <div class="illustration-wrapper">
+        <i class="pi pi-instagram" style="font-size: 4rem; color: var(--p-primary-color)"></i>
+      </div>
+
+      <div class="status-section">
+        <app-instagram-status-banner [status]="linkStatus" [hideWhenEmpty]="false"></app-instagram-status-banner>
+      </div>
+
+      <div class="action-buttons">
+        <p-button [label]="'LINK_INSTAGRAM.CTA' | translate" (click)="handleInstagramLink()" icon="pi pi-instagram"
+          styleClass="w-full text-lg p-3" [disabled]="(linkStatus?.status === 'completed')">
+        </p-button>
+        <p class="terms-text">{{ 'LINK_INSTAGRAM.TERMS' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Instructions / Prep -->
+    <div class="info-grid">
+      <div class="info-item">
+        <i class="pi pi-briefcase text-primary"></i>
+        <h3>{{ 'LINK_INSTAGRAM.REQUIREMENTS.PRO_ACCOUNT.TITLE' | translate }}</h3>
+        <p>{{ 'LINK_INSTAGRAM.REQUIREMENTS.PRO_ACCOUNT.DESCRIPTION' | translate }}</p>
+      </div>
+      <div class="info-item">
+        <i class="pi pi-facebook text-primary"></i>
+        <h3>{{ 'LINK_INSTAGRAM.REQUIREMENTS.FACEBOOK.TITLE' | translate }}</h3>
+        <p>{{ 'LINK_INSTAGRAM.REQUIREMENTS.FACEBOOK.DESCRIPTION' | translate }}</p>
+      </div>
+      <div class="info-item">
+        <i class="pi pi-chart-bar text-primary"></i>
+        <h3>{{ 'LINK_INSTAGRAM.REQUIREMENTS.INSIGHTS.TITLE' | translate }}</h3>
+        <p>{{ 'LINK_INSTAGRAM.REQUIREMENTS.INSIGHTS.DESCRIPTION' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</main>

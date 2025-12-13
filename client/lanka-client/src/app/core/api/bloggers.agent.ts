@@ -1,10 +1,18 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { IBloggerProfile } from '../models/blogger';
 import { environment } from '../../../environments/environment.development';
 
 const BASE_URL = environment.apiUrl;
+
+export interface UpdateBloggerProfileRequest {
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  bio: string;
+  category: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +26,17 @@ export class BloggersAgent {
         .pipe(catchError(this.handleError));
     }
 
-  public updateProfile(profileData: { firstName: string; lastName: string; birthDate: string; bio: string }): Observable<IBloggerProfile> {
+  public getBlogger(id: string): Observable<IBloggerProfile> {
       return this.http
-        .put<IBloggerProfile>(`${BASE_URL}/bloggers`, profileData)
+        .get<IBloggerProfile>(`${BASE_URL}/bloggers/${id}`)
         .pipe(catchError(this.handleError));
     }
+
+  public updateProfile(profileData: UpdateBloggerProfileRequest): Observable<IBloggerProfile> {
+    return this.http
+      .put<IBloggerProfile>(`${BASE_URL}/bloggers`, profileData)
+      .pipe(catchError(this.handleError));
+  }
 
   public uploadProfilePhoto(file: File): Observable<unknown> {
       const formData = new FormData();
@@ -38,8 +52,7 @@ export class BloggersAgent {
         .pipe(catchError(this.handleError));
     }
 
-  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
-    const message = error.error?.message || error.message || 'Unknown error';
-    return throwError(() => new Error(message));
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    return throwError(() => error);
   }
 }

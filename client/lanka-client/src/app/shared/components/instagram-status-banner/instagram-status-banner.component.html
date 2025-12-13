@@ -1,0 +1,59 @@
+@switch (!!status) {
+  @case (true) {
+    <section
+      class="status-banner"
+      [ngClass]="statusClass"
+      aria-live="polite"
+    >
+      <div class="status-icon" aria-hidden="true">
+        <span *ngIf="isLoading" class="spinner"></span>
+        <span
+          *ngIf="!isLoading && status?.status === 'completed'"
+          class="icon icon-success"
+        >
+          ✔
+        </span>
+        <span
+          *ngIf="!isLoading && status?.status === 'failed'"
+          class="icon icon-failed"
+        >
+          !
+        </span>
+        <span
+          *ngIf="!isLoading && status?.status === 'processing'"
+          class="icon icon-processing"
+        >
+          ⟳
+        </span>
+      </div>
+      <div class="status-body">
+        <div class="status-header">
+          <h3>{{ title | translate }}</h3>
+          <span class="status-pill">{{ statusLabel }}</span>
+        </div>
+        <p class="status-message">{{ (status?.message || 'INSTAGRAM_STATUS.UNAVAILABLE') | translate }}</p>
+        <p *ngIf="showTimestamp && status?.timestamp" class="status-timestamp">
+          {{ 'INSTAGRAM_STATUS.UPDATED_AT' | translate:{ date: (status?.timestamp | date:'medium') } }}
+        </p>
+      </div>
+    </section>
+  }
+  @default {
+    @if (!hideWhenEmpty) {
+      <section class="status-banner status-idle" aria-live="polite">
+        <div class="status-icon" aria-hidden="true">
+          <span class="icon icon-idle">ℹ</span>
+        </div>
+        <div class="status-body">
+          <div class="status-header">
+            <h3>{{ title | translate }}</h3>
+            <span class="status-pill">{{ statusLabel }}</span>
+          </div>
+          <p class="status-message">
+            {{ 'INSTAGRAM_STATUS.CONNECT_PROMPT' | translate }}
+          </p>
+        </div>
+      </section>
+    }
+  }
+}

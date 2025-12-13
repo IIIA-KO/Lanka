@@ -15,10 +15,15 @@
 
 .detail-section {
   padding: 1rem 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.detail-section:last-child {
+  border-bottom: none;
 }
 
 .detail-section h4 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 1rem 0;
   color: var(--text-color);
   font-weight: 600;
   font-size: 1.1rem;
@@ -28,6 +33,7 @@
   line-height: 1.6;
   color: var(--text-color-secondary);
   margin: 0;
+  white-space: pre-wrap;
 }
 
 .price-display {
@@ -42,12 +48,6 @@
   color: var(--primary-color);
 }
 
-.price-currency {
-  font-size: 1rem;
-  color: var(--text-color-secondary);
-  font-weight: 500;
-}
-
 .offer-id {
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
@@ -56,6 +56,21 @@
   padding: 0.5rem;
   border-radius: var(--border-radius);
   margin: 0;
+  display: inline-block;
+}
+
+/* Templates List */
+.templates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.template-item {
+  padding: 1rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-color);
 }
 
 @media (max-width: 768px) {

@@ -1,0 +1,80 @@
+<div class="layout">
+  <app-navbar class="sidebar" *ngIf="isAuthenticated$ | async"></app-navbar>
+  <div class="content"
+       [class.no-sidebar]="!(isAuthenticated$ | async)"
+       [class.no-header]="!(isAuthenticated$ | async)">
+    <app-header *ngIf="isAuthenticated$ | async"></app-header>
+
+    <div class="content-scroll">
+      <div class="back-row">
+        <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text p-button-sm" (click)="onBack()">
+          {{ 'COMMON.BACK' | translate }}
+        </button>
+        <div class="back-actions" *ngIf="!(isAuthenticated$ | async)">
+          <app-language-switcher></app-language-switcher>
+        </div>
+      </div>
+
+      <div class="faq-container fade-in">
+        <div class="faq-content">
+          <header class="faq-header">
+            <h1 class="text-3xl font-bold mb-2 text-primary">{{ 'FAQ.TITLE' | translate }}</h1>
+            <p class="text-gray-500 font-medium">{{ 'FAQ.SUBTITLE' | translate }}</p>
+          </header>
+
+          <div class="divider"></div>
+
+          <section class="faq-section">
+            <h2>{{ 'FAQ.SECTIONS.GETTING_STARTED.TITLE' | translate }}</h2>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.GETTING_STARTED.Q1.QUESTION' | translate }}</h4>
+              <p [innerHTML]="'FAQ.SECTIONS.GETTING_STARTED.Q1.ANSWER' | translate"></p>
+            </div>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.GETTING_STARTED.Q2.QUESTION' | translate }}</h4>
+              <p [innerHTML]="'FAQ.SECTIONS.GETTING_STARTED.Q2.ANSWER' | translate"></p>
+            </div>
+          </section>
+
+          <section class="faq-section">
+            <h2>{{ 'FAQ.SECTIONS.OFFERS.TITLE' | translate }}</h2>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.OFFERS.Q1.QUESTION' | translate }}</h4>
+              <p [innerHTML]="'FAQ.SECTIONS.OFFERS.Q1.ANSWER' | translate"></p>
+            </div>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.OFFERS.Q2.QUESTION' | translate }}</h4>
+              <p [innerHTML]="'FAQ.SECTIONS.OFFERS.Q2.ANSWER' | translate"></p>
+            </div>
+          </section>
+
+          <section class="faq-section">
+            <h2>{{ 'FAQ.SECTIONS.PAYMENTS.TITLE' | translate }}</h2>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.PAYMENTS.Q1.QUESTION' | translate }}</h4>
+              <p>{{ 'FAQ.SECTIONS.PAYMENTS.Q1.ANSWER' | translate }}</p>
+            </div>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.PAYMENTS.Q2.QUESTION' | translate }}</h4>
+              <p [innerHTML]="'FAQ.SECTIONS.PAYMENTS.Q2.ANSWER' | translate"></p>
+            </div>
+          </section>
+
+          <section class="faq-section">
+            <h2>{{ 'FAQ.SECTIONS.SUPPORT.TITLE' | translate }}</h2>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.SUPPORT.Q1.QUESTION' | translate }}</h4>
+              <p [innerHTML]="'FAQ.SECTIONS.SUPPORT.Q1.ANSWER' | translate"></p>
+            </div>
+            <div class="qa">
+              <h4>{{ 'FAQ.SECTIONS.SUPPORT.Q2.QUESTION' | translate }}</h4>
+              <p>{{ 'FAQ.SECTIONS.SUPPORT.Q2.ANSWER' | translate }}</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <app-footer></app-footer>
+  </div>
+</div>

@@ -1,0 +1,154 @@
+<div class="settings-container">
+    <p-card styleClass="settings-card">
+        <div class="settings-header mb-4">
+            <h2>{{ 'SETTINGS.TITLE' | translate }}</h2>
+            <p class="text-color-secondary">{{ 'SETTINGS.SUBTITLE' | translate }}</p>
+        </div>
+
+        <div class="card p-4">
+            <h2 class="text-2xl font-bold mb-4">{{ 'SETTINGS.EDIT_TITLE' | translate }}</h2>
+
+            <!-- Avatar Section -->
+            <div class="flex flex-column align-items-center mb-5 gap-3">
+                <div class="relative">
+                    <img [src]="photoPreview || photoUri || '/icons/no-profile.svg'" alt="Profile Avatar"
+                        class="w-8rem h-8rem border-circle object-cover shadow-2" />
+
+                    <div *ngIf="uploading"
+                        class="absolute top-0 left-0 w-full h-full border-circle flex align-items-center justify-content-center bg-black-alpha-50">
+                        <i class="pi pi-spin pi-spinner text-white text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileChange($event)" />
+                    <p-button [label]="'SETTINGS.CHANGE_PHOTO' | translate" icon="pi pi-camera" [outlined]="true" size="small"
+                        (onClick)="fileInput.click()" [disabled]="uploading || cropping"></p-button>
+                    <p-button *ngIf="photoUri" icon="pi pi-trash" severity="danger" [outlined]="true" size="small"
+                        (onClick)="removePhoto()" [disabled]="uploading"></p-button>
+                </div>
+            </div>
+
+            <!-- Cropper Modal -->
+            <p-dialog [header]="'SETTINGS.CROP_IMAGE' | translate" [(visible)]="cropping" [modal]="true" [style]="{width: '50vw'}"
+                [draggable]="false" [resizable]="false" (onHide)="cancelCrop()">
+                <div class="p-4 flex flex-column gap-3">
+                    <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true"
+                        [aspectRatio]="1/1" [resizeToWidth]="256" format="jpeg" (imageCropped)="imageCropped($event)"
+                        (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
+                        (loadImageFailed)="loadImageFailed()">
+                    </image-cropper>
+                    <div class="flex justify-content-end gap-2">
+                        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="cancelCrop()"></p-button>
+                        <p-button [label]="'COMMON.SAVE' | translate" (onClick)="uploadPhoto()"
+                            [disabled]="!croppedImage || uploading"></p-button>
+                    </div>
+                </div>
+            </p-dialog>
+
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4">
+                <!-- Name Fields -->
+                <div class="flex flex-column md:flex-row gap-4">
+                    <div class="flex-1 flex flex-column gap-2">
+                        <label for="firstName" class="font-medium">{{ 'REGISTER.FIRST_NAME' | translate }}</label>
+                        <input pInputText id="firstName" formControlName="firstName" />
+                        <small class="text-red-500"
+                            *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched">
+                            {{ 'SETTINGS.ERRORS.FIRST_NAME_REQUIRED' | translate }}
+                        </small>
+                    </div>
+                    <div class="flex-1 flex flex-column gap-2">
+                        <label for="lastName" class="font-medium">{{ 'REGISTER.LAST_NAME' | translate }}</label>
+                        <input pInputText id="lastName" formControlName="lastName" />
+                        <small class="text-red-500"
+                            *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched">
+                            {{ 'SETTINGS.ERRORS.LAST_NAME_REQUIRED' | translate }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Additional Fields: Country & Category -->
+                <div class="flex flex-column md:flex-row gap-4">
+                    <div class="flex-1 flex flex-column gap-2">
+                        <label for="category" class="font-medium">{{ 'SETTINGS.CATEGORY' | translate }}</label>
+                        <p-select
+                            id="category"
+                            formControlName="category"
+                            [options]="categoryOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [placeholder]="'SETTINGS.CATEGORY_PLACEHOLDER' | translate"
+                            styleClass="w-full">
+                        </p-select>
+                        <small class="text-red-500"
+                            *ngIf="profileForm.get('category')?.invalid && profileForm.get('category')?.touched">
+                            {{ 'SETTINGS.ERRORS.CATEGORY_REQUIRED' | translate }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label for="bio" class="font-medium">{{ 'SETTINGS.BIO' | translate }}</label>
+                    <textarea pTextarea id="bio" formControlName="bio" rows="5" class="w-full"></textarea>
+                    <small class="text-gray-500 text-right">{{ profileForm.get('bio')?.value?.length || 0
+                        }}/500</small>
+                </div>
+
+                <p-divider></p-divider>
+
+                <h3 class="text-xl font-semibold m-0">{{ 'SETTINGS.PRIVATE_INFO.TITLE' | translate }}</h3>
+                <p class="text-gray-500 m-0 text-sm">{{ 'SETTINGS.PRIVATE_INFO.DESCRIPTION' | translate }}</p>
+
+                <div class="flex flex-column gap-2">
+                    <label for="email" class="font-medium">{{ 'REGISTER.EMAIL' | translate }}</label>
+                    <input pInputText id="email" [value]="profile.email" disabled
+                        class="bg-gray-50 text-gray-700 font-medium" />
+                    <small class="text-gray-500">{{ 'SETTINGS.PRIVATE_INFO.EMAIL_HELP' | translate }}</small>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label for="birthDate" class="font-medium">{{ 'REGISTER.BIRTH_DATE' | translate }}</label>
+                    <input pInputText type="date" id="birthDate" formControlName="birthDate" />
+                    <small class="text-red-500"
+                        *ngIf="profileForm.get('birthDate')?.invalid && profileForm.get('birthDate')?.touched">
+                        {{ 'SETTINGS.ERRORS.BIRTHDATE_REQUIRED' | translate }}
+                    </small>
+                </div>
+
+                <div class="flex flex-column gap-2 form-group">
+                    <span class="font-medium">{{ 'SETTINGS.PASSWORD.LABEL' | translate }}</span>
+                    <p-button [label]="'SETTINGS.PASSWORD.CHANGE' | translate" severity="secondary" [outlined]="true"
+                        styleClass="w-auto align-self-start"></p-button>
+                </div>
+
+                <div class="flex justify-content-end gap-3 mt-4">
+                    <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" [outlined]="true" routerLink="/profile"></p-button>
+                    <p-button [label]="'COMMON.SAVE_CHANGES' | translate" type="submit" [loading]="loading"
+                        [disabled]="profileForm.invalid || profileForm.pristine"></p-button>
+                </div>
+            </form>
+
+            <div class="mt-8 border-top-1 border-gray-200 pt-6">
+                <h3 class="text-xl font-semibold text-red-600 mb-2">{{ 'SETTINGS.DANGER.TITLE' | translate }}</h3>
+                <div
+                    class="border-1 border-red-200 bg-red-50 border-round p-4 flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="m-0 font-medium text-red-900">{{ 'SETTINGS.DANGER.DELETE_TITLE' | translate }}</h4>
+                        <p class="m-0 text-red-700 text-sm mt-1">{{ 'SETTINGS.DANGER.DESCRIPTION' | translate }}</p>
+                    </div>
+
+                    <div *ngIf="!showDeleteConfirmation">
+                        <p-button [label]="'SETTINGS.DANGER.DELETE_ACTION' | translate" severity="danger" [outlined]="true"
+                            (onClick)="toggleDeleteConfirmation()"></p-button>
+                    </div>
+
+                    <div *ngIf="showDeleteConfirmation" class="flex gap-2">
+                        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="cancelAccountDeletion()"></p-button>
+                        <p-button [label]="'SETTINGS.DANGER.CONFIRM' | translate" severity="danger" [loading]="isDeletingAccount"
+                            (onClick)="confirmAccountDeletion()"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p-card>
+</div>

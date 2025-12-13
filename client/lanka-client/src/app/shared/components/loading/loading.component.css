@@ -1,26 +1,28 @@
-.loading-overlay {
+.loading-bar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 4px;
+  width: 100%;
   z-index: 9999;
+  background: linear-gradient(90deg, rgba(45,157,157,0.1) 0%, rgba(45,157,157,0.4) 50%, rgba(45,157,157,0.1) 100%);
+  overflow: hidden;
 }
 
-.spinner {
-  border: 8px solid #f3f3f3;
-  border-top: 8px solid #3498db;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
+.loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -30%;
+  height: 100%;
+  width: 30%;
+  background: var(--p-primary-color, #2d9d9d);
+  animation: slide 1s infinite;
+  border-radius: 0 8px 8px 0;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-} 
+@keyframes slide {
+  0% { left: -30%; }
+  50% { left: 50%; }
+  100% { left: 100%; }
+}

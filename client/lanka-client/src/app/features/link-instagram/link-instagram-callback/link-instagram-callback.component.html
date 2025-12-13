@@ -1,0 +1,47 @@
+@let status = status$ | async;
+
+<main class="callback-wrapper">
+  <div class="callback-card fade-in-up">
+    <header class="callback-header">
+      <span class="callback-chip">
+        <i class="pi pi-instagram" aria-hidden="true"></i>
+        {{ 'LINK_INSTAGRAM_CALLBACK.LABEL' | translate }}
+      </span>
+      <h1>{{ 'LINK_INSTAGRAM_CALLBACK.TITLE' | translate }}</h1>
+      <p>
+        {{ 'LINK_INSTAGRAM_CALLBACK.DESCRIPTION' | translate }}
+      </p>
+    </header>
+
+    <app-instagram-status-banner
+      [status]="status"
+      [hideWhenEmpty]="false"
+      title="LINK_INSTAGRAM_CALLBACK.STATUS_TITLE"
+    ></app-instagram-status-banner>
+
+    <section class="callback-body">
+      <p class="status-hint">{{ fallbackMessage | translate }}</p>
+
+      @if (isProcessing && (!status || !status.isFinal)) {
+        <div class="status-progress" aria-live="polite">
+          <span class="progress-spinner" aria-hidden="true"></span>
+          <span>{{ 'LINK_INSTAGRAM_CALLBACK.WAITING' | translate }}</span>
+        </div>
+      }
+
+      @if (status?.status === 'failed') {
+        <div class="callback-actions">
+          <button type="button" class="callback-button" (click)="goBack()">
+            {{ 'LINK_INSTAGRAM_CALLBACK.BACK' | translate }}
+          </button>
+        </div>
+      } @else if (status?.status === 'completed') {
+        <div class="callback-actions">
+          <button type="button" class="callback-button" (click)="goBack()">
+            {{ 'LINK_INSTAGRAM_CALLBACK.CONTINUE' | translate }}
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+</main>

@@ -42,6 +42,12 @@ export class OffersAgent {
       .pipe(catchError(this.handleError));
   }
 
+  public getOffers(): Observable<IOffer[]> {
+    return this.http
+      .get<IOffer[]>(`${BASE_URL}/offers`)
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
     const message = error.error?.message || error.message || 'Unknown error';
     return throwError(() => new Error(message));

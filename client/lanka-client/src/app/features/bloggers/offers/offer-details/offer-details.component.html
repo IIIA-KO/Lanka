@@ -1,88 +1,92 @@
 <div class="offer-details-container">
   <div class="flex align-items-center gap-2 mb-4">
-    <button pButton 
-            type="button" 
-            icon="pi pi-arrow-left" 
-            class="p-button-text p-button-sm"
-            (click)="onBack()">
+    <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text p-button-sm" (click)="onBack()">
     </button>
-    <h2>Offer Details</h2>
+    <h2>{{ 'OFFERS.DETAILS.TITLE' | translate }}</h2>
   </div>
 
-  <div *ngIf="loading" class="flex justify-content-center p-4">
-    <p-progressSpinner></p-progressSpinner>
+  <div *ngIf="loading" class="flex justify-content-center p-4 text-color-secondary">
+    {{ 'OFFERS.MESSAGES.LOAD_FAIL' | translate }}
   </div>
 
   <div *ngIf="!loading && offer" class="offer-details-content">
     <p-card>
       <ng-template pTemplate="header">
         <div class="flex justify-content-between align-items-center p-3">
-          <h3>{{ offer.name }}</h3>
+          <div class="flex align-items-center gap-3">
+            <h3 class="m-0">{{ offer.name }}</h3>
+            <p-tag *ngIf="offer.format" [value]="offer.format"
+              [styleClass]="templatesService.getFormatBadgeClass(offer.format)">
+            </p-tag>
+          </div>
           <div class="flex gap-2">
-            <button pButton 
-                    type="button" 
-                    label="Edit" 
-                    icon="pi pi-pencil" 
-                    class="p-button-outlined"
-                    (click)="onEdit()">
+            <button pButton type="button" [label]="'OFFERS.DETAILS.EDIT' | translate" icon="pi pi-pencil" class="p-button-outlined" (click)="onEdit()">
             </button>
-            <button pButton 
-                    type="button" 
-                    label="Delete" 
-                    icon="pi pi-trash" 
-                    class="p-button-outlined p-button-danger"
-                    (click)="onDelete()">
+            <button pButton type="button" [label]="'OFFERS.DETAILS.DELETE' | translate" icon="pi pi-trash" class="p-button-outlined p-button-danger"
+              (click)="onDelete()">
             </button>
           </div>
         </div>
       </ng-template>
-      
+
       <ng-template pTemplate="content">
         <div class="offer-details-grid">
           <!-- Description -->
           <div class="detail-section">
-            <h4>Description</h4>
+            <h4>{{ 'OFFERS.DETAILS.DESCRIPTION' | translate }}</h4>
             <p class="description-text">{{ offer.description }}</p>
           </div>
 
           <!-- Price Information -->
           <div class="detail-section">
-            <h4>Price Information</h4>
+            <h4>{{ 'OFFERS.DETAILS.PRICE' | translate }}</h4>
             <div class="price-display">
               <span class="price-amount">{{ offer.priceAmount | currency:offer.priceCurrency }}</span>
-              <span class="price-currency">{{ offer.priceCurrency }}</span>
+            </div>
+          </div>
+
+          <!-- Deliverable Templates -->
+          <div class="detail-section" *ngIf="offer.deliverableTemplates && offer.deliverableTemplates.length > 0">
+            <h4>{{ 'OFFERS.DETAILS.INCLUDED' | translate }}</h4>
+            <div class="templates-list">
+              <div *ngFor="let template of offer.deliverableTemplates" class="template-item">
+                <div class="flex align-items-center gap-2 mb-1">
+                  <i class="pi pi-check-circle text-primary"></i>
+                  <span class="font-medium">{{ template.description }}</span>
+                </div>
+                <p class="text-sm text-color-secondary ml-4 mb-1">{{ template.typicalRequirements }}</p>
+                <p class="text-sm text-color-secondary ml-4" *ngIf="template.estimatedDuration">
+                  <i class="pi pi-clock text-xs"></i> {{ template.estimatedDuration }}
+                </p>
+              </div>
             </div>
           </div>
 
           <!-- Offer ID -->
           <div class="detail-section">
-            <h4>Offer ID</h4>
+            <h4>{{ 'OFFERS.DETAILS.OFFER_ID' | translate }}</h4>
             <p class="offer-id">{{ offer.id }}</p>
           </div>
         </div>
       </ng-template>
-      
+
       <ng-template pTemplate="footer">
-        <div class="flex justify-content-end gap-2">
-          <button pButton 
-                  type="button" 
-                  label="Back to Offers" 
-                  icon="pi pi-arrow-left" 
-                  class="p-button-outlined"
-                  (click)="onBack()">
+        <div class="flex justify-content-between align-items-center">
+          <button pButton type="button" [label]="'OFFERS.DETAILS.BACK' | translate" icon="pi pi-arrow-left" class="p-button-outlined"
+            (click)="onBack()">
           </button>
-          <button pButton 
-                  type="button" 
-                  label="Edit Offer" 
-                  icon="pi pi-pencil" 
-                  (click)="onEdit()">
-          </button>
+
+          <div class="flex gap-2">
+            <button pButton type="button" [label]="'OFFERS.DETAILS.PROPOSE' | translate" icon="pi pi-send" class="p-button-success"
+              (click)="onProposeCampaign()">
+            </button>
+          </div>
         </div>
       </ng-template>
     </p-card>
   </div>
 
   <div *ngIf="!loading && !offer" class="text-center p-4">
-    <p-message severity="warn" text="Offer not found"></p-message>
+    <p-message severity="warn" [text]="'OFFERS.DETAILS.NOT_FOUND' | translate"></p-message>
   </div>
 </div>

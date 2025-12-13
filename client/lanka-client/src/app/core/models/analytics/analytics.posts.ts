@@ -28,9 +28,10 @@ export interface IPostsResponse {
 }
 
 export interface IInstagramPagingResponse {
-  cursors: IPagingCursors;
-  next?: string;
-  previous?: string;
+  after?: string;
+  before?: string;
+  nextCursor?: string;
+  previousCursor?: string;
 }
 
 export interface IPagingCursors {
@@ -41,6 +42,8 @@ export interface IPagingCursors {
 // Post filter and query parameters
 export interface IPostsQueryParams {
   limit?: number;
+  cursorType?: string;
+  cursor?: string;
   after?: string;
   before?: string;
   since?: string;

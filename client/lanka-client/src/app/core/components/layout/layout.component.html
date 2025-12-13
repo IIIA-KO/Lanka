@@ -1,9 +1,0 @@
-<lnk-loading></lnk-loading>
-<div class="layout flex h-screen">
-  @if (isAuthenticated$ | async) {
-    <lnk-navbar class="sidebar"></lnk-navbar>
-  }
-  <main class="content flex-1 overflow-auto">
-    <router-outlet></router-outlet>
-  </main>
-</div>

@@ -1,6 +1,10 @@
 <div class="w-full flex justify-content-center">
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full max-w-md flex flex-column gap-3 mt-3">
 
+    @if (errorMessage) {
+    <p-message severity="error" [text]="errorMessage | translate" styleClass="w-full"></p-message>
+    }
+
     <input pInputText formControlName="email" [placeholder]="'LOGIN.EMAIL' | translate" styleClass="w-full"
       inputStyleClass="w-full" />
 
@@ -11,25 +15,25 @@
     <div class="error-space">
       <div class="error-container w-full">
         @if (loginForm.get('password')?.hasError('required')) {
-          <small class="p-error">
-            {{ 'LOGIN.ERRORS.PASSWORD_REQUIRED' | translate }}
-          </small>
+        <small class="p-error">
+          {{ 'LOGIN.ERRORS.PASSWORD_REQUIRED' | translate }}
+        </small>
         }
         @if (loginForm.get('password')?.hasError('minlength')) {
-          <small class="p-error">
-            {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
-          </small>
+        <small class="p-error">
+          {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
+        </small>
         }
         @if (loginForm.get('password')?.hasError('pattern')) {
-          <small class="p-error">
-            {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
-          </small>
+        <small class="p-error">
+          {{ 'LOGIN.ERRORS.PASSWORD_MIN' | translate }}
+        </small>
         }
       </div>
     </div>
 
     <button pButton type="submit" [label]="'LOGIN.BUTTON' | translate" class="w-full" [disabled]="loginForm.invalid"
-      style="background-color: var(--primary-color)">
+      style="background-color: var(--p-primary-color)">
     </button>
   </form>
 </div>

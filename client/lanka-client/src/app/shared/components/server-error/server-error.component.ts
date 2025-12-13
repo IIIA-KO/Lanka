@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-server-error',
@@ -11,7 +12,8 @@ import { MessageModule } from 'primeng/message';
   imports: [
     ButtonModule,
     CardModule,
-    MessageModule
+    MessageModule,
+    TranslateModule
 ],
   templateUrl: './server-error.component.html',
 })

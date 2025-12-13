@@ -1,0 +1,38 @@
+.settings-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.settings-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.border-right-md {
+  border-right: 1px solid var(--surface-border);
+}
+
+@media (max-width: 768px) {
+  .border-right-md {
+    border-right: none;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .pl-md-4 {
+    padding-left: 0 !important;
+  }
+  
+  .pr-md-4 {
+    padding-right: 0 !important;
+  }
+}
+
+.danger-zone {
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: #fff5f5;
+}

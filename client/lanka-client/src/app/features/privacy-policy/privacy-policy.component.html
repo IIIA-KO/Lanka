@@ -1,0 +1,116 @@
+<div class="layout">
+  <app-navbar class="sidebar" *ngIf="isAuthenticated$ | async"></app-navbar>
+  <div class="content"
+       [class.no-sidebar]="!(isAuthenticated$ | async)"
+       [class.no-header]="!(isAuthenticated$ | async)">
+    <app-header *ngIf="isAuthenticated$ | async"></app-header>
+
+    <div class="content-scroll">
+      <div class="back-row">
+        <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text p-button-sm" (click)="onBack()">
+          {{ 'COMMON.BACK' | translate }}
+        </button>
+        <div class="back-actions" *ngIf="!(isAuthenticated$ | async)">
+          <app-language-switcher></app-language-switcher>
+        </div>
+      </div>
+
+      <div class="privacy-container fade-in">
+        <div class="privacy-content">
+
+          <!-- Header -->
+          <header class="privacy-header">
+            <h1 class="text-3xl font-bold mb-2 text-primary">{{ 'PRIVACY_POLICY.TITLE' | translate }}</h1>
+            <p class="text-gray-500 font-medium">{{ 'PRIVACY_POLICY.LAST_UPDATED' | translate }}</p>
+          </header>
+
+          <div class="divider"></div>
+
+          <!-- Intro -->
+          <section class="privacy-section">
+            <p class="text-lg line-height-3">{{ 'PRIVACY_POLICY.INTRO' | translate }}</p>
+          </section>
+
+          <!-- 1. Information We Collect -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.1_TITLE' | translate }}</h2>
+            <ul class="custom-list">
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.1_CONTENT.ACCOUNT' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.1_CONTENT.CAMPAIGN' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.1_CONTENT.SOCIAL' | translate }}</li>
+            </ul>
+          </section>
+
+          <!-- 2. How We Use -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.2_TITLE' | translate }}</h2>
+            <ul class="custom-list">
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.2_CONTENT.ACCOUNT' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.2_CONTENT.CAMPAIGN' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.2_CONTENT.IMPROVEMENT' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.2_CONTENT.ANALYTICS' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.2_CONTENT.COMMUNICATION' | translate }}</li>
+            </ul>
+          </section>
+
+          <!-- 3. Sharing -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.3_TITLE' | translate }}</h2>
+            <p>{{ 'PRIVACY_POLICY.SECTIONS.3_INTRO' | translate }}</p>
+            <ul class="custom-list">
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.3_LIST.ADMINS' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.3_LIST.PROVIDERS' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.3_LIST.LEGAL' | translate }}</li>
+            </ul>
+          </section>
+
+          <!-- 4. Retention -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.4_TITLE' | translate }}</h2>
+            <p>{{ 'PRIVACY_POLICY.SECTIONS.4_CONTENT' | translate }}</p>
+          </section>
+
+          <!-- 5. Rights -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.5_TITLE' | translate }}</h2>
+            <ul class="custom-list">
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.5_CONTENT.ACCESS' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.5_CONTENT.WITHDRAW' | translate }}</li>
+              <li>{{ 'PRIVACY_POLICY.SECTIONS.5_CONTENT.GDPR' | translate }}</li>
+            </ul>
+          </section>
+
+          <!-- 6. Security -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.6_TITLE' | translate }}</h2>
+            <p>{{ 'PRIVACY_POLICY.SECTIONS.6_CONTENT' | translate }}</p>
+          </section>
+
+          <!-- 7. Cookies -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.7_TITLE' | translate }}</h2>
+            <p>{{ 'PRIVACY_POLICY.SECTIONS.7_CONTENT' | translate }}</p>
+          </section>
+
+          <!-- 8. Changes -->
+          <section class="privacy-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.8_TITLE' | translate }}</h2>
+            <p>{{ 'PRIVACY_POLICY.SECTIONS.8_CONTENT' | translate }}</p>
+          </section>
+
+          <!-- 9. Contact -->
+          <section class="privacy-section contact-section">
+            <h2>{{ 'PRIVACY_POLICY.SECTIONS.9_TITLE' | translate }}</h2>
+            <p class="mb-3">{{ 'PRIVACY_POLICY.SECTIONS.9_CONTENT' | translate }}</p>
+            <a href="mailto:privacy&#64;lanka.app" class="contact-button">
+              <i class="pi pi-envelope"></i> privacy&#64;lanka.app
+            </a>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <app-footer></app-footer>
+  </div>
+</div>

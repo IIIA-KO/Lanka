@@ -1,32 +1,219 @@
-<div style="display: flex; justify-content: space-between; align-items: center;">
-  <h2>Profile</h2>
-  <button [routerLink]="['edit']" [state]="{profile: profile}" class="edit-profile-btn">
-    Edit Profile
-  </button>
-</div>
-<div>
-  <p>First name: {{ profile.firstName }}</p>
-  <p>Last name: {{ profile.lastName }}</p>
-  <p>Email: {{ profile.email }}</p>
-  <p>Birth Date: {{ profile!.birthDate }}</p>
-  <p>Bio: {{ profile.bio || 'No bio provided.' }}</p>
-  <img [src]="profile.profilePhotoUri || '/icons/no-profile.svg'" alt="Avatar" />
-  <p>Followers: {{profile.instagramFollowersCount}}</p>
-  <p>Media: {{profile.instagramMediaCount}}</p>
-  <p>Username: {{profile.instagramUsername}}</p>
-  <div *ngIf="profile.instagramUsername">
-    <button (click)="handleRenewInstagramAccess()" class="p-button p-component">
-      Renew Instagram Access
-    </button>
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="profile-header card-style mb-4">
+    <div class="flex flex-column md:flex-row align-items-center md:align-items-start gap-4">
+      <!-- Avatar -->
+      <div class="avatar-wrapper">
+        <img [src]="profile.profilePhotoUri || '/icons/no-profile.svg'" alt="Profile Avatar" class="profile-avatar" />
+      </div>
+
+      <!-- Info -->
+      <div class="profile-info flex-grow-1">
+        <div class="flex justify-content-between align-items-start">
+          <div>
+            <h1 class="text-3xl font-bold m-0 mb-2">{{ profile.firstName }} {{ profile.lastName }}</h1>
+            <p class="text-color-secondary m-0 mb-3 line-height-3">{{ profile.bio | slice:0:100 }}{{
+              (profile.bio?.length || 0) > 100 ? '...' : '' }}</p>
+
+            <div class="flex align-items-center gap-3 mb-3 text-sm text-color-secondary">
+              <span *ngIf="profile.rating && profile.rating > 0" class="flex align-items-center gap-1">
+                <i class="pi pi-star-fill text-yellow-500"></i>
+                <span>{{ profile.rating.toFixed(1) }}</span>
+              </span>
+              <span class="flex align-items-center gap-1">
+                <i class="pi pi-tag text-teal-600"></i>
+                <span>{{ profile.category || '—' }}</span>
+              </span>
+            </div>
+
+            <div class="social-links flex gap-2">
+              <a *ngIf="profile.instagramUsername" [href]="'https://instagram.com/' + profile.instagramUsername"
+                target="_blank" class="social-btn instagram">
+                <i class="pi pi-instagram"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="actions flex flex-column gap-2">
+            <p-button [label]="'PROFILE.ACTIONS.EDIT' | translate" icon="pi pi-pencil" routerLink="/settings/profile"
+              styleClass="p-button-outlined w-full"></p-button>
+            <p-button [label]="'PROFILE.ACTIONS.SHARE' | translate" icon="pi pi-share-alt"
+              styleClass="p-button-secondary p-button-outlined w-full" (onClick)="handleShareProfile()"></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <analytics-chart *ngIf="age.labels && age.values" [type]="'pie'" [title]="'Age Distribution'" [labels]="age!.labels"
-    [values]="age!.values"></analytics-chart>
+  <!-- KPI Cards Row -->
+  <div class="grid mb-4">
+    <div class="col-12 md:col-6 lg:col-4">
+      <div class="kpi-card card-style">
+        <div class="kpi-icon bg-blue-100 text-blue-600">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">{{ 'PROFILE.METRICS.FOLLOWERS' | translate }}</span>
+          <span class="kpi-value">{{ formatMetric(profile.instagramFollowersCount) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-6 lg:col-4">
+      <div class="kpi-card card-style">
+        <div class="kpi-icon bg-green-100 text-green-600">
+          <i class="pi pi-money-bill"></i>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">{{ 'PROFILE.METRICS.PRICE_RANGE' | translate }}</span>
+          <span class="kpi-value text-xl">{{ priceRange }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-6 lg:col-4">
+      <div class="kpi-card card-style">
+        <div class="kpi-icon bg-purple-100 text-purple-600">
+          <i class="pi pi-images"></i>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">{{ 'PROFILE.METRICS.POSTS' | translate }}</span>
+          <span class="kpi-value">{{ formatMetric(profile.instagramMediaCount) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <analytics-chart *ngIf="gender.labels && gender.values" [type]="'pie'" [title]="'Age Distribution'"
-    [labels]="gender!.labels" [values]="gender.values"></analytics-chart>
+  <div class="grid">
+    <!-- Main Content (Left) -->
+    <div class="col-12 lg:col-8">
+      <!-- Bio Section -->
+      <div class="card-style mb-4 p-4">
+        <h3 class="text-xl font-bold mb-3">{{ 'PROFILE.ABOUT.TITLE' | translate }}</h3>
+        <p class="line-height-3 text-color-secondary m-0">
+          {{ profile.bio || ('PROFILE.ABOUT.EMPTY' | translate) }}
+        </p>
+      </div>
 
-  <analytics-chart *ngIf="location.labels && location.values" [type]="'pie'" [title]="'Age Distribution'"
-    [labels]="location.labels" [values]="location.values"></analytics-chart>
+      <!-- Recent Posts -->
+      <div class="card-style p-4">
+        <div class="flex justify-content-between align-items-center mb-3">
+          <h3 class="text-xl font-bold m-0">{{ 'PROFILE.POSTS.TITLE' | translate }}</h3>
+          <a *ngIf="recentPosts.length > 0" href="https://instagram.com/{{ profile.instagramUsername }}" target="_blank"
+            class="text-teal-600 hover:text-teal-700 text-sm font-semibold no-underline">
+            {{ 'PROFILE.POSTS.VIEW_ALL' | translate }} <i class="pi pi-external-link ml-1"></i>
+          </a>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loadingPosts" class="flex gap-3 overflow-x-auto pb-2">
+          <div *ngFor="let i of [1,2,3,4,5,6]" class="post-skeleton">
+            <div class="bg-gray-100 border-round" style="width: 180px; height: 180px;"></div>
+          </div>
+        </div>
+
+        <!-- Posts Grid -->
+        <div *ngIf="!loadingPosts && recentPosts.length > 0" class="flex gap-3 overflow-x-auto pb-2">
+          <a *ngFor="let post of recentPosts" [href]="post.permalink" target="_blank" class="post-card no-underline">
+            <div class="post-thumbnail">
+              <img [src]="post.mediaType === 'VIDEO' ? post.thumbnailUrl : post.mediaUrl"
+                [alt]="'Instagram post from ' + post.timestamp" class="post-image">
+              <div *ngIf="post.mediaType === 'VIDEO'" class="video-indicator">
+                <i class="pi pi-play-circle"></i>
+              </div>
+            </div>
+            <div class="post-insights">
+              <div class="insight-item">
+                <i class="pi pi-heart text-pink-500"></i>
+                <span>{{ formatNumber(getInsightValue(post, 'likes')) }}</span>
+              </div>
+              <div class="insight-item">
+                <i class="pi pi-comment text-blue-500"></i>
+                <span>{{ formatNumber(getInsightValue(post, 'comments')) }}</span>
+              </div>
+              <div class="insight-item">
+                <i class="pi pi-eye text-purple-500"></i>
+                <span>{{ formatNumber(getInsightValue(post, 'reach')) }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loadingPosts && recentPosts.length === 0 && instagramAccountLinked" class="text-center p-5">
+          <i class="pi pi-image text-4xl text-gray-400 mb-3"></i>
+          <p class="text-gray-600 m-0">{{ 'PROFILE.POSTS.EMPTY' | translate }}</p>
+        </div>
+
+        <!-- Not Connected State -->
+        <div *ngIf="!instagramAccountLinked" class="text-center p-5">
+          <i class="pi pi-instagram text-4xl text-gray-400 mb-3"></i>
+          <p class="text-gray-600 m-0">{{ 'PROFILE.POSTS.CONNECT_PROMPT' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Analytics Section (Existing) -->
+      <div class="card-style mt-4 p-4" *ngIf="instagramAccountLinked">
+        <div class="flex justify-content-between align-items-center mb-3">
+          <h3 class="text-xl font-bold m-0">{{ 'PROFILE.ANALYTICS.TITLE' | translate }}</h3>
+          <span class="text-sm text-color-secondary">{{ 'PROFILE.ANALYTICS.SUBTITLE' | translate }}</span>
+        </div>
+        <div class="analytics-row">
+          <div class="analytics-card">
+            <app-analytics-chart
+              [title]="'PROFILE.ANALYTICS.AGE' | translate"
+              [labels]="age.labels"
+              [values]="age.values"
+              colorMode="saturation"
+              baseColor="#FFA726">
+            </app-analytics-chart>
+          </div>
+          <div class="analytics-card">
+            <app-analytics-chart
+              [title]="'PROFILE.ANALYTICS.GENDER' | translate"
+              [labels]="gender.labels"
+              [values]="gender.values"
+              [colorMapping]="genderColorMapping"
+              [maxPieSegments]="100">
+            </app-analytics-chart>
+          </div>
+          <div class="analytics-card">
+            <app-analytics-chart
+              [title]="'PROFILE.ANALYTICS.LOCATION' | translate"
+              [labels]="location.labels"
+              [values]="location.values">
+            </app-analytics-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar (Right) -->
+    <div class="col-12 lg:col-4">
+      <!-- Mini Calendar Widget (Placeholder) -->
+      <div class="card-style p-4 mb-4">
+        <h3 class="text-xl font-bold mb-3">{{ 'PROFILE.CALENDAR.TITLE' | translate }}</h3>
+        <div class="calendar-placeholder bg-teal-50 border-round p-3 text-center text-teal-700"
+          style="height: 200px; display: flex; align-items: center; justify-content: center;">
+          <div>
+            <i class="pi pi-calendar text-4xl mb-2"></i>
+            <p class="m-0">{{ 'PROFILE.CALENDAR.EMPTY' | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instagram Connect Status -->
+      <div class="card-style p-4">
+        <h3 class="text-xl font-bold mb-3">{{ 'PROFILE.CONNECTION.TITLE' | translate }}</h3>
+        <div class="flex align-items-center gap-3 mb-3">
+          <div class="status-indicator" [class.bg-green-500]="instagramAccountLinked"
+            [class.bg-red-500]="!instagramAccountLinked" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+          <span>{{ instagramAccountLinked ? ('PROFILE.CONNECTION.CONNECTED' | translate) : ('PROFILE.CONNECTION.DISCONNECTED' | translate) }}</span>
+        </div>
+        <p-button *ngIf="!instagramAccountLinked" [label]="'PROFILE.CONNECTION.CONNECT' | translate" (onClick)="handleRenewInstagramAccess()"
+          styleClass="w-full"></p-button>
+        <p-button *ngIf="instagramAccountLinked" [label]="'PROFILE.CONNECTION.REFRESH' | translate" (onClick)="handleRenewInstagramAccess()"
+          styleClass="p-button-outlined w-full"></p-button>
+      </div>
+
+    </div>
+  </div>
 </div>
-<router-outlet></router-outlet>

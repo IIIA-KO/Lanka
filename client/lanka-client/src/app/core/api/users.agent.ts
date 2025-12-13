@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
@@ -10,6 +10,8 @@ import {
   IRegisterResponse,
 } from '../models/auth';
 import { environment } from '../../../environments/environment.development';
+import { IInstagramStatusResponse } from '../models/instagram';
+import { FriendlyErrorService } from '../services/friendly-error.service';
 
 const BASE_URL = environment.apiUrl;
 
@@ -18,6 +20,7 @@ const BASE_URL = environment.apiUrl;
 })
 export class UsersAgent {
   private readonly http = inject(HttpClient);
+  private readonly friendlyErrorService = inject(FriendlyErrorService);
 
   public login(loginRequest: ILoginRequest): Observable<ITokenResponse> {
     return this.http
@@ -42,27 +45,29 @@ export class UsersAgent {
       .pipe(catchError(this.handleError));
   }
 
-  public linkInstagram(code: string): Observable<unknown> {
+  public linkInstagram(code: string): Observable<HttpResponse<unknown>> {
     return this.http
       .post(`${BASE_URL}/users/link-instagram`, { code }, { observe: 'response' })
       .pipe(catchError(this.handleError));
   }
 
-  public renewInstagramAccess(code: string): Observable<unknown> {
+  public renewInstagramAccess(code: string): Observable<HttpResponse<unknown>> {
     return this.http
       .post(`${BASE_URL}/users/renew-instagram-access`, { code }, { observe: 'response' })
       .pipe(catchError(this.handleError));
   }
 
-  public getLinkInstagramStatus(): Observable<{ status: string }> {
+  public getLinkInstagramStatus(): Observable<IInstagramStatusResponse> {
     return this.http
-      .get<{ status: string }>(`${BASE_URL}/users/link-instagram/status`)
+      .get<IInstagramStatusResponse>(`${BASE_URL}/users/link-instagram/status`)
       .pipe(catchError(this.handleError));
   }
 
-  public getRenewInstagramStatus(): Observable<{ status: string }> {
+  public getRenewInstagramStatus(): Observable<IInstagramStatusResponse> {
     return this.http
-      .get<{ status: string }>(`${BASE_URL}/users/renew-instagram-access/status`)
+      .get<IInstagramStatusResponse>(
+        `${BASE_URL}/users/renew-instagram-access/status`
+      )
       .pipe(catchError(this.handleError));
   }
 
@@ -72,8 +77,15 @@ export class UsersAgent {
       .pipe(catchError(this.handleError));
   }
 
-  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
-    const message = error.error?.message || error.message || 'Unknown error';
-    return throwError(() => new Error(message));
-  }
+  private readonly handleError = (error: unknown): Observable<never> => {
+    const friendlyError = this.friendlyErrorService.toFriendlyError(error, {
+      badRequestMessage: 'We could not process your request. Please check the entered data.',
+      unauthorizedMessage: 'Your session has expired. Please sign in again.',
+      notFoundMessage: 'We could not find the requested information.',
+      networkMessage: 'Connection lost. Please check your internet connection.',
+      fallbackMessage: 'Something went wrong. Please try again in a moment.'
+    });
+
+    return throwError(() => friendlyError);
+  };
 }

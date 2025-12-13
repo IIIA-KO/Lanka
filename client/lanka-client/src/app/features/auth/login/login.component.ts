@@ -1,4 +1,6 @@
 import { Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ApiErrorExtractorService } from '../../../core/services/api-error-extractor.service';
 import {
   AbstractControl,
   FormBuilder,
@@ -36,7 +38,8 @@ const EMAIL_MAX = 255;
 })
 export class LoginComponent {
   public loginForm: FormGroup;
-  public returnUrl = '/pact';
+  public returnUrl = '/profile';
+  public errorMessage: string | null = null;
 
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
@@ -44,6 +47,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
+  private readonly errorExtractor = inject(ApiErrorExtractorService);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -52,7 +56,7 @@ export class LoginComponent {
     });
 
     this.returnUrl =
-      this.route.snapshot.queryParams['returnUrl'] || '/pact';
+      this.route.snapshot.queryParams['returnUrl'] || '/profile';
   }
 
   public get email(): AbstractControl | null {
@@ -77,13 +81,12 @@ export class LoginComponent {
     this.agent.Users.login(loginRequest).subscribe({
       next: (tokenResponse) => {
         console.warn('[LoginComponent] Login successful');
-
         this.authService.login(tokenResponse);
-
         this.router.navigate([this.returnUrl]);
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('[LoginComponent] Login failed:', error);
+        this.errorMessage = this.errorExtractor.extractErrorMessage(error);
       },
     });
   }

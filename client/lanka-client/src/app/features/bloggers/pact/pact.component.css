@@ -1,134 +1,191 @@
-.pact-container {
-  padding: 1rem;
-  max-width: 800px;
+/* Main Container matching Profile */
+.dashboard-container {
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 1.5rem;
 }
 
-.pact-content {
-  margin-top: 1rem;
+/* Card Style matching Profile */
+.card-style {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
 }
 
-.pact-details {
-  min-height: 200px;
+/* Header */
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--p-text-color);
 }
 
-.pact-text {
-  margin-bottom: 1rem;
-}
-
-.pact-content-text {
-  line-height: 1.8;
-  color: var(--text-color);
-  margin: 0;
+.subtitle {
+  color: var(--p-text-secondary-color);
   font-size: 1rem;
-  white-space: pre-wrap;
 }
 
-.offers-section {
-  margin-top: 1rem;
-}
-
-.offers-section h4 {
-  margin: 0 0 1rem 0;
-  color: var(--text-color);
-  font-weight: 600;
-}
-
-.offers-grid {
+/* Sidebar Offers List */
+.offers-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .offer-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius);
-  background: var(--surface-50);
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--p-surface-50);
+  border: 1px solid var(--p-surface-border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.offer-item:hover {
+  background: #fff;
+  border-color: var(--p-primary-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transform: translateY(-1px);
+}
+
+.offer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.offer-name {
+  font-weight: 600;
+  color: var(--p-text-color);
 }
 
 .offer-price {
-  font-weight: 600;
-  color: var(--primary-color);
+  font-size: 0.9rem;
+  color: var(--p-text-secondary-color);
 }
 
-.no-offers {
-  text-align: center;
-  padding: 1rem;
+.action-btn {
+  color: var(--p-text-secondary-color);
 }
 
-.pact-form-container {
-  margin-top: 1rem;
+.offer-item:hover .action-btn {
+  color: var(--p-primary-color);
 }
 
-.field {
-  margin-bottom: 1rem;
+/* Editor Styling */
+.markdown-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--p-surface-50);
+  border: 1px solid var(--p-surface-border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
 }
 
-.field label {
-  color: var(--text-color);
-  font-weight: 500;
+.tool-btn {
+  background: transparent;
+  border: none;
+  padding: 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--p-text-secondary-color);
+  transition: background 0.2s;
 }
 
-.help-text {
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+.tool-btn:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--p-text-color);
 }
 
-.p-error {
-  color: var(--red-500);
-  font-size: 0.875rem;
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--p-surface-border);
+  margin: 0 0.25rem;
 }
 
-.form-actions {
-  margin-top: 1.5rem;
+.editor-textarea {
+  width: 100%;
+  border-radius: 0 0 6px 6px;
+  font-family: monospace;
+  line-height: 1.6;
+  resize: vertical;
 }
 
-.no-pact-message {
-  text-align: center;
-  padding: 2rem;
-  border: 2px dashed var(--surface-border);
-  border-radius: var(--border-radius);
-  background: var(--surface-50);
-  margin-top: 1rem;
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--p-text-secondary-color);
 }
 
-.no-pact-message h3 {
-  margin: 1rem 0 0.5rem 0;
-  color: var(--text-color);
-}
-
-/* Card header styling */
-:host ::ng-deep .p-card .p-card-header {
+.reset-link {
+  background: none;
+  border: none;
+  color: var(--p-primary-color);
+  cursor: pointer;
+  text-decoration: underline;
   padding: 0;
 }
 
-:host ::ng-deep .p-card .p-card-header h3 {
-  margin: 0;
-  color: var(--text-color);
-  font-size: 1.2rem;
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-/* Textarea styling */
-:host ::ng-deep .p-inputtextarea {
-  resize: vertical;
-  font-family: inherit;
-  line-height: 1.6;
+/* Empty State */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 0;
 }
 
+.empty-card {
+  text-align: center;
+  padding: 3rem;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.text-primary {
+  color: var(--p-primary-color);
+}
+
+/* Markdown Content adjustments */
+.markdown-body {
+  line-height: 1.7;
+  color: var(--p-text-color);
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Animations */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .pact-container {
-    padding: 0.5rem;
-  }
-  
-  .offers-grid {
-    flex-direction: column;
-  }
-  
-  .offer-item {
-    justify-content: space-between;
+  .dashboard-container {
+    padding: 1rem;
   }
 }

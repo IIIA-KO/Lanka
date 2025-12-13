@@ -1,4 +1,7 @@
 import { Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FriendlyHttpError } from '../../../core/services/friendly-error.service';
+import { ApiErrorExtractorService } from '../../../core/services/api-error-extractor.service';
 import {
   FormBuilder,
   FormGroup,
@@ -34,11 +37,13 @@ const EMAIL_MAX = 255;
 })
 export class RegisterComponent {
   public form: FormGroup;
+  public errorMessage: string | null = null;
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly agent = inject(AgentService);
   private readonly translate = inject(TranslateService);
+  private readonly errorExtractor = inject(ApiErrorExtractorService);
 
   constructor() {
     this.form = this.formBuilder.group({
@@ -89,6 +94,11 @@ export class RegisterComponent {
       next: () => {
         this.router.navigate(['/login']);
       },
+      error: (error: HttpErrorResponse | FriendlyHttpError) => {
+        console.error('[Register Component] Registration failed:', error);
+        this.errorMessage = this.errorExtractor.extractErrorMessage(error);
+      }
     });
   }
 }
+

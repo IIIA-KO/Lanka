@@ -1,0 +1,42 @@
+<p-dialog [(visible)]="visible" [modal]="true" [header]="'Propose Campaign: ' + (offerName || 'New Campaign')"
+    [style]="{ width: '90vw', maxWidth: '500px' }" (onHide)="onHide()">
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-column gap-3 pt-2">
+
+        <div class="field">
+            <label for="name" class="block mb-2 font-medium">Campaign Name</label>
+            <input pInputText id="name" formControlName="name" placeholder="E.g., Summer Collection Launch"
+                class="w-full" />
+            <small class="p-error block mt-1" *ngIf="form.get('name')?.touched && form.get('name')?.invalid">
+                Name is required (min 3 chars)
+            </small>
+        </div>
+
+        <div class="field">
+            <label for="description" class="block mb-2 font-medium">Description & Requirements</label>
+            <textarea pTextarea id="description" formControlName="description" rows="5"
+                placeholder="Describe your campaign goals, requirements, and any specific details..."
+                class="w-full"></textarea>
+            <small class="p-error block mt-1"
+                *ngIf="form.get('description')?.touched && form.get('description')?.invalid">
+                Description is required (min 10 chars)
+            </small>
+        </div>
+
+        <div class="field">
+            <label for="scheduledDate" class="block mb-2 font-medium">Proposed Date</label>
+            <p-datepicker id="scheduledDate" formControlName="scheduledDate" [minDate]="minDate" [showIcon]="true"
+                styleClass="w-full" inputStyleClass="w-full" placeholder="Select a date" />
+            <small class="p-error block mt-1"
+                *ngIf="form.get('scheduledDate')?.touched && form.get('scheduledDate')?.invalid">
+                Date is required
+            </small>
+        </div>
+
+        <div class="flex justify-content-end gap-2 mt-4">
+            <p-button type="button" label="Cancel" styleClass="p-button-text" (onClick)="onHide()"></p-button>
+            <p-button type="submit" label="Send Proposal" [loading]="loading" [disabled]="form.invalid"></p-button>
+        </div>
+
+    </form>
+</p-dialog>

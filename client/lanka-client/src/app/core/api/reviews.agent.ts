@@ -2,7 +2,29 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { IReview, ICreateReviewRequest, IEditReviewRequest } from '../models/campaigns';
+
+export interface IReview {
+  id: string;
+  bloggerId: string;
+  campaignId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ICreateReviewRequest {
+  bloggerId: string;
+  campaignId: string;
+  rating: number;
+  comment: string;
+}
+
+export interface IEditReviewRequest {
+  id: string;
+  rating: number;
+  comment: string;
+}
 
 const BASE_URL = environment.apiUrl;
 
@@ -18,15 +40,15 @@ export class ReviewsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  public getBloggerReviews(): Observable<IReview[]> {
+  public getBloggerReviews(bloggerId: string): Observable<IReview[]> {
     return this.http
-      .get<IReview[]>(`${BASE_URL}/reviews/blogger`)
+      .get<IReview[]>(`${BASE_URL}/reviews/${bloggerId}`)
       .pipe(catchError(this.handleError));
   }
 
   public editReview(request: IEditReviewRequest): Observable<IReview> {
     return this.http
-      .put<IReview>(`${BASE_URL}/reviews/${request.reviewId}`, request)
+      .put<IReview>(`${BASE_URL}/reviews/${request.id}`, request)
       .pipe(catchError(this.handleError));
   }
 

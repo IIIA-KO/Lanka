@@ -1,0 +1,114 @@
+.calendar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.card-style {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  height: 100%;
+}
+
+/* Calendar Grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weekday-header {
+  text-align: center;
+  font-weight: 600;
+  color: #6c757d;
+  font-size: 0.875rem;
+  padding-bottom: 0.5rem;
+}
+
+.day-cell {
+  aspect-ratio: 1;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.day-cell:hover {
+  background-color: #f8f9fa;
+}
+
+.day-cell.other-month {
+  background-color: #fafafa;
+  color: #adb5bd;
+}
+
+.day-cell.today {
+  background-color: #e6fcf5;
+  border-color: #20c997;
+  font-weight: bold;
+  color: #0ca678;
+}
+
+.day-number {
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+}
+
+/* Event Dots */
+.events-dots {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #adb5bd;
+}
+
+.event-dot.status-pending { background-color: #ffc107; }
+.event-dot.status-confirmed { background-color: #0dcaf0; }
+.event-dot.status-done { background-color: #0d6efd; }
+.event-dot.status-completed { background-color: #198754; }
+
+.more-events {
+  font-size: 0.6rem;
+  color: #6c757d;
+}
+
+/* List View */
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #adb5bd;
+}
+
+.status-indicator.status-pending { background-color: #ffc107; }
+.status-indicator.status-confirmed { background-color: #0dcaf0; }
+.status-indicator.status-done { background-color: #0d6efd; }
+.status-indicator.status-completed { background-color: #198754; }
+.status-indicator.status-rejected, .status-indicator.status-cancelled { background-color: #dc3545; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calendar-container {
+    padding: 1rem;
+  }
+  
+  .day-cell {
+    height: 40px;
+    aspect-ratio: auto;
+  }
+}

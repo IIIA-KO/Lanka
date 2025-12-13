@@ -1,91 +1,169 @@
 :host {
-  --sidebar-bg: #009688;
-  --sidebar-hover-bg: #00796b;
-  --item-hover-bg: rgba(244, 243, 243, 0.1);
-  --active-bg: rgba(255, 255, 255, 0.2);
-  --transition: 0.3s ease;
+  --nav-bg-start: #0fa58b;
+  --nav-bg-end: #0a7f6d;
+  --nav-hover: rgba(255, 255, 255, 0.1);
+  --nav-active: rgba(255, 255, 255, 0.16);
+  --nav-border: rgba(255, 255, 255, 0.12);
+  --nav-shadow: 0 12px 34px rgba(0, 0, 0, 0.14);
+  display: block;
+  position: fixed;
+  z-index: 1000;
+  height: 93vh;
 }
 
 .sidebar-container {
-  color: white;
-  margin-top: 5vh;
-  height: 90vh;
-  width: 80px;
-  background-color: var(--sidebar-bg);
+  background: linear-gradient(160deg, var(--nav-bg-start), var(--nav-bg-end));
+  color: #ecf9f6;
+  height: 100%;
+  width: 5rem;
+  padding: 1rem 0.7rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  transition: width var(--transition), height var(--transition);
+  gap: 0.5rem;
+  transition: width 0.28s ease, padding 0.28s ease, box-shadow 0.28s ease;
   overflow: hidden;
-
-  border-top-right-radius: 40px;
-  border-bottom-right-radius: 40px;
+  box-shadow: var(--nav-shadow);
+  border-top-right-radius: 1.5rem;
+  border: 1px solid var(--nav-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-.sidebar-container:hover {
-  width: 200px;
-}
-
-.logo-wrapper .logo {
-  transition: width var(--transition);
-}
-
-.logo-wrapper {
-  padding: 1rem 0;
-}
-.logo {
-  width: 50px;
-  transition: width var(--transition);
-}
-.sidebar-container:hover .logo {
-  width: 100px;
+.sidebar-container.expanded {
+  width: 15rem;
+  padding: 1.15rem 0.9rem;
 }
 
 .menu-list {
   list-style: none;
-  padding: 0;
-  margin-top: 2rem;
-  width: 100%;
+  padding: 0.25rem;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .menu-item {
+  position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  padding: 0.75rem 1rem;
+  justify-content: center;
+  gap: 0;
+  height: 3.25rem;
+  padding: 0 0.45rem;
   cursor: pointer;
-  transition: background-color var(--transition);
+  transition: background-color 0.24s ease, color 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+  color: #ecf9f6;
+  text-decoration: none;
+  border-radius: 0.85rem;
+  border: 1px solid transparent;
+}
+
+.sidebar-container.expanded .menu-item {
+  justify-content: flex-start;
+  gap: 0.85rem;
+  padding: 0 0.65rem;
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  left: 0.35rem;
+  top: 20%;
+  width: 3px;
+  height: 60%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.28s ease, transform 0.28s ease, background-color 0.28s ease;
 }
 
 .menu-item:hover {
-  background-color: var(--item-hover-bg);
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.label {
-  margin-left: 1rem;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity var(--transition);
-}
-.label.visible {
-  opacity: 1;
+  background-color: var(--nav-hover);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .menu-item.active {
-  background-color: var(--active-bg);
+  background: var(--nav-active);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
 }
 
-.p-button-secondary {
-  background-color: var(--sidebar-bg);
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: background-color var(--transition);
+.menu-item.active::after {
+  opacity: 1;
+  transform: translateX(0);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.icon-shell {
+  width: 2.05rem;
+  height: 2.05rem;
+  min-width: 2.05rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.menu-item:hover .icon-shell {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.menu-item.active .icon-shell {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.icon-shell img {
+  width: 1.3rem;
+  height: 1.3rem;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.icon-shell i {
+  font-size: 1.25rem;
+  color: #ecf9f6;
+}
+
+.label {
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, max-width 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-container.expanded .label {
+  opacity: 1;
+  max-width: 10rem;
+}
+
+.menu-item:hover .label {
+  color: #ffffff;
+}
+
+.menu-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.menu-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

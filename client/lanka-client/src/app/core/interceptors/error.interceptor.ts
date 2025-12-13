@@ -11,31 +11,6 @@ import { catchError } from 'rxjs/operators';
 import { SnackbarService } from '../services/snackbar/snackbar.service';
 
 /**
- * Determines if error display should be skipped for certain endpoints
- */
-function shouldSkipErrorDisplay(url: string, status: number): boolean {
-  // Skip 404 errors for pact endpoint - components handle this themselves
-  if (url.includes('/pact') && status === 404) {
-    return true;
-  }
-
-  // Skip 404 errors for optional profile data
-  if (url.includes('/profile') && status === 404) {
-    return true;
-  }
-
-  return false;
-}
-
-/**
- * Determines if a resource is optional (404 should not show error)
- */
-function isOptionalResource(url: string): boolean {
-  const optionalEndpoints = ['/pact', '/profile', '/avatar'];
-  return optionalEndpoints.some(endpoint => url.includes(endpoint));
-}
-
-/**
  * Gets user-friendly error message based on HTTP status
  */
 function getUserFriendlyErrorMessage(err: HttpErrorResponse): string {
@@ -48,6 +23,8 @@ function getUserFriendlyErrorMessage(err: HttpErrorResponse): string {
       return 'You don\'t have permission to perform this action.';
     case 404:
       return 'The requested resource was not found.';
+    case 405:
+      return 'This action is not allowed. Please contact support if this persists.';
     case 409:
       return 'A conflict occurred. Please refresh the page and try again.';
     case 422:
@@ -81,49 +58,15 @@ export const errorInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
-      // Don't show errors for certain endpoints that handle their own error display
-      if (shouldSkipErrorDisplay(req.url, err.status)) {
-        return throwError(() => err);
-      }
-
-      const errorMessage = getUserFriendlyErrorMessage(err);
-
-      if (err.status === 400) {
-        const errors = err.error?.errors;
-
-        if (Array.isArray(errors)) {
-          const descriptions = errors.map((e: { description: string }) => e.description).filter(Boolean);
-          const message = descriptions.join('\n');
-          snackbar.showError(message || errorMessage);
-        } else {
-          snackbar.showError((err.error as { title?: string })?.title || errorMessage);
-        }
-      } else if (err.status === 401) {
-        snackbar.showError((err.error as { title?: string })?.title || errorMessage);
-      } else if (err.status === 403) {
+      // Only show snackbars for server errors (5xx) and network errors
+      if (err.status >= 500) {
+        const errorMessage = getUserFriendlyErrorMessage(err);
         snackbar.showError(errorMessage);
-      } else if (err.status === 404) {
-        // Only show 404 errors for non-optional resources
-        if (!isOptionalResource(req.url)) {
-          snackbar.showError((err.error as { detail?: string })?.detail || errorMessage);
-        }
-      } else if (err.status === 409) {
-        snackbar.showError((err.error as { detail?: string })?.detail || errorMessage);
-      } else if (err.status === 422) {
-        snackbar.showError((err.error as { detail?: string })?.detail || errorMessage);
-      } else if (err.status >= 500) {
-        snackbar.showError(errorMessage);
-        // Optionally navigate to error page for severe errors
-        // const navigationExtras: NavigationExtras = {
-        //   state: { error: err.error },
-        // };
-        // router.navigateByUrl('/server-error', navigationExtras);
       } else if (err.status === 0) {
         // Network error
         snackbar.showError('No internet connection. Please check your connection and try again.');
-      } else {
-        snackbar.showError(errorMessage);
       }
+      // All other errors (4xx) are handled by individual components
 
       return throwError(() => err);
     })

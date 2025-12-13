@@ -1,13 +1,70 @@
+// Deliverable Format Enum
+export enum DeliverableFormat {
+  InstagramPost = 'Instagram Post',
+  InstagramReel = 'Instagram Reel',
+  InstagramStory = 'Instagram Story',
+  InstagramCarousel = 'Instagram Carousel',
+  TikTokVideo = 'TikTok Video',
+  YouTubeVideo = 'YouTube Video',
+  YouTubeShort = 'YouTube Short',
+  BlogPost = 'Blog Post',
+  Custom = 'Custom'
+}
+
+// Deliverable Template Interface
+export interface IDeliverableTemplate {
+  format: DeliverableFormat;
+  description: string;
+  typicalRequirements: string;
+  estimatedDuration?: string;
+}
+
 // Campaign Models
 export interface ICampaign {
   id: string;
-  status: string;
+  status: CampaignStatus;
   name: string;
   description: string;
   offerId: string;
   clientId: string;
   creatorId: string;
+  price: IPrice;
+  expectedCompletionDate: string;
+  deliverables: IDeliverable[];
   scheduledOnUtc: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Deliverable Model
+export interface IDeliverable {
+  description: string;
+  format: string;
+  requirements?: string;
+  deadline?: string;
+}
+
+// Price Model
+export interface IPrice {
+  amount: number;
+  currency: string;
+}
+
+// Campaign Creation Request
+export interface ICreateCampaignRequest {
+  offerId: string;
+  name: string;
+  description: string;
+  price?: IPrice;
+  expectedCompletionDate: string;
+  deliverables: IDeliverable[];
+}
+
+export interface IPendCampaignRequest {
+  name: string;
+  description: string;
+  scheduledOnUtc: string;
+  offerId: string;
 }
 
 // Offer Models
@@ -17,6 +74,9 @@ export interface IOffer {
   priceAmount: number;
   priceCurrency: string;
   description: string;
+  format?: DeliverableFormat;
+  deliverableTemplates?: IDeliverableTemplate[];
+  createdAt?: string;
 }
 
 export interface ICreateOfferRequest {
@@ -24,14 +84,17 @@ export interface ICreateOfferRequest {
   priceAmount: number;
   priceCurrency: string;
   description: string;
+  format?: DeliverableFormat;
+  deliverableTemplates?: IDeliverableTemplate[];
 }
 
 export interface IEditOfferRequest {
   offerId: string;
   name: string;
-  priceAmount: number;
-  priceCurrency: string;
+  price: IPrice;
   description: string;
+  format?: DeliverableFormat;
+  deliverableTemplates?: IDeliverableTemplate[];
 }
 
 // Pact Models

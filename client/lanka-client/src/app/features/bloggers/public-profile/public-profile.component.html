@@ -1,0 +1,179 @@
+<div class="public-profile-container" *ngIf="!loading && blogger; else loadingState">
+    <!-- Public Header -->
+    <div class="profile-header card-style mb-4">
+        <div class="flex flex-column md:flex-row align-items-center md:align-items-start gap-4">
+            <!-- Avatar -->
+            <div class="avatar-wrapper">
+                <img [src]="blogger.profilePhotoUri || '/icons/no-profile.svg'" alt="Profile Avatar"
+                    class="profile-avatar" />
+            </div>
+
+            <!-- Info -->
+            <div class="profile-info flex-grow-1">
+                <div class="flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="text-3xl font-bold m-0 mb-2">{{ blogger.firstName }} {{ blogger.lastName }}</h1>
+                        <p class="text-color-secondary m-0 mb-3 line-height-3">{{ blogger.bio | slice:0:150 }}{{
+                            (blogger.bio?.length || 0) > 150 ? '...' : '' }}</p>
+
+                        <div class="flex align-items-center gap-3 mb-3 text-sm text-color-secondary">
+                            <span class="flex align-items-center gap-1">
+                                <i class="pi pi-map-marker text-teal-600"></i>
+                                <span>Ukraine</span> <!-- Mock Location -->
+                            </span>
+                            <span class="flex align-items-center gap-1">
+                                <i class="pi pi-user text-teal-600"></i>
+                                <span>Influencer</span>
+                            </span>
+                            <span class="flex align-items-center gap-1">
+                                <i class="pi pi-star-fill text-yellow-500"></i>
+                                <span>5.0</span> <!-- Mock Rating -->
+                            </span>
+                        </div>
+
+                        <div class="social-links flex gap-2">
+                            <a *ngIf="blogger.instagramUsername"
+                                [href]="'https://instagram.com/' + blogger.instagramUsername" target="_blank"
+                                class="social-btn instagram">
+                                <i class="pi pi-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="actions flex flex-column gap-2">
+                        <p-button label="Write Message" icon="pi pi-envelope" styleClass="p-button-primary"></p-button>
+                        <p-button label="Start Cooperation" icon="pi pi-briefcase" styleClass="p-button-outlined"
+                            (onClick)="openProposeDialog()"></p-button>
+                        <p-button icon="pi pi-bookmark" styleClass="p-button-secondary p-button-outlined w-full"
+                            ariaLabel="Bookmark"></p-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabbed Content -->
+    <div class="card-style">
+        <p-tabs value="0">
+            <p-tablist>
+                <p-tab value="0">Overview</p-tab>
+                <p-tab value="1">Reviews</p-tab>
+                <p-tab value="2">Statistics</p-tab>
+            </p-tablist>
+
+            <p-tabpanels>
+                <!-- Overview Tab -->
+                <p-tabpanel value="0">
+                    <div class="grid">
+                        <!-- KPI Cards -->
+                        <div class="col-12 mb-4">
+                            <div class="grid">
+                                <div class="col-12 md:col-4">
+                                    <div class="kpi-card surface-50 p-3 border-round">
+                                        <span class="text-color-secondary block mb-1">Followers</span>
+                                        <span class="text-2xl font-bold">{{
+                                            formatMetric(blogger.instagramFollowersCount) }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-4">
+                                    <div class="kpi-card surface-50 p-3 border-round">
+                                        <span class="text-color-secondary block mb-1">Posts</span>
+                                        <span class="text-2xl font-bold">{{ formatMetric(blogger.instagramMediaCount)
+                                            }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 md:col-4">
+                                    <div class="kpi-card surface-50 p-3 border-round">
+                                        <span class="text-color-secondary block mb-1">Engagement Rate</span>
+                                        <span class="text-2xl font-bold">4.5%</span> <!-- Mock -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="col-12 lg:col-8">
+                            <h3 class="text-xl font-bold mb-3">About</h3>
+                            <p class="line-height-3 text-color-secondary">{{ blogger.bio || 'No bio provided.' }}</p>
+
+                            <h3 class="text-xl font-bold mt-5 mb-3">Recent Posts</h3>
+                            <div class="flex gap-3 overflow-x-auto pb-2">
+                                <div class="mock-post" *ngFor="let i of [1,2,3,4]">
+                                    <div class="bg-gray-100 border-round flex align-items-center justify-content-center"
+                                        style="width: 150px; height: 150px;">
+                                        <i class="pi pi-image text-3xl text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Offers (Sidebar) -->
+                        <div class="col-12 lg:col-4">
+                            <h3 class="text-xl font-bold mb-3">Offers</h3>
+                            <div class="offers-list flex flex-column gap-3">
+                                <div *ngFor="let offer of offers"
+                                    class="offer-card border-1 surface-border border-round p-3 hover:surface-hover cursor-pointer transition-colors"
+                                    (click)="openProposeDialog(offer.id, offer.name)"
+                                    (keydown.enter)="openProposeDialog(offer.id, offer.name)" tabindex="0">
+                                    <div class="flex justify-content-between align-items-start mb-2">
+                                        <span class="font-bold">{{ offer.name }}</span>
+                                        <p-tag [value]="offer.format || 'Custom'" severity="info"></p-tag>
+                                    </div>
+                                    <p class="text-sm text-color-secondary m-0 mb-3 line-clamp-2">{{ offer.description
+                                        }}</p>
+                                    <div class="flex justify-content-between align-items-center">
+                                        <span class="text-xl font-bold text-teal-600">{{ offer.priceCurrency }} {{
+                                            offer.priceAmount }}</span>
+                                        <p-button icon="pi pi-arrow-right"
+                                            styleClass="p-button-rounded p-button-text p-button-sm"
+                                            ariaLabel="View Offer"></p-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </p-tabpanel>
+
+                <!-- Reviews Tab -->
+                <p-tabpanel value="1">
+                    <div class="text-center p-5">
+                        <i class="pi pi-star text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No reviews yet.</p>
+                    </div>
+                </p-tabpanel>
+
+                <!-- Statistics Tab -->
+                <p-tabpanel value="2">
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <app-analytics-chart title="Age Distribution" [labels]="age.labels"
+                                [values]="age.values"></app-analytics-chart>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <app-analytics-chart title="Gender Distribution" [labels]="gender.labels"
+                                [values]="gender.values"></app-analytics-chart>
+                        </div>
+                        <div class="col-12">
+                            <app-analytics-chart title="Location Distribution" [labels]="location.labels"
+                                [values]="location.values"></app-analytics-chart>
+                        </div>
+                    </div>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+    </div>
+</div>
+
+<app-propose-campaign [(visible)]="showProposeDialog" [offerId]="selectedOfferId" [offerName]="selectedOfferName">
+</app-propose-campaign>
+
+<ng-template #loadingState>
+    <div *ngIf="loading" class="flex justify-content-center align-items-center h-20rem text-color-secondary">
+        Loading profile...
+    </div>
+    <div class="text-center p-5" *ngIf="error">
+        <i class="pi pi-exclamation-circle text-4xl text-red-500 mb-3"></i>
+        <p class="text-xl font-bold text-gray-700">{{ error }}</p>
+        <p-button label="Go Back" routerLink="/" styleClass="mt-3"></p-button>
+    </div>
+</ng-template>

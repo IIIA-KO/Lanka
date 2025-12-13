@@ -8,9 +8,9 @@ export const unauthGuard: CanActivateFn = () => {
 
   if (authService.isAuthenticated()) {
     console.warn(
-      '[UnauthGuard] User is authenticated, redirecting to pact'
+      '[UnauthGuard] User is authenticated, redirecting to profile'
     );
-    router.navigate(['/pact']);
+    router.navigate(['/profile']);
     return false;
   }
 
@@ -19,8 +19,8 @@ export const unauthGuard: CanActivateFn = () => {
 
     authService.refreshToken().subscribe({
       next: () => {
-        console.warn('[UnauthGuard] Token refreshed, redirecting to pact');
-        router.navigate(['/pact']);
+        console.warn('[UnauthGuard] Token refreshed, redirecting to profile');
+        router.navigate(['/profile']);
       },
       error: () => {
         console.warn(

@@ -5,8 +5,14 @@ import { UsersAgent } from '../../api/users.agent';
 import { Router } from '@angular/router';
 import { SignalRService } from '../signalr.service';
 
+interface JwtPayload {
+  [claim: string]: unknown;
+  exp?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+
   private readonly ACCESS_TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
@@ -79,7 +85,28 @@ export class AuthService {
 
     try {
       const payload = this.decodeToken(tokenToUse);
-      return payload?.sub || null;
+      if (!payload) {
+        return null;
+      }
+
+      const possibleKeys = [
+        'bloggerId',
+        'BloggerId',
+        'blogger_id',
+        'userId',
+        'UserId',
+        'user_id',
+        'id',
+        'sub'
+      ];
+      for (const key of possibleKeys) {
+        const value = payload[key];
+        if (typeof value === 'string' && value.length > 0) {
+          return value;
+        }
+      }
+
+      return null;
     } catch {
       console.error('[AuthService] Error extracting user ID from token');
       return null;
@@ -140,7 +167,9 @@ export class AuthService {
   private isJwtTokenExpired(token: string): boolean {
     try {
       const payload = this.decodeToken(token);
-      if (!payload?.exp) return true;
+      if (!payload || typeof payload.exp !== 'number') {
+        return true;
+      }
       
       // Add a small buffer (30 seconds) to prevent race conditions
       const bufferTime = 30 * 1000;
@@ -151,7 +180,7 @@ export class AuthService {
     }
   }
 
-  private decodeToken(token: string): { sub?: string; exp?: number } | null {
+  private decodeToken(token: string): JwtPayload | null {
     if (!token) {
       return null;
     }
@@ -244,6 +273,8 @@ export class AuthService {
   }
 
   private async startSignalRConnection(): Promise<void> {
+    // SignalR disabled as per user request
+    /*
     try {
       const token = this.getToken();
       if (token) {
@@ -253,14 +284,18 @@ export class AuthService {
     } catch (error) {
       console.error('[AuthService] Failed to start SignalR connection:', error);
     }
+    */
   }
 
   private async stopSignalRConnection(): Promise<void> {
+    // SignalR disabled as per user request
+    /*
     try {
       await this.signalRService.stopConnection();
       console.warn('[AuthService] SignalR connection stopped');
     } catch (error) {
       console.error('[AuthService] Failed to stop SignalR connection:', error);
     }
+    */
   }
 }

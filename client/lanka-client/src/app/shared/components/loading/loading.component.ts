@@ -10,6 +10,10 @@ import { LoadingService } from '../../../core/services/loading/loading.service';
   styleUrls: ['./loading.component.css']
 })
 export class LoadingComponent {
-  public isLoading$ = this.loadingService.isLoading$;
+  public readonly isLoading$;
   private readonly loadingService = inject(LoadingService);
+
+  constructor() {
+    this.isLoading$ = this.loadingService.isLoading$;
+  }
 }

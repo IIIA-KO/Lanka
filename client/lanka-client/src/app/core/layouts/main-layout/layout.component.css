@@ -1,0 +1,42 @@
+.layout {
+  display: block; /* Changed from flex because sidebar is fixed */
+  min-height: 100vh;
+  background-color: #f0f4f9;
+}
+
+.sidebar {
+  /* Position is handled by NavbarComponent */
+  z-index: 1000;
+}
+
+.content {
+  margin-left: 5rem; /* Match collapsed sidebar width */
+  margin-top: 4.5rem; /* Match header height */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f0f4f9;
+  transition: margin-left 0.3s ease;
+}
+
+.content.no-sidebar {
+  margin-left: 0;
+}
+
+.content-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 2rem clamp(1.5rem, 3vw, 3rem);
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0;
+    padding-bottom: 4rem; /* Space for bottom nav if we move sidebar there, or just safe area */
+  }
+  
+  /* We might need to adjust sidebar for mobile later, 
+     but for now we assume it stays fixed or becomes a bottom nav. 
+     NavbarComponent CSS handles its own responsiveness if needed. */
+}

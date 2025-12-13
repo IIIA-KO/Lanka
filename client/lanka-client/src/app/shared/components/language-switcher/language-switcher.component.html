@@ -1,0 +1,14 @@
+<div class="language-switcher">
+  <span class="language-label">{{ 'COMMON.LANGUAGE' | translate }}</span>
+  <div class="language-buttons">
+    @for (lang of languages; track lang) {
+      <button
+        type="button"
+        class="language-button"
+        [class.active]="(currentLanguage$ | async) === lang"
+        (click)="setLanguage(lang)">
+        {{ lang.toUpperCase() }}
+      </button>
+    }
+  </div>
+</div>

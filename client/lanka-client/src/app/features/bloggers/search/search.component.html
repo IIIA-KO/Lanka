@@ -1,1 +1,191 @@
-<p>search works!</p>
+<div class="search-container">
+    <!-- Search Header -->
+    <div class="search-header">
+        <h2>{{ 'SEARCH.TITLE' | translate }}</h2>
+        <p class="text-color-secondary">{{ 'SEARCH.SUBTITLE' | translate }}</p>
+    </div>
+
+    <!-- Search Input -->
+    <div class="search-input-wrapper mb-4">
+        <span class="p-input-icon-left p-input-icon-right w-full">
+            <i class="pi pi-search"></i>
+            <p-autoComplete [(ngModel)]="searchQuery" [suggestions]="filteredSuggestions"
+                (completeMethod)="onSearchQueryChange($event)" (onSelect)="onSuggestionSelect($event)"
+                (onKeyDown.enter)="onSearchSubmit()" [placeholder]="'SEARCH.PLACEHOLDER' | translate"
+                styleClass="w-full" inputStyleClass="w-full search-input" [minLength]="2" [delay]="300">
+            </p-autoComplete>
+            <button *ngIf="searchQuery" class="clear-button p-link" (click)="clearSearch()" aria-label="Clear search">
+                <i class="pi pi-times"></i>
+            </button>
+        </span>
+    </div>
+
+    <div class="search-layout">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar">
+            <p-card styleClass="filters-card">
+                <ng-template pTemplate="header">
+                    <div class="p-3">
+                        <h3 class="m-0">{{ 'SEARCH.FILTERS.TITLE' | translate }}</h3>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="content">
+                    <!-- Follower Range Filter -->
+                    <div class="filter-section mb-4">
+                        <span class="block mb-3 font-semibold">
+                            {{ 'SEARCH.FILTERS.FOLLOWERS' | translate:{ range: formatFollowerRange() } }}
+                        </span>
+                        <p-slider [(ngModel)]="followerRange" [range]="true" [min]="0" [max]="maxFollowers"
+                            [step]="10000" (onSlideEnd)="onFollowerRangeChange()" styleClass="w-full">
+                        </p-slider>
+                        <div class="flex justify-content-between mt-2 text-sm text-color-secondary">
+                            <span>0</span>
+                            <span>10M+</span>
+                        </div>
+                    </div>
+
+                    <p-divider></p-divider>
+
+                    <!-- Engagement Rate Filter -->
+                    <div class="filter-section">
+                        <span class="block mb-3 font-semibold">{{ 'SEARCH.FILTERS.ENGAGEMENT' | translate }}</span>
+                        <div class="flex flex-column gap-2">
+                            <div *ngFor="let option of engagementOptions" class="flex align-items-center">
+                                <p-radioButton [value]="option.value" [(ngModel)]="engagementRate"
+                                    [inputId]="option.value" (onClick)="onEngagementRateChange()">
+                                </p-radioButton>
+                                <label [for]="option.value" class="ml-2 cursor-pointer">{{ option.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-card>
+        </aside>
+
+        <!-- Results Area -->
+        <main class="results-area">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="results-grid">
+                <p-card *ngFor="let i of [1,2,3,4,5,6]" styleClass="result-skeleton">
+                    <ng-template pTemplate="content">
+                        <div class="flex gap-3">
+                            <p-skeleton shape="circle" size="4rem"></p-skeleton>
+                            <div class="flex-1">
+                                <p-skeleton width="100%" height="1.5rem" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton width="80%" height="1rem" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton width="60%" height="1rem"></p-skeleton>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-card>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error && !loading" class="empty-state">
+                <p-message severity="error" [text]="error | translate" styleClass="w-full"></p-message>
+                <p-button [label]="'SEARCH.ACTIONS.TRY_AGAIN' | translate" icon="pi pi-refresh" class="mt-3" (onClick)="onSearchSubmit()"></p-button>
+            </div>
+
+            <!-- No Query State -->
+            <div *ngIf="!searchQuery && !loading && !error" class="empty-state">
+                <i class="pi pi-search empty-icon"></i>
+                <h3>{{ 'SEARCH.EMPTY.START_TITLE' | translate }}</h3>
+                <p class="text-color-secondary">{{ 'SEARCH.EMPTY.START_COPY' | translate }}</p>
+            </div>
+
+            <!-- No Results State -->
+            <div *ngIf="searchQuery && searchState?.results?.results?.length === 0 && !loading && !error"
+                class="empty-state">
+                <i class="pi pi-inbox empty-icon"></i>
+                <h3>{{ 'SEARCH.EMPTY.NO_RESULTS_TITLE' | translate }}</h3>
+                <p class="text-color-secondary">{{ 'SEARCH.EMPTY.NO_RESULTS_COPY' | translate:{ query: searchQuery } }}</p>
+                <p-button [label]="'SEARCH.ACTIONS.CLEAR' | translate" icon="pi pi-times" class="mt-3" severity="secondary"
+                    (onClick)="clearSearch()"></p-button>
+            </div>
+
+            <!-- Results Grid -->
+            <div *ngIf="searchState && searchState.results && searchState.results.results && searchState.results.results.length > 0 && !loading"
+                class="results-content">
+                <div class="results-header mb-3">
+                    <p class="text-color-secondary">
+                        {{ 'SEARCH.RESULTS.FOUND' | translate:{ total: searchState.results.total } }}
+                    </p>
+                </div>
+
+                <div class="results-grid">
+                    <p-card *ngFor="let result of searchState.results.results"
+                        styleClass="blogger-result-card cursor-pointer" (click)="navigateToResult(result)">
+                        <ng-template pTemplate="content">
+                            <div class="blogger-card-content">
+                                <div class="flex gap-3 mb-3">
+                                    <img [src]="getAvatarUrl(result)" [alt]="result.title" class="blogger-avatar" />
+                                    <div class="flex-1">
+                                        <h4 class="blogger-name mt-0 mb-1">{{ result.title }}</h4>
+                                        <p class="blogger-username text-sm text-color-secondary mb-2"
+                                            *ngIf="getUsername(result)">
+                                            {{ '@' + getUsername(result) }}
+                                        </p>
+                                        <div class="flex align-items-center gap-3 text-sm text-color-secondary">
+                                            <span *ngIf="getLocation(result)" class="flex align-items-center gap-1">
+                                                <i class="pi pi-map-marker"></i>
+                                                {{ getLocation(result) }}
+                                            </span>
+                                            <span *ngIf="getRating(result)" class="flex align-items-center gap-1">
+                                                <i class="pi pi-star-fill text-yellow-500"></i>
+                                                {{ getRating(result) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="blogger-stats flex gap-4 mb-3">
+                                    <div class="stat-item">
+                                        <i class="pi pi-users text-teal-600"></i>
+                                        <span class="stat-value">{{ formatFollowerCount(getFollowerCount(result))
+                                            }}</span>
+                                        <span class="stat-label">{{ 'SEARCH.RESULTS.FOLLOWERS' | translate }}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="pi pi-image text-teal-600"></i>
+                                        <span class="stat-value">{{ getPostCount(result) }}</span>
+                                        <span class="stat-label">{{ 'SEARCH.RESULTS.POSTS' | translate }}</span>
+                                    </div>
+                                    <div class="stat-item" *ngIf="getEngagementRate(result)">
+                                        <i class="pi pi-heart text-teal-600"></i>
+                                        <span class="stat-value">{{ getEngagementRate(result) }}%</span>
+                                        <span class="stat-label">{{ 'SEARCH.RESULTS.ENGAGEMENT' | translate }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="blogger-bio" *ngIf="result.content">
+                                    <p class="text-sm text-color-secondary line-clamp-2">
+                                        {{ result.content | slice:0:120 }}{{ result.content.length > 120 ? '...' : '' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="footer">
+                            <div class="flex justify-content-end">
+                                <span class="text-sm text-teal-600 font-semibold">
+                                    {{ 'SEARCH.RESULTS.VIEW_PROFILE' | translate }}
+                                    <i class="pi pi-arrow-right ml-1"></i>
+                                </span>
+                            </div>
+                        </ng-template>
+                    </p-card>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-wrapper mt-4" *ngIf="searchState.results.total > searchState.results.size">
+                    <p-paginator [rows]="searchState.results.size" [totalRecords]="searchState.results.total"
+                        [first]="(searchState.page - 1) * searchState.results.size"
+                        (onPageChange)="onPageChange($event)" [showCurrentPageReport]="true"
+                        [currentPageReportTemplate]="'SEARCH.RESULTS.PAGINATION' | translate">
+                    </p-paginator>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

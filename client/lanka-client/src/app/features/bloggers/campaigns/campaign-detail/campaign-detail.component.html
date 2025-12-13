@@ -1,0 +1,182 @@
+<div class="campaign-detail-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="p-4 text-color-secondary">Loading campaign...</div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="p-4">
+        <p-message severity="error" [text]="error"></p-message>
+        <p-button label="Go Back" icon="pi pi-arrow-left" styleClass="p-button-outlined mt-3"
+            (onClick)="goBack()"></p-button>
+    </div>
+
+    <!-- Campaign Details -->
+    <div *ngIf="campaign && !loading" class="campaign-content">
+        <!-- Header -->
+        <div class="campaign-header mb-4">
+            <div class="flex justify-content-between align-items-start">
+                <div class="flex-1">
+                    <p-button icon="pi pi-arrow-left" label="Back" [text]="true" size="small" styleClass="mb-2"
+                        (onClick)="goBack()"></p-button>
+                    <h2 class="mt-0 mb-2">{{ campaign.name }}</h2>
+                    <p-tag [value]="campaign.status" [severity]="getStatusColor(campaign.status)"
+                        styleClass="text-lg"></p-tag>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Info Card -->
+        <p-card styleClass="mb-4">
+            <ng-template pTemplate="header">
+                <div class="p-3">
+                    <h3 class="m-0">Campaign Details</h3>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="content">
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field-display mb-3">
+                            <span class="font-semibold text-color-secondary">Description</span>
+                            <p class="mt-1 mb-0">{{ campaign.description }}</p>
+                        </div>
+
+                        <div class="field-display mb-3">
+                            <span class="font-semibold text-color-secondary">Expected Completion</span>
+                            <p class="mt-1 mb-0">{{ campaign.expectedCompletionDate | date:'longDate' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                        <div class="field-display mb-3">
+                            <span class="font-semibold text-color-secondary">Price</span>
+                            <p class="mt-1 mb-0 text-xl font-bold text-primary">
+                                {{ campaign.price.amount | currency:campaign.price.currency }}
+                            </p>
+                        </div>
+
+                        <div class="field-display mb-3">
+                            <span class="font-semibold text-color-secondary">Created</span>
+                            <p class="mt-1 mb-0">{{ campaign.createdAt | date:'medium' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-card>
+
+        <!-- Deliverables Card -->
+        <p-card styleClass="mb-4" *ngIf="campaign.deliverables && campaign.deliverables.length > 0">
+            <ng-template pTemplate="header">
+                <div class="p-3">
+                    <h3 class="m-0">Deliverables ({{ campaign.deliverables.length }})</h3>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="content">
+                <div class="deliverables-list">
+                    <div *ngFor="let deliverable of campaign.deliverables; let i = index"
+                        class="deliverable-item p-3 mb-3 border-1 surface-border border-round">
+                        <div class="flex justify-content-between align-items-start mb-2">
+                            <h4 class="mt-0 mb-2">Deliverable {{ i + 1 }}</h4>
+                            <p-tag *ngIf="deliverable.format" [value]="deliverable.format"
+                                [styleClass]="getDeliverableFormatClass(deliverable.format)"></p-tag>
+                        </div>
+                        <p class="mb-2"><strong>Description:</strong> {{ deliverable.description }}</p>
+                        <p class="mb-2" *ngIf="deliverable.requirements"><strong>Requirements:</strong> {{
+                            deliverable.requirements }}</p>
+                        <p class="mb-0" *ngIf="deliverable.deadline"><strong>Deadline:</strong> {{ deliverable.deadline
+                            | date:'longDate' }}</p>
+                    </div>
+                </div>
+            </ng-template>
+        </p-card>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons flex gap-2 justify-content-end">
+            <!-- Accept/Reject (Creator, Pending) -->
+            <p-button *ngIf="canAccept()" label="Accept Campaign" icon="pi pi-check" severity="success"
+                (onClick)="openAcceptDialog()"></p-button>
+            <p-button *ngIf="canReject()" label="Reject" icon="pi pi-times" severity="danger"
+                styleClass="p-button-outlined" (onClick)="openRejectDialog()"></p-button>
+
+            <!-- Mark as Done (Creator, Confirmed) -->
+            <p-button *ngIf="canMarkAsDone()" label="Mark as Done" icon="pi pi-check-circle"
+                (onClick)="openDoneDialog()"></p-button>
+
+            <!-- Complete (Client, Done) -->
+            <p-button *ngIf="canComplete()" label="Complete Campaign" icon="pi pi-check-circle" severity="success"
+                (onClick)="openCompleteDialog()"></p-button>
+
+            <!-- Cancel (Either party, Confirmed) -->
+            <p-button *ngIf="canCancel()" label="Cancel Campaign" icon="pi pi-ban" severity="danger"
+                styleClass="p-button-outlined" (onClick)="openCancelDialog()"></p-button>
+        </div>
+    </div>
+
+    <!-- Accept Dialog -->
+    <p-dialog header="Accept Campaign?" [(visible)]="showAcceptDialog" [modal]="true" [style]="{width: '450px'}">
+        <p class="mb-3">You're committing to deliver {{ campaign?.deliverables?.length || 0 }} deliverable(s) by {{
+            campaign?.expectedCompletionDate | date:'longDate' }}.</p>
+        <p class="text-color-secondary">Are you sure you want to accept this campaign?</p>
+
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showAcceptDialog = false"
+                [disabled]="processingAction"></p-button>
+            <p-button label="Accept" icon="pi pi-check" severity="success" (onClick)="confirmAccept()"
+                [loading]="processingAction"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Reject Dialog -->
+    <p-dialog header="Reject Campaign?" [(visible)]="showRejectDialog" [modal]="true" [style]="{width: '450px'}">
+        <p class="mb-3">Are you sure you want to reject this campaign proposal?</p>
+        <label for="rejectReason" class="block mb-2 font-semibold">Reason (Optional)</label>
+        <textarea pTextarea id="rejectReason" [(ngModel)]="rejectReason" rows="3" class="w-full"
+            placeholder="Let them know why you're rejecting..."></textarea>
+
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showRejectDialog = false"
+                [disabled]="processingAction"></p-button>
+            <p-button label="Reject" icon="pi pi-times" severity="danger" (onClick)="confirmReject()"
+                [loading]="processingAction"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Mark as Done Dialog -->
+    <p-dialog header="Mark as Done?" [(visible)]="showDoneDialog" [modal]="true" [style]="{width: '450px'}">
+        <p class="mb-3">This will notify the client that work is complete and ready for review.</p>
+        <p class="text-color-secondary">Are you sure you're ready to mark this campaign as done?</p>
+
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showDoneDialog = false"
+                [disabled]="processingAction"></p-button>
+            <p-button label="Mark as Done" icon="pi pi-check-circle" (onClick)="confirmDone()"
+                [loading]="processingAction"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Complete Dialog -->
+    <p-dialog header="Complete Campaign?" [(visible)]="showCompleteDialog" [modal]="true" [style]="{width: '450px'}">
+        <p class="mb-3">This will mark the campaign as completed and release payment to the creator.</p>
+        <p class="text-color-secondary">Are you satisfied with the deliverables?</p>
+
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showCompleteDialog = false"
+                [disabled]="processingAction"></p-button>
+            <p-button label="Complete" icon="pi pi-check-circle" severity="success" (onClick)="confirmComplete()"
+                [loading]="processingAction"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Cancel Dialog -->
+    <p-dialog header="Cancel Campaign?" [(visible)]="showCancelDialog" [modal]="true" [style]="{width: '450px'}">
+        <p class="mb-3 text-red-600 font-semibold">⚠️ This action cannot be undone.</p>
+        <p class="text-color-secondary">Are you sure you want to cancel this campaign?</p>
+
+        <ng-template pTemplate="footer">
+            <p-button label="No, Keep It" icon="pi pi-times" [text]="true" (onClick)="showCancelDialog = false"
+                [disabled]="processingAction"></p-button>
+            <p-button label="Yes, Cancel" icon="pi pi-ban" severity="danger" (onClick)="confirmCancel()"
+                [loading]="processingAction"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

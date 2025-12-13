@@ -1,0 +1,94 @@
+<div class="calendar-container">
+    <!-- Header & Toolbar -->
+    <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="text-3xl font-bold m-0">Collaboration Calendar</h1>
+            <p class="text-color-secondary m-0">Manage your upcoming campaigns and deadlines.</p>
+        </div>
+
+        <div class="flex gap-2">
+            <div class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input type="text" pInputText placeholder="Search campaigns..." [(ngModel)]="searchQuery"
+                    (ngModelChange)="applyFilters()" />
+            </div>
+
+            <p-select [options]="statusOptions" [(ngModel)]="statusFilter" (onChange)="applyFilters()"
+                optionLabel="label" optionValue="value" [style]="{'width':'180px'}"></p-select>
+
+            <div class="p-buttonset">
+                <p-button icon="pi pi-th-large" (onClick)="toggleView('grid')" [outlined]="viewMode !== 'grid'"
+                    pTooltip="Grid View"></p-button>
+                <p-button icon="pi pi-list" (onClick)="toggleView('list')" [outlined]="viewMode !== 'list'"
+                    pTooltip="List View"></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid View -->
+    <div *ngIf="viewMode === 'grid'" class="grid-view">
+        <div class="grid">
+            <div class="col-12 lg:col-4" *ngFor="let month of months">
+                <div class="month-card card-style">
+                    <h3 class="text-xl font-bold text-center mb-3">{{ month.name }} {{ month.year }}</h3>
+
+                    <div class="calendar-grid">
+                        <div class="weekday-header">Su</div>
+                        <div class="weekday-header">Mo</div>
+                        <div class="weekday-header">Tu</div>
+                        <div class="weekday-header">We</div>
+                        <div class="weekday-header">Th</div>
+                        <div class="weekday-header">Fr</div>
+                        <div class="weekday-header">Sa</div>
+
+                        <div *ngFor="let day of month.days" class="day-cell" [class.other-month]="!day.isCurrentMonth"
+                            [class.today]="day.isToday" [class.has-events]="day.events.length > 0">
+                            <span class="day-number">{{ day.date.getDate() }}</span>
+
+                            <div class="events-dots" *ngIf="day.events.length > 0">
+                                <div *ngFor="let event of day.events | slice:0:3" class="event-dot"
+                                    [pTooltip]="event.name" [class.status-pending]="event.status === 'Pending'"
+                                    [class.status-confirmed]="event.status === 'Confirmed'"
+                                    [class.status-done]="event.status === 'Done'"
+                                    [class.status-completed]="event.status === 'Completed'">
+                                </div>
+                                <span *ngIf="day.events.length > 3" class="more-events">+{{ day.events.length - 3
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- List View -->
+    <div *ngIf="viewMode === 'list'" class="list-view card-style">
+        <div *ngIf="filteredCampaigns.length === 0" class="text-center p-5">
+            <i class="pi pi-calendar-times text-4xl text-gray-400 mb-3"></i>
+            <p class="text-xl font-semibold text-gray-600">No campaigns found</p>
+            <p class="text-gray-500">Try adjusting your filters or create a new proposal.</p>
+        </div>
+
+        <div *ngFor="let campaign of filteredCampaigns"
+            class="campaign-item p-3 border-bottom-1 surface-border flex align-items-center justify-content-between hover:surface-hover transition-colors cursor-pointer"
+            [routerLink]="['/campaigns', campaign.id]">
+            <div class="flex align-items-center gap-3">
+                <div class="status-indicator" [ngClass]="'status-' + campaign.status.toLowerCase()"></div>
+                <div>
+                    <h4 class="m-0 font-semibold">{{ campaign.name }}</h4>
+                    <p class="m-0 text-sm text-color-secondary">Due: {{ campaign.expectedCompletionDate |
+                        date:'mediumDate' }}</p>
+                </div>
+            </div>
+            <div class="flex align-items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="m-0 font-semibold">{{ campaign.price.currency }} {{ campaign.price.amount }}</p>
+                    <p class="m-0 text-sm text-color-secondary">{{ campaign.deliverables.length }} deliverables</p>
+                </div>
+                <p-tag [value]="campaign.status" [severity]="getStatusSeverity(campaign.status)"></p-tag>
+                <i class="pi pi-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+</div>

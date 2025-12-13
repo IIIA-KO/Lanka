@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
 export interface InstagramStatusNotification {
@@ -17,16 +17,17 @@ export class SignalRService {
   // Observables for different notification types
   public instagramLinking$ = new Subject<InstagramStatusNotification>();
   public instagramRenewal$ = new Subject<InstagramStatusNotification>();
-  
+  public readonly connectionState$;
+
   private hubConnection: HubConnection | null = null;
-  private connectionState$ = new BehaviorSubject<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  private readonly connectionStateSubject = new BehaviorSubject<'disconnected' | 'connecting' | 'connected'>('disconnected');
 
   constructor() {
-    // Empty constructor
+    this.connectionState$ = this.connectionStateSubject.asObservable();
   }
 
-  public get connectionState(): typeof this.connectionState$ {
-    return this.connectionState$.asObservable();
+  public get connectionState(): Observable<'disconnected' | 'connecting' | 'connected'> {
+    return this.connectionState$;
   }
 
   public get isConnected(): boolean {
@@ -38,7 +39,7 @@ export class SignalRService {
       return;
     }
 
-    this.connectionState$.next('connecting');
+    this.connectionStateSubject.next('connecting');
 
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(`${environment.apiUrl}/hubs/instagram`, {
@@ -59,23 +60,23 @@ export class SignalRService {
 
     this.hubConnection.onclose(() => {
       console.warn('[SignalRService] Connection closed');
-      this.connectionState$.next('disconnected');
+      this.connectionStateSubject.next('disconnected');
     });
 
     this.hubConnection.onreconnected(() => {
       console.warn('[SignalRService] Reconnected');
-      this.connectionState$.next('connected');
+      this.connectionStateSubject.next('connected');
       this.joinUserGroup();
     });
 
     try {
       await this.hubConnection.start();
       console.warn('[SignalRService] Connection established');
-      this.connectionState$.next('connected');
+      this.connectionStateSubject.next('connected');
       await this.joinUserGroup();
     } catch (error) {
       console.error('[SignalRService] Error starting connection:', error);
-      this.connectionState$.next('disconnected');
+      this.connectionStateSubject.next('disconnected');
       throw error;
     }
   }
@@ -84,14 +85,13 @@ export class SignalRService {
     if (this.hubConnection) {
       await this.hubConnection.stop();
       this.hubConnection = null;
-      this.connectionState$.next('disconnected');
+      this.connectionStateSubject.next('disconnected');
     }
   }
 
   private async joinUserGroup(): Promise<void> {
     if (this.hubConnection?.state === 'Connected') {
       try {
-        // Get user ID from token or storage - this is a simplified approach
         const userId = this.getUserId();
         if (userId) {
           await this.hubConnection.invoke('JoinUserGroup', userId);
@@ -107,7 +107,23 @@ export class SignalRService {
       const accessToken = localStorage.getItem('access_token');
       if (accessToken) {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        return payload.sub || payload.user_id || payload.userId || payload.id;
+        const possibleKeys = [
+          'bloggerId',
+          'BloggerId',
+          'blogger_id',
+          'userId',
+          'UserId',
+          'user_id',
+          'id',
+          'sub'
+        ];
+
+        for (const key of possibleKeys) {
+          const value = payload[key];
+          if (typeof value === 'string' && value.length > 0) {
+            return value;
+          }
+        }
       }
     } catch (error) {
       console.error('[SignalRService] Error getting user ID:', error);

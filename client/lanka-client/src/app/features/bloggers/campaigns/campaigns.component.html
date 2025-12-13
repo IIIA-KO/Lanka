@@ -12,9 +12,7 @@
     </div>
   </div>
 
-  <div *ngIf="loading" class="flex justify-content-center p-4">
-    <p-progressSpinner></p-progressSpinner>
-  </div>
+  <div *ngIf="loading" class="p-4 text-color-secondary">Loading campaigns...</div>
 
   <div *ngIf="error" class="p-4">
     <p-message severity="error" [text]="error"></p-message>
@@ -25,7 +23,7 @@
       <div class="text-center p-6">
         <i class="pi pi-calendar" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
         <h3>No campaigns yet</h3>
-        <p class="text-color-secondary">Your campaigns from brands will appear here.</p>
+        <p class="text-color-secondary">{{ emptyStateMessage }}</p>
       </div>
     </div>
 

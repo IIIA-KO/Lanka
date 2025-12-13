@@ -1,0 +1,85 @@
+.campaign-detail-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.campaign-header h2 {
+  color: var(--text-color);
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.field-display label {
+  display: block;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-display p {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.deliverables-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.deliverable-item {
+  background: var(--surface-50);
+}
+
+.deliverable-item h4 {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.deliverable-item p {
+  margin: 0;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* Card header styling */
+:host ::ng-deep .p-card .p-card-header {
+  padding: 0;
+}
+
+:host ::ng-deep .p-card .p-card-header h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Dialog styling */
+:host ::ng-deep .p-dialog .p-dialog-header {
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .campaign-detail-container {
+    padding: 0.5rem;
+  }
+
+  .campaign-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}

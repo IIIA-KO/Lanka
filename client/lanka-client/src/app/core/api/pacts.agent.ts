@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { IPact, ICreatePactRequest, IEditPactRequest } from '../models/campaigns';
@@ -26,6 +26,10 @@ export class PactsAgent {
       return throwError(() => new Error('User not authenticated'));
     }
 
+    return this.getPactByBloggerId(bloggerId);
+  }
+
+  public getPactByBloggerId(bloggerId: string): Observable<IPact> {
     return this.http
       .get<IPact>(`${BASE_URL}/pacts/${bloggerId}`)
       .pipe(catchError(this.handleError));
@@ -33,7 +37,7 @@ export class PactsAgent {
 
   public editPact(request: IEditPactRequest): Observable<IPact> {
     return this.http
-      .put<IPact>(`${BASE_URL}/pacts/${request.pactId}`, request)
+      .put<IPact>(`${BASE_URL}/pacts/${request.pactId}/edit`, request)
       .pipe(catchError(this.handleError));
   }
 
@@ -44,8 +48,7 @@ export class PactsAgent {
     return this.authService.getUserIdFromToken();
   }
 
-  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
-    const message = error.error?.message || error.message || 'Unknown error';
-    return throwError(() => new Error(message));
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    return throwError(() => error);
   }
 }
