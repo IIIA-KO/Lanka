@@ -5,7 +5,8 @@
 **A Modern Modular Monolith for Social Media Campaign Management**
 
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20Monolith-blue?style=for-the-badge)](architecure-decision-log/003-modular-monolith-architecture.md)
-[![.NET](https://img.shields.io/badge/.NET-9.0-purple?style=for-the-badge&logo=dotnet)](architecure-decision-log/002-technology-stack.md)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple?style=for-the-badge&logo=dotnet)](architecure-decision-log/002-technology-stack.md)
+[![Angular](https://img.shields.io/badge/Frontend-Angular%2020-dd0031?style=for-the-badge&logo=angular&logoColor=white)](frontend/README.md)
 [![Domain-Driven Design](https://img.shields.io/badge/DDD-Enabled-green?style=for-the-badge)](architecure-decision-log/004-adoption-of-ddd.md)
 [![Event-Driven](https://img.shields.io/badge/Event--Driven-Architecture-orange?style=for-the-badge)](architecure-decision-log/008-event-driven-architecture.md)
 
@@ -36,6 +37,7 @@
 ### 👨‍💻 **Developer Guides**
 - [⚡ Quick Start](development/quick-start.md)
 - [🛠️ Development Setup](development/development-setup.md)
+- [🖥️ Frontend Guide](frontend/README.md)
 - [❓ FAQ & Troubleshooting](development/faq.md)
 
 ### 📚 **Reference**
@@ -59,7 +61,7 @@ Lanka is built as a **modular monolith** that combines the simplicity of monolit
 graph TB
     subgraph "🌐 Presentation Layer"
         API[Lanka.Api<br/>🚪 Gateway & Orchestration]
-        WEB[Client Applications<br/>🖥️ React/Angular SPA]
+        WEB[Client Applications<br/>🖥️ Angular SPA]
     end
     
     subgraph "🧩 Module Ecosystem"
@@ -130,15 +132,21 @@ graph TB
 <div align="center">
 
 ### **Backend Stack**
-![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square&logo=dotnet)
-![C#](https://img.shields.io/badge/C%23-13.0-239120?style=flat-square&logo=c-sharp)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-512BD4?style=flat-square&logo=dotnet)
-![Entity Framework](https://img.shields.io/badge/Entity%20Framework-9.0-512BD4?style=flat-square&logo=dotnet)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)
+![C#](https://img.shields.io/badge/C%23-Latest-239120?style=flat-square&logo=c-sharp)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10.0-512BD4?style=flat-square&logo=dotnet)
+![Entity Framework](https://img.shields.io/badge/Entity%20Framework-9.x-512BD4?style=flat-square&logo=dotnet)
+
+### **Frontend Stack**
+![Angular](https://img.shields.io/badge/Angular-20.1-ff1f2d?style=flat-square&logo=angular&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)
 
 ### **Databases & Storage**
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17+-336791?style=flat-square&logo=postgresql&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-8.0+-47A248?style=flat-square&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-7.0+-DC382D?style=flat-square&logo=redis&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.6-336791?style=flat-square&logo=postgresql&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-8.0-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-8.2-DC382D?style=flat-square&logo=redis&logoColor=white)
+![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.1-005571?style=flat-square&logo=elasticsearch&logoColor=white)
 
 ### **Architecture Patterns**
 ![Domain-Driven Design](https://img.shields.io/badge/DDD-Domain--Driven%20Design-blue?style=flat-square)

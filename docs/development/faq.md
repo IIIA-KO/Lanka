@@ -67,7 +67,7 @@ The high requirements are due to running multiple Docker containers for developm
 # Use ARM64 images in docker-compose.yml
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:17.6
     platform: linux/arm64
 ```
 
@@ -548,7 +548,7 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 **A:** Common solutions:
 ```dockerfile
 # Use multi-stage builds
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY *.sln .
 COPY Directory.Packages.props .

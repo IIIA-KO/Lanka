@@ -35,10 +35,10 @@ Lanka development environment is designed to be **consistent**, **reproducible**
 
 ## 🔧 **Core Tools Installation**
 
-### **1. .NET 9.0 SDK**
+### **1. .NET 10.0 SDK**
 ```bash
 # Windows (via winget)
-winget install Microsoft.DotNet.SDK.9
+winget install Microsoft.DotNet.SDK.10
 
 # macOS (via Homebrew)
 brew install --cask dotnet-sdk
@@ -47,11 +47,11 @@ brew install --cask dotnet-sdk
 wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get update
-sudo apt-get install -y dotnet-sdk-9.0
+sudo apt-get install -y dotnet-sdk-10.0
 
 # Verify installation
 dotnet --version
-# Should output: 9.0.x
+# Should output: 10.0.x
 ```
 
 ### **2. Docker Desktop**
@@ -169,7 +169,7 @@ version: '3.8'
 services:
   # Primary Database
   postgres:
-    image: postgres:latest
+    image: postgres:17.6
     container_name: lanka-postgres
     environment:
       POSTGRES_DB: lanka_dev
@@ -188,7 +188,7 @@ services:
 
   # Analytics Database
   mongodb:
-    image: mongo:latest
+    image: mongo:8.0
     container_name: lanka-mongodb
     ports:
       - "27017:27017"
@@ -202,7 +202,7 @@ services:
 
   # Caching Layer
   redis:
-    image: redis:latest
+    image: redis:8.2
     container_name: lanka-redis
     ports:
       - "6379:6379"
@@ -216,7 +216,7 @@ services:
 
   # Message Bus
   rabbitmq:
-    image: rabbitmq:management-alpine
+    image: rabbitmq:3.13-management-alpine
     container_name: lanka-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: lanka
@@ -234,7 +234,7 @@ services:
 
   # Identity Provider
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:26.4
     container_name: lanka-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
@@ -245,12 +245,36 @@ services:
 
   # Log Aggregation
   seq:
-    image: datalust/seq:latest
+    image: datalust/seq:2024
     container_name: lanka-seq
     environment:
       ACCEPT_EULA: Y
     ports:
       - "8081:80"
+
+  # Observability
+  jaeger:
+    image: jaegertracing/all-in-one:1.74.0
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+
+  # Search
+  elasticsearch:
+    image: elasticsearch:9.1.3
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:9.1.3
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
 
 volumes:
   postgres_data:
@@ -433,7 +457,7 @@ dotnet run --configuration Release
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/Api/Lanka.Api/bin/Debug/net9.0/Lanka.Api.dll",
+      "program": "${workspaceFolder}/src/Api/Lanka.Api/bin/Debug/net10.0/Lanka.Api.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/Api/Lanka.Api",
       "stopAtEntry": false,

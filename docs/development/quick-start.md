@@ -13,7 +13,7 @@
 Before diving in, make sure you have these tools installed:
 
 ### **Required Tools**
-- [ ] **.NET 9.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [ ] **.NET 10.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [ ] **Docker Desktop** - [Download here](https://www.docker.com/products/docker-desktop)
 - [ ] **Git** - [Download here](https://git-scm.com/downloads)
 
@@ -28,7 +28,7 @@ Before diving in, make sure you have these tools installed:
 ```bash
 # Check .NET version
 dotnet --version
-# Should return: 9.0.x
+# Should return: 10.0.x
 
 # Check Docker
 docker --version
@@ -95,6 +95,9 @@ You should see these services running:
 - 🐰 **RabbitMQ** (port 5672, Management: 15672) - Message bus
 - 🔐 **Keycloak** (port 18080) - Identity provider
 - 📋 **Seq** (port 8081) - Centralized logging
+- 🧠 **Elasticsearch** (port 9200) - Search index
+- 📈 **Kibana** (port 5601) - Search/analytics UI
+- 🔭 **Jaeger** (port 16686) - Distributed tracing
 
 ### **2.2 Verify Services**
 ```bash
@@ -102,6 +105,8 @@ You should see these services running:
 curl http://localhost:15672  # RabbitMQ Management
 curl http://localhost:18080  # Keycloak
 curl http://localhost:8081   # Seq
+curl http://localhost:9200   # Elasticsearch
+curl http://localhost:16686  # Jaeger UI
 ```
 
 ### **2.3 Database Migrations (automatic on startup)**

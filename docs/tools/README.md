@@ -28,7 +28,7 @@ Lanka comes with a comprehensive set of tools and utilities to make development 
 - [📊 **Database Tools**](../development/faq.md#-database--migrations) - Migration management and data tools
 
 ### **🎨 Frontend Development**
-- React tooling: see client-specific docs (planned)
+- [🖥️ **Angular 20 Guide**](../frontend/README.md) - Build, lint, and test commands
 
 </td>
 <td width="50%">
@@ -68,9 +68,12 @@ Lanka comes with a comprehensive set of tools and utilities to make development 
 |---------|-----|---------|
 | 🏠 **Lanka API** | http://localhost:4307 | Main application API |
 | 💚 **Health Checks** | http://localhost:4307/healthz | System health status |
+| 🚪 **Gateway** | http://localhost:4308 | API gateway entrypoint |
 | 🐰 **RabbitMQ Management** | http://localhost:15672 | Message queue admin |
 | 🔐 **Keycloak Admin** | http://localhost:18080/admin | Identity provider |
 | 📋 **Seq Logs** | http://localhost:8081 | Centralized logging |
+| 🔭 **Jaeger UI** | http://localhost:16686 | Distributed tracing |
+| 📈 **Kibana** | http://localhost:5601 | Search/analytics UI |
 
 ### **🗃️ Database Connections**
 
@@ -117,7 +120,7 @@ Lanka comes with a comprehensive set of tools and utilities to make development 
 version: '3.8'
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:17.6
     environment:
       POSTGRES_DB: lanka_dev
       POSTGRES_USER: postgres
@@ -126,28 +129,35 @@ services:
       - "5432:5432"
     
   mongodb:
-    image: mongo:latest
+    image: mongo:8.0
     ports:
       - "27017:27017"
     
   redis:
-    image: redis:7-alpine
+    image: redis:8.2
     ports:
       - "6379:6379"
     
   rabbitmq:
-    image: rabbitmq:management-alpine
+    image: rabbitmq:3.13-management-alpine
     ports:
       - "5672:5672"
       - "15672:15672"
     
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:26.4
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
       - "18080:8080"
+
+  seq:
+    image: datalust/seq:2024
+    environment:
+      ACCEPT_EULA: Y
+    ports:
+      - "8081:80"
 ```
 
 ---
