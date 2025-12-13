@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from './core/services/language.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet ],
@@ -9,10 +9,9 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AppComponent {
   public title = 'lanka-client';
-  private readonly translate = inject(TranslateService);
+  private readonly languageService = inject(LanguageService);
 
   constructor() {
-    const browserLang = this.translate.getBrowserLang();
-    this.translate.use(browserLang?.match(/en|uk/) ? browserLang : 'en');
+    this.languageService.init();
   }
 }
