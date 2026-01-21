@@ -148,7 +148,6 @@ public static class UsersModule
 
                 httpClient.BaseAddress = new Uri(keycloakOptions.TokenUrl);
             });
-        //.AddHttpMessageHandler<KeycloakAuthDelegatingHandler>()
 
         services.AddTransient<IKeycloakAdminService, KeycloakAdminService>();
         services.AddTransient<IKeycloakTokenService, KeycloakTokenService>();
