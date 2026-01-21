@@ -1,6 +1,6 @@
 using Lanka.Common.Application.Notifications;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Lanka.Common.Infrastructure.Notifications;
 

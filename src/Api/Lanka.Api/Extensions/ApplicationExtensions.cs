@@ -4,13 +4,13 @@ using Lanka.Api.OpenTelemetry;
 using Lanka.Common.Application;
 using Lanka.Common.Infrastructure;
 using Lanka.Common.Infrastructure.EventBus;
+using Lanka.Common.Infrastructure.Notifications;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Matching.Infrastructure;
-using Lanka.Modules.Users.Infrastructure;
-using Lanka.Common.Infrastructure.Notifications;
 using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
+using Lanka.Modules.Users.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -74,7 +74,7 @@ internal static class ApplicationExtensions
         builder.Configuration.AddModuleConfiguration(["users", "campaigns", "analytics", "matching"]);
         builder.Services.AddUsersModule(builder.Configuration);
         builder.Services.AddCampaignsModule(builder.Configuration);
-        builder.Services.AddAnalyticsModule(builder.Configuration);
+        builder.Services.AddAnalyticsModule(builder.Configuration, builder.Environment);
         builder.Services.AddMatchingModule(builder.Configuration);
 
         builder.Services.AddSignalR();

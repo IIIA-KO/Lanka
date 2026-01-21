@@ -1,5 +1,4 @@
 using Lanka.Modules.Campaigns.Domain.Bloggers;
-using Lanka.Modules.Campaigns.Domain.Bloggers.Categories;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Photos;
 
 namespace Lanka.Modules.Campaigns.Application.UnitTests.Bloggers;

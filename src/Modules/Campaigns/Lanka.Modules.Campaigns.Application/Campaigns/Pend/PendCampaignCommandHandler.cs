@@ -14,12 +14,12 @@ namespace Lanka.Modules.Campaigns.Application.Campaigns.Pend;
 internal sealed class PendCampaignCommandHandler
     : ICommandHandler<PendCampaignCommand, Guid>
 {
-        private readonly IPactRepository _pactRepository;
-        private readonly ICampaignRepository _campaignRepository;
-        private readonly IOfferRepository _offerRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IUserContext _userContext;
+    private readonly IPactRepository _pactRepository;
+    private readonly ICampaignRepository _campaignRepository;
+    private readonly IOfferRepository _offerRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUserContext _userContext;
 
     public PendCampaignCommandHandler(
         IPactRepository pactRepository,
