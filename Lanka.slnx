@@ -1,0 +1,76 @@
+<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Lanka.sln.DotSettings" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Api/">
+    <Project Path="src/Api/Lanka.Api/Lanka.Api.csproj" />
+    <Project Path="src/Api/Lanka.Gateway/Lanka.Gateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Common/">
+    <Project Path="src/Common/Lanka.Common.Application/Lanka.Common.Application.csproj" />
+    <Project Path="src/Common/Lanka.Common.Contracts/Lanka.Common.Contracts.csproj" />
+    <Project Path="src/Common/Lanka.Common.Domain/Lanka.Common.Domain.csproj" />
+    <Project Path="src/Common/Lanka.Common.Infrastructure/Lanka.Common.Infrastructure.csproj" />
+    <Project Path="src/Common/Lanka.Common.IntegrationEvents/Lanka.Common.IntegrationEvents.csproj" />
+    <Project Path="src/Common/Lanka.Common.Presentation/Lanka.Common.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Analytics/">
+    <Project Path="src/Modules/Analytics/Lanka.Modules.Analytics.Application/Lanka.Modules.Analytics.Application.csproj" />
+    <Project Path="src/Modules/Analytics/Lanka.Modules.Analytics.Domain/Lanka.Modules.Analytics.Domain.csproj" />
+    <Project Path="src/Modules/Analytics/Lanka.Modules.Analytics.Infrastructure/Lanka.Modules.Analytics.Infrastructure.csproj" />
+    <Project Path="src/Modules/Analytics/Lanka.Modules.Analytics.IntegrationEvents/Lanka.Modules.Analytics.IntegrationEvents.csproj" />
+    <Project Path="src/Modules/Analytics/Lanka.Modules.Analytics.Presentation/Lanka.Modules.Analytics.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Analytics/test/">
+    <Project Path="src/Modules/Analytics/test/Lanka.Modules.Analytics.Application.UnitTests/Lanka.Modules.Analytics.Application.UnitTests.csproj" />
+    <Project Path="src/Modules/Analytics/test/Lanka.Modules.Analytics.ArchitectureTests/Lanka.Modules.Analytics.ArchitectureTests.csproj" />
+    <Project Path="src/Modules/Analytics/test/Lanka.Modules.Analytics.UnitTests/Lanka.Modules.Analytics.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Campaigns/">
+    <Project Path="src/Modules/Campaigns/Lanka.Modules.Campaigns.Application/Lanka.Modules.Campaigns.Application.csproj" />
+    <Project Path="src/Modules/Campaigns/Lanka.Modules.Campaigns.Domain/Lanka.Modules.Campaigns.Domain.csproj" />
+    <Project Path="src/Modules/Campaigns/Lanka.Modules.Campaigns.Infrastructure/Lanka.Modules.Campaigns.Infrastructure.csproj" />
+    <Project Path="src/Modules/Campaigns/Lanka.Modules.Campaigns.IntegrationEvents/Lanka.Modules.Campaigns.IntegrationEvents.csproj" />
+    <Project Path="src/Modules/Campaigns/Lanka.Modules.Campaigns.Presentation/Lanka.Modules.Campaigns.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Campaigns/test/">
+    <Project Path="src/Modules/Campaigns/test/Lanka.Modules.Campaigns.Application.UnitTests/Lanka.Modules.Campaigns.Application.UnitTests.csproj" />
+    <Project Path="src/Modules/Campaigns/test/Lanka.Modules.Campaigns.ArchitectureTests/Lanka.Modules.Campaigns.ArchitectureTests.csproj" />
+    <Project Path="src/Modules/Campaigns/test/Lanka.Modules.Campaigns.UnitTests/Lanka.Modules.Campaigns.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Matching/">
+    <Project Path="src/Modules/Matching/Lanka.Modules.Matching.Application/Lanka.Modules.Matching.Application.csproj" />
+    <Project Path="src/Modules/Matching/Lanka.Modules.Matching.Domain/Lanka.Modules.Matching.Domain.csproj" />
+    <Project Path="src/Modules/Matching/Lanka.Modules.Matching.Infrastructure/Lanka.Modules.Matching.Infrastructure.csproj" />
+    <Project Path="src/Modules/Matching/Lanka.Modules.Matching.Presentation/Lanka.Modules.Matching.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Matching/test/">
+    <Project Path="src/Modules/Matching/test/Lanka.Modules.Matching.Application.UnitTests/Lanka.Modules.Matching.Application.UnitTests.csproj" />
+    <Project Path="src/Modules/Matching/test/Lanka.Modules.Matching.ArchitectureTests/Lanka.Modules.Matching.ArchitectureTests.csproj" />
+    <Project Path="src/Modules/Matching/test/Lanka.Modules.Matching.UnitTests/Lanka.Modules.Matching.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Users/">
+    <Project Path="src/Modules/Users/Lanka.Modules.Users.Application/Lanka.Modules.Users.Application.csproj" />
+    <Project Path="src/Modules/Users/Lanka.Modules.Users.Domain/Lanka.Modules.Users.Domain.csproj" />
+    <Project Path="src/Modules/Users/Lanka.Modules.Users.Infrastructure/Lanka.Modules.Users.Infrastructure.csproj" />
+    <Project Path="src/Modules/Users/Lanka.Modules.Users.IntegrationEvents/Lanka.Modules.Users.IntegrationEvents.csproj" />
+    <Project Path="src/Modules/Users/Lanka.Modules.Users.Presentation/Lanka.Modules.Users.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Users/test/">
+    <Project Path="src/Modules/Users/test/Lanka.Modules.Users.Application.UnitTests/Lanka.Modules.Users.Application.UnitTests.csproj" />
+    <Project Path="src/Modules/Users/test/Lanka.Modules.Users.ArchitectureTests/Lanka.Modules.Users.ArchitectureTests.csproj" />
+    <Project Path="src/Modules/Users/test/Lanka.Modules.Users.UnitTests/Lanka.Modules.Users.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Lanka.ArchitectureTests/Lanka.ArchitectureTests.csproj" />
+    <Project Path="test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj" Type="C#">
+    <BuildType Project="Debug" />
+  </Project>
+</Solution>
