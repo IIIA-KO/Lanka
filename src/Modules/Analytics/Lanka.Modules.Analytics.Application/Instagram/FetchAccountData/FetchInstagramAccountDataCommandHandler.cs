@@ -55,7 +55,8 @@ internal sealed class FetchInstagramAccountDataCommandHandler
             return Result.Failure(igUserInfo.Error);
         }
 
-        Result<InstagramAccount> igAccountResult = igUserInfo.Value.CreateInstagramAccount(new UserId(request.UserId));
+        Result<InstagramAccount> igAccountResult =
+            igUserInfo.Value.CreateInstagramAccount(request.UserId, request.Email);
 
         if (igAccountResult.IsFailure)
         {

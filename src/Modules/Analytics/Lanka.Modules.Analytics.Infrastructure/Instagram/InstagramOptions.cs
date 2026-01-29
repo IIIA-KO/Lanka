@@ -12,11 +12,14 @@ public sealed class InstagramOptions
 
     public string RenewRedirectUri { get; set; } = string.Empty;
 
-    public string UserInfoUrl { get; set; } = string.Empty;
-
     public int IntervalInSeconds { get; init; }
 
     public int BatchSize { get; init; }
 
     public int RenewalThresholdInDays { get; init; }
+}
+
+public sealed class InstagramDevelopmentOptions
+{
+    public IReadOnlyList<string> AllowedUserEmails { get; init; } = [];
 }

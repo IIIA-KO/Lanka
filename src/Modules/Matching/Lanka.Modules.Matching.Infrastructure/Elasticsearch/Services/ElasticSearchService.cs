@@ -8,8 +8,8 @@ using Lanka.Modules.Matching.Domain.Searches.SearchQueries;
 using Lanka.Modules.Matching.Domain.Searches.SearchResults;
 using Lanka.Modules.Matching.Domain.Searches.SearchResults.SearchHighlights;
 using Lanka.Modules.Matching.Domain.Searches.SearchResults.SearchResultItems;
-using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Documents;
 using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
+using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Documents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

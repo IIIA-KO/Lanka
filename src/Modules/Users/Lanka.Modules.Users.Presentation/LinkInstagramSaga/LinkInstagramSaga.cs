@@ -48,6 +48,7 @@ public sealed class LinkInstagramSaga : MassTransitStateMachine<LinkInstagramSta
                         context.Message.Id,
                         context.Message.OccurredOnUtc,
                         context.Message.UserId,
+                        context.Message.Email,
                         context.Message.Code
                     )
                 )

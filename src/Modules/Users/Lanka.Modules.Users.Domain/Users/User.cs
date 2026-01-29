@@ -125,7 +125,7 @@ public class User : Entity<UserId>
 
     public void LinkInstagramAccount(string code)
     {
-        this.RaiseDomainEvent(new InstagramAccountLinkedDomainEvent(this.Id, code));
+        this.RaiseDomainEvent(new InstagramAccountLinkedDomainEvent(this.Id, this.Email.Value, code));
     }
 
     public void RenewInstagramAccess(string code)

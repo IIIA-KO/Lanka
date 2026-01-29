@@ -15,10 +15,11 @@ public sealed class InstagramUserInfo
 
     public string AdAccountId { get; set; }
 
-    public Result<InstagramAccount> CreateInstagramAccount(UserId userId)
+    public Result<InstagramAccount> CreateInstagramAccount(Guid userId, string email)
     {
         return InstagramAccount.Create(
-            userId.Value,
+            userId,
+            email,
             this.FacebookPageId,
             this.AdAccountId,
             this.BusinessDiscovery.Id,

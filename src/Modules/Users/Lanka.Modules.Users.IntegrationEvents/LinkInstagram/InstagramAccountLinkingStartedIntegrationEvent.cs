@@ -8,14 +8,18 @@ public sealed class InstagramAccountLinkingStartedIntegrationEvent : Integration
         Guid id,
         DateTime occurredOnUtc,
         Guid userId,
+        string email,
         string code
     ) : base(id, occurredOnUtc)
     {
         this.UserId = userId;
+        this.Email = email;
         this.Code = code;
     }
 
     public Guid UserId { get; }
-    
-    public string Code { get; init; }
+
+    public string Email { get; }
+
+    public string Code { get; }
 }

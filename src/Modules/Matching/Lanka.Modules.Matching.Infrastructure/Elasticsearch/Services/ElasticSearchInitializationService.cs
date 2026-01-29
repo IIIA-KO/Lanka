@@ -1,8 +1,8 @@
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Analysis;
 using Elastic.Clients.Elasticsearch.IndexManagement;
-using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Documents;
 using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
+using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Documents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

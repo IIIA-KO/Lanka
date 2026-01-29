@@ -1,5 +1,4 @@
 using FluentValidation;
-using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Categories;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;

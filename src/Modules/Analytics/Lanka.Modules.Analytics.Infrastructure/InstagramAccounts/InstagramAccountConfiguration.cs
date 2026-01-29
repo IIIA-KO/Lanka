@@ -19,6 +19,11 @@ internal sealed class InstagramAccountConfiguration : IEntityTypeConfiguration<I
             .HasConversion(id => id.Value, value => new InstagramAccountId(value));
 
         builder
+            .Property(igAccount => igAccount.Email)
+            .HasConversion(email => email.Value, value => new Email(value))
+            .IsRequired();
+
+        builder
             .Property(igAccount => igAccount.FacebookPageId)
             .HasConversion(fbPageId => fbPageId.Value, value => FacebookPageId.Create(value).Value)
             .IsRequired();

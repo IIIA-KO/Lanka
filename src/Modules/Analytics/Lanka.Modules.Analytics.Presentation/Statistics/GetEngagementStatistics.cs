@@ -18,8 +18,8 @@ internal sealed class GetEngagementStatistics : AnalyticsEndpointBase
         return app.MapGet(this.BuildRoute("engagement-statistics"),
                 async (
                     [FromQuery] StatisticsPeriod period,
-                    ISender sender,
-                    IUserContext userContext,
+                    [FromServices] ISender sender,
+                    [FromServices] IUserContext userContext,
                     CancellationToken cancellationToken
                 ) =>
                 {

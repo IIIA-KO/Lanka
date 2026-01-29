@@ -19,7 +19,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
 {
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly InstagramOptions _instagramOptions;
-    private readonly IInstagramAccountsService _instagramAccountsService;
+    private readonly IInstagramServiceFactory<IInstagramAccountsService> _instagramAccountsServiceFactory;
     private readonly RateLimiter _rateLimiter;
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly ITokenRepository _tokenRepository;
@@ -29,7 +29,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
     public UpdateInstagramAccountsJob(
         IDateTimeProvider dateTimeProvider,
         IOptions<InstagramOptions> instagramOptions,
-        IInstagramAccountsService instagramAccountsService,
+        IInstagramServiceFactory<IInstagramAccountsService> instagramAccountsServiceFactory,
         RateLimiter rateLimiter,
         IInstagramAccountRepository instagramAccountRepository,
         ITokenRepository tokenRepository,
@@ -39,7 +39,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
     {
         this._dateTimeProvider = dateTimeProvider;
         this._instagramOptions = instagramOptions.Value;
-        this._instagramAccountsService = instagramAccountsService;
+        this._instagramAccountsServiceFactory = instagramAccountsServiceFactory;
         this._rateLimiter = rateLimiter;
         this._instagramAccountRepository = instagramAccountRepository;
         this._tokenRepository = tokenRepository;
@@ -134,7 +134,22 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             return;
         }
 
-        Result<InstagramUserInfo> instagramAccountResult = await this._instagramAccountsService
+        // Skip fake/mock accounts created during seeding (they have placeholder tokens)
+        if (token.AccessToken.Value.StartsWith("fake_token_", StringComparison.OrdinalIgnoreCase))
+        {
+            this._logger.LogDebug(
+                "Skipping mock Instagram account {AccountId} with fake token",
+                account.Id
+            );
+
+            return;
+        }
+
+        // Get the appropriate service based on user's email (real for allowed users, mock for others in Development)
+        IInstagramAccountsService instagramAccountsService = this._instagramAccountsServiceFactory
+            .GetService(account.Email.Value);
+
+        Result<InstagramUserInfo> instagramAccountResult = await instagramAccountsService
             .GetUserInfoAsync(
                 token.AccessToken.Value,
                 account.FacebookPageId.Value,

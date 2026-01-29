@@ -10,6 +10,7 @@ internal static class InstagramAccountData
     {
         return InstagramAccount.Create(
             UserId,
+            Email,
             FacebookPageId,
             AdvertisementAccountId,
             BusinessDiscoveryId,
@@ -37,6 +38,8 @@ internal static class InstagramAccountData
     };
 
     public static Guid UserId => Guid.NewGuid();
+
+    public static string Email => "test@lanka.com";
 
     public static string FacebookPageId => "facebook_page_id_1234567890";
 

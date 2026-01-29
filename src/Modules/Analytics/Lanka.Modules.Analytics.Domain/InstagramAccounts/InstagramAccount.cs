@@ -10,6 +10,8 @@ namespace Lanka.Modules.Analytics.Domain.InstagramAccounts;
 public class InstagramAccount : Entity<InstagramAccountId>
 {
     public UserId UserId { get; private set; }
+    
+    public Email Email { get; private set; }
 
     public FacebookPageId FacebookPageId { get; private set; }
 
@@ -26,6 +28,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
     private InstagramAccount(
         InstagramAccountId id,
         UserId userId,
+        Email email,
         FacebookPageId facebookPageId,
         AdvertisementAccountId advertisementAccountId,
         Metadata metadata
@@ -33,6 +36,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
     {
         this.Id = id;
         this.UserId = userId;
+        this.Email = email;
         this.FacebookPageId = facebookPageId;
         this.AdvertisementAccountId = advertisementAccountId;
         this.Metadata = metadata;
@@ -40,6 +44,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
 
     public static Result<InstagramAccount> Create(
         Guid userId,
+        string email,
         string fbPageId,
         string advertisementAccountId,
         string businessDiscoveryId,
@@ -71,6 +76,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
         var igAccount = new InstagramAccount(
             InstagramAccountId.New(),
             new UserId(userId),
+            new Email(email),
             _fbPageId,
             _advertisementAccountId,
             metadata

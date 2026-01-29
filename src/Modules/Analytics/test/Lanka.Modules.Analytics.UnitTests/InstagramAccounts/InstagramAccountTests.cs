@@ -16,6 +16,7 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
         // Act
         Result<InstagramAccount> instagramAccount = InstagramAccount.Create(
             InstagramAccountData.UserId,
+            InstagramAccountData.Email,
             InstagramAccountData.FacebookPageId,
             InstagramAccountData.AdvertisementAccountId,
             InstagramAccountData.BusinessDiscoveryId,
@@ -36,6 +37,7 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
         // Act
         Result<InstagramAccount> result = InstagramAccount.Create(
             InstagramAccountData.UserId,
+            InstagramAccountData.Email,
             " ",
             InstagramAccountData.AdvertisementAccountId,
             InstagramAccountData.BusinessDiscoveryId,
@@ -56,6 +58,7 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
         // Act
         Result<InstagramAccount> result = InstagramAccount.Create(
             InstagramAccountData.UserId,
+            InstagramAccountData.Email,
             InstagramAccountData.FacebookPageId,
             null!,
             InstagramAccountData.BusinessDiscoveryId,
@@ -76,6 +79,7 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
         // Arrange
         Result<InstagramAccount> instagramAccountResult = InstagramAccount.Create(
             InstagramAccountData.UserId,
+            InstagramAccountData.Email,
             InstagramAccountData.FacebookPageId,
             InstagramAccountData.AdvertisementAccountId,
             InstagramAccountData.BusinessDiscoveryId,
@@ -98,6 +102,7 @@ public class InstagramAccountTests : BaseTest // Consider making public types in
         // Arrange
         Result<InstagramAccount> instagramAccountResult = InstagramAccount.Create(
             InstagramAccountData.UserId,
+            InstagramAccountData.Email,
             InstagramAccountData.FacebookPageId,
             InstagramAccountData.AdvertisementAccountId,
             InstagramAccountData.BusinessDiscoveryId,

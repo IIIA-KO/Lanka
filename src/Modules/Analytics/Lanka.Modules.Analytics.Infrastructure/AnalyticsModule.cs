@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
@@ -18,6 +19,7 @@ using Lanka.Modules.Analytics.Infrastructure.Encryption;
 using Lanka.Modules.Analytics.Infrastructure.Inbox;
 using Lanka.Modules.Analytics.Infrastructure.Instagram;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Apis;
+using Lanka.Modules.Analytics.Infrastructure.Instagram.Fakes;
 using Lanka.Modules.Analytics.Infrastructure.Instagram.Services;
 using Lanka.Modules.Analytics.Infrastructure.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure.Outbox;
@@ -34,6 +36,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Refit;
 
@@ -43,25 +46,30 @@ public static class AnalyticsModule
 {
     public static IServiceCollection AddAnalyticsModule(
         this IServiceCollection services,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IHostEnvironment environment
     )
     {
         services.AddDomainEventHandlers();
 
         services.AddIntegrationEventHandlers();
 
-        services.AddInfrastructure(configuration);
+        services.AddInfrastructure(configuration, environment);
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
 
         return services;
     }
 
-    private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    private static void AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment
+    )
     {
         AddPersistence(services, configuration);
 
-        AddInstagramIntegration(services, configuration);
+        AddInstagramIntegration(services, configuration, environment);
 
         AddOutbox(services, configuration);
 
@@ -83,9 +91,22 @@ public static class AnalyticsModule
             .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
 
-    private static void AddInstagramIntegration(IServiceCollection services, IConfiguration configuration)
+    private static void AddInstagramIntegration(
+        IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment
+    )
     {
         services.Configure<InstagramOptions>(configuration.GetSection("Analytics:Instagram"));
+
+        if (environment.IsDevelopment())
+        {
+            services.Configure<InstagramDevelopmentOptions>(
+                configuration.GetSection("Analytics:Instagram:Development"));
+
+            // Register the ambient context for email resolution in development
+            services.AddScoped<IInstagramUserContext, InstagramUserContext>();
+        }
 
         services.AddSingleton<RateLimiter>(_ =>
             new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
@@ -133,11 +154,72 @@ public static class AnalyticsModule
             httpClient.BaseAddress = new Uri(instagramOptions.BaseUrl);
         }
 
-        services.AddScoped<IFacebookService, FacebookService>();
-        services.AddScoped<IInstagramAccountsService, InstagramAccountsService>();
-        services.AddScoped<IInstagramAudienceService, InstagramAudienceService>();
-        services.AddScoped<IInstagramPostService, InstagramPostService>();
-        services.AddScoped<IInstagramStatisticsService, InstagramStatisticsService>();
+
+        services.AddInstagramService<
+            IFacebookService,
+            FacebookService,
+            MockFacebookService
+        >(environment);
+
+        services.AddInstagramService<
+            IInstagramAccountsService,
+            InstagramAccountsService,
+            MockInstagramAccountsService
+        >(environment);
+
+        services.AddInstagramService<
+            IInstagramAudienceService,
+            InstagramAudienceService,
+            MockInstagramAudienceService
+        >(environment);
+
+        services.AddInstagramService<
+            IInstagramPostService,
+            InstagramPostService,
+            MockInstagramPostService
+        >(environment);
+
+        services.AddInstagramService<
+            IInstagramStatisticsService,
+            InstagramStatisticsService,
+            MockInstagramStatisticsService
+        >(environment);
+    }
+
+    private static void AddInstagramService<TInterface, TReal, TMock>(
+        this IServiceCollection services,
+        IHostEnvironment environment
+    ) where TInterface : class
+        where TReal : class, TInterface
+        where TMock : class, TInterface
+    {
+        if (!environment.IsDevelopment())
+        {
+            services.AddScoped<TInterface, TReal>();
+            return;
+        }
+
+        // Register both implementations for the factory to use
+        services.AddScoped<TReal>();
+        services.AddScoped<TMock>();
+
+        // Register the factory for background jobs and cases where explicit email is needed
+        services.AddScoped<IInstagramServiceFactory<TInterface>>(sp =>
+            new InstagramServiceFactory<TInterface>(
+                sp.GetRequiredService<TReal>(),
+                sp.GetRequiredService<TMock>(),
+                environment: sp.GetRequiredService<IHostEnvironment>(),
+                developmentOptions: sp.GetService<IOptions<InstagramDevelopmentOptions>>(),
+                instagramUserContext: sp.GetService<IInstagramUserContext>()
+            )
+        );
+
+        services.AddScoped<TInterface>(sp =>
+        {
+            IInstagramServiceFactory<TInterface>
+                factory = sp.GetRequiredService<IInstagramServiceFactory<TInterface>>();
+            return factory.GetService();
+        });
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
@@ -164,10 +246,10 @@ public static class AnalyticsModule
         services.AddScoped<ReachDistributionRepository>();
         services.AddScoped<InstagramPostsRepository>();
 
-        services.AddScoped<EngagementRepository>();
-        services.AddScoped<InteractionRepository>();
         services.AddScoped<MetricsRepository>();
         services.AddScoped<OverviewRepository>();
+        services.AddScoped<EngagementRepository>();
+        services.AddScoped<InteractionRepository>();
 
         services.AddScoped<IUserActivityRepository, UserActivityRepository>();
         services.AddScoped<IUserActivityService, UserActivityService>();

@@ -5,6 +5,8 @@ public interface IUserContext
     Guid GetUserId();
 
     string GetIdentityId();
+
+    string? GetEmail();
         
     string? AccessToken { get; }
 }

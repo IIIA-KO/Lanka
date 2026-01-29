@@ -5,6 +5,7 @@ using Lanka.Modules.Analytics.Application.Instagram.Audience.GetAgeDistribution;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Lanka.Modules.Analytics.Presentation.Audience;
@@ -15,8 +16,8 @@ internal sealed class GetAgeDistribution : AnalyticsEndpointBase
     {
         return app.MapGet(this.BuildRoute("audience/age-distribution"),
                 async (
-                    ISender sender,
-                    IUserContext userContext,
+                    [FromServices] ISender sender,
+                    [FromServices] IUserContext userContext,
                     CancellationToken cancellationToken
                 ) =>
                 {

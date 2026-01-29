@@ -3,6 +3,7 @@ using Lanka.Common.Application.Caching;
 using Lanka.Common.Application.Clock;
 using Lanka.Common.Application.Data;
 using Lanka.Common.Application.EventBus;
+using Lanka.Common.Application.Notifications;
 using Lanka.Common.Infrastructure.Authentication;
 using Lanka.Common.Infrastructure.Authorization;
 using Lanka.Common.Infrastructure.Caching;
@@ -11,7 +12,6 @@ using Lanka.Common.Infrastructure.Data;
 using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Infrastructure.Notifications;
 using Lanka.Common.Infrastructure.Outbox;
-using Lanka.Common.Application.Notifications;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -186,7 +186,7 @@ public static class InfrastructureConfiguration
                     .AddOtlpExporter();
             });
 
-        services.AddSingleton<IMongoClient>(serviceProvider =>
+        services.AddSingleton<IMongoClient>(_ =>
         {
             var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConnectionString);
 

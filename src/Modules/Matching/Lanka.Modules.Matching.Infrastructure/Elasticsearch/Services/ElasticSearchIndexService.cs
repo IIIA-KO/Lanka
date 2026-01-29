@@ -4,8 +4,8 @@ using Elastic.Clients.Elasticsearch.QueryDsl;
 using Lanka.Modules.Matching.Application.Abstractions.Search;
 using Lanka.Modules.Matching.Application.Index;
 using Lanka.Modules.Matching.Domain.SearchableItems;
-using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Documents;
 using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
+using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Documents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Result = Lanka.Common.Domain.Result;
@@ -432,6 +432,58 @@ internal sealed class ElasticSearchIndexService : ISearchIndexService
             );
 
             return Result.Failure(ElasticSearchIndexServiceErrors.DeactivateBySourceEntityFailed);
+        }
+    }
+
+    public async Task<HashSet<Guid>> GetExistingSourceEntityIdsAsync(
+        IEnumerable<Guid> sourceEntityIds,
+        SearchableItemType type,
+        CancellationToken cancellationToken = default
+    )
+    {
+        try
+        {
+            var idList = sourceEntityIds.ToList();
+            if (idList.Count == 0)
+            {
+                return [];
+            }
+
+            // Query ES to find documents matching the given source entity IDs and type
+            var searchRequest = new SearchRequest(this._options.DefaultIndex)
+            {
+                Size = idList.Count,
+                Query = new BoolQuery
+                {
+                    Must =
+                    [
+                        new TermsQuery
+                        {
+                            Field = "sourceEntityId",
+                            Terms = new TermsQueryField(idList.Select(id => FieldValue.String(id.ToString())).ToArray())
+                        },
+                        new TermQuery { Field = "type", Value = type.ToString() }
+                    ]
+                }
+            };
+
+            SearchResponse<SearchableDocumentElastic> response =
+                await this._client.SearchAsync<SearchableDocumentElastic>(searchRequest, cancellationToken);
+
+            if (!response.IsValidResponse)
+            {
+                this._logger.LogWarning("Failed to query existing documents: {Error}", response.DebugInformation);
+                return [];
+            }
+
+            return response.Documents
+                .Select(d => d.SourceEntityId)
+                .ToHashSet();
+        }
+        catch (Exception ex)
+        {
+            this._logger.LogError(ex, "Error querying existing source entity IDs");
+            return [];
         }
     }
 

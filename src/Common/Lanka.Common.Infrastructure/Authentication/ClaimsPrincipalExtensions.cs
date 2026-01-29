@@ -27,4 +27,9 @@ public static class ClaimsPrincipalExtensions
 
         return permissionClaims.Select(c => c.Value).ToHashSet();
     }
+
+    public static string? GetEmail(this ClaimsPrincipal? principal)
+    {
+        return principal?.FindFirst(ClaimTypes.Email)?.Value;
+    }
 }

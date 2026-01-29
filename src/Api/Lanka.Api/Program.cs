@@ -10,7 +10,7 @@ builder
 
 WebApplication app = builder.Build();
 
-app.ConfigureMiddleware();
+await app.ConfigureMiddleware();
 
 await app.RunAsync();
 

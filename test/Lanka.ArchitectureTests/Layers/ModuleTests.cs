@@ -4,6 +4,8 @@ using Lanka.Modules.Analytics.Domain.InstagramAccounts;
 using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Infrastructure;
+using Lanka.Modules.Matching.Domain.SearchableItems;
+using Lanka.Modules.Matching.Infrastructure;
 using Lanka.Modules.Users.Domain.Users;
 using Lanka.Modules.Users.Infrastructure;
 using NetArchTest.Rules;
@@ -15,8 +17,13 @@ public class ModuleTests : BaseTest
     [Fact]
     public void UsersModule_ShouldNotHaveDependenciesOnOtherModules()
     {
-        string[] otherModules = [CampaignsNamespace, AnalyticsNamespace];
-        string[] integrationEventsModules = [CampaignsIntegrationEventsNamespace, AnalyticsIntegrationEventsNamespace];
+        string[] otherModules = [CampaignsNamespace, AnalyticsNamespace, MatchingNamespace];
+        string[] integrationEventsModules =
+        [
+            CampaignsIntegrationEventsNamespace,
+            AnalyticsIntegrationEventsNamespace,
+            MatchingIntegrationEventsNamespace
+        ];
 
         List<Assembly> userAssemblies =
         [
@@ -34,12 +41,17 @@ public class ModuleTests : BaseTest
             .GetResult()
             .ShouldBeSuccessful();
     }
-    
+
     [Fact]
     public void CampaignsModule_ShouldNotHaveDependenciesOnOtherModules()
     {
-        string[] otherModules = [UsersNamespace, AnalyticsNamespace];
-        string[] integrationEventsModules = [UsersIntegrationEventsNamespace, AnalyticsNamespace];
+        string[] otherModules = [UsersNamespace, AnalyticsNamespace, MatchingNamespace];
+        string[] integrationEventsModules =
+        [
+            UsersIntegrationEventsNamespace,
+            AnalyticsIntegrationEventsNamespace,
+            MatchingIntegrationEventsNamespace
+        ];
 
         List<Assembly> campaignAssemblies =
         [
@@ -61,9 +73,14 @@ public class ModuleTests : BaseTest
     [Fact]
     public void AnalyticsModule_ShouldNotHaveDependenciesOnOtherModules()
     {
-        string[] otherModules = [UsersNamespace, CampaignsNamespace];
-        string[] integrationEventsModules = [UsersIntegrationEventsNamespace, CampaignsNamespace];
-        
+        string[] otherModules = [UsersNamespace, CampaignsNamespace, MatchingNamespace];
+        string[] integrationEventsModules =
+        [
+            UsersIntegrationEventsNamespace,
+            CampaignsIntegrationEventsNamespace,
+            MatchingIntegrationEventsNamespace
+        ];
+
         List<Assembly> analyticsAssemblies =
         [
             typeof(InstagramAccount).Assembly,
@@ -73,6 +90,34 @@ public class ModuleTests : BaseTest
         ];
 
         Types.InAssemblies(analyticsAssemblies)
+            .That()
+            .DoNotHaveDependencyOnAny(integrationEventsModules)
+            .Should()
+            .NotHaveDependencyOnAny(otherModules)
+            .GetResult()
+            .ShouldBeSuccessful();
+    }
+
+    [Fact]
+    public void MatchingModule_ShouldNotHaveDependenciesOnOtherModules()
+    {
+        string[] otherModules = [UsersNamespace, CampaignsNamespace, AnalyticsNamespace];
+        string[] integrationEventsModules =
+        [
+            UsersIntegrationEventsNamespace,
+            CampaignsIntegrationEventsNamespace,
+            AnalyticsIntegrationEventsNamespace
+        ];
+
+        List<Assembly> matchingAssemblies =
+        [
+            typeof(SearchableItem).Assembly,
+            Modules.Matching.Application.AssemblyReference.Assembly,
+            Modules.Matching.Presentation.AssemblyReference.Assembly,
+            typeof(MatchingModule).Assembly
+        ];
+
+        Types.InAssemblies(matchingAssemblies)
             .That()
             .DoNotHaveDependencyOnAny(integrationEventsModules)
             .Should()

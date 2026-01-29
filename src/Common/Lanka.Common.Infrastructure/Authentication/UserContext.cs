@@ -24,6 +24,11 @@ public class UserContext : IUserContext
                ?? throw new InvalidOperationException("User context is unavailable");
     }
 
+    public string? GetEmail()
+    {
+        return this._httpContextAccessor.HttpContext?.User.GetEmail();
+    }
+
     public string? AccessToken =>
         this._httpContextAccessor.HttpContext?.Request.Headers.Authorization.FirstOrDefault()
             ?.Split(' ')
