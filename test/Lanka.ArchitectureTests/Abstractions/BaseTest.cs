@@ -9,6 +9,9 @@ public abstract class BaseTest
     protected const string CampaignsNamespace = "Lanka.Modules.Campaigns";
     protected const string CampaignsIntegrationEventsNamespace = "Lanka.Modules.Campaigns.IntegrationEvents";
     
-    public const string AnalyticsNamespace = "Lanka.Modules.Analytics";
-    public const string AnalyticsIntegrationEventsNamespace = "Lanka.Modules.Analytics.IntegrationEvents";
+    protected const string AnalyticsNamespace = "Lanka.Modules.Analytics";
+    protected const string AnalyticsIntegrationEventsNamespace = "Lanka.Modules.Analytics.IntegrationEvents";
+    
+    protected const string MatchingNamespace = "Lanka.Modules.Matching";
+    protected const string MatchingIntegrationEventsNamespace = "Lanka.Modules.Matching.IntegrationEvents";
 }

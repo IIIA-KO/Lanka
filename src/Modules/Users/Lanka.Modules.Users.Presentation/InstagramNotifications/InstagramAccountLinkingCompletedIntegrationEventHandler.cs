@@ -28,7 +28,7 @@ internal sealed class InstagramAccountLinkingCompletedIntegrationEventHandler
         string userId = integrationEvent.UserId.ToString();
         string cacheKey = $"instagram_linking_status_{userId}";
         
-        Console.WriteLine($"🎉 Handling Instagram linking completion for user: {userId}");
+        Console.WriteLine($"Handling Instagram linking completion for user: {userId}");
 
         // Update status in cache
         var completedStatus = new InstagramOperationStatus(
