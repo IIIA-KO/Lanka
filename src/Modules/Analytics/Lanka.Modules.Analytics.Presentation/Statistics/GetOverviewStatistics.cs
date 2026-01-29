@@ -18,8 +18,8 @@ internal sealed class GetOverviewStatistics : AnalyticsEndpointBase
         return app.MapGet(this.BuildRoute("overview-statistics"),
                 async (
                     [FromQuery] StatisticsPeriod period,
-                    ISender sender,
-                    IUserContext userContext,
+                    [FromServices] ISender sender,
+                    [FromServices] IUserContext userContext,
                     CancellationToken cancellationToken
                 ) =>
                 {

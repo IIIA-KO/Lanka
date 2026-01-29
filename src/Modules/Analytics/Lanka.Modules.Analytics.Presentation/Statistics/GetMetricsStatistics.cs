@@ -11,15 +11,15 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Lanka.Modules.Analytics.Presentation.Statistics;
 
-internal sealed class GetTableStatistics : AnalyticsEndpointBase
+internal sealed class GetMetricsStatistics : AnalyticsEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapGet(this.BuildRoute("table-statistics"),
+        return app.MapGet(this.BuildRoute("metrics-statistics"),
                 async (
                     [FromQuery] StatisticsPeriod period,
-                    ISender sender,
-                    IUserContext userContext,
+                    [FromServices] ISender sender,
+                    [FromServices] IUserContext userContext,
                     CancellationToken cancellationToken
                 ) =>
                 {
@@ -33,7 +33,7 @@ internal sealed class GetTableStatistics : AnalyticsEndpointBase
                 }
             )
             .WithTags(Tags.Analytics)
-            .WithName("GetTableStatistics")
+            .WithName("GetMetricsStatistics")
             .WithSummary("Get table statistics")
             .WithDescription("Retrieves detailed metrics statistics for Instagram account within specified period")
             .WithOpenApi();

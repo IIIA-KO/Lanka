@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj" />
-      <ProjectReference Include="..\Lanka.Modules.Campaigns.Application\Lanka.Modules.Campaigns.Application.csproj" />
-      <ProjectReference Include="..\Lanka.Modules.Campaigns.Presentation\Lanka.Modules.Campaigns.Presentation.csproj" />
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Contracts\Lanka.Common.Contracts.csproj"/>
+        <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Campaigns.Application\Lanka.Modules.Campaigns.Application.csproj"/>
+        <ProjectReference Include="..\Lanka.Modules.Campaigns.Presentation\Lanka.Modules.Campaigns.Presentation.csproj"/>
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="CloudinaryDotNet" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
+        <PackageReference Include="Bogus"/>
+        <PackageReference Include="CloudinaryDotNet"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 </Project>

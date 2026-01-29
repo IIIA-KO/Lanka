@@ -134,6 +134,17 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             return;
         }
 
+        // Skip fake/mock accounts created during seeding
+        if (token.AccessToken.Value.StartsWith("fake_token_", StringComparison.OrdinalIgnoreCase))
+        {
+            this._logger.LogDebug(
+                "Skipping mock Instagram account {AccountId} with fake token",
+                account.Id
+            );
+
+            return;
+        }
+
         Result<InstagramUserInfo> instagramAccountResult = await this._instagramAccountsService
             .GetUserInfoAsync(
                 token.AccessToken.Value,

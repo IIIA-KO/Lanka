@@ -21,4 +21,6 @@ public interface ISearchIndexService
     Task<Result> ActivateDocumentsBySourceEntityAsync(Guid sourceEntityId, SearchableItemType type, CancellationToken cancellationToken = default);
     
     Task<Result> DeactivateDocumentsBySourceEntityAsync(Guid sourceEntityId, SearchableItemType type, CancellationToken cancellationToken = default);
+
+    Task<HashSet<Guid>> GetExistingSourceEntityIdsAsync(IEnumerable<Guid> sourceEntityIds, SearchableItemType type, CancellationToken cancellationToken = default);
 }

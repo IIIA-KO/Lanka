@@ -127,7 +127,7 @@ internal static class ApplicationExtensions
         return builder;
     }
 
-    public static WebApplication ConfigureMiddleware(this WebApplication app)
+    public static async Task ConfigureMiddleware(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {
@@ -135,6 +135,7 @@ internal static class ApplicationExtensions
             app.MapScalarApiReference();
 
             app.ApplyMigrations();
+            await app.SeedDevelopmentDataAsync();
         }
 
         app.UseLogContextTraceLogging();
@@ -150,7 +151,5 @@ internal static class ApplicationExtensions
         );
 
         app.MapHub<InstagramHub>("/hubs/instagram");
-
-        return app;
     }
 }
