@@ -11,7 +11,7 @@ permissions:
 
 env:
   DOTNET_VERSION: "10.0.x"
-  SOLUTION_PATH: "./Lanka.sln"
+  SOLUTION_PATH: "./Lanka.slnx"
 
 jobs:
   build:
