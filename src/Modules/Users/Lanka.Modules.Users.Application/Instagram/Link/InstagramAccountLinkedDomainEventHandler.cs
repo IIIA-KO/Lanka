@@ -23,6 +23,7 @@ internal sealed class InstagramAccountLinkedDomainEventHandler
                 domainEvent.Id,
                 domainEvent.OccurredOnUtc,
                 domainEvent.UserId.Value,
+                domainEvent.Email,
                 domainEvent.Code
             ),
             cancellationToken

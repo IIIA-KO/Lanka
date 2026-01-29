@@ -4,9 +4,11 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Bogus" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Common\Lanka.Common.Contracts\Lanka.Common.Contracts.csproj" />
       <ProjectReference Include="..\..\..\Common\Lanka.Common.Infrastructure\Lanka.Common.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Users\Lanka.Modules.Users.IntegrationEvents\Lanka.Modules.Users.IntegrationEvents.csproj" />
       <ProjectReference Include="..\Lanka.Modules.Analytics.Application\Lanka.Modules.Analytics.Application.csproj" />

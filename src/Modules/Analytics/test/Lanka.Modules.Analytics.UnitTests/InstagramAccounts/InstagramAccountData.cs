@@ -4,6 +4,8 @@ internal static class InstagramAccountData
 {
     public static Guid UserId => Guid.NewGuid();
 
+    public static string Email => "test@lanka.com";
+
     public static string FacebookPageId => "facebook_page_id_1234567890";
 
     public static string AdvertisementAccountId => "advertisement_account_id_1234567890";

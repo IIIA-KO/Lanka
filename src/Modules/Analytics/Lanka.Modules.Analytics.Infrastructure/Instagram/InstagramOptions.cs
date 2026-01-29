@@ -12,8 +12,6 @@ public sealed class InstagramOptions
 
     public string RenewRedirectUri { get; set; } = string.Empty;
 
-    public string UserInfoUrl { get; set; } = string.Empty;
-
     public int IntervalInSeconds { get; init; }
 
     public int BatchSize { get; init; }
@@ -21,15 +19,7 @@ public sealed class InstagramOptions
     public int RenewalThresholdInDays { get; init; }
 }
 
-/// <summary>
-/// Development-only options for controlling Instagram API behavior.
-/// Only available in Development environment.
-/// </summary>
 public sealed class InstagramDevelopmentOptions
 {
-    /// <summary>
-    /// List of User IDs allowed to use real Instagram API in development mode.
-    /// All other users will use mock services.
-    /// </summary>
-    public List<Guid> AllowedUserIds { get; set; } = [];
+    public IReadOnlyList<string> AllowedUserEmails { get; init; } = [];
 }

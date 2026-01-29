@@ -16,7 +16,7 @@ namespace Lanka.Modules.Analytics.Application.UnitTests.InstagramAccounts;
 public class FetchInstagramAccountDataTests
 {
     private static FetchInstagramAccountDataCommand Command =>
-        new(Guid.NewGuid(), "test_code");
+        new(Guid.NewGuid(), "email@lanka.com", "test_code");
 
     private readonly IFacebookService _facebookServiceMock;
     private readonly IInstagramAccountsService _instagramAccountsServiceMock;
@@ -80,7 +80,7 @@ public class FetchInstagramAccountDataTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(Error.NoData);
     }
-    
+
     [Fact]
     public async Task Handle_ShouldReturnFailure_WhenUserInfoServiceFails()
     {

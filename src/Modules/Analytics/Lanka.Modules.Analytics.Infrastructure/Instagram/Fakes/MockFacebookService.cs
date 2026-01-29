@@ -1,4 +1,3 @@
-using Bogus;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 using Lanka.Modules.Analytics.Application.Abstractions.Models;
@@ -7,14 +6,12 @@ namespace Lanka.Modules.Analytics.Infrastructure.Instagram.Fakes;
 
 internal sealed class MockFacebookService : IFacebookService
 {
-    private readonly Faker _faker = new();
-
     public Task<Result<string>> GetFacebookPageIdAsync(
         string accessToken,
         CancellationToken cancellationToken = default
     )
     {
-        string pageId = this._faker.Random.AlphaNumeric(15);
+        string pageId = FakeInstagramDataGenerator.GenerateFacebookPageId();
         return Task.FromResult((Result<string>)pageId);
     }
 
@@ -23,7 +20,7 @@ internal sealed class MockFacebookService : IFacebookService
         CancellationToken cancellationToken = default
     )
     {
-        string adAccountId = $"act_{this._faker.Random.Number(100000000, 999999999)}";
+        string adAccountId = FakeInstagramDataGenerator.GenerateAdAccountId();
         return Task.FromResult((Result<string>)adAccountId);
     }
 
@@ -32,12 +29,7 @@ internal sealed class MockFacebookService : IFacebookService
         CancellationToken cancellationToken = default
     )
     {
-        var tokenResponse = new FacebookTokenResponse
-        {
-            AccessToken = this._faker.Random.AlphaNumeric(200),
-            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(60)
-        };
-
+        FacebookTokenResponse tokenResponse = FakeInstagramDataGenerator.GenerateFacebookTokenResponse();
         return Task.FromResult((Result<FacebookTokenResponse>)tokenResponse);
     }
 
@@ -54,12 +46,7 @@ internal sealed class MockFacebookService : IFacebookService
         CancellationToken cancellationToken = default
     )
     {
-        var userInfo = new FacebookUserInfo
-        {
-            Id = this._faker.Random.AlphaNumeric(15),
-            Name = this._faker.Name.FullName()
-        };
-
+        FacebookUserInfo userInfo = FakeInstagramDataGenerator.GenerateFacebookUserInfo();
         return Task.FromResult<FacebookUserInfo?>(userInfo);
     }
 }

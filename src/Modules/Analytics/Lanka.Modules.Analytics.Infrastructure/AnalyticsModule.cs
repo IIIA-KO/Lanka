@@ -99,11 +99,13 @@ public static class AnalyticsModule
     {
         services.Configure<InstagramOptions>(configuration.GetSection("Analytics:Instagram"));
 
-        // Only configure development options in Development environment
         if (environment.IsDevelopment())
         {
             services.Configure<InstagramDevelopmentOptions>(
                 configuration.GetSection("Analytics:Instagram:Development"));
+
+            // Register the ambient context for email resolution in development
+            services.AddScoped<IInstagramUserContext, InstagramUserContext>();
         }
 
         services.AddSingleton<RateLimiter>(_ =>
@@ -197,16 +199,27 @@ public static class AnalyticsModule
             return;
         }
 
+        // Register both implementations for the factory to use
         services.AddScoped<TReal>();
         services.AddScoped<TMock>();
-        services.AddScoped<TInterface>(sp =>
-            new InstagramServiceDispatcher<TInterface>(
+
+        // Register the factory for background jobs and cases where explicit email is needed
+        services.AddScoped<IInstagramServiceFactory<TInterface>>(sp =>
+            new InstagramServiceFactory<TInterface>(
                 sp.GetRequiredService<TReal>(),
                 sp.GetRequiredService<TMock>(),
                 environment: sp.GetRequiredService<IHostEnvironment>(),
-                developmentOptions: sp.GetService<IOptions<InstagramDevelopmentOptions>>()
-            ).GetService()
+                developmentOptions: sp.GetService<IOptions<InstagramDevelopmentOptions>>(),
+                instagramUserContext: sp.GetService<IInstagramUserContext>()
+            )
         );
+
+        services.AddScoped<TInterface>(sp =>
+        {
+            IInstagramServiceFactory<TInterface>
+                factory = sp.GetRequiredService<IInstagramServiceFactory<TInterface>>();
+            return factory.GetService();
+        });
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)

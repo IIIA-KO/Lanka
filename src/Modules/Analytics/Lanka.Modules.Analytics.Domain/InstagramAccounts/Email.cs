@@ -1,3 +1,3 @@
 namespace Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
-public record Email();
+public sealed record Email(string Value);

@@ -140,6 +140,11 @@ namespace Lanka.Modules.Analytics.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("advertisement_account_id");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
                     b.Property<string>("FacebookPageId")
                         .IsRequired()
                         .HasColumnType("text")
