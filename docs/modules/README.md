@@ -1,157 +1,144 @@
-# 🧩 Lanka Modules Documentation
+# Lanka Modules Documentation
 
 <div align="center">
 
-*Deep dive into the modular architecture that powers Lanka's social media campaign management platform*
-
-**"Good architecture makes the system easy to understand, develop, maintain, and deploy."**
+*How the modular monolith is organized*
 
 [![Modules](https://img.shields.io/badge/Modules-4%20Active-blue?style=for-the-badge)](.)
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20%26%20Modular-green?style=for-the-badge)](../architecture/)
-[![Domain-Driven](https://img.shields.io/badge/DDD-Domain--Driven-purple?style=for-the-badge)](../catalog-of-terms/)
 
 </div>
 
 ---
 
-## 🗺️ **Module Ecosystem Overview**
+## What's a Module?
 
-Lanka's modular monolith is built around **four core modules**, each responsible for a specific business domain. This structure provides clear boundaries, independent evolution, and maintainable code organization.
+In Lanka, a **module** is a self-contained business domain with its own domain model, application logic, and data storage. Modules communicate through events, not direct calls — this keeps them loosely coupled and independently evolvable.
+
+Think of each module as a mini-application that could theoretically be extracted into a microservice (though that's not planned).
+
+---
+
+## Module Ecosystem
 
 ```mermaid
 graph TB
-    subgraph "🌐 Presentation Layer"
-        API[Lanka.Api<br/>🚪 Gateway & Orchestration]
-        WEB[Client Applications<br/>🖥️ Angular SPA]
+    subgraph "Presentation Layer"
+        API[Lanka.Api<br/>Host & Endpoints]
+        WEB[Client Applications<br/>Angular SPA]
     end
-    
-    subgraph "🧩 Business Modules"
-        subgraph "👥 Users Module"
-            UA[Users.Application<br/>🎯 Identity & Access]
-            UD[Users.Domain<br/>💎 User Management]
-            UI[Users.Infrastructure<br/>🗃️ Authentication]
-            UP[Users.Presentation<br/>🌐 User APIs]
+
+    subgraph "Business Modules"
+        subgraph "Users Module"
+            UA[Users.Application]
+            UD[Users.Domain]
+            UI[Users.Infrastructure]
         end
-        
-        subgraph "📊 Analytics Module"
-            AA[Analytics.Application<br/>📈 Business Logic]
-            AD[Analytics.Domain<br/>🎭 Instagram Entities]
-            AI[Analytics.Infrastructure<br/>🔗 Instagram API]
-            AP[Analytics.Presentation<br/>🌐 Analytics APIs]
+
+        subgraph "Analytics Module"
+            AA[Analytics.Application]
+            AD[Analytics.Domain]
+            AI[Analytics.Infrastructure]
         end
-        
-        subgraph "🎪 Campaigns Module"
-            CA[Campaigns.Application<br/>🚀 Campaign Logic]
-            CD[Campaigns.Domain<br/>🎯 Business Rules]
-            CI[Campaigns.Infrastructure<br/>💼 Data Layer]
-            CP[Campaigns.Presentation<br/>🌐 Campaign APIs]
+
+        subgraph "Campaigns Module"
+            CA[Campaigns.Application]
+            CD[Campaigns.Domain]
+            CI[Campaigns.Infrastructure]
         end
-        
-        subgraph "🔍 Matching Module"
-            MA[Matching.Application<br/>🔍 Search Logic]
-            MD[Matching.Domain<br/>🎯 Search Models]
-            MI[Matching.Infrastructure<br/>⚡ Search Engine]
-            MP[Matching.Presentation<br/>🌐 Search APIs]
+
+        subgraph "Matching Module"
+            MA[Matching.Application]
+            MD[Matching.Domain]
+            MI[Matching.Infrastructure]
         end
     end
-    
-    subgraph "🔧 Shared Infrastructure"
-        COMMON[Common.Infrastructure<br/>🛠️ Cross-cutting Concerns]
-        DB[(PostgreSQL<br/>🗃️ Primary Database)]
-        MONGO[(MongoDB<br/>📊 Analytics Storage)]
-        REDIS[(Redis<br/>⚡ Caching & Sessions)]
-        RABBIT[(RabbitMQ<br/>📮 Message Bus)]
+
+    subgraph "Shared Infrastructure"
+        COMMON[Common.Infrastructure]
+        DB[(PostgreSQL)]
+        MONGO[(MongoDB)]
+        REDIS[(Redis)]
+        RABBIT[(RabbitMQ)]
     end
-    
+
     API --> UA & AA & CA & MA
     WEB --> API
     UA & AA & CA & MA --> UD & AD & CD & MD
     UD & AD & CD & MD --> UI & AI & CI & MI
     UI & AI & CI & MI --> COMMON
-    UP & AP & CP & MP --> API
     COMMON --> DB & MONGO & REDIS & RABBIT
-    
-    classDef moduleStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef infraStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef dataStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    
-    class UA,UD,UI,UP,AA,AD,AI,AP,CA,CD,CI,CP,MA,MD,MI,MP moduleStyle
-    class API,COMMON infraStyle
-    class DB,MONGO,REDIS,RABBIT dataStyle
 ```
 
 ---
 
-## 🎯 **Core Modules Overview**
+## The Four Modules
 
 <table>
 <tr>
-<td width="25%">
+<td width="50%">
 
-### **👥 [Users Module](users/)**
+### Users Module
 *Identity & Access Management*
 
-**Key Features:**
-- 🔐 Authentication & Authorization
-- 👤 User Profile Management  
-- 🔗 Instagram Account Linking
-- 📊 User Activity Tracking
+**Handles:**
+- Authentication via Keycloak
+- User profiles and settings
+- Instagram account linking (OAuth2 flow)
+- Role-based permissions
 
-**Core Entities:**
-- User (Aggregate Root)
-- Role, Permission
-- Email, BirthDate
+**Key entities:** User, Role, Email (value object)
 
-</td>
-<td width="25%">
-
-### **📊 [Analytics Module](analytics/)**
-*Social Media Intelligence*
-
-**Key Features:**
-- 📈 Instagram Analytics
-- 👥 Audience Insights
-- 📊 Performance Metrics
-- 🔄 Real-time Data Sync
-
-**Core Entities:**
-- InstagramAccount (Entity)
-- Statistics, Audience
-- Token, Metadata
+**Status:** Most complete — good reference for patterns
 
 </td>
-<td width="25%">
+<td width="50%">
 
-### **🎪 [Campaigns Module](campaigns/)**
-*Campaign Orchestration*
+### Analytics Module
+*Instagram Data Processing*
 
-**Key Features:**
-- 🚀 Campaign Management
-- 👥 Blogger Network
-- 💼 Offer Management
-- 📋 Contract & Review System
+**Handles:**
+- Fetching Instagram insights
+- Audience demographics
+- Engagement metrics
+- Mock services for development
 
-**Core Entities:**
-- Campaign (Entity)
-- Blogger, Offer
-- Pact, Review
+**Key entities:** InstagramAccount, Statistics, Audience
+
+**Status:** In progress — learning MongoDB integration
 
 </td>
-<td width="25%">
+</tr>
+<tr>
+<td width="50%">
 
-### **🔍 [Matching Module](matching/)**
+### Campaigns Module
+*Campaign Lifecycle*
+
+**Handles:**
+- Campaign creation and management
+- Blogger applications
+- Offer negotiations
+- Contract management
+
+**Key entities:** Campaign, Blogger, Offer, Pact
+
+**Status:** In progress — complex domain modeling
+
+</td>
+<td width="50%">
+
+### Matching Module
 *Search & Discovery*
 
-**Key Features:**
-- 🔍 Advanced Search
-- 🎯 Content Matching
-- 📊 Relevance Scoring
-- ⚡ Fast Indexing
+**Handles:**
+- Full-text search with Elasticsearch
+- Influencer-brand matching
+- Search result ranking
 
-**Core Entities:**
-- SearchableItem
-- MatchingCriteria
-- MatchResult
+**Key entities:** SearchableItem, MatchResult
+
+**Status:** Basic implementation
 
 </td>
 </tr>
@@ -159,252 +146,131 @@ graph TB
 
 ---
 
-## 🏗️ **Module Architecture Patterns**
+## Module Structure
 
-### **📐 Clean Architecture Layers**
-
-Each module follows the **Clean Architecture** pattern with consistent layer organization:
+Each module follows Clean Architecture with consistent organization:
 
 ```
-📁 Lanka.Modules.{Module}.Domain/
-   ├── 🎭 Entities & Aggregates
-   ├── 💎 Value Objects  
-   ├── ⚡ Domain Events
-   ├── 🔍 Domain Services
-   └── 📋 Repository Interfaces
+Lanka.Modules.{Module}.Domain/
+   ├── Entities & Aggregates
+   ├── Value Objects
+   ├── Domain Events
+   ├── Domain Services
+   └── Repository Interfaces
 
-📁 Lanka.Modules.{Module}.Application/
-   ├── 🎯 Use Cases (Commands/Queries)
-   ├── 🔄 Event Handlers
-   ├── 📝 DTOs & Contracts
-   ├── 🧩 Application Services
-   └── 🔧 Abstractions
+Lanka.Modules.{Module}.Application/
+   ├── Commands & Queries (CQRS)
+   ├── Event Handlers
+   ├── DTOs & Contracts
+   └── Abstractions
 
-📁 Lanka.Modules.{Module}.Infrastructure/
-   ├── 🗃️ Repository Implementations
-   ├── 🔗 External Service Integrations
-   ├── 📤 Outbox Pattern
-   ├── 📥 Inbox Pattern
-   └── 🗄️ Database Configuration
+Lanka.Modules.{Module}.Infrastructure/
+   ├── Repository Implementations
+   ├── External Service Integrations
+   ├── Outbox/Inbox Pattern
+   └── Database Configuration
 
-📁 Lanka.Modules.{Module}.Presentation/
-   ├── 🌐 API Endpoints
-   ├── 🔒 Permission Definitions
-   ├── 📊 Response Models
-   └── 🏷️ API Tags
+Lanka.Modules.{Module}.Presentation/
+   ├── API Endpoints
+   ├── Permission Definitions
+   └── Response Models
 
-📁 Lanka.Modules.{Module}.IntegrationEvents/
-   ├── 📡 Integration Events
-   ├── 🔄 Event Handlers
-   └── 📮 Cross-Module Communication
+Lanka.Modules.{Module}.IntegrationEvents/
+   ├── Integration Event Definitions
+   └── Cross-Module Communication
 ```
 
-### **🔄 Communication Patterns**
+---
 
-<table>
-<tr>
-<td width="50%">
+## How Modules Communicate
 
-#### **🔗 Intra-Module Communication**
-- **Direct method calls** within the same module
-- **Domain events** for internal business logic
-- **Repository pattern** for data access
-- **Mediator pattern** for use case orchestration
+### Within a Module
+- Direct method calls
+- Domain events for internal logic
+- Repository pattern for data access
+- MediatR for use case orchestration
 
-</td>
-<td width="50%">
-
-#### **📡 Inter-Module Communication**
+### Between Modules
 - **Integration events** via RabbitMQ
 - **Outbox/Inbox patterns** for reliability
-- **Eventual consistency** for cross-module data
-- **API calls** for synchronous operations
+- **Eventual consistency** — not immediate
+- No direct database access across modules
 
-</td>
-</tr>
-</table>
+### Integration Events
 
----
-
-## 📊 **Module Dependencies & Integration**
-
-### **🔗 Module Interaction Matrix**
-
-| From → To | 👥 Users | 📊 Analytics | 🎪 Campaigns | 🔍 Matching |
-|-----------|----------|--------------|---------------|-------------|
-| **👥 Users** | - | ✅ Account Linked | ✅ User Created | ✅ User Profile |
-| **📊 Analytics** | ✅ User Activity | - | ✅ Data Updated | ✅ Content Indexed |
-| **🎪 Campaigns** | ✅ Blogger Actions | ✅ Performance Data | - | ✅ Campaign Indexed |
-| **🔍 Matching** | ❌ Read-only | ❌ Read-only | ❌ Read-only | - |
-
-**Legend:**
-- ✅ **Publishes events to**
-- ❌ **No direct dependency** 
-
-### **📮 Key Integration Events**
-
-<table>
-<tr>
-<td width="33%">
-
-#### **👥 Users Module Events**
-- `UserCreatedIntegrationEvent`
-- `UserDeletedIntegrationEvent` 
-- `UserLoggedInIntegrationEvent`
-- `InstagramAccountLinkedIntegrationEvent`
-
-</td>
-<td width="33%">
-
-#### **📊 Analytics Module Events**
-- `InstagramAccountDataFetchedIntegrationEvent`
-- `InstagramAccountDataRenewedIntegrationEvent`
-- `AnalyticsDataUpdatedIntegrationEvent`
-
-</td>
-<td width="33%">
-
-#### **🎪 Campaigns Module Events**
-- `CampaignCreatedIntegrationEvent`
-- `CampaignCompletedIntegrationEvent`
-- `BloggerJoinedIntegrationEvent`
-- `ReviewSubmittedIntegrationEvent`
-
-</td>
-</tr>
-</table>
+| From | Event | Consumed By |
+|------|-------|-------------|
+| Users | `UserCreatedIntegrationEvent` | Analytics, Campaigns |
+| Users | `InstagramAccountLinkedIntegrationEvent` | Analytics |
+| Analytics | `InstagramDataFetchedIntegrationEvent` | Matching |
+| Campaigns | `CampaignCreatedIntegrationEvent` | Matching |
 
 ---
 
-## 🎨 **Design Principles & Best Practices**
+## Design Patterns Used
 
-### **💎 Domain-Driven Design**
+### Domain-Driven Design
+- **Small aggregates** focused on invariants
+- **Rich domain models** with behavior, not just data
+- **Ubiquitous language** — names match business concepts
+- **Value objects** for immutable data (Email, Money, etc.)
 
-<table>
-<tr>
-<td width="50%">
-
-#### **🏛️ Aggregate Design**
-- **Small aggregates** focused on business invariants
-- **Eventual consistency** between aggregates
-- **Rich domain models** with business logic
-- **Domain events** for significant changes
-
-#### **📝 Ubiquitous Language**
-- **Shared vocabulary** between developers and domain experts
-- **Consistent naming** across all layers
-- **Business-focused** entity and method names
-
-</td>
-<td width="50%">
-
-#### **🔒 Encapsulation & Validation**
-- **Private setters** to control state changes
-- **Factory methods** for object creation
-- **Guard clauses** for input validation
-- **Immutable value objects** where appropriate
-
-#### **⚡ Event-Driven Architecture**
-- **Domain events** for internal module communication
-- **Integration events** for cross-module communication
-- **Eventual consistency** for distributed operations
-
-</td>
-</tr>
-</table>
-
-### **🔧 Technical Excellence**
-
-#### **📏 Code Quality Standards**
-- **SOLID principles** in all implementations
+### Technical Patterns
+- **SOLID principles** throughout
 - **Repository pattern** for data access abstraction
-- **CQRS pattern** for command/query separation
-- **Result pattern** for error handling
-
-#### **🧪 Testing Strategy**
-- **Unit tests** for domain logic
-- **Integration tests** for full workflows
-- **Architecture tests** to enforce design rules
-- **Contract tests** for API consistency
+- **CQRS** — separate read and write paths
+- **Result pattern** — no exceptions for business errors
 
 ---
 
-## 🚀 **Getting Started with Modules**
+## Adding a New Module
 
-### **📖 Learning Path**
+If you're extending Lanka with a new module:
 
-1. **🎯 Start Here**: [Architecture Overview](../architecture/) - Understand the big picture
-2. **👥 Begin with Users**: [Users Module](users/) - Authentication and identity
-3. **📊 Add Analytics**: [Analytics Module](analytics/) - Social media intelligence  
-4. **🎪 Build Campaigns**: [Campaigns Module](campaigns/) - Campaign management
-5. **🔍 Implement Search**: [Matching Module](matching/) - Advanced search capabilities
-
-### **🛠️ Development Workflow**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **🆕 Adding New Features**
-1. **Define domain model** in Domain layer
-2. **Create use cases** in Application layer
-3. **Implement data access** in Infrastructure layer
-4. **Expose APIs** in Presentation layer
-5. **Add integration events** if needed
-
-</td>
-<td width="50%">
-
-#### **🔄 Modifying Existing Features**
-1. **Start with domain model** changes
-2. **Update use cases** accordingly
-3. **Modify repository** implementations
-4. **Update API contracts** if needed
-5. **Handle backward compatibility**
-
-</td>
-</tr>
-</table>
+1. **Create the folder structure** under `src/Modules/YourModule/`
+2. **Define the domain** — entities, value objects, events
+3. **Implement use cases** — commands, queries, handlers
+4. **Add infrastructure** — repositories, EF configurations
+5. **Expose endpoints** — API controllers in Presentation
+6. **Wire up DI** — register services in the module's extension method
+7. **Add integration events** if other modules need to react
 
 ---
 
-## 📚 **Module Documentation Index**
+## Learning Path
 
-<div align="center">
+If you're exploring the codebase:
 
-| Module | Status | Documentation | Key Features |
-|--------|--------|---------------|-------------|
-| 👥 **[Users](users/)** | ✅ Active | [📖 Complete](users/) | Authentication, Profiles, Instagram Linking |
-| 📊 **[Analytics](analytics/)** | ✅ Active | [📖 Complete](analytics/) | Instagram Analytics, Audience Insights |  
-| 🎪 **[Campaigns](campaigns/)** | ✅ Active | [📖 Complete](campaigns/) | Campaign Management, Blogger Network |
-| 🔍 **[Matching](matching/)** | ✅ Active | [📖 Complete](matching/) | Search, Content Discovery |
-
-</div>
+1. **Start with Users Module** — it's the most complete and demonstrates all patterns
+2. **Follow the Instagram Linking Walkthrough** — see [detailed flow documentation](../walkthroughs/instagram-linking.md)
+3. **Read the domain layer first** — understand the business model
+4. **Follow a request** — trace a command from endpoint to database
+5. **Check the events** — see how modules communicate
+6. **Look at tests** — understand expected behavior
 
 ---
 
-## 🎯 **Quick Links**
+## Module Documentation
 
-<div align="center">
+| Module | Docs | What to Learn |
+|--------|------|---------------|
+| [Users](users/) | Complete | OAuth2, Sagas, Keycloak |
+| [Analytics](analytics/) | Complete | MongoDB, External APIs, Mocking |
+| [Campaigns](campaigns/) | Complete | Complex domain, State machines |
+| [Matching](matching/) | Complete | Elasticsearch, Search patterns |
 
-[![Users Module](https://img.shields.io/badge/👥-Users%20Module-blue?style=for-the-badge)](users/)
-[![Analytics Module](https://img.shields.io/badge/📊-Analytics%20Module-green?style=for-the-badge)](analytics/)
-[![Campaigns Module](https://img.shields.io/badge/🎪-Campaigns%20Module-orange?style=for-the-badge)](campaigns/)
-[![Matching Module](https://img.shields.io/badge/🔍-Matching%20Module-purple?style=for-the-badge)](matching/)
+---
 
-[![Architecture Guide](https://img.shields.io/badge/🏗️-Architecture-blue?style=for-the-badge)](../architecture/)
-[![Catalog of Terms](https://img.shields.io/badge/📚-Terms-green?style=for-the-badge)](../catalog-of-terms/)
-[![ADR](https://img.shields.io/badge/🎯-Decisions-orange?style=for-the-badge)](../architecure-decision-log/)
+## Related Documentation
 
-</div>
+- **[Instagram Linking Walkthrough](../walkthroughs/instagram-linking.md)** — Detailed trace of the saga orchestration between Users and Analytics modules
+- **[Lessons Learned](../learning/lessons-learned.md)** — Reflections on module development challenges
+- **[Resources](../learning/resources.md)** — Books and articles on modular architecture
 
 ---
 
 <div align="center">
 
-*"A well-designed module is like a well-written book chapter - it tells a complete story while being part of a larger narrative."*
-
-**Happy Coding! 🚀**
+*Each module tells its own story while contributing to the larger narrative.*
 
 </div>
-

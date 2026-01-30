@@ -1,51 +1,62 @@
-# 🌟 Lanka Documentation Wiki
+# Lanka Documentation
 
 <div align="center">
 
-**A Modern Modular Monolith for Social Media Campaign Management**
+**Documentation for a Diploma Project in Modern .NET Architecture**
 
-[![Architecture](https://img.shields.io/badge/Architecture-Modular%20Monolith-blue?style=for-the-badge)](architecure-decision-log/003-modular-monolith-architecture.md)
-[![.NET](https://img.shields.io/badge/.NET-10.0-purple?style=for-the-badge&logo=dotnet)](architecure-decision-log/002-technology-stack.md)
-[![Angular](https://img.shields.io/badge/Frontend-Angular%2020-dd0031?style=for-the-badge&logo=angular&logoColor=white)](frontend/README.md)
-[![Domain-Driven Design](https://img.shields.io/badge/DDD-Enabled-green?style=for-the-badge)](architecure-decision-log/004-adoption-of-ddd.md)
-[![Event-Driven](https://img.shields.io/badge/Event--Driven-Architecture-orange?style=for-the-badge)](architecure-decision-log/008-event-driven-architecture.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Modular%20Monolith-blue?style=for-the-badge)](architecture/README.md)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple?style=for-the-badge&logo=dotnet)](architecture-decision-log/002-technology-stack.md)
+[![DDD](https://img.shields.io/badge/DDD-Patterns-green?style=for-the-badge)](architecture-decision-log/004-adoption-of-ddd.md)
 
-*Welcome to the Lanka project documentation - your comprehensive guide to understanding, developing, and extending the Lanka social media campaign management platform.*
+*This documentation serves as both a learning resource and a reference for the Lanka diploma project — exploring modular monolith architecture, DDD, CQRS, and event-driven patterns in .NET.*
 
 </div>
 
 ---
 
-## 🗺️ **Navigation Hub**
+## About This Documentation
+
+This is the documentation hub for Lanka, a diploma project that explores modern .NET architecture patterns. The documentation is organized to be useful for:
+
+- **Academic reviewers** evaluating the architectural decisions and implementation
+- **Developers learning .NET** who want to see these patterns applied in practice
+- **Myself** as a reference while building and maintaining the project
+
+I've tried to document not just *what* was built, but *why* specific decisions were made. The [Architecture Decision Log](architecture-decision-log/README.md) is particularly important for understanding the reasoning behind the design.
+
+---
+
+## Quick Navigation
 
 <table>
 <tr>
 <td width="50%">
 
-### 🚀 **Getting Started**
-- [🏗️ Project Architecture Overview](#-project-architecture)
-- [⚡ Quick Start Guide](development/quick-start.md)
-- [🛠️ Development Setup](development/development-setup.md)
+### Getting Started
+- [Quick Start Guide](development/quick-start.md) — Run the project locally
+- [Development Setup](development/development-setup.md) — Full environment setup
+- [FAQ & Troubleshooting](development/faq.md) — Common issues and solutions
 
-### 🏛️ **Architecture & Design**
-- [🏗️ Architecture Overview](architecture/README.md)
-- [🧩 Modules Documentation](modules/README.md)
+### Architecture
+- [Architecture Overview](architecture/README.md) — System design and patterns
+- [Architecture Decision Log](architecture-decision-log/README.md) — 14 documented decisions
+- [Module Documentation](modules/README.md) — Per-module details
 
 </td>
 <td width="50%">
 
-### 👨‍💻 **Developer Guides**
-- [⚡ Quick Start](development/quick-start.md)
-- [🛠️ Development Setup](development/development-setup.md)
-- [🖥️ Frontend Guide](frontend/README.md)
-- [❓ FAQ & Troubleshooting](development/faq.md)
+### Learning Resources
+- [Catalog of Terms](catalog-of-terms/README.md) — Glossary of DDD, CQRS, and architectural concepts
+- [Lessons Learned](learning/lessons-learned.md) — What worked, what was difficult, what I'd do differently
+- [Resources](learning/resources.md) — Books, articles, and projects that influenced the architecture
+- [Tools & Infrastructure](tools/README.md) — Docker, messaging, telemetry
 
-### 📚 **Reference**
-- [📖 Catalog of Terms](catalog-of-terms/README.md)
-- [🧩 Modules Reference](modules/README.md)
-- [🎯 Architecture Decisions](architecure-decision-log/README.md)
-- [🛠️ Tools & Utilities](tools/README.md)
-- [❓ FAQ & Common Issues](development/faq.md)
+### Walkthroughs & Deep Dives
+- [Instagram Linking Flow](walkthroughs/instagram-linking.md) — Complete saga walkthrough
+- [Users Module](modules/users/README.md) — Most complete, good reference
+- [Analytics Module](modules/analytics/README.md) — Instagram integration
+- [Campaigns Module](modules/campaigns/README.md) — Complex domain modeling
+- [Matching Module](modules/matching/README.md) — Elasticsearch search
 
 </td>
 </tr>
@@ -53,221 +64,183 @@
 
 ---
 
-## 🏗️ **Project Architecture**
+## System Architecture
 
-Lanka is built as a **modular monolith** that combines the simplicity of monolithic deployment with the clarity and maintainability of modular design.
+Lanka is built as a **modular monolith** — a single deployable application with clear internal module boundaries. This approach was chosen to learn modular design principles without the operational complexity of microservices.
 
 ```mermaid
 graph TB
-    subgraph "🌐 Presentation Layer"
-        API[Lanka.Api<br/>🚪 Gateway & Orchestration]
-        WEB[Client Applications<br/>🖥️ Angular SPA]
+    subgraph "Presentation Layer"
+        API[Lanka.Api<br/>Host & Endpoints]
+        GATEWAY[Lanka.Gateway<br/>YARP Reverse Proxy]
     end
-    
-    subgraph "🧩 Module Ecosystem"
-        subgraph "👥 Users Module"
-            UA[Users.Application<br/>🎯 Business Logic]
-            UD[Users.Domain<br/>💎 Core Entities]
-            UI[Users.Infrastructure<br/>🗃️ Data & External Services]
+
+    subgraph "Business Modules"
+        subgraph "Users Module"
+            UA[Application Layer]
+            UD[Domain Layer]
+            UI[Infrastructure Layer]
         end
-        
-        subgraph "📊 Analytics Module"
-            AA[Analytics.Application<br/>📈 Instagram Analytics]
-            AD[Analytics.Domain<br/>🎭 Social Media Entities]
-            AI[Analytics.Infrastructure<br/>🔗 Instagram API Integration]
+
+        subgraph "Analytics Module"
+            AA[Application Layer]
+            AD[Domain Layer]
+            AI[Infrastructure Layer]
         end
-        
-        subgraph "🎪 Campaigns Module"
-            CA[Campaigns.Application<br/>🚀 Campaign Management]
-            CD[Campaigns.Domain<br/>🎯 Campaign Logic]
-            CI[Campaigns.Infrastructure<br/>💼 Business Operations]
+
+        subgraph "Campaigns Module"
+            CA[Application Layer]
+            CD[Domain Layer]
+            CI[Infrastructure Layer]
+        end
+
+        subgraph "Matching Module"
+            MA[Application Layer]
+            MD[Domain Layer]
+            MI[Infrastructure Layer]
         end
     end
-    
-    subgraph "🔧 Shared Infrastructure"
-        COMMON[Common.Infrastructure<br/>🛠️ Cross-cutting Concerns]
-        DB[(PostgreSQL<br/>🗃️ Primary Database)]
-        MONGO[(MongoDB<br/>📊 Analytics Storage)]
-        REDIS[(Redis<br/>⚡ Caching & Sessions)]
-        RABBIT[(RabbitMQ<br/>📮 Message Bus)]
+
+    subgraph "Infrastructure"
+        DB[(PostgreSQL)]
+        MONGO[(MongoDB)]
+        REDIS[(Redis)]
+        RABBIT[(RabbitMQ)]
+        KEYCLOAK[Keycloak]
+        ES[(Elasticsearch)]
     end
-    
-    API --> UA & AA & CA
-    WEB --> API
-    UA & AA & CA --> UD & AD & CD
-    UD & AD & CD --> UI & AI & CI
-    UI & AI & CI --> COMMON
-    COMMON --> DB & MONGO & REDIS & RABBIT
-    
-    classDef moduleStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef infraStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef dataStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    
-    class UA,UD,UI,AA,AD,AI,CA,CD,CI moduleStyle
-    class API,COMMON infraStyle
-    class DB,MONGO,REDIS,RABBIT dataStyle
+
+    GATEWAY --> API
+    API --> UA & AA & CA & MA
+
+    UI --> DB & KEYCLOAK
+    AI --> DB & MONGO
+    CI --> DB
+    MI --> ES
+
+    UI & AI & CI & MI --> RABBIT & REDIS
 ```
 
 ---
 
-## 🎯 **Core Modules**
+## What's Documented
 
-> **📖 [Complete Modules Documentation](modules/README.md)** - Detailed guides for each module
+### Architecture Decisions (ADRs)
 
-<div align="center">
+The [Architecture Decision Log](architecture-decision-log/README.md) contains 14 documented decisions:
 
-| Module | Purpose | Key Features | Status |
-|--------|---------|--------------|---------|
-| 👥 **[Users](modules/users/)** | Identity & Access Management | Authentication, Authorization, User Profiles | ✅ Active |
-| 📊 **[Analytics](modules/analytics/)** | Social Media Intelligence | Instagram Analytics, Audience Insights, Performance Metrics | ✅ Active |
-| 🎪 **[Campaigns](modules/campaigns/)** | Campaign Orchestration | Campaign Creation, Blogger Management, Content Planning | ✅ Active |
-| 🔍 **[Matching](modules/matching/)** | Search & Discovery | Advanced Search, Content Matching, Recommendations | ✅ Active |
+| ADR | Topic | Why It Matters |
+|-----|-------|----------------|
+| [001](architecture-decision-log/001-adoption-of-adl.md) | ADL Adoption | Establishing a record of decisions |
+| [002](architecture-decision-log/002-technology-stack.md) | Technology Stack | .NET 10, PostgreSQL, MongoDB choices |
+| [003](architecture-decision-log/003-modular-monolith-architecture.md) | Modular Monolith | Why not microservices |
+| [004](architecture-decision-log/004-adoption-of-ddd.md) | DDD Adoption | Domain modeling approach |
+| [005](architecture-decision-log/005-cqrs-implementation.md) | CQRS | Command/Query separation |
+| [006](architecture-decision-log/006-mediatr-adoption.md) | MediatR | Pipeline behaviors |
+| [007](architecture-decision-log/007-module-structure.md) | Module Structure | Clean Architecture layers |
+| [008](architecture-decision-log/008-event-driven-architecture.md) | Event-Driven | Integration events, loose coupling |
+| [009](architecture-decision-log/009-configuration-management.md) | Configuration | Settings organization |
+| [010](architecture-decision-log/010-contract-projects.md) | Contract Projects | Shared DTOs and events |
+| [011](architecture-decision-log/011-outbox-inbox-pattern.md) | Outbox/Inbox | Reliable messaging |
+| [012](architecture-decision-log/012-reverse-proxy.md) | Reverse Proxy | YARP gateway |
+| [013](architecture-decision-log/013-saga-orchestration.md) | Saga Pattern | Complex workflows |
+| [014](architecture-decision-log/014-mongodb-adoption-analytics.md) | MongoDB | Analytics data storage |
 
-</div>
+### Catalog of Terms
 
----
+The [Catalog of Terms](catalog-of-terms/README.md) explains the patterns and concepts used:
 
-## 🛠️ **Technology Stack**
+**Domain-Driven Design:**
+- [Aggregate Root](catalog-of-terms/aggregate-root/README.md)
+- [Entity](catalog-of-terms/entity/README.md)
+- [Value Object](catalog-of-terms/value-object/README.md)
+- [Domain Event](catalog-of-terms/domain-event/README.md)
 
-<div align="center">
+**Application Patterns:**
+- [CQRS](catalog-of-terms/cqrs/README.md)
+- [Result Pattern](catalog-of-terms/result-pattern/README.md)
+- [Unit of Work](catalog-of-terms/unit-of-work/README.md)
 
-### **Backend Stack**
-![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)
-![C#](https://img.shields.io/badge/C%23-Latest-239120?style=flat-square&logo=c-sharp)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10.0-512BD4?style=flat-square&logo=dotnet)
-![Entity Framework](https://img.shields.io/badge/Entity%20Framework-9.x-512BD4?style=flat-square&logo=dotnet)
-
-### **Frontend Stack**
-![Angular](https://img.shields.io/badge/Angular-20.1-ff1f2d?style=flat-square&logo=angular&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)
-
-### **Databases & Storage**
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.6-336791?style=flat-square&logo=postgresql&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-8.0-47A248?style=flat-square&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-8.2-DC382D?style=flat-square&logo=redis&logoColor=white)
-![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9.1-005571?style=flat-square&logo=elasticsearch&logoColor=white)
-
-### **Architecture Patterns**
-![Domain-Driven Design](https://img.shields.io/badge/DDD-Domain--Driven%20Design-blue?style=flat-square)
-![CQRS](https://img.shields.io/badge/CQRS-Command%20Query%20Separation-green?style=flat-square)
-![Event Sourcing](https://img.shields.io/badge/Event--Driven-Architecture-orange?style=flat-square)
-
-### **Infrastructure & DevOps**
-![Docker](https://img.shields.io/badge/Docker-Container%20Platform-2496ED?style=flat-square&logo=docker&logoColor=white)
-![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-FF6600?style=flat-square&logo=rabbitmq&logoColor=white)
-![Keycloak](https://img.shields.io/badge/Keycloak-Identity%20Provider-blue?style=flat-square)
-
-</div>
+**Event-Driven:**
+- [Integration Event](catalog-of-terms/integration-event/README.md)
+- [Event Bus](catalog-of-terms/event-bus/README.md)
+- [Outbox Pattern](catalog-of-terms/outbox-pattern/README.md)
+- [Inbox Pattern](catalog-of-terms/inbox-pattern/README.md)
+- [Saga Pattern](catalog-of-terms/saga-pattern/README.md)
 
 ---
 
-## 🎨 **Design Principles**
+## Technology Stack Summary
 
-> *"Good architecture makes the system easy to understand, develop, maintain, and deploy."*
-
-### **🧩 Modular Design**
-- **Clear boundaries** between business domains
-- **Independent deployment** capabilities
-- **Shared infrastructure** for cross-cutting concerns
-
-### **💎 Domain-Driven Design**
-- **Rich domain models** that reflect business rules
-- **Ubiquitous language** shared between developers and domain experts
-- **Bounded contexts** that encapsulate business logic
-
-### **🔄 Event-Driven Architecture**
-- **Loose coupling** between modules through events
-- **Eventual consistency** for cross-module operations
-- **Scalable communication** patterns
-
-### **🎯 Clean Architecture**
-- **Dependency inversion** at all levels
-- **Testable business logic** isolated from infrastructure
-- **Framework independence** where possible
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Runtime** | .NET 10, C# 14 | Application platform |
+| **Web Framework** | ASP.NET Core | HTTP API |
+| **ORM** | Entity Framework Core 9 | PostgreSQL persistence |
+| **Query** | Dapper | Read-optimized queries |
+| **Primary Database** | PostgreSQL 15+ | Relational data (one schema per module) |
+| **Document Store** | MongoDB 7+ | Analytics time-series data |
+| **Cache** | Redis 7+ | Caching and distributed locking |
+| **Message Broker** | RabbitMQ + MassTransit | Event-driven communication |
+| **Search** | Elasticsearch | Full-text search |
+| **Identity** | Keycloak | OAuth2/OIDC provider |
+| **Gateway** | YARP | Reverse proxy, rate limiting |
+| **Logging** | Serilog + Seq | Structured logging |
+| **Frontend** | Angular 20 | SPA client (in development) |
 
 ---
 
-## 🌟 **What Makes Lanka Special?**
+## Reading Path Suggestions
 
-<table>
-<tr>
-<td width="50%">
+### For Academic Reviewers
 
-### **🚀 Developer Experience**
-- **Modern C# 12** with latest language features
-- **Hot reload** support for rapid development
-- **Comprehensive testing** with clear patterns
-- **Rich debugging** experience with detailed logging
+1. **Start here:** [Architecture Decision Log](architecture-decision-log/README.md) — understand the reasoning
+2. **Then:** [Module Overview](modules/README.md) — see how modules interact
+3. **Deep dive:** [Instagram Linking Walkthrough](walkthroughs/instagram-linking.md) — see patterns in action
+4. **Reflection:** [Lessons Learned](learning/lessons-learned.md) — honest assessment of the project
+5. **Patterns:** [Catalog of Terms](catalog-of-terms/README.md) — understand the concepts applied
 
-### **🏗️ Architecture Benefits**
-- **Easy to understand** modular structure
-- **Simple deployment** as single application
-- **Database per module** with shared infrastructure
-- **Event-driven** communication between modules
+### For .NET Developers Learning Patterns
 
-</td>
-<td width="50%">
+1. **Start here:** [Catalog of Terms](catalog-of-terms/README.md) — learn the concepts
+2. **Setup:** [Quick Start](development/quick-start.md) — get it running locally
+3. **Walkthrough:** [Instagram Linking Flow](walkthroughs/instagram-linking.md) — trace a complex flow
+4. **Explore:** Browse the codebase starting with `src/Modules/Users/`
+5. **Resources:** [Resources](learning/resources.md) — books and articles for deeper learning
 
-### **📈 Business Value**
-- **Instagram Analytics** for influencer marketing
-- **Campaign Management** for brand partnerships
-- **User Management** for multi-tenant scenarios
-- **Real-time insights** for data-driven decisions
+### For Contributors
 
-### **🔧 Technical Excellence**
-- **Production-ready** patterns and practices
-- **Observability** with OpenTelemetry
-- **Resilience** with circuit breakers and retries
-- **Security** with OAuth2 and JWT tokens
-
-</td>
-</tr>
-</table>
+1. **Setup:** [Development Setup](development/development-setup.md)
+2. **Guidelines:** [Contributing Guide](../CONTRIBUTING.md)
+3. **FAQ:** [Troubleshooting](development/faq.md)
 
 ---
 
-## 📖 **Documentation Structure**
+## Documentation Gaps
 
-This documentation is organized into several key areas:
+Being honest about what's incomplete:
 
-- **🏗️ [Architecture](architecture/)** - Deep dives into system design and patterns
-- **🧩 [Modules](modules/)** - Detailed module documentation and guides
-- **👨‍💻 [Development](development/)** - Practical guides for building features
-- **📚 [Reference](catalog-of-terms/)** - Terminology and concepts
-- **🎯 [Decisions](architecure-decision-log/)** - Architecture decision records
-- **🛠️ [Tools](tools/)** - Utilities and helper documentation
+- **Frontend documentation** is minimal (Angular client is in early development)
+- **Some images** referenced in docs may be missing
+- **Deployment guides** are not written (no production deployment yet)
+- **API documentation** is generated but not customized
 
 ---
 
-## 🤝 **Contributing to Documentation**
+## Contributing to Documentation
 
-We believe great documentation is a team effort! Here's how you can help:
+Found something unclear or incorrect? Documentation improvements are welcome:
 
-1. **📝 Found a typo?** Submit a quick PR
-2. **💡 Missing information?** Open an issue with suggestions
-3. **🎨 Visual improvements?** Add diagrams or improve formatting
-4. **📚 New guides?** Write tutorials for common tasks
-
----
-
-## 🎯 **Quick Links**
-
-<div align="center">
-
-[![Get Started](https://img.shields.io/badge/🚀-Get%20Started-blue?style=for-the-badge)](development/quick-start.md)
-[![View Architecture](https://img.shields.io/badge/🏗️-Architecture-green?style=for-the-badge)](architecture/README.md)
-[![Modules Guide](https://img.shields.io/badge/🧩-Modules-purple?style=for-the-badge)](modules/README.md)
-[![FAQ](https://img.shields.io/badge/❓-FAQ-orange?style=for-the-badge)](development/faq.md)
-
-</div>
+1. **Typos/errors** — Submit a PR directly
+2. **Missing information** — Open an issue describing what's needed
+3. **Diagram improvements** — Mermaid diagrams are preferred
 
 ---
 
 <div align="center">
 
-*Made with ❤️ by the Lanka Development Team*
+*Documentation for the Lanka diploma project*
 
-**Happy Coding! 🎉**
+**[Back to Project README](../README.md)**
 
 </div>

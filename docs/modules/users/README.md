@@ -71,6 +71,8 @@ graph TB
 - ✅ **Linking Status Tracking**: Redis-based operation status
 - ✅ **Failure Handling**: Timeout and error recovery
 
+> **Deep Dive:** See the [Instagram Linking Walkthrough](../../walkthroughs/instagram-linking.md) for a complete trace of this flow, including OAuth 2.0 concepts, saga orchestration, and cross-module communication.
+
 ---
 
 ## 🏛️ **Domain Model**

@@ -1,60 +1,60 @@
-# 📚 Lanka Catalog of Terms
+# Catalog of Terms
 
 <div align="center">
 
-*Your comprehensive dictionary for understanding Lanka's domain concepts and architectural patterns*
-
-**"A shared language is the foundation of great software design"**
+*A glossary of DDD, CQRS, and architectural concepts used in Lanka*
 
 </div>
 
 ---
 
-## 🌟 **Welcome to the Lanka Dictionary!**
+## What's This For?
 
-This catalog provides detailed explanations of every core concept used in the Lanka project. Whether you're a new team member or an experienced developer, this guide will help you understand the **ubiquitous language** that drives our domain models and architectural decisions.
+When I started this project, I kept running into unfamiliar terms — "aggregate root", "outbox pattern", "saga orchestration". This catalog is my attempt to explain these concepts in plain language, with examples from the Lanka codebase.
+
+If you're learning these patterns too, I hope this helps. If you spot something wrong, please open an issue.
 
 ---
 
-## 🗂️ **Concept Categories**
+## Concept Categories
 
 <table>
 <tr>
 <td width="50%">
 
-### **💎 Domain-Driven Design**
-Building blocks for rich domain models
+### Domain-Driven Design
+Building blocks for domain models
 
-- [🏛️ Aggregate Root](aggregate-root/) - Domain consistency boundaries
-- [🎭 Entity](entity/) - Objects with identity and lifecycle  
-- [💎 Value Object](value-object/) - Immutable descriptive objects
-- [⚡ Domain Event](domain-event/) - Significant business occurrences
-- [✅ Result Pattern](result-pattern/) - Error handling without exceptions
+- [Aggregate Root](aggregate-root/) — Consistency boundaries
+- [Entity](entity/) — Objects with identity
+- [Value Object](value-object/) — Immutable descriptors
+- [Domain Event](domain-event/) — Business occurrences
+- [Result Pattern](result-pattern/) — Error handling
 
-### **🎪 Application Architecture**
-Patterns for organizing application logic
+### Application Architecture
+Patterns for organizing logic
 
-- [🔄 CQRS](cqrs/) - Command Query Responsibility Segregation
-- [🗃️ Unit of Work](unit-of-work/) - Transactional data operations
+- [CQRS](cqrs/) — Command/Query separation
+- [Unit of Work](unit-of-work/) — Transactional operations
 
 </td>
 <td width="50%">
 
-### **🔄 Event-Driven Architecture**
-Asynchronous communication patterns
+### Event-Driven Architecture
+Asynchronous communication
 
-- [📡 Integration Event](integration-event/) - Cross-module communication
-- [🚌 Event Bus](event-bus/) - Message routing infrastructure  
-- [📤 Outbox Pattern](outbox-pattern/) - Reliable event publishing
-- [📥 Inbox Pattern](inbox-pattern/) - Idempotent event processing
-- [🎭 Saga Pattern](saga/) - Distributed transaction coordination
+- [Integration Event](integration-event/) — Cross-module messages
+- [Event Bus](event-bus/) — Message routing
+- [Outbox Pattern](outbox-pattern/) — Reliable publishing
+- [Inbox Pattern](inbox-pattern/) — Idempotent processing
+- [Saga Pattern](saga/) — Distributed transactions
 
-### **🛡️ Resilience & Performance**
-Patterns for robust, scalable systems
+### Resilience & Infrastructure
+Building robust systems
 
-- [🛡️ Resilience](resilience/) - Circuit breakers and retries
-- [🔀 Reverse Proxy](reverse-proxy/) - Load balancing and routing
-- [⏱️ Rate Limiting](rate-limiting/) - Traffic control and protection
+- [Resilience](resilience/) — Circuit breakers, retries
+- [Reverse Proxy](reverse-proxy/) — Load balancing
+- [Rate Limiting](rate-limiting/) — Traffic control
 
 </td>
 </tr>
@@ -62,136 +62,113 @@ Patterns for robust, scalable systems
 
 ---
 
-## 🎯 **Quick Reference Guide**
+## Quick Reference
 
-### **🔍 Concept Finder**
-
-Looking for something specific? Use this quick reference:
-
-| If you want to... | Look at... | Why? |
-|-------------------|------------|------|
-| **Model business entities** | [🎭 Entity](entity/), [🏛️ Aggregate Root](aggregate-root/) | Core building blocks of domain models |
-| **Handle business rules** | [🏛️ Aggregate Root](aggregate-root/), [💎 Value Object](value-object/) | Encapsulate invariants and validation |
-| **Communicate between modules** | [📡 Integration Event](integration-event/), [🚌 Event Bus](event-bus/) | Loose coupling via events |
-| **Handle errors gracefully** | [✅ Result Pattern](result-pattern/) | Functional error handling |
-| **Ensure data consistency** | [📤 Outbox Pattern](outbox-pattern/), [🗃️ Unit of Work](unit-of-work/) | Transactional integrity |
-| **Build resilient systems** | [🛡️ Resilience](resilience/), [⏱️ Rate Limiting](rate-limiting/) | Handle failures gracefully |
-| **Organize application logic** | [🔄 CQRS](cqrs/), [🎭 Saga Pattern](saga/) | Separation of concerns |
-
-### **📈 Complexity Levels**
-
-| Level | Concepts | Best for... |
-|-------|----------|-------------|
-| **🟢 Beginner** | Entity, Value Object, Result Pattern | Getting started with DDD |
-| **🟡 Intermediate** | Aggregate Root, Domain Event, CQRS | Building robust domain models |
-| **🔴 Advanced** | Saga Pattern, Outbox/Inbox, Event Bus | Distributed systems and scaling |
+| If you want to... | Look at... |
+|-------------------|------------|
+| Model business entities | [Entity](entity/), [Aggregate Root](aggregate-root/) |
+| Handle business rules | [Aggregate Root](aggregate-root/), [Value Object](value-object/) |
+| Communicate between modules | [Integration Event](integration-event/), [Event Bus](event-bus/) |
+| Handle errors gracefully | [Result Pattern](result-pattern/) |
+| Ensure data consistency | [Outbox Pattern](outbox-pattern/), [Unit of Work](unit-of-work/) |
+| Build resilient systems | [Resilience](resilience/), [Rate Limiting](rate-limiting/) |
+| Organize application logic | [CQRS](cqrs/), [Saga Pattern](saga/) |
 
 ---
 
-## 🎭 **Domain Concepts in Lanka**
+## Complexity Levels
 
-### **👥 Users Domain**
+| Level | Concepts | Notes |
+|-------|----------|-------|
+| **Beginner** | Entity, Value Object, Result Pattern | Start here if new to DDD |
+| **Intermediate** | Aggregate Root, Domain Event, CQRS | Core patterns for domain modeling |
+| **Advanced** | Saga, Outbox/Inbox, Event Bus | For distributed systems |
+
+---
+
+## Domain Concepts in Lanka
+
+### Users Domain
 
 ![User-Domain](../images/user-domain.png)
 
-### **📊 Analytics Domain**
+### Analytics Domain
 
 ![Analytics-Domain](../images/analytics-domain.png)
+
+### Campaigns Domain
 
 ![Campaigns-Domain](../images/campaigns-domain.png)
 
 ---
 
-## 🔄 **Event Flow Patterns**
+## Learning Paths
 
-### **Cross-Module Communication**
+### New to Domain-Driven Design?
 
-![Module-Communication](../images/event-bus.jpg)
+1. [Entity](entity/) — Understand objects with identity
+2. [Value Object](value-object/) — Master immutable descriptors
+3. [Aggregate Root](aggregate-root/) — Grasp consistency boundaries
+4. [Domain Event](domain-event/) — Model business occurrences
+5. [Result Pattern](result-pattern/) — Handle errors functionally
 
-### **Outbox/Inbox Pattern Flow**
+### Ready for Event-Driven Architecture?
 
-![Outbox-Inbox-Flow](../images/outbox-inbox-pattern.jpg)
+1. [Integration Event](integration-event/) — Cross-module communication
+2. [Event Bus](event-bus/) — Message routing
+3. [Outbox Pattern](outbox-pattern/) — Reliable publishing
+4. [Inbox Pattern](inbox-pattern/) — Idempotent processing
+5. [Saga Pattern](saga/) — Distributed transactions
 
----
+### Building Resilient Systems?
 
-## 📖 **Learning Paths**
-
-### **🌱 New to Domain-Driven Design?**
-
-1. Start with [🎭 Entity](entity/) - Understand objects with identity
-2. Learn [💎 Value Object](value-object/) - Master immutable descriptors  
-3. Study [🏛️ Aggregate Root](aggregate-root/) - Grasp consistency boundaries
-4. Explore [⚡ Domain Event](domain-event/) - Model business occurrences
-5. Apply [✅ Result Pattern](result-pattern/) - Handle errors functionally
-
-### **🔄 Ready for Event-Driven Architecture?**
-
-1. Understand [📡 Integration Event](integration-event/) - Cross-module communication
-2. Learn [🚌 Event Bus](event-bus/) - Message routing
-3. Implement [📤 Outbox Pattern](outbox-pattern/) - Reliable publishing
-4. Add [📥 Inbox Pattern](inbox-pattern/) - Idempotent processing
-5. Orchestrate [🎭 Saga Pattern](saga/) - Distributed transactions
-
-### **🛡️ Building Resilient Systems?**
-
-1. Study [🛡️ Resilience](resilience/) - Circuit breakers and retries
-2. Implement [⏱️ Rate Limiting](rate-limiting/) - Traffic control
-3. Configure [🔀 Reverse Proxy](reverse-proxy/) - Load balancing
-4. Combine patterns for maximum robustness
+1. [Resilience](resilience/) — Circuit breakers and retries
+2. [Rate Limiting](rate-limiting/) — Traffic control
+3. [Reverse Proxy](reverse-proxy/) — Load balancing
 
 ---
 
-## 🎨 **Visual Learning**
+## Visual Guides
 
-### **Concept Relationships**
+### Concept Relationships
 
 ![Mindmap](../images/terms-mindmap.png)
 
-### **Implementation Layers**
+### Implementation Layers
 
 ![Implementation-Layers](../images/implementation-layers.png)
 
 ---
 
-## 🔍 **Detailed Concept Guides**
+## What Each Concept Page Includes
 
-Each concept in our catalog includes:
-
-- **📖 Definition** - Clear, concise explanation
-- **🎯 Purpose** - Why we use this pattern
-- **🏗️ Implementation** - How it's built in Lanka
-- **✅ Benefits** - Advantages and trade-offs
-- **🧪 Examples** - Real code from the project
-- **🔗 Related Concepts** - What to explore next
-- **📚 Further Reading** - External resources
+- **Definition** — Clear, concise explanation
+- **Purpose** — Why we use this pattern
+- **Implementation** — How it's built in Lanka
+- **Benefits** — Advantages and trade-offs
+- **Examples** — Real code from the project
+- **Related Concepts** — What to explore next
+- **Further Reading** — External resources
 
 ---
 
-## 🤝 **Contributing to the Catalog**
+## Contributing
 
-Help us keep this catalog comprehensive and up-to-date:
+Found something unclear or incorrect?
 
-### **Adding New Terms**
+### Adding New Terms
 
 1. Create a new directory: `catalog-of-terms/your-concept/`
-2. Add a `README.md` using our template
-3. Include code examples from Lanka
-4. Update this index page
+2. Add a `README.md` with definition, examples, and code
+3. Update this index page
 
-### **Improving Existing Terms**
-
-1. Add clarifications or examples
-2. Include diagrams or visualizations  
-3. Link to related concepts
-4. Update based on implementation changes
-
-### **Term Template**
+### Term Template
 
 ```markdown
-# 🎯 Concept Name
+# Concept Name
 
 ## Definition
-Brief, clear explanation of the concept.
+Brief explanation of the concept.
 
 ## Purpose
 Why we use this pattern and what problems it solves.
@@ -207,12 +184,10 @@ How this concept is implemented in our codebase.
 Real examples from the Lanka codebase.
 
 ## Related Concepts
-- Links to related terms in the catalog
-- How concepts work together
+- Links to related terms
 
 ## Further Reading
 - External resources
-- Books, articles, documentation
 ```
 
 ---
@@ -220,9 +195,6 @@ Real examples from the Lanka codebase.
 <div align="center">
 
 *"The limits of my language mean the limits of my world."*
-
-**- Ludwig Wittgenstein**
-
-**Happy Learning! 📚**
+— Ludwig Wittgenstein
 
 </div>

@@ -58,6 +58,8 @@ graph TB
 - ✅ **Token Management**: Secure access token storage and refresh
 - ✅ **Data Fetching**: Retrieve account data and statistics from Instagram API
 
+> **Deep Dive:** See the [Instagram Linking Walkthrough](../../walkthroughs/instagram-linking.md) for a complete trace of the OAuth flow, token exchange, and how this module coordinates with Users module via integration events.
+
 ### **📊 Statistics Collection**
 - ✅ **Overview Statistics**: Basic account metrics (followers, media count)
 - ✅ **Engagement Statistics**: Likes, comments, shares, saves

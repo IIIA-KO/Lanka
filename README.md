@@ -1,243 +1,237 @@
 <div align="center">
 
-# 🌟 Lanka
+# Lanka
 
-**The Modern Social Media Campaign Management Platform**
+**A Diploma Project Exploring Modern .NET Architecture**
 
-*Connecting influencers, brands, and data-driven insights in one powerful ecosystem*
+*Learning modular monoliths, DDD, CQRS, and event-driven patterns through building a social media campaign management platform*
 
-[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20Monolith-blue?style=for-the-badge)](docs/architecture/README.md)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**[🚀 Quick Start](docs/development/quick-start.md) • [📚 Documentation](docs/README.md) • [🏗️ Architecture](docs/architecture/README.md) • [🤝 Contributing](CONTRIBUTING.md)**
-
-</div>
-
-## 🎯 **What is Lanka?**
-
-Lanka is a **comprehensive social media campaign management platform** that revolutionizes how influencers and brands connect, collaborate, and measure success. Built with modern architectural patterns and enterprise-grade reliability, Lanka provides the tools needed for data-driven influencer marketing.
-
-### **🔥 Core Value Propositions**
-
-<table>
-<tr>
-<td width="33%">
-
-### **📊 Exclusive Analytics**
-Access **deep Instagram insights** that go far beyond public metrics. Get granular audience demographics, engagement patterns, optimal posting times, and performance predictions that empower data-driven decisions.
-
-</td>
-<td width="33%">
-
-### **🎯 Smart Matching**
-Leverage **AI-powered algorithms** to discover perfect brand-influencer partnerships. Our advanced filtering considers audience overlap, engagement quality, brand alignment, and campaign performance history.
-
-</td>
-<td width="33%">
-
-### **🚀 Streamlined Collaboration**
-Manage entire campaign lifecycles from discovery to completion. Handle contracts, content approval, payment processing, and performance tracking — all in one intuitive platform.
-
-</td>
-</tr>
-</table>
-
-## 🛠️ **Technology Stack**
-
-<div align="center">
-
-### **Backend Infrastructure**
-![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
-![C#](https://img.shields.io/badge/C%23-12.0-239120?style=flat-square&logo=c-sharp&logoColor=white)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
-![Entity Framework](https://img.shields.io/badge/Entity%20Framework-9.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
-
-### **Databases & Storage**
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat-square&logo=postgresql&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-47A248?style=flat-square&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-7.0+-DC382D?style=flat-square&logo=redis&logoColor=white)
-
-### **Infrastructure & DevOps**
-![Docker](https://img.shields.io/badge/Docker-Container%20Platform-2496ED?style=flat-square&logo=docker&logoColor=white)
-![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-FF6600?style=flat-square&logo=rabbitmq&logoColor=white)
-![Keycloak](https://img.shields.io/badge/Keycloak-Identity%20Provider-blue?style=flat-square)
+**[Quick Start](docs/development/quick-start.md) | [Documentation](docs/README.md) | [Architecture](docs/architecture/README.md) | [Contributing](CONTRIBUTING.md)**
 
 </div>
 
-## 📊 **Project Status**
+---
 
-<div align="center">
+## What is Lanka?
 
-### **🎯 Current Milestone: Core Platform Development**
+Lanka is my **diploma project** — a social media campaign management platform that I'm building primarily as a vehicle for learning and applying modern software architecture patterns in .NET.
 
-| Module | Status | Features | Completion |
-|--------|--------|----------|------------|
-| 👥 **Users** | ✅ Complete | Authentication, Profiles, Instagram Linking | 100% |
-| 📊 **Analytics** | 🚧 In Progress | Data Collection, Processing, Visualization | 75% |
-| 🎪 **Campaigns** | 🚧 In Progress | Creation, Management, Tracking | 60% |
-| 🌐 **API Gateway** | ✅ Complete | Routing, Authentication, Rate Limiting | 100% |
-| 📱 **Frontend** | 🎯 Planned | Angular SPA, Mobile Apps | 0% |
+This is not a production-ready product. It's an educational project where I experiment with technologies and patterns I find interesting. The domain (influencer marketing) was chosen because it provides enough complexity to justify the architectural decisions, not because I'm building a startup.
 
-</div>
+### What I'm Learning Through This Project
 
-## 🚀 **Getting Started**
+| Area | Technologies & Patterns |
+|------|------------------------|
+| **Architecture** | Modular Monolith, Clean Architecture, Vertical Slices |
+| **Domain-Driven Design** | Aggregates, Value Objects, Domain Events, Rich Domain Models |
+| **CQRS** | Command/Query separation, MediatR pipelines, read/write optimization |
+| **Event-Driven** | Integration Events, Outbox/Inbox patterns, Saga orchestration |
+| **Infrastructure** | PostgreSQL, MongoDB, Redis, RabbitMQ, Elasticsearch |
+| **Identity** | Keycloak integration, JWT authentication, role-based access |
+| **External APIs** | Instagram Graph API integration with OAuth2 |
+| **DevOps** | Docker Compose, health checks, structured logging with Seq |
 
-### **⚡ Quick Start (5 minutes)**
+### The Domain (briefly)
+
+The platform connects influencers with brands for marketing campaigns. Core features:
+- **Users Module** — Authentication, profiles, Instagram account linking
+- **Analytics Module** — Instagram insights, audience demographics, engagement metrics
+- **Campaigns Module** — Campaign creation, applications, contracts, tracking
+- **Matching Module** — Search and discovery with Elasticsearch
+
+---
+
+## Technology Stack
+
+### Backend
+- **.NET 10** with **C# 14**
+- **ASP.NET Core** for the API layer
+- **Entity Framework Core 9** for PostgreSQL persistence
+- **Dapper** for read-optimized queries
+
+### Data Storage
+- **PostgreSQL 15+** — Primary relational database (one schema per module)
+- **MongoDB 7.0+** — Analytics time-series and document data
+- **Redis 7.0+** — Caching and distributed locking
+
+### Messaging & Search
+- **RabbitMQ** with **MassTransit** — Event-driven communication between modules
+- **Elasticsearch** — Full-text search for campaign/influencer discovery
+
+### Infrastructure
+- **Keycloak** — Identity provider and OAuth2/OIDC server
+- **YARP** — Reverse proxy and API gateway
+- **Docker Compose** — Local development environment
+- **Seq** — Structured logging and diagnostics
+
+---
+
+## Project Status
+
+This is an active diploma project. Some modules are more complete than others as I explore different aspects of the architecture.
+
+| Module | Status | What I Learned |
+|--------|--------|----------------|
+| **Users** | Mostly complete | OAuth2 flows, Keycloak integration, Saga pattern for Instagram linking |
+| **Analytics** | In progress | MongoDB integration, external API integration, mock services for development |
+| **Campaigns** | In progress | Complex domain modeling, state machines, aggregate design |
+| **Matching** | Basic | Elasticsearch indexing, search optimization |
+| **Gateway** | Complete | YARP configuration, rate limiting, authentication forwarding |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Git
+
+### Quick Start
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/IIIA-KO/lanka.git
-cd lanka
+# Clone the repository
+git clone https://github.com/IIIA-KO/Lanka.git
+cd Lanka
 
-# 2. Start infrastructure services
+# Start infrastructure (PostgreSQL, MongoDB, Redis, RabbitMQ, Keycloak, Seq)
 docker-compose up -d
 
-# 3. Apply database migrations
-cd src/Modules/Users/Lanka.Modules.Users.Infrastructure && dotnet ef database update
-cd ../../../Analytics/Lanka.Modules.Analytics.Infrastructure && dotnet ef database update
-cd ../../../Campaigns/Lanka.Modules.Campaigns.Infrastructure && dotnet ef database update
+# Apply database migrations
+dotnet ef database update -p src/Modules/Users/Lanka.Modules.Users.Infrastructure
+dotnet ef database update -p src/Modules/Analytics/Lanka.Modules.Analytics.Infrastructure
+dotnet ef database update -p src/Modules/Campaigns/Lanka.Modules.Campaigns.Infrastructure
 
-# 4. Run the API
-cd ../../../../Api/Lanka.Api
-dotnet run
+# Run the API
+dotnet run --project src/Api/Lanka.Api
 
-# 5. Open your browser
+# Access points:
 # API: http://localhost:4307
-# Health: http://localhost:4307/healthz
 # Gateway: http://localhost:4308
-# Seq: http://localhost:8081
+# Seq (logs): http://localhost:8081
+# Keycloak: http://localhost:18080
 ```
 
-### **📚 Comprehensive Setup**
+For detailed setup instructions, see the [Quick Start Guide](docs/development/quick-start.md).
 
-For detailed setup instructions, environment configuration, and troubleshooting:
+### Development Seeding
 
-[![Quick Start Guide](https://img.shields.io/badge/🚀-Quick%20Start%20Guide-blue?style=for-the-badge)](docs/development/quick-start.md)
-[![Development Setup](https://img.shields.io/badge/🛠️-Development%20Setup-green?style=for-the-badge)](docs/development/development-setup.md)
-[![Troubleshooting](https://img.shields.io/badge/🐛-Troubleshooting-red?style=for-the-badge)](docs/development/faq.md)
+In development mode, the application can seed fake data for testing:
 
-## 📖 **Documentation**
-
-Our documentation is designed to be **comprehensive**, **beautiful**, and **developer-friendly**:
-
-### **🎯 Quick Navigation**
-
-<table>
-<tr>
-<td width="50%">
-
-#### **🚀 Getting Started**
-- [⚡ Quick Start Guide](docs/development/quick-start.md)
-- [🛠️ Development Setup](docs/development/development-setup.md)
-- [❓ FAQ & Troubleshooting](docs/development/faq.md)
-
-#### **🏗️ Architecture**
-- [🧩 Architecture Overview](docs/architecture/README.md)
-- [💎 DDD Decision](docs/architecure-decision-log/004-adoption-of-ddd.md)
-- [🔄 Event-Driven Decision](docs/architecure-decision-log/008-event-driven-architecture.md)
-- [🎪 CQRS Decision](docs/architecure-decision-log/005-cqrs-implementation.md)
-
-</td>
-<td width="50%">
-
-#### **📚 Reference**
-- [📖 Catalog of Terms](docs/catalog-of-terms/README.md)
-- [🎯 Architecture Decisions](docs/architecure-decision-log/README.md)
-- [🛠️ Development Tools](docs/tools/README.md)
-// API development guide planned
-
-#### **🎨 Visual Guides**
-- [🗺️ System Architecture Diagrams](docs/architecture/README.md)
-// Additional visualizations planned
-
-</td>
-</tr>
-</table>
-
-## 🤝 **Contributing**
-
-We welcome contributions from developers of all skill levels! Lanka is built by the community, for the community.
-
-### **🎯 How to Contribute**
-
-<table>
-<tr>
-<td width="25%">
-
-#### **🐛 Report Issues**
-Found a bug or have a suggestion?
-- [📝 Bug Report Template](https://github.com/IIIA-KO/lanka/issues/new?template=bug_report.md)
-- [💡 Feature Request](https://github.com/IIIA-KO/lanka/issues/new?template=feature_request.md)
-
-</td>
-<td width="25%">
-
-#### **💻 Code Contributions**
-Ready to contribute code?
-- [🚀 Contributing Guide](CONTRIBUTING.md)
-- [📋 Development Workflow](docs/development/development-setup.md)
-
-</td>
-<td width="25%">
-
-#### **📚 Documentation**
-Help improve our docs:
-- [✏️ Edit Documentation](docs/README.md)
-- [🎨 Add Diagrams/Examples](docs/architecture/README.md)
-
-</td>
-<td width="25%">
-
-#### **🧪 Testing**
-Strengthen our test suite:
-- [🧪 Testing Guidance](docs/development/faq.md#-testing-issues)
-
-</td>
-</tr>
-</table>
-
-### **📋 Contribution Guidelines**
-
-- **🌿 Branch Naming**: `feature/123-add-user-authentication`
-- **💬 Commit Messages**: [Conventional Commits](https://conventionalcommits.org/) format
-- **🔍 Code Review**: All PRs require team review and approval
-- **🧪 Testing**: Include tests for new features and bug fixes
-- **📝 Documentation**: Update relevant documentation for changes
+```json
+// appsettings.Development.json
+{
+  "Development": {
+    "Seeding": {
+      "Enabled": true,
+      "FakeUserCount": 50,
+      "FakeCampaignsPerBlogger": 3
+    }
+  }
+}
+```
 
 ---
 
-## 📞 **Support & Community**
+## Documentation
 
-### **💬 Get Help**
-- 📚 **Documentation**: [Comprehensive Guides](docs/README.md)
-- ❓ **FAQ**: [Common Questions](docs/development/faq.md)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/IIIA-KO/lanka/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/IIIA-KO/lanka/discussions)
+The `/docs` folder contains extensive documentation that I maintain as both a learning exercise and a reference:
+
+| Section | Description |
+|---------|-------------|
+| [Architecture Overview](docs/architecture/README.md) | High-level system design and patterns |
+| [Architecture Decision Log](docs/architecture-decision-log/README.md) | Why I made specific technical choices (14 ADRs) |
+| [Module Documentation](docs/modules/README.md) | Detailed docs for each business module |
+| [Catalog of Terms](docs/catalog-of-terms/README.md) | Glossary of DDD, CQRS, and architectural concepts |
+| [Walkthroughs](docs/walkthroughs/README.md) | Step-by-step guides through complex flows |
+| [Lessons Learned](docs/learning/lessons-learned.md) | Reflections on what worked and what was difficult |
+| [Resources](docs/learning/resources.md) | Books, articles, and projects that influenced the architecture |
+| [Development Guides](docs/development/quick-start.md) | Setup, FAQ, and troubleshooting |
+
+### For Academic Review
+
+If you're reviewing this as a diploma project, I'd recommend:
+1. **Start with** the [Architecture Decision Log](docs/architecture-decision-log/README.md) — it explains the reasoning behind each major technical decision
+2. **Review** the [Module Structure](docs/modules/README.md) to understand how the codebase is organized
+3. **Trace** the [Instagram Linking Walkthrough](docs/walkthroughs/instagram-linking.md) — see saga orchestration, cross-module events, and OAuth2 integration working together
+4. **Read** the [Lessons Learned](docs/learning/lessons-learned.md) — honest reflection on what worked and what was difficult
+
+### For Developers Learning .NET
+
+If you're exploring this as a learning resource:
+1. **Start with** the [Catalog of Terms](docs/catalog-of-terms/README.md) to understand the patterns used
+2. **Follow** the [Instagram Linking Walkthrough](docs/walkthroughs/instagram-linking.md) to see patterns in action
+3. **Explore** the [Resources](docs/learning/resources.md) for books and articles that influenced the architecture
+4. **Read** the ADRs to understand trade-offs in architectural decisions
 
 ---
 
-## 📜 **License**
+## Project Structure
 
-Lanka is released under the **MIT License**. See [LICENSE](LICENSE) for details.
+```
+Lanka/
+├── src/
+│   ├── Api/
+│   │   ├── Lanka.Api/                    # Main API host
+│   │   └── Lanka.Gateway/                # YARP reverse proxy
+│   ├── Common/                           # Shared infrastructure
+│   │   ├── Lanka.Common.Application/     # Base handlers, behaviors
+│   │   ├── Lanka.Common.Domain/          # Base entities, value objects
+│   │   ├── Lanka.Common.Infrastructure/  # EF, outbox, authentication
+│   │   └── Lanka.Common.Presentation/    # Endpoint abstractions
+│   └── Modules/                          # Business modules
+│       ├── Analytics/                    # Instagram data & insights
+│       ├── Campaigns/                    # Campaign lifecycle
+│       ├── Matching/                     # Search & discovery
+│       └── Users/                        # Identity & profiles
+├── test/                                 # Integration & architecture tests
+├── docs/                                 # Documentation
+└── docker-compose.yml                    # Development environment
+```
+
+Each module follows Clean Architecture:
+- **Domain** — Entities, value objects, domain events, repository interfaces
+- **Application** — Commands, queries, handlers, validation
+- **Infrastructure** — EF configurations, external services, background jobs
+- **Presentation** — API endpoints, integration event handlers
+
+---
+
+## What's Not Here (Yet)
+
+Being honest about limitations:
+
+- **Frontend** — There's an Angular client in development, but it's minimal
+- **Production deployment** — No Kubernetes manifests or cloud infrastructure
+- **Comprehensive testing** — Unit tests exist but integration test coverage is limited
+- **Performance optimization** — Haven't done serious load testing
+- **Security audit** — Basic security practices but not production-hardened
+
+---
+
+## Contributing
+
+This is a diploma project, but contributions and feedback are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+If you're also learning .NET architecture patterns and want to discuss approaches, feel free to open a Discussion.
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
 
-## 🌟 **Built with ❤️ by the Lanka Team**
+**A diploma project by [IIIA-KO](https://github.com/IIIA-KO)**
 
-*Empowering the future of influencer marketing through technology excellence*
-
-[![View Documentation](https://img.shields.io/badge/📚-View%20Documentation-blue?style=for-the-badge)](docs/README.md)
-[![Start Contributing](https://img.shields.io/badge/🤝-Start%20Contributing-green?style=for-the-badge)](CONTRIBUTING.md)
-[![Join Community](https://img.shields.io/badge/💬-Join%20Community-purple?style=for-the-badge)](https://github.com/IIIA-KO/lanka/discussions)
-
-**⭐ Star this repository if Lanka helps your development!**
-
----
-
-*"Building bridges between influencers and brands, one line of code at a time."*
+*Learning by building, one architectural decision at a time*
 
 </div>

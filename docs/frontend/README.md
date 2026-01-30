@@ -1,188 +1,244 @@
-# 🖥️ Lanka Frontend Guide
+# Frontend Documentation
 
-<div align="center">
-
-*Angular SPA that powers the Lanka experience*
-
-![Angular](https://img.shields.io/badge/Angular-20.1-ff1f2d?style=flat-square&logo=angular&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)
-![Lint](https://img.shields.io/badge/Lint-ESLint%209%20%2B%20angular--eslint%2020-4b32c3?style=flat-square&logo=eslint&logoColor=white)
-
-</div>
+Angular SPA client for Lanka.
 
 ---
 
-## 📦 Stack at a Glance
+## Current State
 
-| Area | Details |
-|------|---------|
-| Framework | Angular 20.1 (CLI @ 20.1.3) |
-| UI Kits | Angular Material 20.1, PrimeNG 20.0 + PrimeFlex 4 |
-| i18n | `@ngx-translate` 16 with HTTP loaders |
-| Realtime | SignalR client 8.0 |
-| Lint/Test | ESLint 9 + angular-eslint 20, Karma/Jasmine |
-| Node | Targeted Node 22.x (used in CI) |
+The frontend is functional but still evolving. Core features work, but test coverage is minimal and some areas need polish.
 
----
-
-## 🗂️ Project Layout
-
-- Location: `client/lanka-client`
-- Source: `src/` (standalone components), styles in `src/styles.css`
-- Environments: `src/environments/environment.development.ts` (gateway defaults to `https://localhost:4308`)
-- Assets: `src/assets/i18n/*.json` for translations, `public/` for static files
+| Area | Status | Notes |
+|------|--------|-------|
+| Authentication | Working | Login, register, logout via Keycloak |
+| Instagram Linking | Working | OAuth flow, callback handling, status display |
+| User Profile | Working | View and edit profile, avatar upload |
+| Analytics Dashboard | Basic | Charts display data, but limited interactivity |
+| Campaign Management | In Progress | Brand side partially implemented |
+| Blogger Features | In Progress | Search, offers, reviews partially done |
+| Test Coverage | Minimal | Infrastructure exists, few actual tests |
+| i18n | Working | English and Ukrainian translations |
 
 ---
 
-## 🧱 Structure & Routing
+## Technology Stack
 
-- **App shell**: `core/layouts/main-layout` (authenticated shell) and `core/layouts/auth-layout` (login/register). Shared chrome lives under `core/components`.
-- **Routing**: `app.routes.ts` uses guards (`authGuard`, `unauthGuard`, `instagramLinkedGuard`) and a `ProfileResolver`. Auth area under `/auth`, main area under `/` with lazy modules for `offers`, `reviews`, `analytics`, `settings/profile`, `calendar`, and `campaigns/*`.
-- **Feature map** (see `src/app/features`):
-  - Auth (`auth/`) — login/register/logout.
-  - Bloggers (`bloggers/`) — search, campaigns, offers, pact, reviews, profile, public profile.
-  - Brands (`brands/`) — campaign creation.
-  - Analytics (`analytics/`) — charts/dashboards.
-  - Link Instagram (`link-instagram/`) — connect/renew callbacks.
-  - Settings, Calendar, FAQ, Privacy Policy.
-- **Shared**: reusable UI in `shared/components` (loading, server-error, banners, language switcher, etc.).
-- **Core services**: API agents in `core/api/*`, guards in `core/guards`, interceptors (e.g., `error.interceptor.ts`), and cross-cutting services under `core/services`.
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Angular | 20.1 | Framework |
+| Angular Material | 20.1 | UI components (forms, dialogs, navigation) |
+| PrimeNG | 20.0 | Data-heavy widgets (tables, charts) |
+| PrimeFlex | 4.0 | CSS utility classes |
+| SignalR | 8.0 | Real-time updates from backend |
+| ngx-translate | 16.0 | Runtime internationalization |
+| chart.js / echarts | 4.5 / 5.6 | Analytics visualizations |
+| TypeScript | 5.8 | Language |
+| Node.js | 22.x | Build environment |
 
 ---
 
-## 🚀 Local Development
+## Project Structure
+
+```
+client/lanka-client/
+├── src/
+│   ├── app/
+│   │   ├── core/              # Singleton services, guards, interceptors
+│   │   │   ├── api/           # API client services (*-agent.ts)
+│   │   │   ├── guards/        # Route guards (auth, instagram-linked)
+│   │   │   ├── interceptors/  # HTTP interceptors (error handling)
+│   │   │   ├── layouts/       # Main layout, auth layout
+│   │   │   └── services/      # Cross-cutting services
+│   │   ├── features/          # Feature modules
+│   │   │   ├── auth/          # Login, register, logout
+│   │   │   ├── analytics/     # Instagram analytics dashboards
+│   │   │   ├── bloggers/      # Blogger-specific features
+│   │   │   ├── brands/        # Brand/campaign creation
+│   │   │   ├── link-instagram/# OAuth callback handling
+│   │   │   └── settings/      # Profile settings
+│   │   ├── shared/            # Reusable components
+│   │   └── app.routes.ts      # Route definitions
+│   ├── assets/
+│   │   └── i18n/              # Translation files (en.json, uk.json)
+│   ├── environments/          # Environment configuration
+│   └── styles.css             # Global styles
+├── ssl/                       # Development SSL certificates
+├── angular.json               # Angular CLI configuration
+└── package.json
+```
+
+---
+
+## Quick Start
 
 ```bash
-# From repo root
 cd client/lanka-client
 
-# Install dependencies (lockfile is gitignored, CI also uses npm install)
+# Install dependencies
 npm install
 
-# Dev server with HTTPS (uses ssl/ssl.key & ssl/ssl.crt)
+# Start dev server (HTTPS on localhost:4200)
 npm start
 
-# Lint
+# Run linter
 npm run lint
 
-# Unit tests
+# Run tests
 npm test
 
 # Production build
 npm run build -- --configuration production
 ```
 
----
-
-## 🔧 Script Reference
-
-| Command | What it does |
-|---------|--------------|
-| `npm start` | Runs `ng serve` with HTTPS using `ssl/ssl.key` and `ssl/ssl.crt`. |
-| `npm run build -- --configuration production` | Production build to `dist/lanka-client` with hashing/budgets. |
-| `npm run lint` | ESLint (typescript + angular-eslint) with template linting. |
-| `npm run lint -- --fix` | Applies autofixes where possible. |
-| `npm test` | Karma + Jasmine unit tests. |
+**Prerequisites:** Node.js 22.x
 
 ---
 
-## 🏗️ Build & CI Notes
+## Development Notes
 
-- Build output: `client/lanka-client/dist/lanka-client`
-- GitHub Actions frontend job (see `.github/workflows/build.yml`) uses Node 22, runs `npm install`, `npm run lint`, then `npm run build -- --configuration production`, and publishes the `frontend-dist` artifact.
-- Keep SSL dev certs in `client/lanka-client/ssl` if you run `npm start` with HTTPS. Update the Angular `serve` options in `angular.json` if you change paths.
+### API Communication
 
----
+API clients are in `core/api/`. Each agent handles requests to a specific backend module:
+- `users-agent.ts` — Authentication, profile
+- `analytics-agent.ts` — Instagram statistics
+- `campaigns-agent.ts` — Campaign operations
 
-## 📚 Key Libraries
+Base URL comes from environment files. Development points to `https://localhost:4308` (the gateway).
 
-- Angular Material for form/layout primitives and PrimeNG for data-heavy widgets.
-- `@ngx-translate` for runtime translations; update locale files in `src/assets/i18n/`.
-- SignalR client for realtime updates from the backend gateway.
-- Charting: `chart.js` and `echarts` for analytics visualizations.
+### Authentication Flow
 
----
+1. User logs in via `auth/login`
+2. Keycloak returns tokens
+3. Tokens stored in service, attached to requests via interceptor
+4. Guards protect routes requiring authentication
 
-## 🧹 Lint & Coding Standards
+### Instagram Linking
 
-- ESLint with `angular-eslint` enforces `app-` selectors (`kebab-case` components, `camelCase` directives), lifecycle interfaces, and template accessibility checks.
-- TypeScript rules: no implicit `any`, explicit member accessibility, member ordering, no unused vars, `no-console` except `warn`/`error`, single quotes, `prefer-const`.
-- Templates linted via inline processor; fix most issues with `npm run lint -- --fix`, then adjust remaining type or selector errors manually.
+1. User clicks "Connect Instagram"
+2. Redirect to Instagram OAuth page
+3. Instagram redirects back to `/link-instagram/callback` with code
+4. Frontend sends code to backend
+5. SignalR provides real-time status updates
+6. UI updates when linking completes or fails
 
----
+### Real-time Updates
 
-## 🎨 Styling & UX
+SignalR connection established on app init. Used for:
+- Instagram linking status
+- (Future) Notifications, campaign updates
 
-- Component-scoped CSS by default; global styles and variables live in `src/styles.css` alongside PrimeFlex utilities.
-- Use Angular Material for form/layout primitives; PrimeNG for data-heavy widgets (tables, charts, menus) to stay consistent.
-- Reuse shared components from `src/app/shared/components` before adding new chrome; keep translations in templates via the `translate` pipe.
+### Internationalization
 
----
+Translations in `src/assets/i18n/`. Use the `translate` pipe in templates:
 
-## ✅ Quick Checklist
+```html
+<span>{{ 'common.save' | translate }}</span>
+```
 
-- [ ] Node 22.x installed
-- [ ] Dependencies installed with `npm install`
-- [ ] Lint clean: `npm run lint`
-- [ ] Tests green: `npm test`
-- [ ] Production build succeeds: `npm run build -- --configuration production`
-
----
-
-## 🔧 Environments & Config
-
-- Dev gateway is `https://localhost:4308` (set in `src/environments/environment.development.ts`).
-- If you introduce additional environments, mirror the shape of the dev file and wire `fileReplacements` in `angular.json`.
-- Dev HTTPS uses `ssl/ssl.key` and `ssl/ssl.crt`; update the `serve` options if you relocate or regenerate them.
-- API base URL is read at build time—bump envs before building prod bundles.
-- Instagram client/config IDs live in the dev env file for local flows; keep secrets out of version control for other environments.
-- Angular compiler is in strict mode with strict templates and injectors; keep types tight to avoid runtime surprises.
+Add new keys to both `en.json` and `uk.json`.
 
 ---
 
-## 🧭 Developer Workflow
+## Architecture Decisions
 
-- Package manager: `npm install` (no lockfile committed; CI mirrors this).
-- Lint autofix: `npm run lint -- --fix` to resolve formatting/import issues quickly.
-- Formatting: rely on Angular/TypeScript defaults via ESLint rules; avoid ad-hoc formatters that diverge from CI.
-- i18n: add keys to `src/assets/i18n/en.json` and `uk.json`; keep keys consistent and prefer reusing existing namespaces.
-- Testing: `npm test` runs Karma/Jasmine; keep new components covered with focused specs.
+### Standalone Components
 
----
+All components are standalone (Angular 14+ pattern). No NgModules for features — imports declared directly in components.
 
-## 🔌 API & Data Flow
+### Two UI Libraries
 
-- API clients live under `core/api/*agent.ts` and use the gateway URL from environment files.
-- `error.interceptor.ts` centralizes handling of HTTP errors; prefer propagating friendly messages via `FriendlyErrorService`.
-- Guards: `authGuard`/`unauthGuard` protect auth flows; `instagramLinkedGuard` enforces connection before accessing certain routes.
-- `ProfileResolver` preloads profile data for profile/settings routes to render faster and reduce duplicate calls.
-- SignalR integration is wrapped in `core/services/signalr.service.ts` for realtime updates.
+We use both Angular Material and PrimeNG:
+- **Material** for forms, dialogs, basic layout
+- **PrimeNG** for data tables, advanced charts, complex widgets
 
----
+This adds bundle size but provides good coverage of UI needs. In hindsight, picking one might have been simpler.
 
-## 🎛️ UI Conventions
+### Guards and Resolvers
 
-- Standalone components are the default; feature-specific components live under their feature folder, shared chrome under `shared/components`.
-- Component selectors follow lint rules (`app-*`); keep inputs/outputs typed and prefer `readonly` where possible.
-- Routes carry `data.titleKey` for i18n page titles—continue this pattern when adding routes.
-- Favor resolver/guard + agent patterns for data preloading and access control instead of ad-hoc in-component calls.
-- Avoid duplicating layout chrome; extend `main-layout`/`auth-layout` or shared primitives instead.
+Routes use guards for access control and resolvers for data preloading:
+- `authGuard` — Requires authentication
+- `unauthGuard` — Redirects authenticated users (login page)
+- `instagramLinkedGuard` — Requires linked Instagram account
+- `ProfileResolver` — Preloads user profile data
 
 ---
 
-## 🛠️ Troubleshooting
+## Known Issues and Limitations
 
-- **Node version mismatch**: ensure Node 22.x; use `nvm use 22` or install from nodejs.org if CLI errors on startup.
-- **SSL errors on `npm start`**: recreate cert/key in `ssl/` or point `angular.json > serve.options` to your files.
-- **Lint fails on unused imports/any**: run `npm run lint -- --fix` and adjust types; CI treats lint warnings as failures.
-- **Build timeouts**: clear Angular cache `npm run ng -- cache clean` and retry; ensure enough RAM when running alongside Docker infra.
-- **Node-gyp / native deps**: if native builds fail, ensure build tools are installed (Xcode CLT on macOS, build-essentials on Linux, VS Build Tools on Windows).
+1. **Test coverage is low** — Infrastructure is set up, but most components lack tests
+2. **Error handling varies** — Some areas show friendly errors, others don't
+3. **Bundle size** — Using two UI libraries increases initial load
+4. **No offline support** — Requires network connection
+5. **Some features incomplete** — Campaign management, reviews need more work
 
 ---
 
-## 📦 Release & Artifacts
+## Configuration
 
-- Production build emits to `dist/lanka-client`; CI uploads this as `frontend-dist`.
-- Artifacts are ready for static hosting behind the gateway or any SPA-friendly web server (serves `index.html` for unknown routes).
-- If you change the base href or deploy under a sub-path, update `angular.json > build.options.baseHref` accordingly before building.
+### Environment Files
+
+```typescript
+// src/environments/environment.development.ts
+export const environment = {
+  apiUrl: 'https://localhost:4308',
+  instagramClientId: 'your-client-id',
+  // ...
+};
+```
+
+Production environment should be created separately with real values.
+
+### SSL for Development
+
+Dev server uses HTTPS. Certificates in `ssl/` folder. If you get SSL errors:
+
+```bash
+# Generate new self-signed cert (macOS/Linux)
+openssl req -x509 -newkey rsa:2048 -keyout ssl/ssl.key -out ssl/ssl.crt -days 365 -nodes
+```
+
+---
+
+## Linting
+
+ESLint with Angular-specific rules. Key rules enforced:
+- `app-` prefix for component selectors
+- No implicit `any`
+- No unused variables
+- Explicit member accessibility
+
+```bash
+# Check
+npm run lint
+
+# Auto-fix where possible
+npm run lint -- --fix
+```
+
+---
+
+## Building for Production
+
+```bash
+npm run build -- --configuration production
+```
+
+Output in `dist/lanka-client/`. Can be served by any static file server that supports SPA routing (serve `index.html` for unknown routes).
+
+---
+
+## What's Missing (Future Work)
+
+- Comprehensive test coverage
+- E2E tests
+- PWA / offline support
+- Performance optimization (lazy loading already in place, but more could be done)
+- Accessibility audit and fixes
+- Better error boundaries
+
+---
+
+## Related Documentation
+
+- [Quick Start](../development/quick-start.md) — Full environment setup including frontend
+- [Architecture Overview](../architecture/README.md) — How frontend fits with backend

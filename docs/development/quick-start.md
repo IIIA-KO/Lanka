@@ -1,377 +1,232 @@
-# 🚀 Lanka Quick Start Guide
+# Quick Start Guide
 
 <div align="center">
 
-*Get up and running with Lanka development in under 10 minutes!*
+*Get Lanka running locally*
 
 </div>
 
 ---
 
-## ⚡ **Prerequisites Checklist**
+## Prerequisites
 
-Before diving in, make sure you have these tools installed:
+Before you start, make sure you have:
 
-### **Required Tools**
-- [ ] **.NET 10.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [ ] **Docker Desktop** - [Download here](https://www.docker.com/products/docker-desktop)
-- [ ] **Git** - [Download here](https://git-scm.com/downloads)
+- [ ] **.NET 10.0 SDK** — [Download](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [ ] **Docker Desktop** — [Download](https://www.docker.com/products/docker-desktop)
+- [ ] **Git** — [Download](https://git-scm.com/downloads)
 
-### **Recommended Tools**
-- [ ] **Visual Studio 2022** or **JetBrains Rider** or **VS Code**
-- [ ] **Postman** or **Insomnia** for API testing
-- [ ] **DBeaver** or **pgAdmin** for database management
-- [ ] **Redis Desktop Manager** for cache inspection
-- [ ] **MongoDB Compass** for managing NoSQL data
+### Recommended Tools
 
-### **Verify Installation**
+- **IDE**: Visual Studio 2022, JetBrains Rider, or VS Code with C# extensions
+- **API Testing**: Postman or Insomnia
+- **Database Management**: DBeaver, pgAdmin, or MongoDB Compass
+
+### Verify Installation
+
 ```bash
-# Check .NET version
-dotnet --version
-# Should return: 10.0.x
-
-# Check Docker
-docker --version
-# Should return: Docker version 20.x.x or higher
-
-# Check Git
-git --version
-# Should return: git version 2.x.x or higher
+dotnet --version   # Should return 10.0.x
+docker --version   # Should return Docker version 20.x or higher
+git --version      # Should return git version 2.x or higher
 ```
 
 ---
 
-## 🎯 **Step 1: Clone & Setup**
+## Step 1: Clone & Setup
 
-### **1.1 Clone the Repository**
 ```bash
 # Clone the repo
-git clone https://github.com/IIIA-KO/lanka.git
-cd lanka
+git clone https://github.com/IIIA-KO/Lanka.git
+cd Lanka
 
-# Verify structure
-ls -la
-# You should see: src/, docs/, tests/, docker-compose.yml, etc.
-```
-
-### **1.2 Environment Setup**
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit the .env file with your settings
-# (Default values work for local development)
-```
-
-### **1.3 Restore Dependencies**
-```bash
-# Restore all NuGet packages
+# Restore NuGet packages
 dotnet restore
 
-# Verify build
+# Verify it builds
 dotnet build
-# Should complete without errors
 ```
 
 ---
 
-## 🐳 **Step 2: Start Infrastructure**
+## Step 2: Start Infrastructure
 
-Lanka uses Docker Compose to run all infrastructure services locally.
+Lanka uses Docker Compose for local infrastructure.
 
-### **2.1 Start All Services (as defined in docker-compose.yml)**
 ```bash
-# Start infrastructure services exactly as configured
+# Start all services
 docker compose up -d
 
-# Check running services
+# Check they're running
 docker compose ps
 ```
 
-You should see these services running:
-- 🗃️ **PostgreSQL** (port 5432) - Primary database
-- 📊 **MongoDB** (port 27017) - Analytics storage
-- ⚡ **Redis** (port 6379) - Caching & sessions
-- 🐰 **RabbitMQ** (port 5672, Management: 15672) - Message bus
-- 🔐 **Keycloak** (port 18080) - Identity provider
-- 📋 **Seq** (port 8081) - Centralized logging
-- 🧠 **Elasticsearch** (port 9200) - Search index
-- 📈 **Kibana** (port 5601) - Search/analytics UI
-- 🔭 **Jaeger** (port 16686) - Distributed tracing
+You should see these services:
+- **PostgreSQL** (5432) — Primary database
+- **MongoDB** (27017) — Analytics storage
+- **Redis** (6379) — Caching
+- **RabbitMQ** (5672, Management: 15672) — Message bus
+- **Keycloak** (18080) — Identity provider
+- **Seq** (8081) — Centralized logging
+- **Elasticsearch** (9200) — Search index
+- **Jaeger** (16686) — Distributed tracing
 
-### **2.2 Verify Services**
-```bash
-# Check service health
-curl http://localhost:15672  # RabbitMQ Management
-curl http://localhost:18080  # Keycloak
-curl http://localhost:8081   # Seq
-curl http://localhost:9200   # Elasticsearch
-curl http://localhost:16686  # Jaeger UI
-```
+### Verify Services
 
-### **2.3 Database Migrations (automatic on startup)**
-No manual step is required. Each module applies EF Core migrations automatically on API startup.
-You can still generate new migrations during development using the CLI:
 ```bash
-# From repository root, for example Users module
-dotnet ef migrations add <Name> --project src/Modules/Users/Lanka.Modules.Users.Infrastructure
+curl http://localhost:15672  # RabbitMQ Management (guest/guest)
+curl http://localhost:18080  # Keycloak (admin/admin)
+curl http://localhost:8081   # Seq logs
 ```
 
 ---
 
-## 🚀 **Step 3: Run the Application**
+## Step 3: Database Migrations
 
-### **3.1 Start the API (port 4307)**
+Migrations are applied **automatically** when the API starts. No manual step needed.
+
+If you need to generate new migrations during development:
+
 ```bash
-# Start the Lanka API
+# Example: Add migration for Users module
+dotnet ef migrations add YourMigrationName \
+    --project src/Modules/Users/Lanka.Modules.Users.Infrastructure
+```
+
+---
+
+## Step 4: Run the Application
+
+```bash
+# Start the API
 cd src/Api/Lanka.Api
 dotnet run
 
-# Or with hot reload for development
+# Or with hot reload
 dotnet watch run
 ```
 
-### **3.2 Verify API is Running**
-Open your browser and navigate to:
-- **🏠 API Base**: http://localhost:4307
-- **🏥 Health Checks**: http://localhost:4307/healthz
-- **🌐 Gateway**: http://localhost:4308
+### Access Points
 
-You should see the Lanka API documentation and health status.
+| Service | URL | Notes |
+|---------|-----|-------|
+| API | http://localhost:4307 | Main API |
+| Health Check | http://localhost:4307/healthz | System status |
+| Gateway | http://localhost:4308 | YARP reverse proxy |
+| Seq Logs | http://localhost:8081 | View structured logs |
 
-### **3.3 Test API Endpoints**
+---
+
+## Step 5: Test an API Call
+
+### Check Health
+
 ```bash
-# Test health endpoint
 curl http://localhost:4307/healthz
+# Should return: Healthy
+```
 
-# Expected response: "Healthy" with 200 status
+### Register a User
+
+```bash
+curl -X POST http://localhost:4307/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "Password123!",
+    "firstName": "Test",
+    "lastName": "User"
+  }'
 ```
 
 ---
 
-## 🧪 **Step 4: Run Tests**
+## Step 6: Run Tests
 
-### **4.1 Unit Tests**
 ```bash
-# Run all unit tests
+# Run all tests
 dotnet test
 
-# Run tests with coverage
+# Run with coverage
 dotnet test --collect:"XPlat Code Coverage"
-```
 
-### **4.2 Integration Tests**
-```bash
-# Run integration tests (requires Docker services)
-cd test/Lanka.IntegrationTests
-dotnet test
-
-# Run specific test category
-dotnet test --filter Category=Users
-```
-
-### **4.3 Architecture Tests**
-```bash
-# Verify architecture rules
+# Run architecture tests
 cd test/Lanka.ArchitectureTests
 dotnet test
 ```
 
 ---
 
-## 🎯 **Step 5: Your First API Call**
+## Daily Development Workflow
 
-### **5.1 Register a User (through Users endpoints)**
 ```bash
-curl -X POST http://localhost:4307/api/users/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "developer@lanka.com",
-    "password": "DevPassword123!",
-    "firstName": "Dev",
-    "lastName": "User"
-  }'
-```
+# 1. Start infrastructure (if not running)
+docker compose up -d
 
-### **5.2 Login and Get Token**
-```bash
-curl -X POST http://localhost:4307/api/users/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "developer@lanka.com",
-    "password": "DevPassword123!"
-  }'
-```
-
-### **5.3 Access Protected Endpoint**
-```bash
-# Use the token from login response
-curl -X GET http://localhost:4307/api/users/profile \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE"
-```
-
----
-
-## 🛠️ **Development Workflow**
-
-### **Daily Development Setup**
-```bash
-# 1. Pull latest changes
+# 2. Pull latest changes
 git pull origin main
 
-# 2. Start infrastructure (if not running)
-docker-compose up -d
-
-# 3. Update dependencies (if package changes)
+# 3. Restore packages (if needed)
 dotnet restore
 
-# 4. Run migrations (if schema changes)
-# (Navigate to each module and run dotnet ef database update)
-
-# 5. Start API with hot reload
+# 4. Run API with hot reload
 cd src/Api/Lanka.Api
 dotnet watch run
 ```
 
-### **Creating a New Feature**
-```bash
-# 1. Create feature branch
-git checkout -b feature/your-feature-name
-
-# 2. Make your changes...
-
-# 3. Run tests
-dotnet test
-
-# 4. Commit and push
-git add .
-git commit -m "feat: add your feature description"
-git push origin feature/your-feature-name
-```
-
 ---
 
-## 🎪 **Module-Specific Development**
+## Troubleshooting
 
-### **👥 Users Module**
-```bash
-# Navigate to Users module
-cd src/Modules/Users/Lanka.Modules.Users.Infrastructure
+### Docker Services Won't Start
 
-# Create migration when you change schema (auto-applied on run)
-dotnet ef migrations add YourMigrationName
-
-# Run module tests
-cd ../test/Lanka.Modules.Users.UnitTests
-dotnet test
-```
-
-### **📊 Analytics Module**
-```bash
-# Navigate to Analytics module
-cd src/Modules/Analytics/Lanka.Modules.Analytics.Infrastructure
-
-# Work with MongoDB collections
-# (Use MongoDB Compass or command line)
-
-# Test Instagram API integration
-cd ../test/Lanka.Modules.Analytics.IntegrationTests
-dotnet test --filter Category=Instagram
-```
-
-### **🎯 Campaigns Module**
-```bash
-# Navigate to Campaigns module
-cd src/Modules/Campaigns/Lanka.Modules.Campaigns.Infrastructure
-
-# Test campaign workflows
-cd ../test/Lanka.Modules.Campaigns.IntegrationTests
-dotnet test --filter Category=Workflows
-```
-
----
-
-## 🐛 **Troubleshooting**
-
-### **Common Issues**
-
-**🔴 Docker Services Won't Start**
 ```bash
 # Check Docker is running
 docker info
 
-# Reset Docker services
-docker-compose down
-docker-compose up -d --force-recreate
+# Reset services
+docker compose down -v
+docker compose up -d --force-recreate
 ```
 
-**🔴 Database Connection Errors**
+### Database Connection Errors
+
 ```bash
 # Check PostgreSQL is running
-docker-compose ps postgres
+docker compose ps postgres
 
-# Reset database
-docker-compose down postgres
-docker-compose up -d postgres
-
-# Wait 30 seconds, then run migrations again
+# View logs
+docker compose logs postgres
 ```
 
-**🔴 Build Errors**
+### Port Conflicts
+
 ```bash
-# Clean and restore
+# Find what's using a port
+lsof -i :4307  # macOS/Linux
+netstat -ano | findstr :4307  # Windows
+```
+
+### Build Errors
+
+```bash
+# Clean and rebuild
 dotnet clean
 dotnet restore
 dotnet build
 ```
 
-**🔴 Port Conflicts**
-```bash
-# Check what's using ports
-netstat -an | grep :4307
+---
 
-# Kill processes or change ports in launchSettings.json
-```
+## What's Next?
 
-### **Need Help?**
-- 📚 **Documentation**: [Full documentation](../README.md)
-- 🐛 **Issues**: [Debugging guide](debugging.md)
-- ❓ **FAQ**: [Common questions](faq.md)
-- 💬 **Team Chat**: Reach out to the development team
+- [Development Setup](development-setup.md) — Full environment configuration
+- [Architecture Overview](../architecture/README.md) — Understand the system design
+- [FAQ](faq.md) — Common questions and solutions
 
 ---
 
-## 🎉 **You're Ready!**
-
 <div align="center">
 
-**Congratulations! You now have Lanka running locally.** 🎊
-
-Here's what you can do next:
-
-[![Explore Architecture](https://img.shields.io/badge/🏗️-Explore%20Architecture-blue?style=for-the-badge)](../architecture/README.md)
-[![Dev Setup](https://img.shields.io/badge/🛠️-Dev%20Setup-green?style=for-the-badge)](development-setup.md)
-[![FAQ](https://img.shields.io/badge/❓-FAQ-orange?style=for-the-badge)](faq.md)
-
-</div>
-
----
-
-## 📋 **Development Checklist**
-
-Track your progress with this handy checklist:
-
-- [ ] ✅ **Environment Setup** - All tools installed and verified
-- [ ] 🐳 **Infrastructure Running** - All Docker services up and healthy
-- [ ] 🗃️ **Databases Initialized** - All migrations applied successfully
-- [ ] 🚀 **API Running** - API accessible and Swagger UI working
-- [ ] 🧪 **Tests Passing** - Unit and integration tests green
-- [ ] 📡 **First API Call** - Successfully registered and authenticated user
-- [ ] 🛠️ **Development Workflow** - Comfortable with daily development process
-- [ ] 📚 **Documentation** - Familiar with docs structure and key resources
-
-<div align="center">
-
-*Happy coding! 🚀*
+*Happy coding!*
 
 </div>

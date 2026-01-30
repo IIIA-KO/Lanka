@@ -1,48 +1,45 @@
-# ❓ Lanka FAQ & Troubleshooting
+# FAQ & Troubleshooting
 
 <div align="center">
 
-*Quick answers to common questions and solutions to frequent issues*
-
-
-**"The only stupid question is the one not asked"**
+*Common questions and solutions*
 
 </div>
 
 ---
 
-## 🎯 **Quick Navigation**
+## Quick Navigation
 
 <table>
 <tr>
 <td width="50%">
 
-### **🚀 Getting Started**
-- [Setup & Installation](#-setup--installation)
-- [First Run Issues](#-first-run-issues)
-- [Environment Configuration](#-environment-configuration)
-- [Tool Setup](#-tool-setup)
+### Getting Started
 
-### **🏗️ Development**
-- [Building & Compilation](#-building--compilation)
-- [Database & Migrations](#-database--migrations)
-- [Testing Issues](#-testing-issues)
-- [Debugging Problems](#-debugging-problems)
+- [Setup & Installation](#setup--installation)
+- [First Run Issues](#first-run-issues)
+- [Environment Configuration](#environment-configuration)
+
+### Development
+
+- [Building & Compilation](#building--compilation)
+- [Database & Migrations](#database--migrations)
+- [Testing Issues](#testing-issues)
 
 </td>
 <td width="50%">
 
-### **🐳 Infrastructure**
-- [Docker & Containers](#-docker--containers)
-- [Service Configuration](#-service-configuration)
-- [Network & Connectivity](#-network--connectivity)
-- [Performance Issues](#-performance-issues)
+### Infrastructure
 
-### **🔧 Advanced Topics**
-- [Architecture Questions](#-architecture-questions)
-- [Module Development](#-module-development)
-- [Deployment Issues](#-deployment-issues)
-- [Best Practices](#-best-practices)
+- [Docker & Containers](#docker--containers)
+- [Service Configuration](#service-configuration)
+- [Performance Issues](#performance-issues)
+
+### Advanced
+
+- [Architecture Questions](#architecture-questions)
+- [Module Development](#module-development)
+- [Best Practices](#best-practices)
 
 </td>
 </tr>
@@ -50,469 +47,327 @@
 
 ---
 
-## 🚀 **Setup & Installation**
+## Setup & Installation
 
-### **Q: What are the minimum system requirements?**
-**A:** You need:
+### What are the minimum system requirements?
+
 - **CPU**: 4+ cores (8+ recommended)
 - **RAM**: 8 GB minimum (16+ GB recommended)
-- **Storage**: 256 GB SSD minimum (512+ GB recommended)
+- **Storage**: 256 GB SSD
 - **OS**: Windows 10/11, macOS 10.15+, or Linux (Ubuntu 20.04+)
 
-The high requirements are due to running multiple Docker containers for development.
+The high requirements are due to running multiple Docker containers.
 
-### **Q: Can I develop on Apple Silicon (M1/M2) Macs?**
-**A:** ✅ **Yes!** Lanka fully supports Apple Silicon:
-```bash
-# Use ARM64 images in docker-compose.yml
-services:
-  postgres:
-    image: postgres:17.6
-    platform: linux/arm64
-```
+### Can I develop on Apple Silicon (M1/M2/M3) Macs?
 
-### **Q: Do I need Visual Studio or can I use VS Code?**
-**A:** **Either works great!**
-- **VS Code**: Lightweight, excellent extensions, free
-- **Visual Studio**: Full IDE experience, advanced debugging
-- **JetBrains Rider**: Cross-platform, powerful refactoring
+Yes. Docker images work on ARM64. The docker-compose.yml handles this automatically.
 
-All are fully supported with our development setup.
+### Do I need Visual Studio or can I use VS Code?
 
-### **Q: Can I develop without Docker?**
-**A:** **Not recommended.** While technically possible, Docker provides:
-- ✅ **Consistent environment** across all developer machines
-- ✅ **Easy service management** (databases, message queues)
-- ✅ **Isolated dependencies** that don't conflict with your system
-- ✅ **Production-like environment** for testing
+Either works. JetBrains Rider is also fully supported. Use whatever you're comfortable with.
+
+### Can I develop without Docker?
+
+Not recommended. You'd need to install and configure PostgreSQL, MongoDB, Redis, RabbitMQ, Keycloak, and Elasticsearch locally. Docker makes this much simpler.
 
 ---
 
-## 🔥 **First Run Issues**
+## First Run Issues
 
-### **Q: `dotnet ef` command not found**
-**A:** Install EF Core tools:
+### `dotnet ef` command not found
+
+Install EF Core tools globally:
+
 ```bash
-# Install globally
 dotnet tool install --global dotnet-ef
-
-# Or update if already installed
-dotnet tool update --global dotnet-ef
-
-# Verify installation
 dotnet ef --version
 ```
 
-### **Q: Migration fails with "framework name" error**
-**A:** Run migrations from the module directory:
-```bash
-# ❌ Wrong (from solution root)
-dotnet ef migrations add Test --project src/Modules/Analytics/Lanka.Modules.Analytics.Infrastructure
+### Migration fails with framework name error
 
-# ✅ Correct (from module directory)
-cd src/Modules/Analytics/Lanka.Modules.Analytics.Infrastructure
+Run migrations from the module's Infrastructure directory:
+
+```bash
+# Correct
+cd src/Modules/Users/Lanka.Modules.Users.Infrastructure
 dotnet ef migrations add Test
+
+# Wrong - from solution root
+dotnet ef migrations add Test --project src/Modules/Users/Lanka.Modules.Users.Infrastructure
 ```
 
-### **Q: Docker services won't start**
-**A:** Common solutions:
+### Docker services won't start
+
 ```bash
-# 1. Check Docker is running
+# Check Docker is running
 docker info
 
-# 2. Reset Docker services
+# Reset services
 docker compose down -v
 docker compose up -d --force-recreate
 
-# 3. Check port conflicts
-netstat -an | grep :5432  # Check if PostgreSQL port is used
-
-# 4. Free up Docker resources
-docker system prune -a
+# Check for port conflicts
+lsof -i :5432  # PostgreSQL
+lsof -i :4307  # API
 ```
 
-### **Q: API returns 500 errors on startup**
-**A:** Check these common issues:
+### API returns 500 errors on startup
+
 1. **Database not ready**: Wait 30 seconds after `docker compose up`
-2. **Missing migrations**: Run `dotnet ef database update` for each module
-3. **Configuration errors**: Check `appsettings.json` connection strings
+2. **Migrations not applied**: They run automatically, but check the logs
+3. **Configuration errors**: Verify `appsettings.json` connection strings
 4. **Service dependencies**: Ensure PostgreSQL, Redis, RabbitMQ are healthy
 
 ---
 
-## 🏗️ **Building & Compilation**
+## Building & Compilation
 
-### **Q: Build fails with "package not found" errors**
-**A:** Restore NuGet packages:
+### Build fails with "package not found"
+
 ```bash
-# Clean and restore
 dotnet clean
-dotnet restore
-
-# If using centralized package management
 dotnet restore --force
-
-# Check for package conflicts
-dotnet list package --include-transitive
+dotnet build
 ```
 
-### **Q: Getting "duplicate reference" warnings**
-**A:** We use Central Package Management. Check `Directory.Packages.props`:
+### Getting duplicate reference warnings
+
+We use Central Package Management. Don't specify versions in project files:
+
 ```xml
-<!-- Don't specify versions in project files -->
-<PackageReference Include="Newtonsoft.Json" />
+<!-- Don't do this -->
+<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 
-<!-- Versions are managed centrally -->
-<PackageVersion Include="Newtonsoft.Json" Version="13.0.3"/>
+<!-- Do this -->
+<PackageReference Include="Newtonsoft.Json" />
 ```
 
-### **Q: Hot reload not working**
-**A:** Use the correct command:
+Versions are managed in `Directory.Packages.props`.
+
+### Hot reload not working
+
 ```bash
-# For API development with hot reload
 cd src/Api/Lanka.Api
 dotnet watch run
-
-# For specific project
-dotnet watch --project src/Api/Lanka.Api run
 ```
 
-### **Q: StyleCop/analyzer errors are overwhelming**
-**A:** Configure analysis level in `Directory.Build.props`:
-```xml
-<PropertyGroup>
-  <!-- Reduce analysis level during development -->
-  <AnalysisLevel>5.0</AnalysisLevel>
-  <!-- Or disable specific rules -->
-  <NoWarn>CA1062;CA1031</NoWarn>
-</PropertyGroup>
-```
+Make sure you're using `watch` not `run`.
 
 ---
 
-## 🗃️ **Database & Migrations**
+## Database & Migrations
 
-### **Q: "DbContext cannot be created" during migrations**
-**A:** Each module needs `Microsoft.EntityFrameworkCore.Design`:
+### "DbContext cannot be created" during migrations
+
+Each module needs `Microsoft.EntityFrameworkCore.Design`:
+
 ```xml
 <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
   <PrivateAssets>all</PrivateAssets>
-  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 </PackageReference>
 ```
 
-### **Q: How do I reset the database completely?**
-**A:** Full database reset:
-```bash
-# 1. Stop API
-pkill -f "Lanka.Api"
+### How do I reset the database completely?
 
-# 2. Reset PostgreSQL container
+```bash
+# Stop the API
 docker compose stop postgres
 docker volume rm lanka_postgres_data
 docker compose up -d postgres
 
-# 3. Wait for PostgreSQL to start
-sleep 30
-
-# 4. Apply migrations
-cd src/Modules/Users/Lanka.Modules.Users.Infrastructure
-dotnet ef database update
-# Repeat for Analytics and Campaigns modules
+# Wait 30 seconds, then restart API (migrations run automatically)
 ```
 
-### **Q: Migration creates empty Up/Down methods**
-**A:** This usually means:
-1. **No model changes**: EF detected no differences
-2. **Wrong DbContext**: Make sure you're in the right module
-3. **Missing DbSet**: Entity not configured in DbContext
+### Migration creates empty Up/Down methods
 
-Check your entity is registered:
-```csharp
-public DbSet<YourEntity> YourEntities { get; set; }
-```
+This means EF detected no model changes. Check:
+1. Entity is registered in DbContext
+2. You're in the right module directory
+3. Properties have changes that EF tracks
 
-### **Q: "Schema already exists" error**
-**A:** Multiple modules use the same database with different schemas:
-- **Users**: `users` schema
-- **Analytics**: `analytics` schema  
-- **Campaigns**: `campaigns` schema
+### "Schema already exists" error
 
-This is by design for the modular monolith architecture.
+Each module uses its own schema (`users`, `analytics`, `campaigns`). This is expected behavior for the modular monolith pattern.
 
 ---
 
-## 🧪 **Testing Issues**
+## Testing Issues
 
-### **Q: Integration tests fail with database errors**
-**A:** Integration tests use TestContainers:
+### Integration tests fail with database errors
+
+Integration tests use TestContainers. Make sure Docker is running:
+
 ```bash
-# Make sure Docker is running
 docker info
-
-# Run tests with verbose output
 dotnet test --logger:console;verbosity=detailed
-
-# Run specific test category
-dotnet test --filter Category=Integration
 ```
 
-### **Q: Tests are slow**
-**A:** Optimize test performance:
-```csharp
-// Use test fixtures for expensive setup
-public class DatabaseFixture : IAsyncLifetime
-{
-    // Shared database container for all tests
-}
+### Tests are slow
 
-// Parallel test execution
-[assembly: CollectionBehavior(DisableTestParallelization = false)]
-```
+Use test fixtures to share expensive setup (like database containers) across tests.
 
-### **Q: "Port already in use" in tests**
-**A:** TestContainers automatically assigns ports:
-```csharp
-// Let TestContainers choose ports
-var container = new PostgreSqlBuilder()
-    .WithDatabase("test_db")
-    .Build(); // No .WithPortBinding()
-```
+### "Port already in use" in tests
+
+TestContainers automatically assigns random ports. Don't manually specify ports in test configuration.
 
 ---
 
-## 🐳 **Docker & Containers**
+## Docker & Containers
 
-### **Q: Containers keep restarting**
-**A:** Check container logs:
+### Containers keep restarting
+
 ```bash
-# View logs for specific service
+# Check logs
 docker compose logs postgres
+docker compose logs keycloak
 
-# Follow logs in real-time
-docker compose logs -f rabbitmq
-
-# Check container health
+# Check health status
 docker compose ps
 ```
 
-### **Q: "Port already allocated" error**
-**A:** Find and stop conflicting services:
+### "Port already allocated" error
+
 ```bash
-# Check what's using the port
+# Find what's using the port
 lsof -i :5432  # macOS/Linux
 netstat -ano | findstr :5432  # Windows
 
-# Stop specific service
-docker stop lanka-postgres
-
-# Change port in docker-compose.yml if needed
-ports:
-  - "5433:5432"  # Use different host port
+# Stop the conflicting service or change ports in docker-compose.yml
 ```
 
-### **Q: Docker containers use too much disk space**
-**A:** Clean up Docker resources:
+### Docker uses too much disk space
+
 ```bash
-# See disk usage
 docker system df
-
-# Clean up unused resources
 docker system prune -a
-
-# Remove unused volumes
 docker volume prune
-
-# Remove Lanka-specific volumes
-docker compose down -v
-```
-
-### **Q: Services are slow to start**
-**A:** Optimize Docker performance:
-```yaml
-# Add health checks for dependencies
-services:
-  api:
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 ```
 
 ---
 
-## 🔧 **Service Configuration**
+## Service Configuration
 
-### **Q: Keycloak admin console not accessible**
-**A:** Check Keycloak startup:
+### Keycloak admin console not accessible
+
+Keycloak takes 2-3 minutes to start. Check logs:
+
 ```bash
-# View Keycloak logs
 docker compose logs keycloak
-
-# Keycloak takes time to start - wait 2-3 minutes
-# Then access: http://localhost:18080/admin
-# Username: admin, Password: admin
 ```
 
-### **Q: RabbitMQ management UI shows "Not found"**
-**A:** Ensure using the management image:
+Then access: http://localhost:18080/admin (admin/admin)
+
+### RabbitMQ management UI not working
+
+Make sure you're using the management image:
+
 ```yaml
 rabbitmq:
   image: rabbitmq:3-management-alpine  # Note: -management
-  ports:
-    - "15672:15672"  # Management UI port
 ```
 
-### **Q: Can't connect to MongoDB**
-**A:** Check MongoDB configuration:
+Access: http://localhost:15672 (guest/guest)
+
+### Can't connect to MongoDB
+
 ```bash
 # Test connection
 mongosh "mongodb://localhost:27017/lanka_analytics"
 
-# Check if MongoDB container is running
-docker compose ps mongodb
-
-# View MongoDB logs
+# Check container
 docker compose logs mongodb
 ```
 
 ---
 
-## 🌐 **Network & Connectivity**
+## Performance Issues
 
-### **Q: CORS errors in frontend**
-**A:** Configure CORS in `Program.cs`:
-```csharp
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader());
-});
+### API responses are slow
 
-app.UseCors();
-```
+1. Use Redis caching for frequently accessed data
+2. Optimize database queries with projections
+3. Check for N+1 query problems in EF
 
-### **Q: Health checks fail**
-**A:** Check health check configuration:
+### High memory usage
+
 ```bash
-# Test health endpoint
-curl http://localhost:4307/healthz
-
-# Should return JSON with service statuses
-```
-
----
-
-## 📊 **Performance Issues**
-
-### **Q: API responses are slow**
-**A:** Common optimizations:
-
-1. **Use Redis caching**:
-```csharp
-await _cache.SetStringAsync(key, value, TimeSpan.FromMinutes(5));
-```
-
-2. **Optimize database queries**:
-```csharp
-// Use projections instead of full entities
-var result = await context.Users
-    .Select(u => new { u.Id, u.Email })
-    .ToListAsync();
-```
-
-### **Q: High memory usage**
-**A:** Monitor and optimize:
-```bash
-# Check Docker memory usage
+# Check Docker resource usage
 docker stats
 
-# Profile .NET memory usage
+# .NET memory diagnostics
 dotnet-counters monitor --process-id <PID>
-
-# Use memory profiling tools
-dotMemoryUnit
 ```
 
-### **Q: Database queries are slow**
-**A:** Database optimization:
+### Database queries are slow
+
 ```sql
--- Check query performance
 EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';
-
--- Add indexes for common queries
-CREATE INDEX idx_users_email ON users(email);
 ```
+
+Add indexes for frequently queried columns.
 
 ---
 
-## 🏗️ **Architecture Questions**
+## Architecture Questions
 
-### **Q: How do modules communicate?**
-**A:** Modules use **event-driven communication**:
+### How do modules communicate?
+
+Through **integration events** via RabbitMQ. Not direct method calls or database queries.
+
 ```csharp
-// Publish domain event
-await _publisher.Publish(new UserRegisteredEvent(userId));
+// Publisher
+await _eventBus.PublishAsync(new UserCreatedIntegrationEvent(...));
 
-// Handle in another module
-public class UserRegisteredHandler : INotificationHandler<UserRegisteredEvent>
+// Handler in another module
+public class UserCreatedHandler : IIntegrationEventHandler<UserCreatedIntegrationEvent>
 {
-    public async Task Handle(UserRegisteredEvent notification, CancellationToken cancellationToken)
-    {
-        // Create analytics profile
-    }
+    public Task Handle(UserCreatedIntegrationEvent @event) { ... }
 }
 ```
 
-### **Q: Can I access one module's data from another?**
-**A:** **No direct access.** Use integration events:
-- ✅ **Events**: `UserRegisteredEvent`, `CampaignCreatedEvent`
-- ❌ **Direct DB access**: Don't query other module's tables
-- ❌ **Direct references**: Don't reference other module's entities
+### Can I access one module's data from another?
 
-### **Q: Where do I put shared code?**
-**A:** Use the **Common projects**:
-- `Lanka.Common.Domain` - Shared domain primitives
-- `Lanka.Common.Application` - Shared application patterns
-- `Lanka.Common.Infrastructure` - Shared infrastructure
+No. Use events for communication. Each module owns its data.
 
-### **Q: How do I add a new module?**
-**A:** Follow the module template:
-```
-src/Modules/YourModule/
-├── Lanka.Modules.YourModule.Domain/
-├── Lanka.Modules.YourModule.Application/
-├── Lanka.Modules.YourModule.Infrastructure/
-└── Lanka.Modules.YourModule.Presentation/
-```
+### Where do I put shared code?
+
+In the Common projects:
+- `Lanka.Common.Domain` — Base entities, value objects
+- `Lanka.Common.Application` — Base handlers, behaviors
+- `Lanka.Common.Infrastructure` — Shared infrastructure
+
+### How do I add a new module?
+
+Create the folder structure under `src/Modules/YourModule/`:
+- `Lanka.Modules.YourModule.Domain`
+- `Lanka.Modules.YourModule.Application`
+- `Lanka.Modules.YourModule.Infrastructure`
+- `Lanka.Modules.YourModule.Presentation`
+
+Follow the Users module as a reference.
 
 ---
 
-## 🔄 **Module Development**
+## Module Development
 
-### **Q: How do I create a new aggregate?**
-**A:** Follow DDD patterns:
+### How do I create a new aggregate?
+
 ```csharp
 public class YourAggregate : Entity<YourAggregateId>
 {
     public static Result<YourAggregate> Create(/* parameters */)
     {
-        // Validation logic
+        // Validation
         var aggregate = new YourAggregate(/* ... */);
-        
-        // Raise domain event
-        aggregate.RaiseDomainEvent(new YourAggregateCreatedEvent(/*...*/));
-        
+        aggregate.RaiseDomainEvent(new YourAggregateCreatedEvent(...));
         return aggregate;
     }
 }
 ```
 
-### **Q: How do I add a new command/query?**
-**A:** Use CQRS pattern:
+### How do I add a new command/query?
+
 ```csharp
 // Command
 public record CreateUserCommand(string Email, string Password) : IRequest<Result<Guid>>;
@@ -520,15 +375,17 @@ public record CreateUserCommand(string Email, string Password) : IRequest<Result
 // Handler
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Result<Guid>>
 {
-    public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateUserCommand request, CancellationToken ct)
     {
         // Implementation
     }
 }
 ```
 
-### **Q: How do I add validation?**
-**A:** Use FluentValidation:
+### How do I add validation?
+
+Use FluentValidation:
+
 ```csharp
 public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
@@ -542,117 +399,58 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 
 ---
 
-## 🚀 **Deployment Issues**
+## Best Practices
 
-### **Q: Docker build fails in CI/CD**
-**A:** Common solutions:
-```dockerfile
-# Use multi-stage builds
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
-COPY *.sln .
-COPY Directory.Packages.props .
-# Copy all project files first
-COPY src/*/*.csproj ./
-RUN for file in $(ls *.csproj); do mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done
-RUN dotnet restore
+### Git workflow
 
-# Then copy source and build
-COPY src/ .
-RUN dotnet build
-```
-
-### **Q: Environment variables not loading**
-**A:** Check configuration priority:
-1. Environment variables (highest)
-2. appsettings.Environment.json
-3. appsettings.json (lowest)
-
-```csharp
-// In Program.cs
-builder.Configuration
-    .AddJsonFile("appsettings.json")
-    .AddJsonFile($"appsettings.{Environment}.json", optional: true)
-    .AddEnvironmentVariables();
-```
-
----
-
-## 💡 **Best Practices**
-
-### **Q: What's the recommended Git workflow?**
-**A:** Use feature branches:
 ```bash
-# Create feature branch
-git checkout -b feature/user-authentication
+# Feature branch
+git checkout -b feature/your-feature
 
-# Make commits with conventional format
-git commit -m "feat: add user registration endpoint"
+# Conventional commits
+git commit -m "feat: add user registration"
 git commit -m "fix: resolve validation issue"
-
-# Push and create PR
-git push origin feature/user-authentication
 ```
 
-### **Q: How should I structure my tests?**
-**A:** Follow the test pyramid:
-```
-     Unit Tests (70%)
-    /              \
-   Integration Tests (20%)
-  /                      \
- -- End-2-Enf Tests (10%) --
-```
+### Test structure
 
-### **Q: What naming conventions should I use?**
-**A:** Follow C# conventions:
-- **Classes**: `PascalCase` (e.g., `UserService`)
-- **Methods**: `PascalCase` (e.g., `GetUserById`)
-- **Properties**: `PascalCase` (e.g., `FirstName`)
-- **Fields**: `_camelCase` (e.g., `_userRepository`)
-- **Constants**: `PascalCase` (e.g., `MaxRetryCount`)
+Follow the test pyramid: mostly unit tests, some integration tests, few end-to-end tests.
+
+### Naming conventions
+
+- **Classes**: `PascalCase`
+- **Methods**: `PascalCase`
+- **Properties**: `PascalCase`
+- **Private fields**: `_camelCase`
+- **Constants**: `PascalCase`
 
 ---
 
-## 🆘 **Getting Help**
+## Getting Help
 
-### **🔍 Diagnostic Commands**
 ```bash
-# Check system status
-./scripts/health-check.sh
+# Health check
+curl http://localhost:4307/healthz
 
 # View all logs
 docker compose logs
 
-# Check API health
-curl http://localhost:4307/healthz
-
-# Test database connection
+# Test database
 psql -h localhost -U postgres -d lanka_dev -c "SELECT 1;"
 ```
 
-### **📞 Where to Get Support**
-- **🐛 Bugs**: Open GitHub issue with reproduction steps
-- **❓ Questions**: Check this FAQ first, then ask the team
-- **💡 Feature Requests**: Discuss in team meetings
-- **🔧 Environment Issues**: Use the diagnostic commands above
+### Reporting Issues
 
-### **📝 Reporting Issues**
-When reporting issues, include:
-1. **Steps to reproduce**
-2. **Expected vs actual behavior**
-3. **Environment info** (`dotnet --version`, OS, Docker version)
-4. **Logs** (API logs, Docker logs, etc.)
-5. **Screenshots** if relevant
+Include:
+1. Steps to reproduce
+2. Expected vs actual behavior
+3. Environment info (`dotnet --version`, OS, Docker version)
+4. Relevant logs
 
 ---
 
 <div align="center">
 
-**Still need help? 🤝**
-
-[![GitHub Issues](https://img.shields.io/badge/🐛-Report%20Bug-red?style=for-the-badge)](https://github.com/IIIA-KO/Lanka/issues)
-[![Discussions](https://img.shields.io/badge/💬-Ask%20Question-blue?style=for-the-badge)](https://github.com/IIIA-KO/Lanka/discussions)
-[![Documentation](https://img.shields.io/badge/📚-Read%20Docs-green?style=for-the-badge)](../README.md)
+*Still stuck? Open an issue on GitHub.*
 
 </div>
