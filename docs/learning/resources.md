@@ -51,7 +51,7 @@ Every architectural decision builds on ideas from others. This page documents th
 | [Anton Martyniuk's Blog](https://antondevtips.com/) | Anton Martyniuk | Practical .NET tutorials, Entity Framework, ASP.NET Core patterns. Newsletter covers real-world implementation details. |
 | [UA .NET Community](https://dotnet.in.ua/uk) | Ukrainian .NET Community | Ukrainian .NET developer community. Events, meetups, and Telegram chat for knowledge sharing among Ukrainian developers. |
 | [Event Sourcing You Are Doing It Wrong](https://www.youtube.com/watch?v=GzrZworHpIk) | Greg Young | Understanding event sourcing trade-offs. Why I chose event-driven without full event sourcing. |
-| [Modular Monolith with DDD](https://github.com/kgrzybek/modular-monolith-with-ddd) | Kamil Grzybek | The definitive guide to modular monolith architecture. His sample project was a major reference. |
+| [Kamil Grzybek's Blog](https://www.kamilgrzybek.com) | Kamil Grzybek | The definitive guide to modular monolith architecture. His sample project was a major reference. |
 
 ### Sample Projects
 
