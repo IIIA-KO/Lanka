@@ -24,7 +24,7 @@
 }
 
 .logo-wrapper .logo {
-  height: 2.5rem;
+  height: 3rem;
   width: auto;
   display: block;
 }
@@ -142,7 +142,7 @@
   .logo-wrapper .logo {
     height: 2.2rem;
   }
-  
+
   .search-wrapper {
     display: none; /* Hide search on mobile for now or make it an icon */
   }

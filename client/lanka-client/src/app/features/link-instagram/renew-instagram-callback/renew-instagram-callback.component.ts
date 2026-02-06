@@ -8,13 +8,23 @@ import { IInstagramStatus } from '../../../core/models/instagram';
 import { InstagramStatusBannerComponent } from '../../../shared/components/instagram-status-banner/instagram-status-banner.component';
 import { FriendlyErrorService } from '../../../core/services/friendly-error.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-renew-instagram-callback',
   standalone: true,
-  imports: [CommonModule, InstagramStatusBannerComponent, TranslateModule],
+  imports: [
+    CommonModule,
+    InstagramStatusBannerComponent,
+    TranslateModule,
+    ButtonModule,
+    CardModule,
+    ProgressSpinnerModule,
+  ],
   templateUrl: './renew-instagram-callback.component.html',
-  styleUrl: './renew-instagram-callback.component.css',
+  styleUrl: '../shared/callback-shared.css',
 })
 export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
   public status$!: Observable<IInstagramStatus | null>;
@@ -23,7 +33,7 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
 
   private returnUrl = '/profile';
   private subscriptions: Subscription[] = [];
-  private navigationTimeout?: number;
+  private navigationTimeout?: ReturnType<typeof setTimeout>;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -40,10 +50,15 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
   }
 
   public goBack(): void {
+    this.cleanup();
     this.router.navigate([this.returnUrl]);
   }
 
   public ngOnDestroy(): void {
+    this.cleanup();
+  }
+
+  private cleanup(): void {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
@@ -52,8 +67,11 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
 
   private async initialize(): Promise<void> {
     this.instagramStatusService.init({ force: true });
+
+    // Ensure SignalR is connected first
     await this.instagramStatusService.ensureSignalRConnection();
-    await this.instagramStatusService.syncLatestStatuses();
+
+    await this.instagramStatusService.syncRenewalStatus();
     this.status$ = this.instagramStatusService.renewalStatus$;
 
     const statusSub = this.status$.subscribe((status) => {
@@ -75,16 +93,28 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(statusSub);
 
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
+    // If a renewal operation is already running (page refresh, previous attempt),
+    // just wait for the result instead of firing a duplicate POST
+    const currentStatus = this.instagramStatusService.currentRenewalStatus;
+    if (currentStatus && !currentStatus.isFinal) {
+      this.fallbackMessage = 'RENEW_INSTAGRAM_CALLBACK.PROCESSING';
+      return;
+    }
 
-    if (code) {
+    if (currentStatus?.status === 'completed') {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const authCode = params.get('code');
+
+    if (authCode) {
       this.instagramStatusService.markOperationAsPending(
         'renewal',
         'RENEW_INSTAGRAM_CALLBACK.STARTING'
       );
 
-      this.api.Users.renewInstagramAccess(code).subscribe({
+      this.api.Users.renewInstagramAccess(authCode).subscribe({
         next: (response) => {
           if (response.status === 202) {
             this.instagramStatusService.markOperationAsPending(
@@ -129,7 +159,7 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
       clearTimeout(this.navigationTimeout);
     }
 
-    this.navigationTimeout = window.setTimeout(() => this.router.navigate([this.returnUrl]), delay);
+    this.navigationTimeout = setTimeout(() => this.router.navigate([this.returnUrl]), delay);
   }
 
   private verifyAndNavigate(): void {
@@ -137,8 +167,7 @@ export class RenewInstagramCallbackComponent implements OnInit, OnDestroy {
       clearTimeout(this.navigationTimeout);
     }
 
-    void this.instagramStatusService
-      .syncLatestStatuses()
-      .finally(() => this.scheduleNavigation());
+    // Navigate directly — no need to re-sync since we already know renewal completed
+    this.scheduleNavigation();
   }
 }

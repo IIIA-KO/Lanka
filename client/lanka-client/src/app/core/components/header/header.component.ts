@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute, RouterLink } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { AvatarModule } from 'primeng/avatar';
@@ -24,8 +24,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MenuModule,
     InputTextModule,
     TranslateModule,
-    LanguageSwitcherComponent
-  ],
+    LanguageSwitcherComponent,
+    RouterLink
+],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

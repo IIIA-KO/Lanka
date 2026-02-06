@@ -39,7 +39,7 @@ export class LinkInstagramComponent implements OnInit {
   private async initialize(): Promise<void> {
     this.instagramStatusService.init({ force: true });
     await this.instagramStatusService.ensureSignalRConnection();
-    await this.instagramStatusService.syncLatestStatuses();
+    await this.instagramStatusService.syncLinkingStatus();
 
     this.linkStatus$ = this.instagramStatusService.linkingStatus$;
 

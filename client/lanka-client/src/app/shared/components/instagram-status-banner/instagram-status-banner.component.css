@@ -4,15 +4,14 @@
   align-items: flex-start;
   padding: 1.25rem 1.5rem;
   border-radius: 16px;
-  border: 1px solid #e4e7ec;
+  border: 1px solid var(--surface-border);
   background-color: #ffffff;
-  box-shadow: 0 10px 30px -15px rgba(15, 23, 42, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
 }
 
 .status-banner:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 40px -20px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .status-icon {
@@ -25,8 +24,8 @@
   justify-content: center;
   font-size: 1.35rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-  color: #4f46e5;
+  background: var(--p-primary-50);
+  color: var(--p-primary-color);
   position: relative;
 }
 
@@ -49,7 +48,7 @@
   margin: 0;
   font-size: 1.05rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--p-text-color);
 }
 
 .status-pill {
@@ -59,13 +58,13 @@
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  background-color: #eef2ff;
-  color: #4338ca;
+  background-color: var(--p-primary-50);
+  color: var(--p-primary-color);
 }
 
 .status-message {
   margin: 0;
-  color: #1f2937;
+  color: var(--p-text-color);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -73,14 +72,14 @@
 .status-timestamp {
   margin: 0;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--p-text-secondary-color);
 }
 
 .spinner {
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid rgba(79, 70, 229, 0.2);
-  border-top-color: #4f46e5;
+  border: 3px solid var(--p-primary-200);
+  border-top-color: var(--p-primary-color);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -137,19 +136,19 @@
 
 .status-pending,
 .status-processing {
-  border-color: #ede9fe;
-  background-color: #f5f3ff;
+  border-color: var(--p-primary-100);
+  background-color: var(--p-primary-50);
 }
 
 .status-pending .status-pill,
 .status-processing .status-pill {
-  background-color: #ede9fe;
-  color: #5b21b6;
+  background-color: var(--p-primary-100);
+  color: var(--p-primary-700);
 }
 
 .status-idle {
   border-style: dashed;
-  border-color: #cbd5f5;
+  border-color: var(--p-primary-200);
   background-color: #f8fafc;
 }
 

@@ -1,16 +1,14 @@
 @let status = status$ | async;
 
-<main class="callback-wrapper">
-  <div class="callback-card fade-in-up">
+<main class="callback-wrapper fade-in-up">
+  <p-card styleClass="callback-card">
     <header class="callback-header">
       <span class="callback-chip">
         <i class="pi pi-instagram" aria-hidden="true"></i>
         {{ 'LINK_INSTAGRAM_CALLBACK.LABEL' | translate }}
       </span>
-      <h1>{{ 'LINK_INSTAGRAM_CALLBACK.TITLE' | translate }}</h1>
-      <p>
-        {{ 'LINK_INSTAGRAM_CALLBACK.DESCRIPTION' | translate }}
-      </p>
+      <h2>{{ 'LINK_INSTAGRAM_CALLBACK.TITLE' | translate }}</h2>
+      <p>{{ 'LINK_INSTAGRAM_CALLBACK.DESCRIPTION' | translate }}</p>
     </header>
 
     <app-instagram-status-banner
@@ -24,24 +22,31 @@
 
       @if (isProcessing && (!status || !status.isFinal)) {
         <div class="status-progress" aria-live="polite">
-          <span class="progress-spinner" aria-hidden="true"></span>
+          <p-progressSpinner
+            [style]="{ width: '1.25rem', height: '1.25rem' }"
+            strokeWidth="4"
+          ></p-progressSpinner>
           <span>{{ 'LINK_INSTAGRAM_CALLBACK.WAITING' | translate }}</span>
         </div>
       }
 
       @if (status?.status === 'failed') {
         <div class="callback-actions">
-          <button type="button" class="callback-button" (click)="goBack()">
-            {{ 'LINK_INSTAGRAM_CALLBACK.BACK' | translate }}
-          </button>
+          <p-button
+            [label]="'LINK_INSTAGRAM_CALLBACK.BACK' | translate"
+            [outlined]="true"
+            severity="secondary"
+            (onClick)="goBack()"
+          ></p-button>
         </div>
       } @else if (status?.status === 'completed') {
         <div class="callback-actions">
-          <button type="button" class="callback-button" (click)="goBack()">
-            {{ 'LINK_INSTAGRAM_CALLBACK.CONTINUE' | translate }}
-          </button>
+          <p-button
+            [label]="'LINK_INSTAGRAM_CALLBACK.CONTINUE' | translate"
+            (onClick)="goBack()"
+          ></p-button>
         </div>
       }
     </section>
-  </div>
+  </p-card>
 </main>
