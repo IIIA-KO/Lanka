@@ -1,7 +1,5 @@
 using Lanka.Common.Application.Authentication;
-using Lanka.Common.Application.Caching;
 using Lanka.Common.Application.Messaging;
-using Lanka.Common.Application.Notifications;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions;
 using Lanka.Modules.Users.Application.Abstractions.Data;
@@ -15,34 +13,25 @@ namespace Lanka.Modules.Users.Application.Instagram.Link;
 internal sealed class LinkInstagramAccountCommandHandler
     : ICommandHandler<LinkInstagramAccountCommand>
 {
+    private readonly IUserRepository _userRepository;
+    private readonly IUserContext _userContext;
+    private readonly IIdentityProviderService _identityProviderService;
+    private readonly IInstagramOperationStatusService _statusService;
+    private readonly IUnitOfWork _unitOfWork;
+
     public LinkInstagramAccountCommandHandler(
         IUserRepository userRepository,
         IUserContext userContext,
         IIdentityProviderService identityProviderService,
-        INotificationService notificationService,
-        ICacheService cacheService,
-        IUnitOfWork unitOfWork
-    )
+        IInstagramOperationStatusService statusService,
+        IUnitOfWork unitOfWork)
     {
         this._userRepository = userRepository;
         this._userContext = userContext;
         this._identityProviderService = identityProviderService;
-        this._notificationService = notificationService;
-        this._cacheService = cacheService;
+        this._statusService = statusService;
         this._unitOfWork = unitOfWork;
     }
-
-    private readonly IUserRepository _userRepository;
-
-    private readonly IUserContext _userContext;
-
-    private readonly IIdentityProviderService _identityProviderService;
-
-    private readonly ICacheService _cacheService;
-
-    private readonly IUnitOfWork _unitOfWork;
-
-    private readonly INotificationService _notificationService;
 
     public async Task<Result> Handle(
         LinkInstagramAccountCommand request,
@@ -65,31 +54,23 @@ internal sealed class LinkInstagramAccountCommandHandler
             return Result.Failure(IdentityProviderErrors.ExternalIdentityProviderAlreadyLinked);
         }
 
-        bool alreadyLinking = await this._cacheService.ExistsAsync(
-            user.Id.Value.ToString(),
-            cancellationToken
-        );
+        InstagramOperationStatus existingStatus = await this._statusService.GetStatusAsync(
+            user.Id.Value, InstagramOperationType.Linking, cancellationToken);
 
-        if (alreadyLinking)
+        bool isActivelyInProgress = existingStatus.Status is
+            InstagramOperationStatuses.Pending or InstagramOperationStatuses.Processing;
+
+        if (isActivelyInProgress)
         {
             return Result.Failure(InstagramLinkingRepositoryErrors.AlreadyLinking);
         }
 
-        var status = new InstagramOperationStatus(
+        await this._statusService.SetStatusAsync(
+            user.Id.Value,
             InstagramOperationType.Linking,
             InstagramOperationStatuses.Pending,
             "Instagram linking started",
-            DateTime.UtcNow
-        );
-
-        string cacheKey = $"instagram_linking_status_{user.Id.Value}";
-        await this._cacheService.SetAsync(cacheKey, status, TimeSpan.FromMinutes(10), cancellationToken);
-
-        await this._notificationService.SendInstagramLinkingStatusAsync(
-            user.Id.Value.ToString(),
-            InstagramOperationStatuses.Pending,
-            status.Message,
-            cancellationToken
+            cancellationToken: cancellationToken
         );
 
         user.LinkInstagramAccount(request.Code);

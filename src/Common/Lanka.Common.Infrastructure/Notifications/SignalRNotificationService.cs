@@ -45,18 +45,25 @@ public sealed class SignalRNotificationService : INotificationService
 [Authorize]
 public sealed class InstagramHub : Hub
 {
-    public async Task JoinUserGroup(string userId)
+    public override async Task OnConnectedAsync()
     {
-        await this.Groups.AddToGroupAsync(this.Context.ConnectionId, $"user_{userId}");
-    }
+        string? userId = this.Context.User?.FindFirst("sub")?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await this.Groups.AddToGroupAsync(this.Context.ConnectionId, $"user_{userId}");
+        }
 
-    public async Task LeaveUserGroup(string userId)
-    {
-        await this.Groups.RemoveFromGroupAsync(this.Context.ConnectionId, $"user_{userId}");
+        await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        string? userId = this.Context.User?.FindFirst("sub")?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await this.Groups.RemoveFromGroupAsync(this.Context.ConnectionId, $"user_{userId}");
+        }
+
         await base.OnDisconnectedAsync(exception);
     }
 }

@@ -8,12 +8,14 @@ using Lanka.Modules.Campaigns.IntegrationEvents.Bloggers;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
+using Lanka.Modules.Users.Application.Instagram;
 using Lanka.Modules.Users.Infrastructure.Authorization;
 using Lanka.Modules.Users.Infrastructure.Database;
 using Lanka.Modules.Users.Infrastructure.Identity;
 using Lanka.Modules.Users.Infrastructure.Identity.Apis;
 using Lanka.Modules.Users.Infrastructure.Identity.Services;
 using Lanka.Modules.Users.Infrastructure.Inbox;
+using Lanka.Modules.Users.Infrastructure.Instagram;
 using Lanka.Modules.Users.Infrastructure.Outbox;
 using Lanka.Modules.Users.Infrastructure.Users;
 using Lanka.Modules.Users.IntegrationEvents.LinkInstagram;
@@ -103,6 +105,8 @@ public static class UsersModule
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IInstagramOperationStatusService, InstagramOperationStatusService>();
+
         AddAuthentication(services, configuration);
 
         AddPersistence(services, configuration);
