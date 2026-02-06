@@ -4,8 +4,8 @@
   align-items: flex-start;
   padding: 1.25rem 1.5rem;
   border-radius: 16px;
-  border: 1px solid var(--surface-border);
-  background-color: #ffffff;
+  border: 1px solid var(--app-border);
+  background-color: var(--app-surface);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s ease;
 }
@@ -24,7 +24,7 @@
   justify-content: center;
   font-size: 1.35rem;
   font-weight: 600;
-  background: var(--p-primary-50);
+  background: color-mix(in srgb, var(--p-primary-color) 15%, var(--app-surface));
   color: var(--p-primary-color);
   position: relative;
 }
@@ -58,7 +58,7 @@
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  background-color: var(--p-primary-50);
+  background-color: color-mix(in srgb, var(--p-primary-color) 15%, var(--app-surface));
   color: var(--p-primary-color);
 }
 
@@ -78,7 +78,7 @@
 .spinner {
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid var(--p-primary-200);
+  border: 3px solid color-mix(in srgb, var(--p-primary-color) 30%, var(--app-surface));
   border-top-color: var(--p-primary-color);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -95,61 +95,61 @@
 }
 
 .icon-success {
-  background-color: #dcfce7;
-  color: #15803d;
+  background-color: color-mix(in srgb, #22c55e 20%, var(--app-surface));
+  color: #22c55e;
 }
 
 .icon-failed {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: color-mix(in srgb, #ef4444 20%, var(--app-surface));
+  color: #ef4444;
 }
 
 .icon-processing {
-  background-color: #fef9c3;
-  color: #ca8a04;
+  background-color: color-mix(in srgb, #eab308 20%, var(--app-surface));
+  color: #eab308;
 }
 
 .icon-idle {
-  background-color: #e0f2fe;
-  color: #0284c7;
+  background-color: color-mix(in srgb, #0ea5e9 20%, var(--app-surface));
+  color: #0ea5e9;
 }
 
 .status-completed {
-  border-color: #dcfce7;
-  background-color: #f0fdf4;
+  border-color: color-mix(in srgb, #22c55e 30%, var(--app-surface));
+  background-color: color-mix(in srgb, #22c55e 10%, var(--app-surface));
 }
 
 .status-completed .status-pill {
-  background-color: #dcfce7;
-  color: #15803d;
+  background-color: color-mix(in srgb, #22c55e 20%, var(--app-surface));
+  color: #22c55e;
 }
 
 .status-failed {
-  border-color: #fee2e2;
-  background-color: #fef2f2;
+  border-color: color-mix(in srgb, #ef4444 30%, var(--app-surface));
+  background-color: color-mix(in srgb, #ef4444 10%, var(--app-surface));
 }
 
 .status-failed .status-pill {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: color-mix(in srgb, #ef4444 20%, var(--app-surface));
+  color: #ef4444;
 }
 
 .status-pending,
 .status-processing {
-  border-color: var(--p-primary-100);
-  background-color: var(--p-primary-50);
+  border-color: color-mix(in srgb, var(--p-primary-color) 25%, var(--app-surface));
+  background-color: color-mix(in srgb, var(--p-primary-color) 10%, var(--app-surface));
 }
 
 .status-pending .status-pill,
 .status-processing .status-pill {
-  background-color: var(--p-primary-100);
-  color: var(--p-primary-700);
+  background-color: color-mix(in srgb, var(--p-primary-color) 20%, var(--app-surface));
+  color: var(--p-primary-color);
 }
 
 .status-idle {
   border-style: dashed;
-  border-color: var(--p-primary-200);
-  background-color: #f8fafc;
+  border-color: color-mix(in srgb, var(--p-primary-color) 30%, var(--app-surface));
+  background-color: var(--app-surface-alt);
 }
 
 @keyframes spin {

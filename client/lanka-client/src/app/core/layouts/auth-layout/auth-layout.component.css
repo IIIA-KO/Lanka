@@ -1,5 +1,5 @@
 .bg-auth-left {
-  background-color: #f3f4f6;
+  background-color: var(--app-ground);
 }
 
 .active-tab {

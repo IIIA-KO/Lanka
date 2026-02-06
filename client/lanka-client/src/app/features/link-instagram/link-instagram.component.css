@@ -31,7 +31,7 @@
 }
 
 .action-card {
-  background: #ffffff;
+  background: var(--app-surface);
   border: 1px solid var(--surface-border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   border-radius: 12px;

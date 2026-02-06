@@ -20,7 +20,8 @@
 8. [Phase 5: Identity Linking](#phase-5-identity-linking)
 9. [Error Handling and Timeouts](#error-handling-and-timeouts)
 10. [Token Storage and Refresh](#token-storage-and-refresh)
-11. [Key Lessons](#key-lessons)
+11. [Status Management](#status-management)
+12. [Key Lessons](#key-lessons)
 
 ---
 
@@ -59,14 +60,14 @@ Instagram uses the **Authorization Code Flow**, which is the most secure OAuth f
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        OAuth 2.0 Authorization Code Flow                     │
+│                        OAuth 2.0 Authorization Code Flow                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  1. AUTHORIZATION REQUEST                                                   │
 │     User clicks "Connect Instagram" → Browser redirects to Instagram        │
-│     URL: https://www.instagram.com/oauth/authorize?                        │
+│     URL: https://www.instagram.com/oauth/authorize?                         │
 │          client_id=APP_ID&                                                  │
-│          redirect_uri=https://lanka.app/callback&                          │
+│          redirect_uri=https://lanka.app/callback&                           │
 │          scope=instagram_basic,instagram_manage_insights&                   │
 │          response_type=code                                                 │
 │                                                                             │
@@ -76,8 +77,8 @@ Instagram uses the **Authorization Code Flow**, which is the most secure OAuth f
 │                                                                             │
 │  3. TOKEN EXCHANGE (Server-to-Server)                                       │
 │     Lanka backend sends AUTH_CODE to Instagram → Receives ACCESS_TOKEN      │
-│     POST https://api.instagram.com/oauth/access_token                      │
-│     Body: { client_id, client_secret, code, redirect_uri, grant_type }     │
+│     POST https://api.instagram.com/oauth/access_token                       │
+│     Body: { client_id, client_secret, code, redirect_uri, grant_type }      │
 │                                                                             │
 │  4. API ACCESS                                                              │
 │     Lanka uses ACCESS_TOKEN to fetch user's Instagram data                  │
@@ -135,11 +136,11 @@ sequenceDiagram
     actor User
     participant UserAPI as User API
     participant CmdHandler as LinkInstagramAccount<br/>Command Handler
-    participant Cache as Cache<br/>(Connection State)
-    participant Notifications as Notification System<br/>(SignalR)
+    participant StatusService as IInstagramOperation<br/>StatusService
     participant EventBus as Event Bus
     participant Saga as Instagram Linking Saga
     participant AnalyticsHandler as Instagram Analytics Handler
+    participant SignalR as SignalR Hub
     participant MetaAPI as Facebook / Instagram<br/>Graph API
     participant FinishHandler as Finish Linking Handler
     participant Keycloak as Identity Provider<br/>(Keycloak)
@@ -147,8 +148,8 @@ sequenceDiagram
     User ->> UserAPI: POST /users/instagram/link { code }
     UserAPI ->> CmdHandler: LinkInstagramAccountCommand(code)
 
-    CmdHandler ->> Cache: Set status = "Pending"
-    CmdHandler ->> Notifications: Send status "Pending"
+    CmdHandler ->> StatusService: SetStatusAsync("pending")
+    Note right of StatusService: Writes Redis cache +<br/>sends SignalR notification
     CmdHandler ->> EventBus: Publish InstagramAccountLinkedEvent
 
     UserAPI -->> User: HTTP 202 Accepted
@@ -158,6 +159,7 @@ sequenceDiagram
     Saga ->> EventBus: Publish InstagramLinkingStartedEvent
 
     EventBus ->> AnalyticsHandler: InstagramLinkingStartedEvent
+    AnalyticsHandler ->> SignalR: Send status "processing"
     AnalyticsHandler ->> MetaAPI: Exchange code for access token + IG profile
 
     alt Meta API error
@@ -168,25 +170,25 @@ sequenceDiagram
         AnalyticsHandler ->> EventBus: Publish InstagramAccountDataFetchedEvent
     end
 
-    EventBus ->> Saga: InstagramAccountDataFetchedEvent
-    Saga ->> FinishHandler: FinishInstagramLinkingCommand
-
+    EventBus ->> FinishHandler: InstagramAccountDataFetchedEvent
     FinishHandler ->> Keycloak: Link Instagram account to user
     alt Keycloak error
         Keycloak -->> FinishHandler: Error
         FinishHandler ->> EventBus: Publish InstagramLinkingFailedEvent(reason)
     else Success
         Keycloak -->> FinishHandler: Success
-        FinishHandler ->> EventBus: Publish InstagramLinkingCompletedEvent
+        FinishHandler -->> FinishHandler: Set user.InstagramAccountLinkedOnUtc
     end
 
-    EventBus ->> Saga: InstagramLinkingCompletedEvent
-    Saga ->> Cache: Update status = "Connected"
-    Saga ->> Notifications: Send status "Connected"
+    EventBus ->> Saga: InstagramAccountDataFetchedEvent
+    Saga ->> Saga: Composite event fires
+    Saga ->> EventBus: Publish InstagramLinkingCompletedEvent
+
+    EventBus ->> StatusService: SetStatusAsync("completed")
+    Note right of StatusService: Writes Redis cache +<br/>sends SignalR notification
 
     alt Timeout or failure
-        Saga ->> Cache: Update status = "Failed / Timeout"
-        Saga ->> Notifications: Send status "Failed"
+        EventBus ->> StatusService: SetStatusAsync("failed")
     end
 ```
 
@@ -302,47 +304,49 @@ public sealed class LinkInstagram : UsersEndpointBase, IEndpoint
 internal sealed class LinkInstagramAccountCommandHandler
     : ICommandHandler<LinkInstagramAccountCommand>
 {
+    private readonly IUserRepository _userRepository;
+    private readonly IUserContext _userContext;
+    private readonly IIdentityProviderService _identityProviderService;
+    private readonly IInstagramOperationStatusService _statusService;
+    private readonly IUnitOfWork _unitOfWork;
+
     public async Task<Result> Handle(
-        LinkInstagramAccountCommand command,
-        CancellationToken ct)
+        LinkInstagramAccountCommand request,
+        CancellationToken cancellationToken)
     {
         // 1. Retrieve current authenticated user
-        User? user = await _userRepository.GetAsync(_userContext.UserId, ct);
-        if (user is null)
-            return Result.Failure(UserErrors.NotFound(_userContext.UserId));
+        User user = await _userRepository.GetByIdAsync(
+            new UserId(_userContext.GetUserId()), cancellationToken);
 
         // 2. Check if Instagram account already linked in Keycloak
         bool isLinked = await _identityProviderService
-            .IsExternalAccountLinkedAsync(user.IdentityId, "instagram", ct);
+            .IsExternalAccountLinkedAsync(user!.IdentityId, ProviderName.Instagram, cancellationToken);
         if (isLinked)
-            return Result.Failure(UserErrors.InstagramAccountAlreadyLinked);
+            return Result.Failure(IdentityProviderErrors.ExternalIdentityProviderAlreadyLinked);
 
-        // 3. Prevent concurrent linking attempts using Redis
-        string cacheKey = $"instagram_linking_status_{user.Id.Value}";
-        InstagramOperationStatus? existingStatus = await _cacheService
-            .GetAsync<InstagramOperationStatus>(cacheKey, ct);
+        // 3. Prevent concurrent linking attempts — only block if actively in progress
+        InstagramOperationStatus existingStatus = await _statusService.GetStatusAsync(
+            user.Id.Value, InstagramOperationType.Linking, cancellationToken);
 
-        if (existingStatus?.IsPending == true)
-            return Result.Failure(UserErrors.InstagramLinkingAlreadyInProgress);
+        bool isActivelyInProgress = existingStatus.Status is
+            InstagramOperationStatuses.Pending or InstagramOperationStatuses.Processing;
 
-        // 4. Store pending status with 10-minute TTL
-        var status = new InstagramOperationStatus(
+        if (isActivelyInProgress)
+            return Result.Failure(InstagramLinkingRepositoryErrors.AlreadyLinking);
+
+        // 4. Set pending status (writes Redis cache + sends SignalR notification)
+        await _statusService.SetStatusAsync(
+            user.Id.Value,
             InstagramOperationType.Linking,
-            InstagramOperationStatusCode.Pending);
+            InstagramOperationStatuses.Pending,
+            "Instagram linking started",
+            cancellationToken: cancellationToken);
 
-        await _cacheService.SetAsync(cacheKey, status, TimeSpan.FromMinutes(10), ct);
+        // 5. Raise domain event — this triggers the saga
+        user.LinkInstagramAccount(request.Code);
 
-        // 5. Notify user via SignalR
-        await _notificationService.SendInstagramLinkingStatusAsync(
-            user.Id,
-            InstagramOperationStatusCode.Pending,
-            ct);
-
-        // 6. Raise domain event — this triggers the saga
-        user.LinkInstagramAccount(command.Code);
-
-        // 7. Persist changes (outbox pattern ensures event is published)
-        await _unitOfWork.SaveChangesAsync(ct);
+        // 6. Persist changes (outbox pattern ensures event is published)
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
@@ -351,9 +355,9 @@ internal sealed class LinkInstagramAccountCommandHandler
 
 **Key design decisions:**
 
-1. **Redis for concurrent request prevention:** Multiple clicks or browser refreshes could trigger duplicate requests. Redis cache with TTL handles this.
+1. **`IInstagramOperationStatusService`:** A centralized service that encapsulates both Redis cache writes and SignalR notifications. This replaces the previous pattern of injecting `ICacheService` + `INotificationService` separately, ensuring they always stay in sync.
 
-2. **SignalR notification:** The user sees immediate feedback that linking has started.
+2. **Status-aware duplicate prevention:** Instead of `_cacheService.ExistsAsync()` which returned `true` for any cached value (including `failed`), we now check the actual status. Only `pending` or `processing` operations block retries — a `failed` or `completed` status allows the user to try again.
 
 3. **Domain event triggers saga:** Rather than calling the saga directly, we raise a domain event. This maintains loose coupling and uses the outbox pattern for reliable delivery.
 
@@ -551,34 +555,51 @@ The saga state is persisted to the database, allowing the process to survive app
 internal sealed class InstagramAccountLinkingStartedIntegrationEventHandler
     : IntegrationEventHandler<InstagramAccountLinkingStartedIntegrationEvent>
 {
+    private const string StatusProcessing = "processing";
+
+    private readonly ISender _sender;
+    private readonly IEventBus _eventBus;
+    private readonly IInstagramUserContext? _instagramUserContext;
+    private readonly INotificationService _notificationService;
+
     public override async Task Handle(
         InstagramAccountLinkingStartedIntegrationEvent integrationEvent,
-        CancellationToken ct)
+        CancellationToken cancellationToken = default)
     {
         // Set email context for mock service resolution (development)
         _instagramUserContext?.SetEmail(integrationEvent.Email);
 
-        var command = new FetchInstagramAccountDataCommand(
-            integrationEvent.UserId,
-            integrationEvent.Email,
-            integrationEvent.Code);
+        string userId = integrationEvent.UserId.ToString();
 
-        Result result = await _sender.Send(command, ct);
+        // Send "processing" notification via SignalR before starting the command.
+        // Note: We don't write to cache here to avoid cross-module type dependency issues.
+        // The cache is managed by the Users module; SignalR provides real-time updates.
+        await _notificationService.SendInstagramLinkingStatusAsync(
+            userId, StatusProcessing, "Fetching Instagram account data...", cancellationToken);
+
+        Result result = await _sender.Send(
+            new FetchInstagramAccountDataCommand(
+                integrationEvent.UserId,
+                integrationEvent.Email,
+                integrationEvent.Code),
+            cancellationToken);
 
         // If fetching fails, notify the saga
         if (result.IsFailure)
         {
             await _eventBus.PublishAsync(
                 new InstagramLinkingFailedIntegrationEvent(
-                    Guid.NewGuid(),
-                    DateTime.UtcNow,
+                    integrationEvent.Id,
+                    integrationEvent.OccurredOnUtc,
                     integrationEvent.UserId,
-                    result.Error.Code),
-                ct);
+                    result.Error.Description),
+                cancellationToken);
         }
     }
 }
 ```
+
+**Design decision:** The Analytics module sends a `"processing"` SignalR notification directly (via `INotificationService`) before beginning the actual API calls. This gives the frontend an intermediate status update — the user sees `pending → processing → completed/failed` instead of jumping from `pending` to the final state. The Analytics module intentionally does not write to the Redis cache here to avoid a cross-module dependency on the Users module's `IInstagramOperationStatusService`.
 
 ### Step 4.2: Token Exchange with Facebook/Instagram
 
@@ -844,34 +865,36 @@ When the saga receives confirmation that data fetching completed, it:
 
 ### Step 5.4: User Notification
 
-**File:** `src/Modules/Users/Lanka.Modules.Users.Application/Instagram/LinkingCompleted/InstagramAccountLinkingCompletedIntegrationEventHandler.cs`
+**File:** `src/Modules/Users/Lanka.Modules.Users.Presentation/InstagramNotifications/InstagramAccountLinkingCompletedIntegrationEventHandler.cs`
 
 ```csharp
 internal sealed class InstagramAccountLinkingCompletedIntegrationEventHandler
     : IntegrationEventHandler<InstagramAccountLinkingCompletedIntegrationEvent>
 {
+    private readonly IInstagramOperationStatusService _statusService;
+
+    public InstagramAccountLinkingCompletedIntegrationEventHandler(
+        IInstagramOperationStatusService statusService)
+    {
+        _statusService = statusService;
+    }
+
     public override async Task Handle(
         InstagramAccountLinkingCompletedIntegrationEvent integrationEvent,
-        CancellationToken ct)
+        CancellationToken cancellationToken = default)
     {
-        // Update cache status
-        string cacheKey = $"instagram_linking_status_{integrationEvent.UserId}";
-        var status = new InstagramOperationStatus(
+        await _statusService.SetStatusAsync(
+            integrationEvent.UserId,
             InstagramOperationType.Linking,
-            InstagramOperationStatusCode.Completed);
-
-        await _cacheService.SetAsync(cacheKey, status, TimeSpan.FromMinutes(5), ct);
-
-        // Notify user via SignalR
-        await _notificationService.SendInstagramLinkingStatusAsync(
-            new UserId(integrationEvent.UserId),
-            InstagramOperationStatusCode.Completed,
-            ct);
+            InstagramOperationStatuses.Completed,
+            "Instagram account linked successfully",
+            completedAt: DateTime.UtcNow,
+            cancellationToken: cancellationToken);
     }
 }
 ```
 
-The client receives the SignalR notification and updates the UI to show "Connected".
+The `IInstagramOperationStatusService.SetStatusAsync` call atomically updates the Redis cache and sends the SignalR notification. The client receives the notification and updates the UI to show "Connected".
 
 ---
 
@@ -909,10 +932,12 @@ If Keycloak linking fails:
 
 If user clicks "Connect" multiple times:
 
-1. First request sets Redis cache with "Pending" status
-2. Subsequent requests check cache, find pending status
-3. Return `UserErrors.InstagramLinkingAlreadyInProgress` immediately
+1. First request sets Redis cache with `"pending"` status via `IInstagramOperationStatusService`
+2. Subsequent requests call `GetStatusAsync()`, find `"pending"` or `"processing"` status
+3. Return `InstagramLinkingRepositoryErrors.AlreadyLinking` immediately
 4. Original flow continues unaffected
+
+**Important:** Only `"pending"` and `"processing"` statuses block retries. If a previous attempt `"failed"`, the user can try again without waiting for the 10-minute cache TTL to expire.
 
 ---
 
@@ -991,6 +1016,127 @@ public class UpdateInstagramAccountsJob : IJob
 
 ---
 
+## Status Management
+
+### The `IInstagramOperationStatusService` Abstraction
+
+A centralized service introduced to eliminate duplication across handlers. Every handler that previously injected both `ICacheService` and `INotificationService` now uses a single `IInstagramOperationStatusService`.
+
+**File:** `src/Modules/Users/Lanka.Modules.Users.Application/Instagram/IInstagramOperationStatusService.cs`
+
+```csharp
+public interface IInstagramOperationStatusService
+{
+    /// Updates status in Redis cache and sends SignalR notification atomically.
+    Task SetStatusAsync(
+        Guid userId, string operationType, string status, string? message,
+        DateTime? startedAt = null, DateTime? completedAt = null,
+        CancellationToken cancellationToken = default);
+
+    /// Gets current status from cache. Returns "not_found" if no operation is in progress.
+    Task<InstagramOperationStatus> GetStatusAsync(
+        Guid userId, string operationType, CancellationToken cancellationToken = default);
+
+    /// Generates the cache key: "instagram_{operationType}_status_{userId}"
+    static string GetCacheKey(Guid userId, string operationType) =>
+        $"instagram_{operationType}_status_{userId}";
+}
+```
+
+**Implementation** (`InstagramOperationStatusService`):
+- **`SetStatusAsync`**: Writes an `InstagramOperationStatus` record to Redis (10-minute TTL), then dispatches a SignalR notification to the user's group based on `operationType` (`"linking"` or `"renewal"`)
+- **`GetStatusAsync`**: Reads from Redis. Returns a non-null `InstagramOperationStatus` with `Status = "not_found"` when no cached entry exists (avoids null propagation)
+
+### The `InstagramOperationStatus` Model
+
+```csharp
+public sealed record InstagramOperationStatus(
+    string OperationType, // "linking" or "renewal"
+    string Status,        // "not_found", "pending", "processing", "completed", "failed"
+    string? Message = null,
+    DateTime? StartedAt = null,
+    DateTime? CompletedAt = null
+);
+```
+
+Status lifecycle: `not_found → pending → processing → completed | failed`
+
+### Status Query: Linking Status with Keycloak Fallback
+
+The `GetInstagramLinkingStatusQueryHandler` uses a three-tier lookup to determine if a user's Instagram is linked:
+
+**File:** `src/Modules/Users/Lanka.Modules.Users.Application/Instagram/GetLinkingStatus/GetInstagramLinkingStatusQueryHandler.cs`
+
+```csharp
+public async Task<Result<InstagramOperationStatus>> Handle(
+    GetInstagramLinkingStatusQuery request, CancellationToken cancellationToken)
+{
+    Guid userId = _userContext.GetUserId();
+    User? user = await _userRepository.GetByIdAsync(new UserId(userId), cancellationToken);
+
+    // Tier 1: Check the database field
+    if (user.InstagramAccountLinkedOnUtc.HasValue)
+        return await SetAndReturnCompletedStatusAsync(userId, ...);
+
+    // Tier 2: Fallback — check Keycloak for external identity link
+    bool isLinkedInKeycloak = await _identityProviderService
+        .IsExternalAccountLinkedAsync(user.IdentityId, ProviderName.Instagram, cancellationToken);
+
+    if (isLinkedInKeycloak)
+    {
+        // Backfill the missing DB field so future checks are fast
+        user.InstagramAccountLinkedOnUtc = DateTimeOffset.UtcNow;
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return await SetAndReturnCompletedStatusAsync(userId, ...);
+    }
+
+    // Tier 3: Check Redis cache for an in-progress operation
+    return await _statusService.GetStatusAsync(userId, InstagramOperationType.Linking, cancellationToken);
+}
+```
+
+**Why three tiers?**
+
+1. **`InstagramAccountLinkedOnUtc`** (DB) — Fastest check, set by `FinishInstagramLinkingCommandHandler` during saga completion
+2. **Keycloak** — Authoritative source of truth for external identity links. Handles edge cases where the DB field wasn't properly persisted (e.g., the linking completed but the field was lost due to a race condition or a prior bug)
+3. **Redis cache** — Captures in-progress operations (`pending`, `processing`) and recently completed/failed operations
+
+The Keycloak fallback also **backfills** `InstagramAccountLinkedOnUtc` so future checks hit tier 1 directly.
+
+### SignalR Hub: Automatic Group Management
+
+**File:** `src/Common/Lanka.Common.Infrastructure/Notifications/SignalRNotificationService.cs`
+
+```csharp
+[Authorize]
+public sealed class InstagramHub : Hub
+{
+    public override async Task OnConnectedAsync()
+    {
+        string? userId = Context.User?.FindFirst("sub")?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
+        }
+        await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        string? userId = Context.User?.FindFirst("sub")?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId}");
+        }
+        await base.OnDisconnectedAsync(exception);
+    }
+}
+```
+
+**Design decision:** Group management is automatic — the hub reads the `sub` claim from the JWT on connect/disconnect. The client no longer needs to explicitly call `JoinUserGroup`/`LeaveUserGroup` hub methods. This eliminates a race condition where SignalR notifications could be missed if the client connected but hadn't yet joined its group.
+
+---
+
 ## Integration Events Summary
 
 | Event | Publisher | Consumers | Purpose |
@@ -1030,6 +1176,14 @@ SignalR notifications keep users informed. Without them, users would need to pol
 
 The happy path was straightforward. Making timeout and error handling robust required most of the development effort.
 
+### 7. Centralize Cross-Cutting Concerns
+
+The `IInstagramOperationStatusService` abstraction was born from a pattern where every handler had near-identical code: construct a cache key, write to Redis, send a SignalR notification. Extracting this into a service eliminated bugs (inconsistent cache keys, forgotten notifications) and made all handlers simpler.
+
+### 8. Use Multiple Sources of Truth Defensively
+
+The linking status query uses a three-tier lookup (DB → Keycloak → Redis cache). Distributed systems can have inconsistent state — relying on a single source risks false negatives. The Keycloak fallback with DB backfill ensures self-healing behavior.
+
 ---
 
 ## Files Reference
@@ -1039,6 +1193,10 @@ The happy path was straightforward. Making timeout and error handling robust req
 | Endpoint | `src/Modules/Users/.../Presentation/Users/LinkInstagram.cs` |
 | Command | `src/Modules/Users/.../Application/Instagram/Link/LinkInstagramAccountCommand.cs` |
 | Command Handler | `src/Modules/Users/.../Application/Instagram/Link/LinkInstagramAccountCommandHandler.cs` |
+| Status Service Interface | `src/Modules/Users/.../Application/Instagram/IInstagramOperationStatusService.cs` |
+| Status Service Implementation | `src/Modules/Users/.../Infrastructure/Instagram/InstagramOperationStatusService.cs` |
+| Status Model | `src/Modules/Users/.../Application/Instagram/Models/InstagramOperationStatus.cs` |
+| Linking Status Query Handler | `src/Modules/Users/.../Application/Instagram/GetLinkingStatus/GetInstagramLinkingStatusQueryHandler.cs` |
 | Domain Event | `src/Modules/Users/.../Domain/Users/DomainEvents/InstagramAccountLinkedDomainEvent.cs` |
 | Saga | `src/Modules/Users/.../Presentation/LinkInstagramSaga/LinkInstagramSaga.cs` |
 | Saga State | `src/Modules/Users/.../Presentation/LinkInstagramSaga/LinkInstagramState.cs` |
@@ -1046,6 +1204,9 @@ The happy path was straightforward. Making timeout and error handling robust req
 | Fetch Command | `src/Modules/Analytics/.../Application/Instagram/FetchAccountData/FetchInstagramAccountDataCommand.cs` |
 | Token Entity | `src/Modules/Analytics/.../Domain/Tokens/Token.cs` |
 | Finish Handler | `src/Modules/Users/.../Application/Instagram/FinishLinking/FinishInstagramLinkingCommandHandler.cs` |
+| Completion Handler | `src/Modules/Users/.../Presentation/InstagramNotifications/InstagramAccountLinkingCompletedIntegrationEventHandler.cs` |
+| Failure Handler | `src/Modules/Users/.../Presentation/InstagramNotifications/InstagramAccountLinkingFailureCleanedUpIntegrationEventHandler.cs` |
+| SignalR Hub | `src/Common/Lanka.Common.Infrastructure/Notifications/SignalRNotificationService.cs` |
 
 ---
 

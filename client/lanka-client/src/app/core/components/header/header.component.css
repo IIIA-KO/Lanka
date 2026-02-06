@@ -1,7 +1,7 @@
 .app-header {
   height: 4.5rem; /* Increased slightly */
-  background-color: rgba(255, 255, 255, 0.82);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background-color: var(--app-header-bg);
+  border-bottom: 1px solid var(--app-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,7 +34,7 @@
   align-items: center;
   padding: 0.1rem 0.35rem;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--app-surface-alt);
 }
 
 .search-wrapper {
@@ -58,7 +58,7 @@
 .search-input {
   width: 100%;
   border-radius: 999px;
-  background-color: var(--p-surface-50);
+  background-color: var(--app-surface-alt);
   border: 1px solid transparent;
   padding-left: 2.75rem; /* Space for icon */
   padding-right: 1rem;
@@ -68,7 +68,7 @@
 }
 
 .search-input:focus {
-  background-color: #fff;
+  background-color: var(--app-surface);
   border-color: var(--p-primary-color);
   box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.1);
 }
@@ -90,7 +90,7 @@
 .separator {
   width: 1px;
   height: 24px;
-  background-color: var(--p-surface-border);
+  background-color: var(--app-border);
 }
 
 .language-switcher {
@@ -109,8 +109,8 @@
 }
 
 .user-profile:hover {
-  background-color: var(--p-surface-50);
-  border-color: var(--p-surface-border);
+  background-color: var(--app-surface-alt);
+  border-color: var(--app-border);
 }
 
 .user-info {

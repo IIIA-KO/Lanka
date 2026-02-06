@@ -10,13 +10,13 @@
 }
 
 .border-right-md {
-  border-right: 1px solid var(--surface-border);
+  border-right: 1px solid var(--app-border);
 }
 
 @media (max-width: 768px) {
   .border-right-md {
     border-right: none;
-    border-bottom: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--app-border);
     padding-bottom: 2rem;
     margin-bottom: 2rem;
   }
@@ -31,8 +31,8 @@
 }
 
 .danger-zone {
-  border: 1px solid #fee2e2;
+  border: 1px solid color-mix(in srgb, #ef4444 30%, var(--app-surface));
   border-radius: 8px;
   padding: 1.5rem;
-  background-color: #fff5f5;
+  background-color: color-mix(in srgb, #ef4444 10%, var(--app-surface));
 }
