@@ -31,8 +31,7 @@ internal sealed class LinkInstagram : UsersEndpointBase
             .WithTags(Tags.Users)
             .WithName("LinkInstagram")
             .WithSummary("Link Instagram account")
-            .WithDescription("Links an Instagram account to the user profile using OAuth authorization code")
-            .WithOpenApi();
+            .WithDescription("Links an Instagram account to the user profile using OAuth authorization code");
     }
 
     internal sealed class LinkInstagramRequest

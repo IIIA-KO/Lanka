@@ -35,7 +35,6 @@ internal sealed class GetMetricsStatistics : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetMetricsStatistics")
             .WithSummary("Get table statistics")
-            .WithDescription("Retrieves detailed metrics statistics for Instagram account within specified period")
-            .WithOpenApi();
+            .WithDescription("Retrieves detailed metrics statistics for Instagram account within specified period");
     }
 }

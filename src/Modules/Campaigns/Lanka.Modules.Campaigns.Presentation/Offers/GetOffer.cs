@@ -32,7 +32,6 @@ internal sealed class GetOffer : OfferEndpointBase
         .WithTags(Tags.Offers)
         .WithName("GetOffer")
         .WithSummary("Get offer")
-        .WithDescription("Retrieves offer details by ID")
-        .WithOpenApi();
+        .WithDescription("Retrieves offer details by ID");
     }
 }

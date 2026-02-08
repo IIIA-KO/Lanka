@@ -38,8 +38,7 @@ internal sealed class EditOffer : OfferEndpointBase
         .WithTags(Tags.Offers)
         .WithName("EditOffer")
         .WithSummary("Edit offer")
-        .WithDescription("Updates an existing offer")
-        .WithOpenApi();
+        .WithDescription("Updates an existing offer");
     }
 
     internal sealed class EditOfferRequest

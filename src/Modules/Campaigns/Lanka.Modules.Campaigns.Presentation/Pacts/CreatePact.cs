@@ -31,8 +31,7 @@ internal sealed class CreatePact : PactEndpointBase
             .WithTags(Tags.Pacts)
             .WithName("CreatePact")
             .WithSummary("Create pact")
-            .WithDescription("Creates a new pact with specified content")
-            .WithOpenApi();
+            .WithDescription("Creates a new pact with specified content");
     }
 
     internal sealed class CreatePactRequest

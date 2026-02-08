@@ -35,7 +35,6 @@ internal sealed class GetInteractionStatistics : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetInteractionStatistics")
             .WithSummary("Get interaction statistics")
-            .WithDescription("Retrieves interaction statistics for Instagram account within specified period")
-            .WithOpenApi();
+            .WithDescription("Retrieves interaction statistics for Instagram account within specified period");
     }
 }

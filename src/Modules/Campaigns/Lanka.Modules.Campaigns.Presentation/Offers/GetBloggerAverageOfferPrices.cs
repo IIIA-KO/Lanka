@@ -32,7 +32,6 @@ internal sealed class GetBloggerAverageOfferPrices : OfferEndpointBase
             .WithTags(Tags.Offers)
             .WithName("GetBloggerAverageOfferPrices")
             .WithSummary("Get blogger average offer prices")
-            .WithDescription("Retrieves average offer prices for a specific blogger")
-            .WithOpenApi();
+            .WithDescription("Retrieves average offer prices for a specific blogger");
     }
 }

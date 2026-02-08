@@ -25,7 +25,6 @@ internal sealed class GetUserProfile : UsersEndpointBase
             .WithTags(Tags.Users)
             .WithName("GetUserProfile")
             .WithSummary("Get user profile")
-            .WithDescription("Retrieves the current user's profile information")
-            .WithOpenApi();
+            .WithDescription("Retrieves the current user's profile information");
     }
 }

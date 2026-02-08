@@ -38,8 +38,7 @@ internal sealed class UpdateBlogger : BloggerEndpointBase
         .WithTags(Tags.Bloggers)
         .WithName("UpdateBlogger")
         .WithSummary("Update blogger profile")
-        .WithDescription("Updates the current blogger's profile information")
-        .WithOpenApi();
+        .WithDescription("Updates the current blogger's profile information");
     }
 
     internal sealed class UpdateBloggerRequest

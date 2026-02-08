@@ -1,0 +1,24 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <UserSecretsId>ccf9a49e-1353-4b1e-8083-4521d538034e</UserSecretsId>
+        <IsAspireHost>true</IsAspireHost>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+        <PackageReference Include="Aspire.Hosting.Redis" />
+        <PackageReference Include="Aspire.Hosting.RabbitMQ" />
+        <PackageReference Include="Aspire.Hosting.MongoDB" />
+        <PackageReference Include="Aspire.Hosting.Elasticsearch" />
+        <PackageReference Include="Aspire.Hosting.Keycloak" />
+        <PackageReference Include="Aspire.Hosting.JavaScript" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Lanka.Api\Lanka.Api.csproj" />
+        <ProjectReference Include="..\Lanka.Gateway\Lanka.Gateway.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -221,7 +221,7 @@ public static class CampaignSeeder
                 // Randomly assign status: Pending=0, Confirmed=1, Rejected=2, Done=3, Completed=4, Cancelled=5
                 int status = faker.PickRandom(0, 0, 0, 1, 1, 2, 3, 4, 5); // More pending and confirmed
 
-                DateTimeOffset scheduledOnUtc = faker.Date.FutureOffset(30);
+                DateTimeOffset scheduledOnUtc = faker.Date.FutureOffset(30).ToUniversalTime();
                 DateTimeOffset pendedOnUtc = DateTimeOffset.UtcNow.AddDays(-faker.Random.Int(5, 60));
 
                 (Guid Id, string FirstName, string LastName) creatorName = bloggerNameMap[creatorId];

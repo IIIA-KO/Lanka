@@ -24,7 +24,6 @@ internal sealed class GetBlogger : BloggerEndpointBase
             .WithTags(Tags.Bloggers)
             .WithName("GetBlogger")
             .WithSummary("Get blogger")
-            .WithDescription("Retrieves blogger information by ID")
-            .WithOpenApi();
+            .WithDescription("Retrieves blogger information by ID");
     }
 }

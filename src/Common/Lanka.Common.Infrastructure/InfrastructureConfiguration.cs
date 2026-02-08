@@ -21,8 +21,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using Npgsql;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Quartz;
 using Quartz.Simpl;
 using StackExchange.Redis;
@@ -55,7 +53,7 @@ public static class InfrastructureConfiguration
 
         AddEventBus(services, serviceName, moduleConfigureConsumers, rabbitMqSettings);
 
-        AddTracing(services, serviceName, mongoConnectionString);
+        AddMongo(services, mongoConnectionString);
 
         AddNotifications(services);
 
@@ -166,26 +164,8 @@ public static class InfrastructureConfiguration
         });
     }
 
-    private static void AddTracing(IServiceCollection services, string serviceName, string mongoConnectionString)
+    private static void AddMongo(IServiceCollection services, string mongoConnectionString)
     {
-        services
-            .AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(serviceName))
-            .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddEntityFrameworkCoreInstrumentation()
-                    .AddRedisInstrumentation()
-                    .AddNpgsql()
-                    .AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName)
-                    .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
-
-                tracing
-                    .AddOtlpExporter();
-            });
-
         services.AddSingleton<IMongoClient>(_ =>
         {
             var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConnectionString);

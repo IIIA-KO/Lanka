@@ -1,11 +1,9 @@
 using System.Threading.RateLimiting;
 using Lanka.Gateway.Authentication;
 using Lanka.Gateway.Middleware;
-using Lanka.Gateway.OpenTelemetry;
 using Lanka.Gateway.RateLimiting;
 using Lanka.Gateway.Resiliency;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
+using Lanka.ServiceDefaults;
 using Polly;
 using Serilog;
 using Yarp.ReverseProxy.Forwarder;
@@ -34,9 +32,10 @@ internal static class ApplicationExtensions
 
     public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
     {
-        builder.Host.UseSerilog((context, loggerConfiguration) =>
-            loggerConfiguration.ReadFrom.Configuration(context.Configuration)
-        );
+        builder.Host.UseSerilog(
+            (context, loggerConfiguration) =>
+                loggerConfiguration.ReadFrom.Configuration(context.Configuration),
+            writeToProviders: true);
 
         return builder;
     }
@@ -110,24 +109,6 @@ internal static class ApplicationExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder ConfigureTracing(this WebApplicationBuilder builder)
-    {
-        builder.Services
-            .AddOpenTelemetry()
-            .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
-            .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddSource("Yarp.ReverseProxy");
-
-                tracing.AddOtlpExporter();
-            });
-
-        return builder;
-    }
-
     public static WebApplicationBuilder ConfigureAuthentication(this WebApplicationBuilder builder)
     {
         builder.Services.AddAuthorization();
@@ -154,6 +135,8 @@ internal static class ApplicationExtensions
 
         app.MapReverseProxy()
             .RequireRateLimiting(RateLimitingConfig.FixedByIp);
+
+        app.MapDefaultEndpoints();
 
         return app;
     }

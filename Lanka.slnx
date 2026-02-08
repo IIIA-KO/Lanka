@@ -8,7 +8,9 @@
   <Folder Name="/src/" />
   <Folder Name="/src/Api/">
     <Project Path="src/Api/Lanka.Api/Lanka.Api.csproj" />
+    <Project Path="src/Api/Lanka.AppHost/Lanka.AppHost.csproj" />
     <Project Path="src/Api/Lanka.Gateway/Lanka.Gateway.csproj" />
+    <Project Path="src/Api/Lanka.ServiceDefaults/Lanka.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/src/Common/">
     <Project Path="src/Common/Lanka.Common.Application/Lanka.Common.Application.csproj" />
@@ -70,7 +72,4 @@
     <Project Path="test/Lanka.ArchitectureTests/Lanka.ArchitectureTests.csproj" />
     <Project Path="test/Lanka.IntegrationTests/Lanka.IntegrationTests.csproj" />
   </Folder>
-  <Project Path="docker-compose.dcproj" Type="C#">
-    <BuildType Project="Debug" />
-  </Project>
 </Solution>

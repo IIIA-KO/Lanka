@@ -23,7 +23,6 @@ internal sealed class DeleteUser : UsersEndpointBase
         .WithTags(Tags.Users)
         .WithName("DeleteUser")
         .WithSummary("Delete user account")
-        .WithDescription("Permanently deletes the current user's account and all associated data")
-        .WithOpenApi();
+        .WithDescription("Permanently deletes the current user's account and all associated data");
     }
 }

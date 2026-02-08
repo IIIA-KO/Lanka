@@ -31,8 +31,7 @@ internal sealed class Login : UsersEndpointBase
             .WithTags(Tags.Users)
             .WithName("LoginUser")
             .WithSummary("User login")
-            .WithDescription("Authenticates a user with email and password, returns access and refresh tokens")
-            .WithOpenApi();
+            .WithDescription("Authenticates a user with email and password, returns access and refresh tokens");
     }
 
     internal sealed class LoginUserRequest

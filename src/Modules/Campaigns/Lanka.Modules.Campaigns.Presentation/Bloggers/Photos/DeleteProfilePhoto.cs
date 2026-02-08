@@ -29,7 +29,6 @@ internal sealed class DeleteProfilePhoto : BloggerEndpointBase
         .WithTags(Tags.Bloggers)
         .WithName("DeleteProfilePhoto")
         .WithSummary("Delete profile photo")
-        .WithDescription("Deletes the current blogger's profile photo")
-        .WithOpenApi();
+        .WithDescription("Deletes the current blogger's profile photo");
     }
 }

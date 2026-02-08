@@ -32,7 +32,6 @@ internal sealed class DeleteReview : ReviewEndpointBase
             .WithTags(Tags.Reviews)
             .WithName("DeleteReview")
             .WithSummary("Delete review")
-            .WithDescription("Deletes an existing review")
-            .WithOpenApi();
+            .WithDescription("Deletes an existing review");
     }
 }

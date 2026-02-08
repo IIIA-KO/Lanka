@@ -31,7 +31,6 @@ internal sealed class ConfirmCampaign : CampaignsEndpointBase
             .WithTags(Tags.Campaigns)
             .WithName("ConfirmCampaign")
             .WithSummary("Confirm campaign")
-            .WithDescription("Confirms a pending campaign")
-            .WithOpenApi();
+            .WithDescription("Confirms a pending campaign");
     }
 }

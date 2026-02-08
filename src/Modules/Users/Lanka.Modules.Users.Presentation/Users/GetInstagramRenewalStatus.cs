@@ -30,7 +30,6 @@ internal sealed class GetInstagramRenewalStatus : UsersEndpointBase
             .WithName("GetInstagramRenewalStatus")
             .WithSummary("Get Instagram renewal status")
             .WithDescription("Retrieves the current status of Instagram access token renewal operation")
-            .WithOpenApi()
             .RequireAuthorization();
     }
 }
