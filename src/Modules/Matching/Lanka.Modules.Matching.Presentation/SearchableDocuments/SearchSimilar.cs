@@ -46,7 +46,6 @@ internal sealed class SearchSimilar : SearchEndpointBase
             .WithTags(Tags.Search)
             .WithName("SearchSimilar")
             .WithSummary("Find similar documents")
-            .WithDescription("Finds documents similar to the specified source document")
-            .WithOpenApi();
+            .WithDescription("Finds documents similar to the specified source document");
     }
 }

@@ -1,58 +1,88 @@
 # OpenTelemetry Integration
 
-OpenTelemetry is a vendor-neutral, open-source observability framework for generating, collecting, and exporting telemetry data such as traces, metrics, and logs. It provides a unified standard for instrumenting applications and collecting telemetry data, making it easier to monitor and analyze the behavior of distributed systems.
+OpenTelemetry (OTel) is a vendor-neutral, open-source observability framework for generating, collecting, and exporting telemetry data — traces, metrics, and logs. It provides a unified standard for instrumenting applications, making it possible to monitor distributed systems without vendor lock-in.
 
-## Usage in Lanka Project
+## Usage in Lanka
 
-In the Lanka project, OpenTelemetry is used for tracing and metrics. Tracing helps to understand the flow of requests through the system and identify performance bottlenecks. Metrics provide insights into the overall health and performance of the system.
+Lanka uses OpenTelemetry for distributed tracing and runtime metrics. Tracing records the path a request takes through the system (HTTP request → database query → cache lookup → response), helping identify performance bottlenecks and failure points. Metrics provide quantitative measurements of system health over time.
 
 ## Configuration
 
-OpenTelemetry is configured in the `Lanka.Common.Infrastructure` project using the `AddTracing` extension method.
+All OpenTelemetry instrumentation is configured in a single place: **ServiceDefaults** (`src/Api/Lanka.ServiceDefaults/Extensions.cs`). Both Lanka.Api and Lanka.Gateway call `builder.AddServiceDefaults()`, which registers all instrumentation.
 
-### Service Name
+### Tracing
 
-The service name is configured using the `DiagnosticsConfig.ServiceName` constant in each API project (e.g., `Lanka.Api`, `Lanka.Gateway`). This name is used to identify the service in the telemetry data.
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+        tracing.AddSource(builder.Environment.ApplicationName)
+            .AddAspNetCoreInstrumentation()           // Incoming HTTP request spans
+            .AddHttpClientInstrumentation()           // Outbound HTTP call spans
+            .AddEntityFrameworkCoreInstrumentation()   // EF Core query spans
+            .AddRedisInstrumentation()                // Redis command spans
+            .AddNpgsql()                              // PostgreSQL command spans
+            .AddSource("MassTransit")                 // RabbitMQ message spans
+            .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
+            .AddSource("Yarp.ReverseProxy"));         // YARP proxy spans
+```
 
-* **Example (`src/Api/Lanka.Api/OpenTelemetry/DiagnosticsConfig.cs`):**
+Each `.Add*Instrumentation()` call registers a listener that hooks into the corresponding library's `DiagnosticSource` or `ActivitySource`. For example, `AddEntityFrameworkCoreInstrumentation()` listens to EF Core's diagnostic events and creates trace spans for every database operation.
 
-    ```csharp
-    namespace Lanka.Api.OpenTelemetry;
+These registrations are safe for all consumers. `AddSource()` for a library that isn't present in a project is a no-op — no spans are created, no errors are thrown. The Gateway gets EF Core instrumentation registered but never produces EF Core spans because it doesn't use EF Core.
 
-    internal static class DiagnosticsConfig
-    {
-        public const string ServiceName = "Lanka.Api";
-    }
-    ```
+The service name (`builder.Environment.ApplicationName`) is set automatically by Aspire based on the resource name in the AppHost (e.g., `lanka-api`, `lanka-gateway`), so traces are correctly attributed to their source.
 
-### OTLP Exporter Endpoint
+### Metrics
 
-The OTLP (OpenTelemetry Protocol) exporter endpoint is configured using the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. This endpoint specifies the address of the OpenTelemetry collector or backend where the telemetry data should be sent.
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+        metrics.AddAspNetCoreInstrumentation()    // HTTP request duration, status codes
+            .AddHttpClientInstrumentation()        // Outbound HTTP performance
+            .AddRuntimeInstrumentation());         // GC, thread pool, memory
+```
 
-*   **Example (`src/Api/Lanka.Api/appsettings.json`):**
+### OTLP Export
 
-    ```json
-    {
-      "OTEL_EXPORTER_OTLP_ENDPOINT": "<your-otel-exporter-endpoint>"
-    }
-    ```
+Telemetry data is exported via OTLP (OpenTelemetry Protocol) — a gRPC-based protocol for transmitting traces, metrics, and logs. Aspire automatically sets the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable in each application project to point at the Dashboard's receiver:
 
-### Instrumentation
+```csharp
+bool useOtlpExporter = !string.IsNullOrWhiteSpace(
+    builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+if (useOtlpExporter)
+    builder.Services.AddOpenTelemetry().UseOtlpExporter();
+```
 
-The following instrumentations are enabled in the Lanka project:
+No manual URL configuration needed. If the environment variable is set, telemetry is exported. If not (e.g., running without Aspire), the code silently does nothing.
 
-*   **AspNetCoreInstrumentation:** Collects telemetry data from ASP.NET Core applications.
-*   **HttpClientInstrumentation:** Collects telemetry data from HTTP client requests.
-*   **EntityFrameworkCoreInstrumentation:** Collects telemetry data from Entity Framework Core database operations.
-*   **RedisInstrumentation:** Collects telemetry data from Redis operations.
-*   **Npgsql:** Collects telemetry data from Npgsql database operations.
-*   **MassTransit:** Collects telemetry data from MassTransit message bus operations.
+### Serilog Bridge
+
+Lanka uses Serilog for structured logging. Serilog output is bridged into the OTel pipeline via `writeToProviders: true`:
+
+```csharp
+builder.Host.UseSerilog(
+    (context, loggerConfiguration) =>
+        loggerConfiguration.ReadFrom.Configuration(context.Configuration),
+    writeToProviders: true);
+```
+
+ServiceDefaults registers an OTel log provider that captures these logs and exports them via OTLP:
+
+```csharp
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+```
+
+The result: logs appear in the Aspire Dashboard correlated with their parent trace. Clicking a log entry reveals the full distributed trace it belongs to.
 
 ## Code Examples
 
 ### Adding Custom Spans and Events
 
-You can add custom spans and events to your code to provide more detailed information about the execution of your application.
+You can add custom spans and events to provide more detailed information about application behavior:
 
 ```csharp
 using System.Diagnostics;
@@ -79,10 +109,11 @@ using (Activity activity = activitySource.StartActivity("MyCustomOperation"))
 
 ### Propagating Context Across Services
 
-OpenTelemetry automatically propagates context across services using HTTP headers. This allows you to trace requests as they flow through the system.
+OpenTelemetry automatically propagates context across services using HTTP headers (`traceparent`, `tracestate`). When Lanka.Gateway proxies a request to Lanka.Api, the trace context is propagated so the entire request flow appears as a single distributed trace in the Dashboard.
 
-## Troubleshooting Tips
+## Troubleshooting
 
-* Make sure the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable is configured correctly.
-* Check the Jaeger UI to see if traces are being collected.
-* Enable debug logging in OpenTelemetry to see more detailed information about the telemetry data being collected.
+* Check the **Aspire Dashboard** to see if traces are being collected (the URL is printed to the console when running the AppHost).
+* Verify that the service appears in the Dashboard's resource list with a "Healthy" status.
+* If traces are missing for a specific library, check that the corresponding `AddSource()` or `Add*Instrumentation()` call is present in ServiceDefaults.
+* For the full observability architecture, see the [Orchestration & Observability Walkthrough](../../../walkthroughs/aspire-orchestration.md#observability-understanding-what-your-system-is-doing).

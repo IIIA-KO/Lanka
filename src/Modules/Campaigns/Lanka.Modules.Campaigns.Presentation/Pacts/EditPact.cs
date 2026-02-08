@@ -32,8 +32,7 @@ internal sealed class EditPact : PactEndpointBase
             .WithTags(Tags.Pacts)
             .WithName("EditPact")
             .WithSummary("Edit pact")
-            .WithDescription("Updates an existing pact's content")
-            .WithOpenApi();
+            .WithDescription("Updates an existing pact's content");
     }
 
     internal sealed class EditPactRequest

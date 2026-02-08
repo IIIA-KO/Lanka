@@ -36,8 +36,7 @@ internal sealed class EditReview : ReviewEndpointBase
             .WithTags(Tags.Reviews)
             .WithName("EditReview")
             .WithSummary("Edit review")
-            .WithDescription("Updates an existing review")
-            .WithOpenApi();
+            .WithDescription("Updates an existing review");
     }
 
     internal sealed class EditReviewRequest

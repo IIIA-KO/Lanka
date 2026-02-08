@@ -31,7 +31,6 @@ internal sealed class CompleteCampaign : CampaignsEndpointBase
             .WithTags(Tags.Campaigns)
             .WithName("CompleteCampaign")
             .WithSummary("Complete campaign")
-            .WithDescription("Marks a campaign as completed")
-            .WithOpenApi();
+            .WithDescription("Marks a campaign as completed");
     }
 }

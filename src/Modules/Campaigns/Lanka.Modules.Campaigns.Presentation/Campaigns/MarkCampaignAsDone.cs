@@ -31,7 +31,6 @@ internal sealed class MarkCampaignAsDone : CampaignsEndpointBase
             .WithTags(Tags.Campaigns)
             .WithName("MarkCampaignAsDone")
             .WithSummary("Mark campaign as done")
-            .WithDescription("Marks a campaign as done by the blogger")
-            .WithOpenApi();
+            .WithDescription("Marks a campaign as done by the blogger");
     }
 }

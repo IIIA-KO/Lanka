@@ -50,7 +50,6 @@ internal sealed class SearchDocuments : SearchEndpointBase
             .WithTags(Tags.Search)
             .WithName("SearchDocuments")
             .WithSummary("Search documents")
-            .WithDescription("Performs full-text search across all searchable documents with filters and pagination")
-            .WithOpenApi();
+            .WithDescription("Performs full-text search across all searchable documents with filters and pagination");
     }
 }

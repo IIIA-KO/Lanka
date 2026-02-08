@@ -16,15 +16,13 @@ internal sealed class GetInstagramLinkingStatus : UsersEndpointBase
         return app.MapGet(this.BuildRoute("link-instagram/status"),
                 async (ISender sender, CancellationToken cancellationToken) =>
                 {
-                    Result<InstagramOperationStatus?> result = await sender.Send(
+                    Result<InstagramOperationStatus> result = await sender.Send(
                         new GetInstagramLinkingStatusQuery(),
                         cancellationToken
                     );
 
                     return result.Match(
-                        status => status is not null 
-                            ? Results.Ok(new { status = status.Status, message = status.Message, timestamp = status.StartedAt })
-                            : Results.Ok(new { status = "not_found", message = "No linking operation found" }),
+                        status => Results.Ok(new { status = status.Status, message = status.Message, timestamp = status.StartedAt }),
                         ApiResult.Problem
                     );
                 })
@@ -32,7 +30,6 @@ internal sealed class GetInstagramLinkingStatus : UsersEndpointBase
             .WithName("GetInstagramLinkingStatus")
             .WithSummary("Get Instagram linking status")
             .WithDescription("Retrieves the current status of Instagram account linking operation")
-            .WithOpenApi()
             .RequireAuthorization();
     }
 }

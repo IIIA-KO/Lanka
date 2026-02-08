@@ -1,6 +1,4 @@
-using HealthChecks.UI.Client;
 using Lanka.Api.Middleware;
-using Lanka.Api.OpenTelemetry;
 using Lanka.Common.Application;
 using Lanka.Common.Infrastructure;
 using Lanka.Common.Infrastructure.EventBus;
@@ -9,11 +7,8 @@ using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.Infrastructure;
 using Lanka.Modules.Campaigns.Infrastructure;
 using Lanka.Modules.Matching.Infrastructure;
-using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Client;
 using Lanka.Modules.Users.Infrastructure;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
+using Lanka.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -34,9 +29,10 @@ internal static class ApplicationExtensions
 
     public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
     {
-        builder.Host.UseSerilog((context, loggerConfiguration) =>
-            loggerConfiguration.ReadFrom.Configuration(context.Configuration)
-        );
+        builder.Host.UseSerilog(
+            (context, loggerConfiguration) =>
+                loggerConfiguration.ReadFrom.Configuration(context.Configuration),
+            writeToProviders: true);
 
         return builder;
     }
@@ -58,7 +54,7 @@ internal static class ApplicationExtensions
         var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
 
         builder.Services.AddInfrastructure(
-            DiagnosticsConfig.ServiceName,
+            builder.Environment.ApplicationName,
             [
                 UsersModule.ConfigureConsumers(redisConnectionString),
                 CampaignsModule.ConfigureConsumers,
@@ -82,51 +78,6 @@ internal static class ApplicationExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder ConfigureHealthChecks(this WebApplicationBuilder builder)
-    {
-        string databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
-        string redisConnectionString = builder.Configuration.GetConnectionString("Cache")!;
-
-        var rabbitMqSettings = new RabbitMqSettings(builder.Configuration.GetConnectionString("Queue")!);
-
-        using IServiceScope scope = builder.Services.BuildServiceProvider().CreateScope();
-        IServiceProvider serviceProvider = scope.ServiceProvider;
-        string elasticBaseUrl = serviceProvider.GetRequiredService<IOptions<ElasticSearchOptions>>()
-            .Value.BaseUrl;
-
-        builder.Services
-            .AddSingleton<IConnection>(_ =>
-                {
-                    var factory = new ConnectionFactory()
-                    {
-                        Uri = new Uri(rabbitMqSettings.Host),
-                        UserName = rabbitMqSettings.Username,
-                        Password = rabbitMqSettings.Password,
-                    };
-
-                    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
-                }
-            );
-
-        builder.Services.AddHealthChecks()
-            .AddNpgSql(databaseConnectionString)
-            .AddRedis(redisConnectionString)
-            .AddRabbitMQ()
-            .AddMongoDb()
-            .AddUrlGroup(
-                new Uri(elasticBaseUrl),
-                HttpMethod.Get,
-                "elasticsearch"
-            )
-            .AddUrlGroup(
-                new Uri(builder.Configuration.GetValue<string>("KeyCloak:HealthUrl")!),
-                HttpMethod.Get,
-                "keycloak"
-            );
-
-        return builder;
-    }
-
     public static async Task ConfigureMiddleware(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
@@ -146,9 +97,7 @@ internal static class ApplicationExtensions
         app.UseAuthorization();
 
         app.MapEndpoints();
-        app.MapHealthChecks("/healthz",
-            new HealthCheckOptions { ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse }
-        );
+        app.MapDefaultEndpoints();
 
         app.MapHub<InstagramHub>("/hubs/instagram");
     }

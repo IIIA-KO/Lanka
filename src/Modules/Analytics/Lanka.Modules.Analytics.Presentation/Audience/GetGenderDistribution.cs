@@ -33,7 +33,6 @@ internal sealed class GetGenderDistribution : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetGenderDistribution")
             .WithSummary("Get audience gender distribution")
-            .WithDescription("Retrieves gender distribution data for Instagram account audience")
-            .WithOpenApi();
+            .WithDescription("Retrieves gender distribution data for Instagram account audience");
     }
 }

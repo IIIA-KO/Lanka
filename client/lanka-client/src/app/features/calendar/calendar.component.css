@@ -5,7 +5,7 @@
 }
 
 .card-style {
-  background: white;
+  background: var(--app-surface);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   padding: 1.5rem;
@@ -22,14 +22,14 @@
 .weekday-header {
   text-align: center;
   font-weight: 600;
-  color: #6c757d;
+  color: var(--p-text-color-secondary);
   font-size: 0.875rem;
   padding-bottom: 0.5rem;
 }
 
 .day-cell {
   aspect-ratio: 1;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--app-border);
   border-radius: 6px;
   padding: 4px;
   display: flex;
@@ -41,19 +41,19 @@
 }
 
 .day-cell:hover {
-  background-color: #f8f9fa;
+  background-color: var(--app-surface-alt);
 }
 
 .day-cell.other-month {
-  background-color: #fafafa;
-  color: #adb5bd;
+  background-color: var(--app-surface-alt);
+  color: var(--p-text-color-secondary);
 }
 
 .day-cell.today {
-  background-color: #e6fcf5;
-  border-color: #20c997;
+  background-color: color-mix(in srgb, var(--p-primary-color) 15%, var(--app-surface));
+  border-color: var(--p-primary-color);
   font-weight: bold;
-  color: #0ca678;
+  color: var(--p-primary-color);
 }
 
 .day-number {
@@ -84,7 +84,7 @@
 
 .more-events {
   font-size: 0.6rem;
-  color: #6c757d;
+  color: var(--p-text-color-secondary);
 }
 
 /* List View */

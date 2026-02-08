@@ -34,6 +34,10 @@ export class SignalRService {
     return this.hubConnection?.state === 'Connected';
   }
 
+  public get currentState(): 'disconnected' | 'connecting' | 'connected' {
+    return this.connectionStateSubject.value;
+  }
+
   public async startConnection(accessToken: string): Promise<void> {
     if (this.hubConnection?.state === 'Connected') {
       return;
@@ -51,10 +55,12 @@ export class SignalRService {
 
     // Set up event handlers
     this.hubConnection.on('InstagramLinkingStatus', (notification: InstagramStatusNotification) => {
+      console.log('[SignalRService] Received InstagramLinkingStatus:', notification);
       this.instagramLinking$.next(notification);
     });
 
     this.hubConnection.on('InstagramRenewalStatus', (notification: InstagramStatusNotification) => {
+      console.log('[SignalRService] Received InstagramRenewalStatus:', notification);
       this.instagramRenewal$.next(notification);
     });
 
@@ -63,17 +69,22 @@ export class SignalRService {
       this.connectionStateSubject.next('disconnected');
     });
 
+    this.hubConnection.onreconnecting(() => {
+      console.warn('[SignalRService] Reconnecting...');
+      this.connectionStateSubject.next('connecting');
+    });
+
     this.hubConnection.onreconnected(() => {
       console.warn('[SignalRService] Reconnected');
       this.connectionStateSubject.next('connected');
-      this.joinUserGroup();
+      // Backend automatically joins user to their group on connection via claims
     });
 
     try {
       await this.hubConnection.start();
-      console.warn('[SignalRService] Connection established');
+      console.log('[SignalRService] Connection established - backend will auto-join user group via claims');
       this.connectionStateSubject.next('connected');
-      await this.joinUserGroup();
+      // Backend automatically joins user to their group on connection via claims
     } catch (error) {
       console.error('[SignalRService] Error starting connection:', error);
       this.connectionStateSubject.next('disconnected');
@@ -88,47 +99,4 @@ export class SignalRService {
       this.connectionStateSubject.next('disconnected');
     }
   }
-
-  private async joinUserGroup(): Promise<void> {
-    if (this.hubConnection?.state === 'Connected') {
-      try {
-        const userId = this.getUserId();
-        if (userId) {
-          await this.hubConnection.invoke('JoinUserGroup', userId);
-        }
-      } catch (error) {
-        console.error('[SignalRService] Error joining user group:', error);
-      }
-    }
-  }
-
-  private getUserId(): string | null {
-    try {
-      const accessToken = localStorage.getItem('access_token');
-      if (accessToken) {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        const possibleKeys = [
-          'bloggerId',
-          'BloggerId',
-          'blogger_id',
-          'userId',
-          'UserId',
-          'user_id',
-          'id',
-          'sub'
-        ];
-
-        for (const key of possibleKeys) {
-          const value = payload[key];
-          if (typeof value === 'string' && value.length > 0) {
-            return value;
-          }
-        }
-      }
-    } catch (error) {
-      console.error('[SignalRService] Error getting user ID:', error);
-    }
-    return null;
-  }
-
 }

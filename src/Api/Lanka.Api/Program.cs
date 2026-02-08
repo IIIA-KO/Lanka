@@ -1,12 +1,14 @@
 using Lanka.Api.Extensions;
+using Lanka.ServiceDefaults;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 builder
     .ConfigureBasicServices()
     .ConfigureLogging()
-    .ConfigureModules()
-    .ConfigureHealthChecks();
+    .ConfigureModules();
 
 WebApplication app = builder.Build();
 

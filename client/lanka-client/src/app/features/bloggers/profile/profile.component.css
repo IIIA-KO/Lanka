@@ -5,7 +5,7 @@
 }
 
 .card-style {
-  background: white;
+  background: var(--app-surface);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   padding: 1.5rem;
@@ -17,7 +17,7 @@
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid white;
+  border: 4px solid var(--app-surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -28,14 +28,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
-  color: #555;
+  background-color: var(--app-surface-alt);
+  color: var(--p-text-color-secondary);
   transition: all 0.2s;
   text-decoration: none;
 }
 
 .social-btn:hover {
-  background-color: #e0e0e0;
+  background-color: var(--app-surface-hover);
   transform: translateY(-2px);
 }
 
@@ -81,14 +81,14 @@
 
 .kpi-label {
   font-size: 0.875rem;
-  color: #6c757d;
+  color: var(--p-text-color-secondary);
   margin-bottom: 0.25rem;
 }
 
 .kpi-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #212529;
+  color: var(--p-text-color);
 }
 
 /* Analytics */
@@ -124,7 +124,7 @@
   width: 180px;
   border-radius: 8px;
   overflow: hidden;
-  background: white;
+  background: var(--app-surface);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -139,7 +139,7 @@
   width: 180px;
   height: 180px;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--app-surface-alt);
 }
 
 .post-image {
@@ -168,8 +168,8 @@
   padding: 0.75rem;
   display: flex;
   justify-content: space-around;
-  background: white;
-  border-top: 1px solid #f0f0f0;
+  background: var(--app-surface);
+  border-top: 1px solid var(--app-border);
 }
 
 .insight-item {
@@ -177,7 +177,7 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--p-text-color-secondary);
 }
 
 .insight-item i {

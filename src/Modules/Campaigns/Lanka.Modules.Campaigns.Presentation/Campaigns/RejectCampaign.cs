@@ -31,7 +31,6 @@ internal sealed class RejectCampaign : CampaignsEndpointBase
             .WithTags(Tags.Campaigns)
             .WithName("RejectCampaign")
             .WithSummary("Reject campaign")
-            .WithDescription("Rejects a pending campaign")
-            .WithOpenApi();
+            .WithDescription("Rejects a pending campaign");
     }
 }

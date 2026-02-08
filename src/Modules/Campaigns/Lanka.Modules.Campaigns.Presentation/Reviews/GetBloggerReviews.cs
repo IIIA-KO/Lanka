@@ -33,7 +33,6 @@ internal sealed class GetBloggerReviews : ReviewEndpointBase
         .WithTags(Tags.Reviews)
         .WithName("GetBloggerReviews")
         .WithSummary("Get blogger reviews")
-        .WithDescription("Retrieves all reviews for a specific blogger")
-        .WithOpenApi();
+        .WithDescription("Retrieves all reviews for a specific blogger");
     }
 }

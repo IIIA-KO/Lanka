@@ -35,8 +35,7 @@ internal sealed class PendCampaign : CampaignsEndpointBase
             .WithTags(Tags.Campaigns)
             .WithName("PendCampaign")
             .WithSummary("Create pending campaign")
-            .WithDescription("Creates a new campaign in pending status")
-            .WithOpenApi();
+            .WithDescription("Creates a new campaign in pending status");
     }
 
     internal sealed class PendCampaignRequest

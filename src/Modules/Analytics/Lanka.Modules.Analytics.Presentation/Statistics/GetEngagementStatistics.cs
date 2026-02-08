@@ -35,7 +35,6 @@ internal sealed class GetEngagementStatistics : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetEngagementStatistics")
             .WithSummary("Get engagement statistics")
-            .WithDescription("Retrieves engagement statistics for Instagram account within specified period")
-            .WithOpenApi();
+            .WithDescription("Retrieves engagement statistics for Instagram account within specified period");
     }
 }

@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute, RouterLink } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { AvatarModule } from 'primeng/avatar';
@@ -13,6 +13,7 @@ import { IBloggerProfile } from '../../models/blogger';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
+import { ThemeSwitcherComponent } from '../../../shared/components/theme-switcher/theme-switcher.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -24,8 +25,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MenuModule,
     InputTextModule,
     TranslateModule,
-    LanguageSwitcherComponent
-  ],
+    LanguageSwitcherComponent,
+    ThemeSwitcherComponent,
+    RouterLink
+],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

@@ -34,8 +34,7 @@ public class RegisterUser : UsersEndpointBase
             .WithTags(Tags.Users)
             .WithName("RegisterUser")
             .WithSummary("Register a new user")
-            .WithDescription("Creates a new user account with email, password, and basic profile information")
-            .WithOpenApi();
+            .WithDescription("Creates a new user account with email, password, and basic profile information");
     }
 
     internal sealed class RegisterUserRequest

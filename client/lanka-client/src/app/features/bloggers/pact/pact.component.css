@@ -7,7 +7,7 @@
 
 /* Card Style matching Profile */
 .card-style {
-  background: white;
+  background: var(--app-surface);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   padding: 1.5rem;
@@ -39,14 +39,14 @@
   justify-content: space-between;
   padding: 1rem;
   border-radius: 8px;
-  background: var(--p-surface-50);
-  border: 1px solid var(--p-surface-border);
+  background: var(--app-surface-alt);
+  border: 1px solid var(--app-border);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .offer-item:hover {
-  background: #fff;
+  background: var(--app-surface);
   border-color: var(--p-primary-color);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   transform: translateY(-1px);
@@ -82,8 +82,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: var(--p-surface-50);
-  border: 1px solid var(--p-surface-border);
+  background: var(--app-surface-alt);
+  border: 1px solid var(--app-border);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
 }
@@ -99,14 +99,14 @@
 }
 
 .tool-btn:hover {
-  background: rgba(0,0,0,0.05);
+  background: var(--app-surface-alt);
   color: var(--p-text-color);
 }
 
 .divider {
   width: 1px;
   height: 20px;
-  background: var(--p-surface-border);
+  background: var(--app-border);
   margin: 0 0.25rem;
 }
 
@@ -153,7 +153,7 @@
   text-align: center;
   padding: 3rem;
   max-width: 500px;
-  background: #fff;
+  background: var(--app-surface);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }

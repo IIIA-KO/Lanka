@@ -35,7 +35,6 @@ internal sealed class GetPosts : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetPosts")
             .WithSummary("Get Instagram posts")
-            .WithDescription("Retrieves Instagram posts with pagination support using cursor-based navigation")
-            .WithOpenApi();
+            .WithDescription("Retrieves Instagram posts with pagination support using cursor-based navigation");
     }
 }

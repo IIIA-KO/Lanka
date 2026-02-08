@@ -16,15 +16,13 @@ internal sealed class GetInstagramRenewalStatus : UsersEndpointBase
         return app.MapGet(this.BuildRoute("renew-instagram-access/status"),
                 async (ISender sender, CancellationToken cancellationToken) =>
                 {
-                    Result<InstagramOperationStatus?> result = await sender.Send(
+                    Result<InstagramOperationStatus> result = await sender.Send(
                         new GetInstagramRenewalStatusQuery(),
                         cancellationToken
                     );
 
                     return result.Match(
-                        status => status is not null 
-                            ? Results.Ok(new { status = status.Status, message = status.Message, timestamp = status.StartedAt })
-                            : Results.Ok(new { status = "not_found", message = "No renewal operation found" }),
+                        status => Results.Ok(new { status = status.Status, message = status.Message, timestamp = status.StartedAt }),
                         ApiResult.Problem
                     );
                 })
@@ -32,7 +30,6 @@ internal sealed class GetInstagramRenewalStatus : UsersEndpointBase
             .WithName("GetInstagramRenewalStatus")
             .WithSummary("Get Instagram renewal status")
             .WithDescription("Retrieves the current status of Instagram access token renewal operation")
-            .WithOpenApi()
             .RequireAuthorization();
     }
 }

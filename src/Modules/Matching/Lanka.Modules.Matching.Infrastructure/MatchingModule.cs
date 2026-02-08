@@ -106,8 +106,14 @@ public static class MatchingModule
             ElasticSearchOptions elasticSearchOptions = sp.GetRequiredService<IOptions<ElasticSearchOptions>>()
                 .Value;
 
+            string? connectionString = configuration.GetConnectionString("lanka-search");
+
+            Uri elasticsearchUri = !string.IsNullOrWhiteSpace(connectionString)
+                ? new Uri(connectionString)
+                : new Uri(elasticSearchOptions.BaseUrl);
+
             ElasticsearchClientSettings settings =
-                new ElasticsearchClientSettings(new Uri(elasticSearchOptions.BaseUrl))
+                new ElasticsearchClientSettings(elasticsearchUri)
                     .DefaultIndex(elasticSearchOptions.DefaultIndex)
                     .EnableDebugMode();
 

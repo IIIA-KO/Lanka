@@ -26,7 +26,6 @@ internal sealed class GetBloggerProfile : BloggerEndpointBase
             .WithTags(Tags.Bloggers)
             .WithName("GetBloggerProfile")
             .WithSummary("Get blogger profile")
-            .WithDescription("Retrieves the current blogger's profile information")
-            .WithOpenApi();
+            .WithDescription("Retrieves the current blogger's profile information");
     }
 }

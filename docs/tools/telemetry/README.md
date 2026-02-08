@@ -1,30 +1,47 @@
-# Telemetry in Lanka Project
+# Telemetry in Lanka
 
-Telemetry is the process of collecting and transmitting data from remote sources to a central location for monitoring and analysis. In the Lanka project, telemetry is crucial for gaining insights into the application's behavior, performance, and health. By collecting and analyzing telemetry data, we can identify issues, optimize performance, and ensure the reliability of the system.
+Telemetry is the process of collecting and transmitting data from remote sources to a central location for monitoring and analysis. In Lanka, telemetry provides insight into the application's behavior, performance, and health across all modules and infrastructure services.
 
-This document provides an overview of the telemetry tools used in the Lanka project and how they work together to provide observability.
+This document provides an overview of the telemetry stack and how the components work together.
 
-## Telemetry Tools
+## Telemetry Stack
 
 The Lanka project uses the following tools for telemetry:
 
-* **OpenTelemetry:** A vendor-neutral, open-source observability framework for generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
-* **Serilog & Seq:** A structured logging library for .NET applications (Serilog) and a centralized log server for collecting and analyzing logs (Seq).
-* **Jaeger:** An open-source, distributed tracing system used for monitoring and troubleshooting complex microservices-based applications.
+* **OpenTelemetry (OTel):** A vendor-neutral, open-source observability framework for generating, collecting, and exporting telemetry data — traces, metrics, and logs. OTel defines a standard protocol (OTLP) for transmitting this data.
+* **Serilog:** A structured logging library for .NET applications. Logs are bridged to OpenTelemetry via `writeToProviders: true`, so they appear in the Aspire Dashboard alongside traces and metrics.
+* **Aspire Dashboard:** A unified UI for structured logs, distributed traces, and metrics. Launched automatically by the AppHost. Replaces the previous Seq (log aggregation) and Jaeger (trace visualization) setup.
 
 ## How They Work Together
 
-These tools work together to provide a comprehensive telemetry solution:
+All telemetry configuration is centralized in **ServiceDefaults** (`src/Api/Lanka.ServiceDefaults/Extensions.cs`). Both Lanka.Api and Lanka.Gateway call `builder.AddServiceDefaults()`, which registers:
 
-1. The application is instrumented with OpenTelemetry to generate traces and metrics.
-2. Serilog is used to capture structured logs from the application. The TraceId is added to the log context to correlate logs with traces.
-3. OpenTelemetry exports telemetry data to Jaeger for trace visualization.
-4. Serilog sends logs to Seq for centralized log management and analysis.
+**Tracing** — spans are created for every significant operation:
+- ASP.NET Core incoming HTTP requests
+- HttpClient outbound calls
+- Entity Framework Core database queries
+- Redis cache operations
+- PostgreSQL commands (via Npgsql)
+- MassTransit message publish/consume
+- MongoDB operations
+- YARP reverse proxy requests
+
+**Metrics** — numeric measurements collected over time:
+- HTTP request durations and status codes
+- Outbound HTTP call performance
+- Runtime metrics (GC, thread pool, memory)
+
+**Logs** — Serilog captures structured log entries and bridges them into the OTel pipeline. The Aspire Dashboard correlates logs with their parent trace — clicking a log entry reveals the full distributed trace.
+
+**Export** — all telemetry is exported via OTLP (gRPC) to the Aspire Dashboard. The `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable is injected automatically by Aspire; no manual URL configuration is needed.
+
+Instrumentation registrations are safe for all consumers. `AddSource()` for a library that isn't used in a given project is a no-op — the Gateway gets EF Core instrumentation registered but never produces EF Core spans.
 
 ![CQRS](/docs/images/telemetry.jpg)
 
 ## Detailed Documentation
 
 * [OpenTelemetry Integration](./open-telemetry/README.md)
-* [Serilog and Seq for Structured Logging](./serilog-seq/README.md)
-* [Jaeger for Trace Visualization](./jaeger/README.md)
+* [Serilog for Structured Logging](./serilog/README.md)
+* [Distributed Tracing](./tracing/README.md)
+* [Orchestration & Observability Walkthrough](../../walkthroughs/aspire-orchestration.md#observability-understanding-what-your-system-is-doing)

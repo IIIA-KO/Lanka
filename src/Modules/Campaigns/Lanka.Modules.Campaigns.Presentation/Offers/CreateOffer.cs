@@ -34,8 +34,7 @@ internal sealed class CreateOffer : OfferEndpointBase
             .WithTags(Tags.Offers)
             .WithName("CreateOffer")
             .WithSummary("Create offer")
-            .WithDescription("Creates a new offer for campaigns")
-            .WithOpenApi();
+            .WithDescription("Creates a new offer for campaigns");
     }
 
     internal sealed class CreateOfferRequest

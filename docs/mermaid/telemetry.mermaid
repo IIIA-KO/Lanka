@@ -2,14 +2,13 @@ sequenceDiagram
     participant Application
     participant OpenTelemetry
     participant Serilog
-    participant Jaeger
-    participant Seq
+    participant Dashboard as Aspire Dashboard
 
     Application->>OpenTelemetry: Generate Traces and Metrics
     Application->>Serilog: Capture Structured Logs
-    Serilog-->>Application: Add TraceId to Log Context
-    OpenTelemetry->>Jaeger: Export Traces
-    Serilog->>Seq: Send Logs
+    Serilog-->>OpenTelemetry: Bridge via writeToProviders
+    OpenTelemetry->>Dashboard: Export via OTLP (gRPC)
 
     Note right of OpenTelemetry: OTLP Exporter
-    Note right of Serilog: Seq Sink
+    Note right of Serilog: Console Sink + OTel Bridge
+    Note right of Dashboard: Logs, Traces, Metrics in one UI

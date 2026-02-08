@@ -390,13 +390,17 @@
     "WAITING": "Waiting for Instagram to respond…",
     "BACK": "Go back to dashboard",
     "CONTINUE": "Continue",
+    "RETRY": "Try Again",
     "PREPARING": "Preparing your Instagram linking session...",
     "LINKED_REDIRECT": "Instagram account linked successfully! Redirecting…",
     "STARTING": "Starting Instagram account linking…",
     "WAITING_CONFIRMATION": "Waiting for Instagram to confirm the account link…",
     "LINKED_SUCCESS": "Instagram account linked successfully.",
     "START_FAILED": "Failed to start linking Instagram account.",
-    "NO_CODE": "No code provided for linking Instagram account."
+    "NO_CODE": "No code provided for linking Instagram account.",
+    "TIMEOUT_RETRY": "The operation is taking longer than expected. You can retry or wait a bit longer.",
+    "PROCESSING": "Connecting to Instagram and fetching your account data...",
+    "SIGNALR_FALLBACK": "Using alternative connection method..."
   },
   "RENEW_INSTAGRAM_CALLBACK": {
     "LABEL": "Access renewal",
@@ -407,6 +411,7 @@
     "WAITING_TOKEN": "Waiting for Instagram to issue a fresh token…",
     "RETURN": "Return to profile",
     "CONTINUE": "Continue to profile",
+    "RETRY": "Try Again",
     "PREPARING": "Preparing Instagram access renewal…",
     "SUCCESS_REDIRECT": "Instagram access renewed successfully! Redirecting…",
     "STARTING": "Starting Instagram access renewal…",
@@ -415,7 +420,10 @@
     "REJECTED": "Instagram rejected this renewal attempt. Please restart the flow from your profile.",
     "START_FAILED": "Failed to start Instagram access renewal. Please try again.",
     "NETWORK_ERROR": "We cannot reach Instagram right now. Please check your connection and retry.",
-    "NO_CODE": "No code provided for Instagram access renewal."
+    "NO_CODE": "No code provided for Instagram access renewal.",
+    "TIMEOUT_RETRY": "The operation is taking longer than expected. You can retry or wait a bit longer.",
+    "PROCESSING": "Refreshing your Instagram access token...",
+    "SIGNALR_FALLBACK": "Using alternative connection method..."
   },
   "SERVER_ERROR": {
     "TITLE": "Internal server error",

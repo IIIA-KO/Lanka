@@ -1,10 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <ItemGroup>
-        <PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" />
-        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
-        <PackageReference Include="AspNetCore.HealthChecks.Redis" />
-        <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
-        <PackageReference Include="AspNetCore.HealthChecks.Uris" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
         
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
@@ -14,7 +9,6 @@
         
         <PackageReference Include="Scalar.AspNetCore" />
         <PackageReference Include="Serilog.AspNetCore" />
-        <PackageReference Include="Serilog.Sinks.Seq" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Lanka.ServiceDefaults\Lanka.ServiceDefaults.csproj" />
       <ProjectReference Include="..\..\Modules\Analytics\Lanka.Modules.Analytics.Infrastructure\Lanka.Modules.Analytics.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Campaigns\Lanka.Modules.Campaigns.Infrastructure\Lanka.Modules.Campaigns.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Users\Lanka.Modules.Users.Infrastructure\Lanka.Modules.Users.Infrastructure.csproj" />

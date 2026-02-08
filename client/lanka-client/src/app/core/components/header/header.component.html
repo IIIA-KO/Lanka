@@ -1,7 +1,9 @@
 <header class="app-header">
     <div class="header-left">
         <div class="logo-wrapper">
+          <a [routerLink]="['/profile']" class="sr-only">
             <img src="/logo/lanka-logo-green.svg" [alt]="'COMMON.APP_NAME' | translate" class="logo" />
+          </a>
         </div>
     </div>
 
@@ -12,6 +14,8 @@
         <div class="language-wrapper">
             <app-language-switcher></app-language-switcher>
         </div>
+
+        <app-theme-switcher></app-theme-switcher>
 
         <!-- User Menu -->
         @let profile = profile$ | async;

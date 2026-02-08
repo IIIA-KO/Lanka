@@ -31,7 +31,6 @@ internal sealed class CancelCampaign : CampaignsEndpointBase
             .WithTags(Tags.Campaigns)
             .WithName("CancelCampaign")
             .WithSummary("Cancel campaign")
-            .WithDescription("Cancels an existing campaign")
-            .WithOpenApi();
+            .WithDescription("Cancels an existing campaign");
     }
 }

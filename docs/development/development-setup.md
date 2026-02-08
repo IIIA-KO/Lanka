@@ -161,189 +161,63 @@ code --install-extension redhat.vscode-yaml
 
 ## 🐳 **Container Infrastructure Setup**
 
-### **1. Infrastructure Services**
-```yaml
-# docker-compose.yml - Core infrastructure
-version: '3.8'
+### **1. .NET Aspire Orchestration**
 
-services:
-  # Primary Database
-  postgres:
-    image: postgres:17.6
-    container_name: lanka-postgres
-    environment:
-      POSTGRES_DB: lanka_dev
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+Lanka uses **.NET Aspire** to orchestrate all infrastructure containers and application projects. The orchestration is defined in C# code in the AppHost project.
 
-  # Analytics Database
-  mongodb:
-    image: mongo:8.0
-    container_name: lanka-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Caching Layer
-  redis:
-    image: redis:8.2
-    container_name: lanka-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Message Bus
-  rabbitmq:
-    image: rabbitmq:3.13-management-alpine
-    container_name: lanka-rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: lanka
-      RABBITMQ_DEFAULT_PASS: development
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Identity Provider
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.4
-    container_name: lanka-keycloak
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "18080:8080"
-    command: start-dev
-
-  # Log Aggregation
-  seq:
-    image: datalust/seq:2024
-    container_name: lanka-seq
-    environment:
-      ACCEPT_EULA: Y
-    ports:
-      - "8081:80"
-
-  # Observability
-  jaeger:
-    image: jaegertracing/all-in-one:1.74.0
-    ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
-
-  # Search
-  elasticsearch:
-    image: elasticsearch:9.1.3
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-
-  kibana:
-    image: kibana:9.1.3
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-
-volumes:
-  postgres_data:
-  mongodb_data:
-  redis_data:
-  rabbitmq_data:
-  seq_data:
-
-networks:
-  default:
-    name: lanka-network
-    driver: bridge
+**Prerequisites:**
+```bash
+# Install the Aspire workload (one-time)
+dotnet workload install aspire
 ```
+
+The AppHost (`src/Api/Lanka.AppHost/Program.cs`) defines all resources:
+
+| Resource | Container | Fixed Port |
+|----------|-----------|------------|
+| PostgreSQL | `lanka-postgres` | 5432 |
+| Redis | `lanka-cache` | 6379 |
+| RabbitMQ | `lanka-queue` | 5672 |
+| MongoDB | `lanka-mongo` | 27017 |
+| Elasticsearch | `lanka-search` | *(dynamic)* |
+| Keycloak | `lanka-identity` | 18080 |
+| Kibana | `lanka-kibana` | 5601 |
+| Lanka.Api | *(project)* | *(dynamic)* |
+| Lanka.Gateway | *(project)* | 4308 |
+
+Aspire handles container lifecycle, health checks, connection string injection, and startup ordering (`WaitFor()`).
 
 ### **2. Start Infrastructure**
 
 ```bash
-# Start all services
-docker compose up -d
+# Start everything (containers + API + Gateway)
+dotnet run --project src/Api/Lanka.AppHost
 
-# Check service health
-docker compose ps
+# The Aspire Dashboard URL is printed to the console — use it for logs, traces, metrics
 
-# View logs
-docker compose logs -f [service-name]
-
-# Stop all services
-docker compose down
+# Stop: Ctrl+C (stops all containers and projects)
 
 # Reset all data (clean slate)
-docker compose down -v
-docker compose up -d
+docker volume rm $(docker volume ls -q --filter name=lanka)
+dotnet run --project src/Api/Lanka.AppHost
 ```
 
 ---
 
 ## 🗃️ **Database Setup**
 
-### **1. PostgreSQL Configuration**
-```sql
--- scripts/init-db.sql - Initial database setup
-CREATE DATABASE lanka_dev;
-CREATE DATABASE lanka_test;
-CREATE DATABASE keycloak;
+### **1. Automatic Provisioning**
 
--- Create users for different environments
-CREATE USER lanka_app WITH PASSWORD 'lanka_development';
-GRANT ALL PRIVILEGES ON DATABASE lanka_dev TO lanka_app;
-GRANT ALL PRIVILEGES ON DATABASE lanka_test TO lanka_app;
-```
+When running via Aspire, databases are created automatically by the AppHost. PostgreSQL gets a `lanka` database, MongoDB gets a `Mongo` database. No manual SQL scripts needed.
 
-### **2. Database Tools Setup**
-```bash
-# Install PostgreSQL client tools
-# Windows
-winget install PostgreSQL.PostgreSQL
+### **2. Database Tools Setup (Optional)**
 
-# macOS
-brew install postgresql
-
-# Linux
-sudo apt-get install postgresql-client
-
-# Test connection
-psql -h localhost -U postgres -d lanka_dev
-```
+For direct database access during development (e.g., via DBeaver, pgAdmin, or MongoDB Compass), use the connection details from the [Tools README](../tools/README.md#database-connections).
 
 ### **3. Migrations Policy**
+
 Migrations are applied automatically per module when the API starts. Use the CLI only to generate new migrations during development:
+
 ```bash
 # Example: generate a migration for Users module
 dotnet ef migrations add <Name> --project src/Modules/Users/Lanka.Modules.Users.Infrastructure
@@ -356,23 +230,29 @@ dotnet ef migrations add <Name> --project src/Modules/Users/Lanka.Modules.Users.
 ### **1. API appsettings.json**
 Location: `src/Api/Lanka.Api/appsettings.json`
 
-- `ConnectionStrings.Database`: PostgreSQL connection string (e.g., `Host=localhost;Port=5432;Database=lanka;Username=postgres;Password=postgres`)
-- `ConnectionStrings.Cache`: Redis connection (e.g., `localhost:6379`)
-- `ConnectionStrings.Queue`: RabbitMQ connection (e.g., `amqp://guest:guest@localhost:5672`)
-- `ConnectionStrings.Mongo`: MongoDB connection (e.g., `mongodb://admin:admin@localhost:27017`)
+When running via Aspire, **connection strings are auto-injected** — the empty values in `appsettings.json` are overridden at runtime by the AppHost. The resource names in the AppHost map to connection string keys:
+
+| AppHost Resource Name | Config Key |
+|----------------------|------------|
+| `"Database"` | `ConnectionStrings:Database` |
+| `"Cache"` | `ConnectionStrings:Cache` |
+| `"Queue"` | `ConnectionStrings:Queue` |
+| `"Mongo"` | `ConnectionStrings:Mongo` |
+
+Other settings:
 - `Authentication` (Keycloak OIDC):
   - `Audience`: usually `account`
   - `TokenValidationParameters.ValidIssuers`: allowed issuers list
   - `MetadataAddress`: `http://localhost:18080/realms/lanka/.well-known/openid-configuration`
   - `RequireHttpsMetadata`: false for local dev
-- `KeyCloak.HealthUrl`: Keycloak health endpoint inside Docker network (e.g., `http://lanka.identity:8080/health/ready`)
-- `Serilog` → Seq sink uses `http://lanka.seq:5341` (container address/port). Seq UI is at `http://localhost:8081` on host.
-- `OTEL_EXPORTER_OTLP_ENDPOINT`: optional OpenTelemetry exporter endpoint.
+- `KeyCloak.HealthUrl`: Keycloak health endpoint
+- `Serilog`: Console sink; structured logs are bridged to OpenTelemetry via `writeToProviders: true` and appear in the Aspire Dashboard
+
+Passwords for infrastructure containers are configured in `src/Api/Lanka.AppHost/appsettings.Development.json` under the `Parameters` key.
 
 ### **2. Gateway appsettings.json**
 Location: `src/Api/Lanka.Gateway/appsettings.json`
 
-- `Kestrel.Endpoints.Https.Url`: `https://+:4308`
 - `Authentication`: same as API
 - `Serilog`: same approach as API
 - `ReverseProxy`: routes/clusters configuration (to be filled per deployment; YARP is integrated).
@@ -510,58 +390,29 @@ dotnet run --configuration Release
 
 echo "🚀 Starting Lanka development environment..."
 
-# 1. Start infrastructure services
-echo "📦 Starting infrastructure..."
-docker-compose up -d
-
-# 2. Wait for services to be healthy
-echo "⏳ Waiting for services..."
-sleep 30
-
-# 3. Check service health
-echo "💚 Checking service health..."
-docker compose ps
-
-# 4. Pull latest changes
+# 1. Pull latest changes
 echo "📥 Pulling latest changes..."
 git pull origin main
 
-# 5. Restore dependencies
+# 2. Restore dependencies
 echo "📦 Restoring dependencies..."
 dotnet restore
 
-# 6. Build solution
-echo "🔨 Building solution..."
-dotnet build
+# 3. Start everything with Aspire (containers + API + Gateway)
+echo "🚀 Starting Aspire AppHost..."
+dotnet run --project src/Api/Lanka.AppHost
 
-# 7. Run migrations if needed
-echo "🗃️ Updating databases..."
-cd src/Modules/Users/Lanka.Modules.Users.Infrastructure && dotnet ef database update
-cd ../../../Analytics/Lanka.Modules.Analytics.Infrastructure && dotnet ef database update
-cd ../../../Campaigns/Lanka.Modules.Campaigns.Infrastructure && dotnet ef database update
-cd ../../../../..
-
-echo "✅ Development environment ready!"
-echo "🌐 API: http://localhost:4307"
-echo "💚 Health: http://localhost:4307/healthz"
+# Aspire handles:
+# - Starting all infrastructure containers
+# - Waiting for health checks
+# - Launching Lanka.Api and Lanka.Gateway
+# - Opening the Aspire Dashboard for logs/traces/metrics
 ```
 
 ### **🛑 Daily Shutdown Routine**
 ```bash
-#!/bin/bash
-# scripts/dev-stop.sh - Clean shutdown
-
-echo "🛑 Stopping Lanka development environment..."
-
-# 1. Stop running applications
-echo "📱 Stopping applications..."
-pkill -f "Lanka.Api"
-
-# 2. Stop infrastructure services
-echo "📦 Stopping infrastructure..."
-docker-compose stop
-
-echo "✅ Environment stopped cleanly!"
+# Press Ctrl+C in the terminal running the AppHost
+# Aspire stops all containers and projects automatically
 ```
 
 ---
@@ -583,14 +434,12 @@ kill -9 <PID>                   # macOS/Linux
 
 **Docker Issues**
 ```bash
-# Reset Docker
-docker system prune -a
-docker compose down -v
-docker compose up -d --force-recreate
-
 # Check Docker resources
 docker system df
 docker stats
+
+# Reset all Lanka data volumes
+docker volume rm $(docker volume ls -q --filter name=lanka)
 ```
 
 **Database Connection Issues**
@@ -598,13 +447,11 @@ docker stats
 # Test PostgreSQL connection
 psql -h localhost -U postgres -c "SELECT version();"
 
-# Check Docker logs
-docker compose logs postgres
+# Check container logs via the Aspire Dashboard (URL in console output)
 
-# Reset database
-docker compose stop postgres
-docker volume rm lanka_postgres_data
-docker compose up -d postgres
+# Reset database volume and restart
+docker volume rm $(docker volume ls -q --filter name=lanka-postgres)
+dotnet run --project src/Api/Lanka.AppHost
 ```
 
 **Build Issues**
@@ -636,18 +483,13 @@ dotnet --version
 echo -n "✅ Docker: "
 docker --version
 
-# Check running services
-echo "📦 Infrastructure Services:"
-docker compose ps
-
-# Check API health
+# Check API health (returns JSON with all dependency statuses)
 echo -n "🌐 API Health: "
-curl -s http://localhost:4307/healthz || echo "❌ API not responding"
+curl -s http://localhost:4307/healthz | head -c 200 || echo "❌ API not responding"
 
-# Check database connectivity
-echo -n "🗃️ Database: "
-psql -h localhost -U postgres -d lanka_dev -c "SELECT 1;" > /dev/null 2>&1 && echo "✅ Connected" || echo "❌ Connection failed"
+# Tip: Open the Aspire Dashboard (URL in console output) for full resource status
 
+echo ""
 echo "================================"
 echo "🎉 Health check complete!"
 ```
