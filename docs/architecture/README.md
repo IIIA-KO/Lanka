@@ -37,7 +37,7 @@ This is where I document the architectural patterns I'm learning and applying in
 ### Infrastructure
 | Document | Description | Where to Look |
 |----------|-------------|---------------|
-| Containerization | Docker setup | See `docker-compose.yml` |
+| Containerization | Docker setup | See [Aspire Orchestration](../walkthroughs/aspire-orchestration.md) |
 | Observability | Monitoring, logging, tracing | [Tools/Telemetry](../tools/telemetry/) |
 | Message Bus | Async messaging with RabbitMQ | [Tools/Messaging](../tools/messaging/) |
 | Deployment | Production strategies | Not implemented yet |
@@ -148,7 +148,7 @@ Dependencies point inward — outer layers depend on inner layers, never the rev
 
 - **API** (`Lanka.Api`) listens on `http://localhost:4307` in dev; health checks at `/healthz`
 - **Gateway** (`Lanka.Gateway`) listens on `https://localhost:4308` with YARP reverse proxy
-- **Logging** uses Serilog → Seq sink; UI at `http://localhost:8081`
+- **Logging** uses Serilog bridged to OpenTelemetry; visible in the Aspire Dashboard
 - **Migrations** are applied automatically on startup (no manual step needed)
 - **Keycloak** realm imported from `test/Lanka.IntegrationTests/lanka-realm-export.json`
 - **Data stores**: PostgreSQL (5432), MongoDB (27017), Redis (6379), RabbitMQ (5672/15672)

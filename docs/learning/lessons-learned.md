@@ -181,6 +181,30 @@ This document captures lessons from building Lanka as a diploma project. It's in
 
 ---
 
+### 6. Migrating to .NET Aspire
+
+**Challenge:** Migrating from Docker Compose to .NET Aspire 13 as the local development orchestrator while keeping all 8+ services working.
+
+**What made it hard:**
+- Aspire abstracts connection strings — it injects AMQP URIs for RabbitMQ instead of separate host/user/pass fields. This broke the `RabbitMqSettings` parser.
+- Auto-generated passwords broke authentication on restart because Docker volumes retained data initialized with old credentials.
+- Aspire's built-in health checks assume security is enabled — Elasticsearch with `xpack.security.enabled=false` caused health check failures.
+- Port proxying behavior confused me — Elasticsearch's transport port vs HTTP port meant the connection string didn't point where I expected.
+- HTTPS certificate path references from the Docker Compose era caused Gateway startup failures.
+- Understanding which resource name becomes which connection string key required reading Aspire source code.
+
+**How I addressed it:**
+- Systematic debugging, one service at a time — started with PostgreSQL (simplest), worked up to Elasticsearch (most complex).
+- Rewrote `RabbitMqSettings` to parse AMQP URIs instead of reading separate config fields.
+- Used fixed passwords in `appsettings.Development.json` instead of auto-generation.
+- Replaced built-in health checks for ES and Keycloak with `.WithHttpHealthCheck()` in the AppHost.
+- Consolidated all OpenTelemetry instrumentation (base + domain-specific) and all health checks into `Lanka.ServiceDefaults` — a single shared project that both API and Gateway reference. Health checks are registered conditionally based on connection string presence, so the same code is safe for both consumers.
+- Removed Docker-era Kestrel HTTPS configuration from Gateway.
+
+**Key insight:** Aspire trades explicit Docker configuration for convention-based wiring. Understanding the conventions (resource name → connection string key, `WaitFor()` → health check dependency, `AddParameter(secret: true)` → user secrets resolution) is essential. The documentation doesn't always explain the "why" behind these conventions — tracing through the source code was sometimes necessary.
+
+---
+
 ## What I Would Do Differently
 
 ### 1. Define Module Contracts Earlier
@@ -232,6 +256,10 @@ Encapsulating validation in value objects (Email, Money, etc.) eliminated entire
 ### CQRS with Separate Read Models
 
 Separating read and write concerns allowed optimizing each independently. Queries don't need to load full aggregates.
+
+### Aspire Orchestration
+
+Replacing Docker Compose with .NET Aspire eliminated an entire class of problems: connection string drift, two-step startup, missing health check orchestration, and fragmented observability. The AppHost is code — it's type-checked, refactorable, and version-controlled alongside the application it orchestrates. ServiceDefaults provides a single place for all cross-cutting concerns (OTel, health checks, resilience), and the Aspire Dashboard replaces separate Seq and Jaeger instances with one integrated UI.
 
 ---
 

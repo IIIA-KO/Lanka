@@ -13,6 +13,7 @@
 | Walkthrough | Complexity | Topics Covered |
 |-------------|------------|----------------|
 | [Instagram Account Linking](instagram-linking.md) | Advanced | Saga orchestration, cross-module events, OAuth2, background jobs |
+| [Aspire Orchestration](aspire-orchestration.md) | Intermediate | .NET Aspire, AppHost, ServiceDefaults, OTel, health checks, Dashboard |
 
 ---
 

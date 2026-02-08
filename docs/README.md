@@ -185,7 +185,7 @@ The [Catalog of Terms](catalog-of-terms/README.md) explains the patterns and con
 | **Search** | Elasticsearch | Full-text search |
 | **Identity** | Keycloak | OAuth2/OIDC provider |
 | **Gateway** | YARP | Reverse proxy, rate limiting |
-| **Logging** | Serilog + Seq | Structured logging |
+| **Logging** | Serilog + OpenTelemetry | Structured logging (via Aspire Dashboard) |
 | **Frontend** | Angular 20 | SPA client (in development) |
 
 ---

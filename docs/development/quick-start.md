@@ -48,34 +48,43 @@ dotnet build
 
 ---
 
-## Step 2: Start Infrastructure
+## Step 2: Start Everything with Aspire
 
-Lanka uses Docker Compose for local infrastructure.
+Lanka uses .NET Aspire to orchestrate all infrastructure containers and application projects. One command starts everything.
+
+### Prerequisites
 
 ```bash
-# Start all services
-docker compose up -d
-
-# Check they're running
-docker compose ps
+# Install the Aspire workload (one-time setup)
+dotnet workload install aspire
 ```
 
-You should see these services:
+### Start
+
+```bash
+# Start all infrastructure + API + Gateway
+dotnet run --project src/Api/Lanka.AppHost
+```
+
+Aspire starts these services automatically:
 - **PostgreSQL** (5432) — Primary database
 - **MongoDB** (27017) — Analytics storage
 - **Redis** (6379) — Caching
 - **RabbitMQ** (5672, Management: 15672) — Message bus
 - **Keycloak** (18080) — Identity provider
-- **Seq** (8081) — Centralized logging
-- **Elasticsearch** (9200) — Search index
-- **Jaeger** (16686) — Distributed tracing
+- **Elasticsearch** — Search index
+- **Kibana** (5601) — Elasticsearch UI
+- **Lanka.Api** — Main application
+- **Lanka.Gateway** (4308) — YARP reverse proxy
+
+The console output includes a link to the **Aspire Dashboard** — a unified UI for logs, traces, and metrics.
 
 ### Verify Services
 
+Open the Aspire Dashboard URL from the console output. All resources should show as **Running** with **Healthy** status. You can also check:
+
 ```bash
-curl http://localhost:15672  # RabbitMQ Management (guest/guest)
-curl http://localhost:18080  # Keycloak (admin/admin)
-curl http://localhost:8081   # Seq logs
+curl http://localhost:4307/healthz  # API health check
 ```
 
 ---
@@ -94,25 +103,21 @@ dotnet ef migrations add YourMigrationName \
 
 ---
 
-## Step 4: Run the Application
+## Step 4: Access the Application
 
-```bash
-# Start the API
-cd src/Api/Lanka.Api
-dotnet run
-
-# Or with hot reload
-dotnet watch run
-```
+The API and Gateway are started automatically by Aspire (Step 2). No separate `dotnet run` needed.
 
 ### Access Points
 
 | Service | URL | Notes |
 |---------|-----|-------|
+| Aspire Dashboard | *(shown in console output)* | Logs, traces, metrics |
 | API | http://localhost:4307 | Main API |
 | Health Check | http://localhost:4307/healthz | System status |
-| Gateway | http://localhost:4308 | YARP reverse proxy |
-| Seq Logs | http://localhost:8081 | View structured logs |
+| Gateway | https://localhost:4308 | YARP reverse proxy |
+| Kibana | http://localhost:5601 | Elasticsearch UI |
+| Keycloak | http://localhost:18080/admin | Identity management (admin/admin) |
+| RabbitMQ | http://localhost:15672 | Message queue admin |
 
 ---
 
@@ -159,43 +164,40 @@ dotnet test
 ## Daily Development Workflow
 
 ```bash
-# 1. Start infrastructure (if not running)
-docker compose up -d
-
-# 2. Pull latest changes
+# 1. Pull latest changes
 git pull origin main
 
-# 3. Restore packages (if needed)
+# 2. Restore packages (if needed)
 dotnet restore
 
-# 4. Run API with hot reload
-cd src/Api/Lanka.Api
-dotnet watch run
+# 3. Start everything with Aspire
+dotnet run --project src/Api/Lanka.AppHost
 ```
 
 ---
 
 ## Troubleshooting
 
-### Docker Services Won't Start
+### Aspire Won't Start
 
 ```bash
-# Check Docker is running
-docker info
+# Verify Aspire workload is installed
+dotnet workload list
 
-# Reset services
-docker compose down -v
-docker compose up -d --force-recreate
+# If missing, install it
+dotnet workload install aspire
+
+# Check Docker is running (Aspire needs Docker for containers)
+docker info
 ```
 
 ### Database Connection Errors
 
 ```bash
-# Check PostgreSQL is running
-docker compose ps postgres
-
-# View logs
-docker compose logs postgres
+# Check the Aspire Dashboard for container health status
+# If volumes have stale credentials, reset them:
+docker volume rm $(docker volume ls -q --filter name=lanka)
+dotnet run --project src/Api/Lanka.AppHost
 ```
 
 ### Port Conflicts

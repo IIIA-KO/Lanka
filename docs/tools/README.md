@@ -38,7 +38,7 @@ This section documents the tools and infrastructure used in Lanka. Whether you'r
 - [Docker Setup](../development/development-setup.md#-container-infrastructure-setup) — Container orchestration
 - [Messaging](messaging/) — RabbitMQ and MassTransit
 - [Gateway](gateway/) — YARP reverse proxy
-- [Telemetry](telemetry/) — OpenTelemetry, Serilog, Seq
+- [Telemetry](telemetry/) — OpenTelemetry, Serilog, Aspire Dashboard
 
 </td>
 </tr>
@@ -50,23 +50,24 @@ This section documents the tools and infrastructure used in Lanka. Whether you'r
 
 | Service | URL | Purpose |
 |---------|-----|---------|
+| Aspire Dashboard | *(shown in console output)* | Logs, traces, metrics |
 | Lanka API | http://localhost:4307 | Main application |
 | Health Check | http://localhost:4307/healthz | System status |
-| Gateway | http://localhost:4308 | YARP reverse proxy |
+| Gateway | https://localhost:4308 | YARP reverse proxy |
 | RabbitMQ | http://localhost:15672 | Message queue admin |
 | Keycloak | http://localhost:18080/admin | Identity management |
-| Seq | http://localhost:8081 | Centralized logs |
-| Jaeger | http://localhost:16686 | Distributed tracing |
 | Kibana | http://localhost:5601 | Elasticsearch UI |
 
 ---
 
 ## Database Connections
 
+Connection strings are **auto-injected by Aspire** when running via the AppHost. The values below are for manual tool access (e.g., DBeaver, pgAdmin, MongoDB Compass):
+
 | Database | Connection | Usage |
 |----------|------------|-------|
-| PostgreSQL | `Host=localhost;Port=5432;Database=lanka_dev;Username=postgres;Password=postgres` | Primary data |
-| MongoDB | `mongodb://localhost:27017/lanka_analytics` | Analytics storage |
+| PostgreSQL | `Host=localhost;Port=5432;Database=lanka;Username=postgres;Password=lanka-dev` | Primary data |
+| MongoDB | `mongodb://root:lanka-dev@localhost:27017` | Analytics storage |
 | Redis | `localhost:6379` | Caching |
 
 ---
@@ -117,58 +118,35 @@ This section documents the tools and infrastructure used in Lanka. Whether you'r
 
 ## Observability
 
+### Aspire Dashboard
+The **Aspire Dashboard** is the single observability UI for Lanka. It provides structured logs, distributed traces, and metrics in one place. Its URL is shown in the console when running the AppHost.
+
 ### Logging
-- **Serilog** — Structured logging
-- **Seq** — Log aggregation and search (http://localhost:8081)
+- **Serilog** — Structured logging with console sink
+- Serilog output is bridged to OpenTelemetry via `writeToProviders: true`
+- Logs appear in the Aspire Dashboard with trace correlation
 
 ### Tracing
-- **OpenTelemetry** — Distributed tracing
-- **Jaeger** — Trace visualization (http://localhost:16686)
+- **OpenTelemetry** — Distributed tracing configured in ServiceDefaults
+- Traces cover: HTTP requests, EF Core queries, Redis, PostgreSQL, MassTransit, MongoDB, YARP
+- Aspire Dashboard shows trace waterfalls with nested spans
 
 ### Metrics
-- Health checks at `/healthz`
-- Custom metrics via OpenTelemetry
+- Health checks at `/healthz` (JSON report of all dependency statuses)
+- Runtime metrics via OpenTelemetry (GC, thread pool, HTTP request durations)
 
 ---
 
 ## Docker Services
 
-The `docker-compose.yml` includes:
+Infrastructure containers are managed by **.NET Aspire** via the AppHost project (`src/Api/Lanka.AppHost/Program.cs`). Aspire handles container lifecycle, health checks, and connection string injection automatically.
 
-```yaml
-services:
-  postgres:
-    image: postgres:17.6
-    ports: ["5432:5432"]
-
-  mongodb:
-    image: mongo:8.0
-    ports: ["27017:27017"]
-
-  redis:
-    image: redis:8.2
-    ports: ["6379:6379"]
-
-  rabbitmq:
-    image: rabbitmq:3.13-management-alpine
-    ports: ["5672:5672", "15672:15672"]
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.4
-    ports: ["18080:8080"]
-
-  seq:
-    image: datalust/seq:2024
-    ports: ["8081:80"]
-
-  elasticsearch:
-    image: elasticsearch:9.1.3
-    ports: ["9200:9200"]
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.74.0
-    ports: ["16686:16686"]
+Start everything with:
+```bash
+dotnet run --project src/Api/Lanka.AppHost
 ```
+
+For details, see [Development Setup](../development/development-setup.md#-container-infrastructure-setup) and the [Aspire Orchestration Walkthrough](../walkthroughs/aspire-orchestration.md).
 
 ---
 

@@ -39,8 +39,9 @@ This is a learning project. Some parts work well, others are incomplete or simpl
 - **Redis 7+** — Caching
 - **RabbitMQ** — Message broker
 - **Keycloak** — Identity provider
-- **Elasticsearch 8** — Full-text search
-- **Docker** — Development infrastructure
+- **Elasticsearch 9** — Full-text search
+- **.NET Aspire 13** — Local development orchestration
+- **Docker** — Container runtime (managed by Aspire)
 - **Angular 20** — Frontend SPA
 
 ## Project Structure
@@ -49,6 +50,8 @@ This is a learning project. Some parts work well, others are incomplete or simpl
 Lanka/
 ├── src/
 │   ├── Api/
+│   │   ├── Lanka.AppHost/                # Aspire orchestration (containers + projects)
+│   │   ├── Lanka.ServiceDefaults/        # Shared OTel, health checks, resilience
 │   │   ├── Lanka.Api/                    # Main API host
 │   │   └── Lanka.Gateway/                # YARP reverse proxy
 │   ├── Common/                           # Shared components
@@ -64,8 +67,7 @@ Lanka/
 │       └── Users/                        # Identity & profiles
 ├── client/
 │   └── lanka-client/                     # Angular frontend
-├── docs/                                 # Documentation
-└── docker-compose.yml                    # Development environment
+└── docs/                                 # Documentation
 ```
 
 ### Module Architecture
@@ -81,21 +83,21 @@ Each module follows Clean Architecture:
 ## Quick Start
 
 ```bash
-# Start infrastructure
-docker compose up -d
+# Install Aspire workload (one-time)
+dotnet workload install aspire
 
-# Run the API (migrations apply automatically)
-cd src/Api/Lanka.Api && dotnet run
+# Start everything (infrastructure + API + Gateway)
+dotnet run --project src/Api/Lanka.AppHost
 
 # Run the frontend (separate terminal)
 cd client/lanka-client && npm install && npm start
 
 # Access points
+# Aspire Dashboard: (URL shown in console output)
 # API: http://localhost:4307
-# Gateway: http://localhost:4308
+# Gateway: https://localhost:4308
 # Frontend: https://localhost:4200
 # Health: http://localhost:4307/healthz
-# Seq logs: http://localhost:8081
 ```
 
 ## Development Commands
@@ -107,11 +109,13 @@ dotnet build
 # Run tests
 dotnet test
 
+# Start all services via Aspire
+dotnet run --project src/Api/Lanka.AppHost
+
 # Add migration (from module Infrastructure directory)
 dotnet ef migrations add <Name>
 
-# View logs
-docker compose logs -f <service>
+# View logs — use the Aspire Dashboard (URL in console output)
 
 # Frontend lint
 cd client/lanka-client && npm run lint
@@ -342,7 +346,7 @@ Modules communicate **only** via integration events through RabbitMQ:
 3. **Instagram API limits** — Mock services exist for development without real API access
 4. **Campaign workflow** — Domain model is solid, but API endpoints need more work
 5. **Search refinement** — Basic fuzzy search works, but relevance tuning needed
-6. **No monitoring** — Seq for logs, but no metrics/alerting infrastructure
+6. **Basic monitoring** — Aspire Dashboard for logs/traces/metrics in dev, but no production alerting
 7. **Single-tenant** — No multi-tenancy considerations
 
 ---

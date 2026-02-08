@@ -33,7 +33,7 @@ This is not a production-ready product. It's an educational project where I expe
 | **Infrastructure** | PostgreSQL, MongoDB, Redis, RabbitMQ, Elasticsearch |
 | **Identity** | Keycloak integration, JWT authentication, role-based access |
 | **External APIs** | Instagram Graph API integration with OAuth2 |
-| **DevOps** | Docker Compose, health checks, structured logging with Seq |
+| **DevOps** | .NET Aspire orchestration, health checks, OpenTelemetry observability |
 
 ### The Domain (briefly)
 
@@ -65,8 +65,8 @@ The platform connects influencers with brands for marketing campaigns. Core feat
 ### Infrastructure
 - **Keycloak** — Identity provider and OAuth2/OIDC server
 - **YARP** — Reverse proxy and API gateway
-- **Docker Compose** — Local development environment
-- **Seq** — Structured logging and diagnostics
+- **.NET Aspire** — Development orchestration and observability
+- **OpenTelemetry** — Distributed tracing, metrics, and structured logging
 
 ---
 
@@ -99,21 +99,17 @@ This is an active diploma project. Some modules are more complete than others as
 git clone https://github.com/IIIA-KO/Lanka.git
 cd Lanka
 
-# Start infrastructure (PostgreSQL, MongoDB, Redis, RabbitMQ, Keycloak, Seq)
-docker-compose up -d
+# Install the Aspire workload (one-time)
+dotnet workload install aspire
 
-# Apply database migrations
-dotnet ef database update -p src/Modules/Users/Lanka.Modules.Users.Infrastructure
-dotnet ef database update -p src/Modules/Analytics/Lanka.Modules.Analytics.Infrastructure
-dotnet ef database update -p src/Modules/Campaigns/Lanka.Modules.Campaigns.Infrastructure
-
-# Run the API
-dotnet run --project src/Api/Lanka.Api
+# Start everything (infrastructure + API + Gateway)
+dotnet run --project src/Api/Lanka.AppHost
 
 # Access points:
+# Aspire Dashboard: (URL shown in console output)
 # API: http://localhost:4307
-# Gateway: http://localhost:4308
-# Seq (logs): http://localhost:8081
+# Gateway: https://localhost:4308
+# Health: http://localhost:4307/healthz
 # Keycloak: http://localhost:18080
 ```
 
@@ -177,6 +173,8 @@ If you're exploring this as a learning resource:
 Lanka/
 ├── src/
 │   ├── Api/
+│   │   ├── Lanka.AppHost/                # Aspire orchestration
+│   │   ├── Lanka.ServiceDefaults/        # Shared OTel, health checks
 │   │   ├── Lanka.Api/                    # Main API host
 │   │   └── Lanka.Gateway/                # YARP reverse proxy
 │   ├── Common/                           # Shared infrastructure
@@ -190,8 +188,7 @@ Lanka/
 │       ├── Matching/                     # Search & discovery
 │       └── Users/                        # Identity & profiles
 ├── test/                                 # Integration & architecture tests
-├── docs/                                 # Documentation
-└── docker-compose.yml                    # Development environment
+└── docs/                                 # Documentation
 ```
 
 Each module follows Clean Architecture:

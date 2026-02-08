@@ -1,110 +1,105 @@
-# Serilog and Seq for Structured Logging
+# Serilog for Structured Logging
 
-Serilog is a structured logging library for .NET applications that makes it easy to capture and analyze logs. Seq is a centralized log server that provides a powerful and user-friendly interface for collecting, searching, and analyzing logs.
+Serilog is a structured logging library for .NET applications that captures rich, queryable log data. In Lanka, Serilog output is bridged to OpenTelemetry and exported to the Aspire Dashboard alongside traces and metrics.
 
-## Usage in Lanka Project
+> **Note:** Lanka previously used Seq as a dedicated log server. After adopting .NET Aspire, Seq was replaced by the Aspire Dashboard, which provides structured log search, filtering, and trace correlation in a single UI. The Seq sink has been removed from the configuration.
 
-In the Lanka project, Serilog is used to capture structured logs from the application. The TraceId is added to the log context to correlate logs with traces. Seq is used to collect and analyze these logs.
+## How It Works
+
+Serilog is configured in `appsettings.json` of each API project. The `writeToProviders: true` flag bridges Serilog output into ASP.NET Core's `ILoggerProvider` pipeline, where ServiceDefaults registers an OpenTelemetry log provider that exports logs via OTLP:
+
+```csharp
+// Program.cs (both Lanka.Api and Lanka.Gateway)
+builder.Host.UseSerilog(
+    (context, loggerConfiguration) =>
+        loggerConfiguration.ReadFrom.Configuration(context.Configuration),
+    writeToProviders: true);
+```
+
+```csharp
+// ServiceDefaults/Extensions.cs
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+```
+
+The result: Serilog handles log formatting and the console sink, while OpenTelemetry captures the same entries and exports them to the Aspire Dashboard. Logs are automatically correlated with their parent trace — clicking a log entry in the Dashboard reveals the full distributed trace.
 
 ## Configuration
 
-Serilog is configured in the `appsettings.json` file of each API project (e.g., `Lanka.Api`, `Lanka.Gateway`).
-
 ### Sinks
 
-The following sinks are configured in the Lanka project:
+```json
+{
+  "Serilog": {
+    "WriteTo": [
+      {
+        "Name": "Console"
+      }
+    ]
+  }
+}
+```
 
-*   **Console:** Writes logs to the console.
-*   **Seq:** Sends logs to the Seq server.
-
-    *   The Seq server URL is configured using the `serverUrl` argument.
-
-        *   **Example (`src/Api/Lanka.Api/appsettings.json`):**
-
-            ```json
-            {
-              "Serilog": {
-                "WriteTo": [
-                  {
-                    "Name": "Console"
-                  },
-                  {
-                    "Name": "Seq",
-                    "Args": {
-                      "serverUrl": "http://lanka.seq:5341"
-                    }
-                  }
-                ]
-              }
-            }
-            ```
+The console sink provides local output. All log aggregation and search is handled by the Aspire Dashboard via the OpenTelemetry bridge.
 
 ### Minimum Level
 
-The minimum level of logs to be captured is configured using the `MinimumLevel` setting.
+The minimum level controls which logs are captured:
 
-*   **Example (`src/Api/Lanka.Api/appsettings.json`):**
-
-    ```json
-    {
-      "Serilog": {
-        "MinimumLevel": {
-          "Default": "Information",
-          "Override": {
-            "Microsoft": "Information",
-            "Lanka.Modules.Users.Infrastructure.Outbox": "Warning",
-            "Lanka.Modules.Users.Infrastructure.Inbox": "Warning",
-            "Lanka.Modules.Campaigns.Infrastructure.Outbox": "Warning",
-            "Lanka.Modules.Campaigns.Infrastructure.Inbox": "Warning"
-          }
-        }
+```json
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Information",
+        "Lanka.Modules.Users.Infrastructure.Outbox": "Warning",
+        "Lanka.Modules.Users.Infrastructure.Inbox": "Warning",
+        "Lanka.Modules.Campaigns.Infrastructure.Outbox": "Warning",
+        "Lanka.Modules.Campaigns.Infrastructure.Inbox": "Warning"
       }
     }
-    ```
+  }
+}
+```
+
+Outbox/Inbox processors are set to `Warning` to reduce noise from their frequent polling.
 
 ### Enrichers
 
-The following enrichers are configured in the Lanka project:
-
-*   **FromLogContext:** Adds properties from the log context to the log events.
-*   **WithMachineName:** Adds the machine name to the log events.
-*   **WithThreadId:** Adds the thread ID to the log events.
-
-### Properties
-
-The `Application` property is configured to identify the application in the logs.
-
-*   **Example (`src/Api/Lanka.Api/appsettings.json`):**
-
-    ```json
-    {
-      "Serilog": {
-        "Properties": {
-          "Application": "Lanka.Api"
-        }
-      }
-    }
-    ```
+* **FromLogContext** — Adds properties from the log context to log events
+* **WithMachineName** — Adds the machine name
+* **WithThreadId** — Adds the thread ID
 
 ## Code Examples
 
 ### Logging Structured Data
 
-You can log structured data by passing objects to the log methods.
-
 ```csharp
 _logger.LogInformation("User registered: {UserId}, {Email}", userId, email);
 ```
 
+Structured properties (`UserId`, `Email`) are preserved as queryable fields in the Aspire Dashboard, not flattened into a string.
 
+### Trace Correlation via LogContext
 
-## Setting Up Seq
+The `LogContextTraceLoggingMiddleware` adds the current `TraceId` to the Serilog log context, so every log entry is linked to its distributed trace:
 
-1. Run the Seq Docker container:
+```csharp
+using Serilog.Context;
 
-    ```bash
-    docker run --name lanka.seq -e ACCEPT_EULA=Y -p 8081:80 datalust/seq:latest
-    ```
+public Task Invoke(HttpContext context)
+{
+    string traceId = Activity.Current?.TraceId.ToString();
 
-2. Access the Seq UI at `http://localhost:8081`.
-3. Configure Serilog to send logs to Seq by specifying the Seq server URL in the `appsettings.json` file.
+    using (LogContext.PushProperty("TraceId", traceId))
+    {
+        return next.Invoke(context);
+    }
+}
+```
+
+In the Aspire Dashboard, this correlation is automatic — clicking a log entry navigates to the trace waterfall view.

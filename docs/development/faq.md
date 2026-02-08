@@ -60,7 +60,7 @@ The high requirements are due to running multiple Docker containers.
 
 ### Can I develop on Apple Silicon (M1/M2/M3) Macs?
 
-Yes. Docker images work on ARM64. The docker-compose.yml handles this automatically.
+Yes. Docker images work on ARM64. Aspire handles container management automatically.
 
 ### Do I need Visual Studio or can I use VS Code?
 
@@ -96,15 +96,15 @@ dotnet ef migrations add Test
 dotnet ef migrations add Test --project src/Modules/Users/Lanka.Modules.Users.Infrastructure
 ```
 
-### Docker services won't start
+### Services won't start
 
 ```bash
-# Check Docker is running
+# Check Docker is running (Aspire needs Docker for infrastructure containers)
 docker info
 
-# Reset services
-docker compose down -v
-docker compose up -d --force-recreate
+# Reset all data and restart
+docker volume rm $(docker volume ls -q --filter name=lanka)
+dotnet run --project src/Api/Lanka.AppHost
 
 # Check for port conflicts
 lsof -i :5432  # PostgreSQL
@@ -113,10 +113,10 @@ lsof -i :4307  # API
 
 ### API returns 500 errors on startup
 
-1. **Database not ready**: Wait 30 seconds after `docker compose up`
-2. **Migrations not applied**: They run automatically, but check the logs
-3. **Configuration errors**: Verify `appsettings.json` connection strings
-4. **Service dependencies**: Ensure PostgreSQL, Redis, RabbitMQ are healthy
+1. **Dependency not ready**: Aspire uses `WaitFor()` to start services in order, but check the Aspire Dashboard for unhealthy resources
+2. **Migrations not applied**: They run automatically, but check the structured logs in the Dashboard
+3. **Configuration errors**: Connection strings are injected by Aspire — check the AppHost resource declarations
+4. **Stale volumes**: If you changed passwords, delete Docker volumes and restart (see above)
 
 ---
 
@@ -171,12 +171,11 @@ Each module needs `Microsoft.EntityFrameworkCore.Design`:
 ### How do I reset the database completely?
 
 ```bash
-# Stop the API
-docker compose stop postgres
-docker volume rm lanka_postgres_data
-docker compose up -d postgres
+# Stop the AppHost (Ctrl+C), then remove the PostgreSQL volume
+docker volume rm $(docker volume ls -q --filter name=lanka | grep postgres)
 
-# Wait 30 seconds, then restart API (migrations run automatically)
+# Restart — Aspire recreates the database, migrations run automatically
+dotnet run --project src/Api/Lanka.AppHost
 ```
 
 ### Migration creates empty Up/Down methods
@@ -217,13 +216,13 @@ TestContainers automatically assigns random ports. Don't manually specify ports 
 
 ### Containers keep restarting
 
-```bash
-# Check logs
-docker compose logs postgres
-docker compose logs keycloak
+Open the **Aspire Dashboard** (URL shown in console output) and check the resource status. Click on the unhealthy resource to see its console logs.
 
-# Check health status
-docker compose ps
+Alternatively, check Docker directly:
+
+```bash
+docker ps --filter name=lanka
+docker logs <container-name>
 ```
 
 ### "Port already allocated" error
@@ -233,7 +232,7 @@ docker compose ps
 lsof -i :5432  # macOS/Linux
 netstat -ano | findstr :5432  # Windows
 
-# Stop the conflicting service or change ports in docker-compose.yml
+# Stop the conflicting service, or change the fixed port in the AppHost
 ```
 
 ### Docker uses too much disk space
@@ -250,13 +249,9 @@ docker volume prune
 
 ### Keycloak admin console not accessible
 
-Keycloak takes 2-3 minutes to start. Check logs:
+Keycloak takes 2-3 minutes to start. Check its status in the Aspire Dashboard — the AppHost waits for Keycloak to become healthy before starting the API.
 
-```bash
-docker compose logs keycloak
-```
-
-Then access: http://localhost:18080/admin (admin/admin)
+Access: http://localhost:18080/admin (admin/admin)
 
 ### RabbitMQ management UI not working
 
@@ -272,11 +267,11 @@ Access: http://localhost:15672 (guest/guest)
 ### Can't connect to MongoDB
 
 ```bash
-# Test connection
-mongosh "mongodb://localhost:27017/lanka_analytics"
+# Test connection (credentials from AppHost parameters)
+mongosh "mongodb://root:lanka-dev@localhost:27017"
 
-# Check container
-docker compose logs mongodb
+# Check container status in the Aspire Dashboard, or:
+docker logs $(docker ps -q --filter name=lanka | head -1)
 ```
 
 ---
@@ -432,11 +427,10 @@ Follow the test pyramid: mostly unit tests, some integration tests, few end-to-e
 # Health check
 curl http://localhost:4307/healthz
 
-# View all logs
-docker compose logs
+# View all logs — use the Aspire Dashboard (URL in console output)
 
 # Test database
-psql -h localhost -U postgres -d lanka_dev -c "SELECT 1;"
+psql -h localhost -U postgres -d lanka -c "SELECT 1;"
 ```
 
 ### Reporting Issues
