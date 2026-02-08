@@ -26,17 +26,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       
-      # Remove compose proj from sln
-      - name: Remove compose proj from sln
-        run: dotnet sln ${{ env.SOLUTION_PATH }} remove $(dotnet sln ${{ env.SOLUTION_PATH }} list | grep .dcproj)
-
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION_PATH }}
-
-      # Add compose proj back to sln
-      - name: Add compose proj back to sln
-        run: |
-          find . -name '*.dcproj' | xargs -I {} dotnet sln ${{ env.SOLUTION_PATH }} add {}
 
       # Generate dev certificate
       - name: Generate dev certificate
