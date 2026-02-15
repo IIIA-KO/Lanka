@@ -1,30 +1,28 @@
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     </PropertyGroup>
-    <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
-        <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.19.0.132793"/>
-    </ItemGroup>
     <ItemGroup>
+        <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.19.0.132793"/>
         <!-- General -->
         <PackageVersion Include="MediatR" Version="13.0.0"/>
         <PackageVersion Include="MediatR.Contracts" Version="2.0.1"/>
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.4"/>
         <!-- Health Checks -->
         <PackageVersion Include="AspNetCore.HealthChecks.Elasticsearch" Version="9.0.0"/>
-        <PackageVersion Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0"/>
         <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0"/>
         <PackageVersion Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0"/>
-        <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0"/>
         <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0"/>
         <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="9.0.0"/>
         <!-- Persistence -->
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.2"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.2"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.2"/>
         <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2"/>
         <PackageVersion Include="MongoDB.Driver" Version="3.6.0"/>
-        <PackageVersion Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="2.1.0"/>
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
         <PackageVersion Include="Dapper" Version="2.1.66"/>
         <!-- Testing -->
@@ -49,7 +47,6 @@
         <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.15.0-beta.1"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0"/>
-        <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.15.0-beta.1"/>
         <!-- Logging -->
         <PackageVersion Include="Serilog" Version="4.3.0"/>
         <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0"/>
@@ -80,8 +77,8 @@
         <!-- Search -->
         <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.0"/>
         <!-- Workers -->
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2"/>
         <!-- Aspire Hosting (AppHost) -->
         <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.1.0"/>
         <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.0"/>
@@ -90,8 +87,12 @@
         <PackageVersion Include="Aspire.Hosting.Elasticsearch" Version="13.1.0"/>
         <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.1.0-preview.1.25616.3"/>
         <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.1.0"/>
+        <!-- Aspire Client Libraries -->
+        <PackageVersion Include="Aspire.MongoDB.Driver" Version="13.1.1"/>
+        <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.1.1"/>
         <!-- Aspire ServiceDefaults -->
         <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.2.0"/>
+        <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.2.0"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0"/>
     </ItemGroup>
 </Project>

@@ -7,8 +7,8 @@
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
       <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
-      <PackageReference Include="MongoDB.Driver" />
-      <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" />
+      <PackageReference Include="Aspire.MongoDB.Driver" />
+      <PackageReference Include="Aspire.StackExchange.Redis" />
       <PackageReference Include="Newtonsoft.Json" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
       <PackageReference Include="Quartz.Extensions.Hosting" />

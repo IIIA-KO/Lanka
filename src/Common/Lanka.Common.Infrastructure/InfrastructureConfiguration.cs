@@ -9,17 +9,13 @@ using Lanka.Common.Infrastructure.Authorization;
 using Lanka.Common.Infrastructure.Caching;
 using Lanka.Common.Infrastructure.Clock;
 using Lanka.Common.Infrastructure.Data;
-using Lanka.Common.Infrastructure.EventBus;
 using Lanka.Common.Infrastructure.Notifications;
 using Lanka.Common.Infrastructure.Outbox;
 using MassTransit;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using Npgsql;
 using Quartz;
 using Quartz.Simpl;
@@ -31,12 +27,9 @@ public static class InfrastructureConfiguration
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
+        IConfiguration configuration,
         string serviceName,
-        Action<IRegistrationConfigurator, string>[] moduleConfigureConsumers,
-        RabbitMqSettings rabbitMqSettings,
-        string databaseConnectionString,
-        string redisConnectionString,
-        string mongoConnectionString
+        Action<IRegistrationConfigurator, string>[] moduleConfigureConsumers
     )
     {
         services.AddAuthenticationInternal();
@@ -45,15 +38,13 @@ public static class InfrastructureConfiguration
 
         services.TryAddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        AddPersistence(services, databaseConnectionString);
+        AddPersistence(services, configuration.GetConnectionString("Database")!);
 
-        AddCache(services, redisConnectionString);
+        AddCache(services);
 
         AddBackgroundJobs(services);
 
-        AddEventBus(services, serviceName, moduleConfigureConsumers, rabbitMqSettings);
-
-        AddMongo(services, mongoConnectionString);
+        AddEventBus(services, serviceName, moduleConfigureConsumers, configuration.GetConnectionString("Queue")!);
 
         AddNotifications(services);
 
@@ -74,22 +65,13 @@ public static class InfrastructureConfiguration
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
     }
 
-    private static void AddCache(IServiceCollection services, string redisConnectionString)
+    private static void AddCache(IServiceCollection services)
     {
-        try
-        {
-            IConnectionMultiplexer connectionMultiplexer = ConnectionMultiplexer.Connect(
-                redisConnectionString
-            );
-            services.TryAddSingleton(connectionMultiplexer);
-            services.AddStackExchangeRedisCache(options =>
-                options.ConnectionMultiplexerFactory = () => Task.FromResult(connectionMultiplexer)
-            );
-        }
-        catch
-        {
-            services.AddDistributedMemoryCache();
-        }
+        services.AddOptions<RedisCacheOptions>()
+            .Configure<IConnectionMultiplexer>((options, multiplexer) =>
+                options.ConnectionMultiplexerFactory = () => Task.FromResult(multiplexer));
+
+        services.AddStackExchangeRedisCache(_ => { });
 
         services.AddHybridCache(options =>
         {
@@ -130,7 +112,7 @@ public static class InfrastructureConfiguration
         IServiceCollection services,
         string serviceName,
         Action<IRegistrationConfigurator, string>[] moduleConfigureConsumers,
-        RabbitMqSettings rabbitMqSettings
+        string rabbitMqConnectionString
     )
     {
         services.TryAddSingleton<IEventBus, EventBus.EventBus>();
@@ -151,38 +133,13 @@ public static class InfrastructureConfiguration
 
             configure.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host(new Uri(rabbitMqSettings.Host), host =>
-                {
-                    host.Username(rabbitMqSettings.Username);
-                    host.Password(rabbitMqSettings.Password);
-                });
+                cfg.Host(new Uri(rabbitMqConnectionString));
 
                 cfg.UseMessageScheduler(new Uri("queue:quartz-scheduler"));
 
                 cfg.ConfigureEndpoints(context);
             });
         });
-    }
-
-    private static void AddMongo(IServiceCollection services, string mongoConnectionString)
-    {
-        services.AddSingleton<IMongoClient>(_ =>
-        {
-            var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConnectionString);
-
-            mongoClientSettings.ClusterConfigurator = c => c.Subscribe(
-                new DiagnosticsActivityEventSubscriber(
-                    new InstrumentationOptions
-                    {
-                        CaptureCommandText = true
-                    }
-                )
-            );
-
-            return new MongoClient(mongoClientSettings);
-        });
-
-        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
     }
 
     private static void AddNotifications(IServiceCollection services)

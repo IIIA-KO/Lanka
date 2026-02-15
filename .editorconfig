@@ -375,3 +375,6 @@ dotnet_diagnostic.S4136.severity = none
 
 # S6605: Collection-specific "Exists" method should be used instead of the "Any" extension
 dotnet_diagnostic.S6605.severity = none
+
+# CA1515: Make types internal — noisy for application projects (AppHost, Api, Gateway)
+dotnet_diagnostic.CA1515.severity = none
