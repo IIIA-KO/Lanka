@@ -1,5 +1,4 @@
 using System.Threading.RateLimiting;
-using Lanka.Gateway.Authentication;
 using Lanka.Gateway.Middleware;
 using Lanka.Gateway.RateLimiting;
 using Lanka.Gateway.Resiliency;
@@ -13,111 +12,110 @@ namespace Lanka.Gateway.Extensions;
 
 internal static class ApplicationExtensions
 {
-    public static WebApplicationBuilder ConfigureCors(this WebApplicationBuilder builder)
+    extension(WebApplicationBuilder builder)
     {
-        CorsOptions corsOptions = builder.Configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>()!;
-        
-        builder.Services.AddCors(options =>
-            options.AddPolicy(CorsOptions.PolicyName, corsPolicyBuilder =>
-                corsPolicyBuilder
-                    .WithOrigins(corsOptions.AllowedOrigins)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials()
-            )
-        );
+        public WebApplicationBuilder ConfigureCors()
+        {
+            CorsOptions corsOptions = builder.Configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>()!;
 
-        return builder;
-    }
-
-    public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
-    {
-        builder.Host.UseSerilog(
-            (context, loggerConfiguration) =>
-                loggerConfiguration.ReadFrom.Configuration(context.Configuration),
-            writeToProviders: true);
-
-        return builder;
-    }
-
-    public static WebApplicationBuilder ConfigureRateLimiting(this WebApplicationBuilder builder)
-    {
-        builder
-            .Services
-            .AddRateLimiter(
-                options =>
-                {
-                    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-                    options.AddPolicy(RateLimitingConfig.FixedByIp, httpContext =>
-                        RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: httpContext.Request.Headers["X-Forwarded-For"].ToString()
-                                          ?? httpContext.Connection.RemoteIpAddress?.ToString()
-                                          ?? "unknown",
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = 100,
-                                Window = TimeSpan.FromMinutes(1),
-                                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                                QueueLimit = 0
-                            }
-                        )
-                    );
-                }
+            builder.Services.AddCors(options =>
+                options.AddPolicy(CorsOptions.PolicyName, corsPolicyBuilder =>
+                    corsPolicyBuilder
+                        .WithOrigins(corsOptions.AllowedOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                )
             );
 
-        builder
-            .Services
-            .AddRateLimiter(
-                options =>
-                {
-                    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            return builder;
+        }
 
-                    options.AddPolicy(RateLimitingConfig.InstagramPolicy, httpContext =>
-                        RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: httpContext.Request.Headers["X-Forwarded-For"].ToString()
-                                          ?? httpContext.Connection.RemoteIpAddress?.ToString()
-                                          ?? "unknown",
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = 10,
-                                Window = TimeSpan.FromMinutes(1),
-                                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                                QueueLimit = 0
-                            }
-                        )
-                    );
-                }
+        public WebApplicationBuilder ConfigureLogging()
+        {
+            builder.Host.UseSerilog(
+                (context, loggerConfiguration) =>
+                    loggerConfiguration.ReadFrom.Configuration(context.Configuration),
+                writeToProviders: true);
+
+            return builder;
+        }
+
+        public WebApplicationBuilder ConfigureRateLimiting()
+        {
+            builder
+                .Services
+                .AddRateLimiter(options =>
+                    {
+                        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                        options.AddPolicy(RateLimitingConfig.FixedByIp, httpContext =>
+                            RateLimitPartition.GetFixedWindowLimiter(
+                                partitionKey: httpContext.Request.Headers["X-Forwarded-For"].ToString()
+                                              ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                                              ?? "unknown",
+                                factory: _ => new FixedWindowRateLimiterOptions
+                                {
+                                    PermitLimit = 100,
+                                    Window = TimeSpan.FromMinutes(1),
+                                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                                    QueueLimit = 0
+                                }
+                            )
+                        );
+                    }
+                );
+
+            builder
+                .Services
+                .AddRateLimiter(options =>
+                    {
+                        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                        options.AddPolicy(RateLimitingConfig.InstagramPolicy, httpContext =>
+                            RateLimitPartition.GetFixedWindowLimiter(
+                                partitionKey: httpContext.Request.Headers["X-Forwarded-For"].ToString()
+                                              ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                                              ?? "unknown",
+                                factory: _ => new FixedWindowRateLimiterOptions
+                                {
+                                    PermitLimit = 10,
+                                    Window = TimeSpan.FromMinutes(1),
+                                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                                    QueueLimit = 0
+                                }
+                            )
+                        );
+                    }
+                );
+
+            return builder;
+        }
+
+        public WebApplicationBuilder ConfigureReverserProxy()
+        {
+            ResiliencePipeline<HttpResponseMessage> pipeline = ResiliencePolicyBuilder.Build();
+
+            builder.Services.AddSingleton<IForwarderHttpClientFactory>(_ => new ResilientHttpClientFactory(pipeline)
             );
-        
-        return builder;
-    }
 
-    public static WebApplicationBuilder ConfigureReverserProxy(this WebApplicationBuilder builder)
-    {
-        ResiliencePipeline<HttpResponseMessage> pipeline = ResiliencePolicyBuilder.Build();
+            builder
+                .Services
+                .AddReverseProxy()
+                .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+                .AddServiceDiscoveryDestinationResolver();
 
-        builder.Services.AddSingleton<IForwarderHttpClientFactory>(
-            _ => new ResilientHttpClientFactory(pipeline)
-        );
+            return builder;
+        }
 
-        builder
-            .Services
-            .AddReverseProxy()
-            .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+        public WebApplicationBuilder ConfigureAuthentication()
+        {
+            builder.Services.AddAuthorization();
 
-        return builder;
-    }
+            builder.Services.AddAuthentication().AddJwtBearer();
 
-    public static WebApplicationBuilder ConfigureAuthentication(this WebApplicationBuilder builder)
-    {
-        builder.Services.AddAuthorization();
-
-        builder.Services.AddAuthentication().AddJwtBearer();
-
-        builder.Services.ConfigureOptions<JwtBearerConfigureOptions>();
-
-        return builder;
+            return builder;
+        }
     }
 
     public static WebApplication ConfigureMiddleware(this WebApplication app)

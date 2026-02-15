@@ -24,7 +24,7 @@ public class ValidationBuilder
         {
             return Result.Failure<T>(ValidationError.FromResults(failures));
         }
-        
+
         return valueFactory();
     }
 }

@@ -1,5 +1,4 @@
 using System.Threading.RateLimiting;
-using Lanka.Common.Application.Authentication;
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
@@ -145,14 +144,9 @@ public static class AnalyticsModule
             .ConfigureHttpClient(ConfigureBaseUrl)
             .AddHttpMessageHandler<InstagramApiDelegatingHandler>();
 
-        static void ConfigureBaseUrl(IServiceProvider serviceProvider, HttpClient httpClient)
-        {
-            InstagramOptions instagramOptions = serviceProvider
-                .GetRequiredService<IOptions<InstagramOptions>>()
-                .Value;
-
-            httpClient.BaseAddress = new Uri(instagramOptions.BaseUrl);
-        }
+        static void ConfigureBaseUrl(IServiceProvider serviceProvider, HttpClient httpClient) =>
+            httpClient.BaseAddress = new Uri(
+                serviceProvider.GetRequiredService<IOptions<InstagramOptions>>().Value.BaseUrl);
 
 
         services.AddInstagramService<
