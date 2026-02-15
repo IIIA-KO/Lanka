@@ -1,7 +1,5 @@
 using FluentAssertions;
 using Lanka.Common.Application.Authentication;
-using Lanka.Common.Application.Caching;
-using Lanka.Common.Application.Notifications;
 using Lanka.Common.Domain;
 using Lanka.Modules.Users.Application.Abstractions;
 using Lanka.Modules.Users.Application.Abstractions.Data;

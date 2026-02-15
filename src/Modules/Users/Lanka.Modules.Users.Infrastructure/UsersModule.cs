@@ -51,13 +51,15 @@ public static class UsersModule
         return services;
     }
 
-    public static Action<IRegistrationConfigurator, string> ConfigureConsumers(string redisConnectionString)
+    public static Action<IRegistrationConfigurator, string> ConfigureConsumers(IConfiguration configuration)
     {
+        string redisConnectionString = configuration.GetConnectionString("Cache")!;
+
         return (registration, instanceId) =>
         {
             registration
                 .AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddSagaStateMachine<LinkInstagramSaga, LinkInstagramState>()
@@ -66,19 +68,19 @@ public static class UsersModule
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingFailureCleanedUpIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramLinkingFailedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramAccountLinkingCompletedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddSagaStateMachine<RenewInstagramAccessSaga, RenewInstagramAccessState>()
@@ -87,19 +89,19 @@ public static class UsersModule
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramAccountDataRenewedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramRenewalAccessFailureCleanedUpIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramRenewalFailedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration
                 .AddConsumer<IntegrationEventConsumer<InstagramAccessRenewalCompletedIntegrationEvent>>()
-                .Endpoint(configuration => configuration.InstanceId = instanceId);
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
         };
     }
 
@@ -119,6 +121,19 @@ public static class UsersModule
         services.AddScoped<IPermissionService, PermissionService>();
 
         services.Configure<KeycloakOptions>(configuration.GetSection("Users:KeyCloak"));
+
+        services.PostConfigure<KeycloakOptions>(options =>
+        {
+            if (string.IsNullOrEmpty(options.Realm))
+            {
+                return;
+            }
+
+            options.BaseUrl = "http://lanka-identity";
+            options.AdminUrl = $"http://lanka-identity/admin/realms/{options.Realm}";
+            options.TokenUrl = $"http://lanka-identity/realms/{options.Realm}/protocol/openid-connect/token";
+        });
+
         services.AddTransient<KeycloakAuthDelegatingHandler>();
 
         services
