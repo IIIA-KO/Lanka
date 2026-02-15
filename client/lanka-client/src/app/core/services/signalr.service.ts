@@ -55,12 +55,12 @@ export class SignalRService {
 
     // Set up event handlers
     this.hubConnection.on('InstagramLinkingStatus', (notification: InstagramStatusNotification) => {
-      console.log('[SignalRService] Received InstagramLinkingStatus:', notification);
+      console.warn('[SignalRService] Received InstagramLinkingStatus:', notification);
       this.instagramLinking$.next(notification);
     });
 
     this.hubConnection.on('InstagramRenewalStatus', (notification: InstagramStatusNotification) => {
-      console.log('[SignalRService] Received InstagramRenewalStatus:', notification);
+      console.warn('[SignalRService] Received InstagramRenewalStatus:', notification);
       this.instagramRenewal$.next(notification);
     });
 
@@ -82,7 +82,7 @@ export class SignalRService {
 
     try {
       await this.hubConnection.start();
-      console.log('[SignalRService] Connection established - backend will auto-join user group via claims');
+      console.warn('[SignalRService] Connection established - backend will auto-join user group via claims');
       this.connectionStateSubject.next('connected');
       // Backend automatically joins user to their group on connection via claims
     } catch (error) {

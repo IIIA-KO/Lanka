@@ -13,7 +13,6 @@ import { IBloggerProfile } from '../../models/blogger';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
-import { ThemeSwitcherComponent } from '../../../shared/components/theme-switcher/theme-switcher.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -26,7 +25,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     InputTextModule,
     TranslateModule,
     LanguageSwitcherComponent,
-    ThemeSwitcherComponent,
     RouterLink
 ],
   templateUrl: './header.component.html',

@@ -139,18 +139,6 @@ export class InstagramStatusService implements OnDestroy {
     await this.fetchStatus('renewal', () => this.usersAgent.getRenewInstagramStatus());
   }
 
-  private async fetchStatus(
-    operation: InstagramOperationType,
-    fetcher: () => Observable<IInstagramStatusResponse>
-  ): Promise<void> {
-    try {
-      const response = await firstValueFrom(fetcher());
-      this.applyStatusResponse(operation, response);
-    } catch (error) {
-      console.warn(`[InstagramStatusService] Failed to fetch ${operation} status:`, error);
-    }
-  }
-
   public markOperationAsPending(
     operation: InstagramOperationType,
     message?: string
@@ -183,6 +171,18 @@ export class InstagramStatusService implements OnDestroy {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     this.linkingStatusSubject.complete();
     this.renewalStatusSubject.complete();
+  }
+
+  private async fetchStatus(
+    operation: InstagramOperationType,
+    fetcher: () => Observable<IInstagramStatusResponse>
+  ): Promise<void> {
+    try {
+      const response = await firstValueFrom(fetcher());
+      this.applyStatusResponse(operation, response);
+    } catch (error) {
+      console.warn(`[InstagramStatusService] Failed to fetch ${operation} status:`, error);
+    }
   }
 
   private delay(ms: number): Promise<void> {
@@ -219,7 +219,7 @@ export class InstagramStatusService implements OnDestroy {
     operation: InstagramOperationType,
     notification: InstagramStatusNotification
   ): void {
-    console.log(`[InstagramStatusService] Received ${operation} notification:`, notification);
+    console.warn(`[InstagramStatusService] Received ${operation} notification:`, notification);
 
     const normalizedStatus = this.normalizeStatus(notification.status);
 
