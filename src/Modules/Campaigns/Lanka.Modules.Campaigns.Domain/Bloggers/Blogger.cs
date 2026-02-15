@@ -105,7 +105,11 @@ public class Blogger : Entity<BloggerId>
         this.LastName = validationResult.Value.Item2;
         this.BirthDate = validationResult.Value.Item3;
         this.Bio = validationResult.Value.Item4;
-        this.Category = validationResult.Value.Item5;
+
+        if (this.Category.Name != validationResult.Value.Item5.Name)
+        {
+            this.Category = validationResult.Value.Item5;
+        }
 
         this.RaiseDomainEvent(new BloggerUpdatedDomainEvent(this.Id));
 

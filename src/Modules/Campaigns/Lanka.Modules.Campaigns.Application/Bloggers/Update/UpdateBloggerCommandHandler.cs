@@ -57,9 +57,9 @@ internal sealed class UpdateBloggerCommandHandler
         }
 
         this._bloggerRepository.AttachCategory(blogger.Category);
-        
+
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
- 
+
         return BloggerResponse.FromBlogger(blogger);
     }
 }
