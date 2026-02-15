@@ -35,27 +35,21 @@ internal sealed class ElasticSearchInitializationService : IHostedService
 
         try
         {
-            ElasticSearchOptions elasticOptions =
-                scope.ServiceProvider.GetRequiredService<IOptions<ElasticSearchOptions>>().Value;
-            
-            this._logger.LogInformation(
-                "Attempting to connect to Elasticsearch at: {BaseUrl}", 
-                elasticOptions.BaseUrl
-            );
+            this._logger.LogInformation("Attempting to connect to Elasticsearch");
 
             PingResponse pingResponse = await client.PingAsync(cancellationToken);
 
             if (!pingResponse.IsValidResponse)
             {
                 this._logger.LogError(
-                    "Cannot connect to Elasticsearch at {BaseUrl}. Response: {DebugInfo}",
-                    elasticOptions.BaseUrl, pingResponse.DebugInformation
+                    "Cannot connect to Elasticsearch. Response: {DebugInfo}",
+                    pingResponse.DebugInformation
                 );
-                
+
                 return;
             }
 
-            this._logger.LogInformation("Successfully connected to Elasticsearch at {BaseUrl}", elasticOptions.BaseUrl);
+            this._logger.LogInformation("Successfully connected to Elasticsearch");
             await this.CreateIndexIfNotExistsAsync(client, cancellationToken);
         }
         catch (Exception ex)
