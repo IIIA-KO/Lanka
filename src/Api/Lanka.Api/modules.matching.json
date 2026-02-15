@@ -9,10 +9,7 @@
       "BatchSize": 50
     },
     "ElasticSearch": {
-      "BaseUrl": "",
-      "DefaultIndex": "",
-      "Username": "",
-      "Password": "",
+      "DefaultIndex": "searchable_documents",
       "PageSize": 10,
       "MaxPageSize": 100
     }

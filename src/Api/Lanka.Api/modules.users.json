@@ -9,14 +9,10 @@
       "BatchSize": 50
     },
     "KeyCloak": {
-      "Realm": "your-realm",
-      "BaseUrl": "https://identity-server-url",
-      "Authority": "https://identity-server-url/auth/realms/your-realm",
-      "AdminUrl": "https://identity-server-url/admin/realms/your-realm",
-      "TokenUrl": "https://identity-server-url/realms/your-realm/protocol/openid-connect/token",
-      "ConfidentialClientId": "your-client-id",
-      "ConfidentialClientSecret": "your-client-secret",
-      "PublicClientId": "your-public-client-id"
-    } 
+      "Realm": "",
+      "ConfidentialClientId": "",
+      "ConfidentialClientSecret": "",
+      "PublicClientId": ""
+    }
   }
 }

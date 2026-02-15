@@ -9,14 +9,17 @@
       "BatchSize": 20
     },
     "Instagram": {
-      "BaseUrl": "<base-facebook-graph-url>",
+      "BaseUrl": "https://graph.facebook.com/v24.0",
       "ClientId": "<your-client-id>",
       "ClientSecret": "<your-client-secret>",
       "RedirectUri": "<your-client-app-callback-url>",
       "RenewRedirectUri": "<your-client-app-renew-callback-url>",
       "IntervalInSeconds": 3600,
       "BatchSize": 100,
-      "RenewalThresholdInDays": 7
+      "RenewalThresholdInDays": 7,
+      "Development": {
+        "AllowedUserEmails": []
+      }
     },
     "Token": {
       "IntervalInHours": 24,
