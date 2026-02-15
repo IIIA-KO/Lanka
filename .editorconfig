@@ -306,6 +306,9 @@ dotnet_diagnostic.CA1822.severity = none
 # CA1848: Use the LoggerMessage delegates
 dotnet_diagnostic.CA1848.severity = none
 
+# CA1873: Use the LoggerMessage delegates (.NET 10 successor of CA1848)
+dotnet_diagnostic.CA1873.severity = none
+
 # CA1860: Avoid using 'Enumerable.Any()' extension method
 dotnet_diagnostic.CA1860.severity = none
 
