@@ -4,7 +4,7 @@
 /* Import Inter font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Dark mode aware custom properties */
+/* Custom properties */
 :root {
   --app-ground: #f8fafc;
   --app-surface: #ffffff;
@@ -12,15 +12,6 @@
   --app-surface-hover: #e2e8f0;
   --app-border: #e2e8f0;
   --app-header-bg: rgba(255, 255, 255, 0.82);
-}
-
-.dark-mode {
-  --app-ground: #09090b;
-  --app-surface: #18181b;
-  --app-surface-alt: #27272a;
-  --app-surface-hover: #3f3f46;
-  --app-border: #3f3f46;
-  --app-header-bg: rgba(24, 24, 27, 0.82);
 }
 
 /* Set Inter as the default font */

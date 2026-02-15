@@ -15,8 +15,6 @@
             <app-language-switcher></app-language-switcher>
         </div>
 
-        <app-theme-switcher></app-theme-switcher>
-
         <!-- User Menu -->
         @let profile = profile$ | async;
         <div class="user-profile" (click)="menu.toggle($event)" (keydown.enter)="menu.toggle($event)" tabindex="0"
