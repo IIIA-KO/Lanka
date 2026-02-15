@@ -10,16 +10,11 @@
         <PackageReference Include="Polly" />
         <PackageReference Include="Serilog.AspNetCore" />
         <PackageReference Include="Yarp.ReverseProxy" />
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Lanka.ServiceDefaults\Lanka.ServiceDefaults.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="..\..\..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
     </ItemGroup>
 
     <ItemGroup>

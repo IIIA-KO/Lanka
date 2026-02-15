@@ -12,12 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Lanka.ServiceDefaults\Lanka.ServiceDefaults.csproj" />
       <ProjectReference Include="..\..\Modules\Analytics\Lanka.Modules.Analytics.Infrastructure\Lanka.Modules.Analytics.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Campaigns\Lanka.Modules.Campaigns.Infrastructure\Lanka.Modules.Campaigns.Infrastructure.csproj" />

@@ -7,6 +7,7 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
         <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
         <!-- OpenTelemetry — base -->
@@ -15,17 +16,14 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
-        <!-- OpenTelemetry — domain-specific (moved from Common.Infrastructure) -->
+        <!-- OpenTelemetry — domain-specific -->
         <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" />
         <PackageReference Include="Npgsql.OpenTelemetry" />
         <!-- OpenTelemetry — MassTransit diagnostic listener name -->
         <PackageReference Include="MassTransit" />
         <!-- Health checks -->
         <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
-        <PackageReference Include="AspNetCore.HealthChecks.Redis" />
         <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" />
-        <PackageReference Include="AspNetCore.HealthChecks.MongoDb" />
         <PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" />
         <PackageReference Include="AspNetCore.HealthChecks.Uris" />
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />

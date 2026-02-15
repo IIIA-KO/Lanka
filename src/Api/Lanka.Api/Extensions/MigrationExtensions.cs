@@ -8,14 +8,17 @@ namespace Lanka.Api.Extensions;
 
 internal static class MigrationExtensions
 {
-    internal static void ApplyMigrations(this IApplicationBuilder app)
+    extension(IApplicationBuilder app)
     {
-        using IServiceScope serviceScope = app.ApplicationServices.CreateScope();
+        internal void ApplyMigrations()
+        {
+            using IServiceScope serviceScope = app.ApplicationServices.CreateScope();
 
-        ApplyMigration<UsersDbContext>(serviceScope);
-        ApplyMigration<CampaignsDbContext>(serviceScope);
-        ApplyMigration<AnalyticsDbContext>(serviceScope);
-        ApplyMigration<MatchingDbContext>(serviceScope);
+            ApplyMigration<UsersDbContext>(serviceScope);
+            ApplyMigration<CampaignsDbContext>(serviceScope);
+            ApplyMigration<AnalyticsDbContext>(serviceScope);
+            ApplyMigration<MatchingDbContext>(serviceScope);
+        }
     }
 
     private static void ApplyMigration<TDbContext>(IServiceScope serviceScope)
