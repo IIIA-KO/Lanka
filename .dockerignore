@@ -1,8 +1,0 @@
-﻿**/bin/
-**/obj/
-.git/
-.vs/
-.idea/
-*.user
-*.suo
-**/*.lock.json

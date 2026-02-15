@@ -2,13 +2,15 @@
 
 # Lanka
 
-**A Diploma Project Exploring Modern .NET Architecture**
+### **A Diploma Project Exploring Modern .NET Architecture**
 
 *Learning modular monoliths, DDD, CQRS, and event-driven patterns through building a social media campaign management platform*
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20Monolith-blue?style=for-the-badge)](docs/architecture/README.md)
+
+![banner](./docs/images/lanka-banner.png)
 
 **[Quick Start](docs/development/quick-start.md) | [Documentation](docs/README.md) | [Architecture](docs/architecture/README.md) | [Contributing](CONTRIBUTING.md)**
 
