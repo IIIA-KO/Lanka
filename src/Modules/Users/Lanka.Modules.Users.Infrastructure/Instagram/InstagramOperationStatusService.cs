@@ -7,14 +7,15 @@ namespace Lanka.Modules.Users.Infrastructure.Instagram;
 
 internal sealed class InstagramOperationStatusService : IInstagramOperationStatusService
 {
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(3);
 
     private readonly ICacheService _cacheService;
     private readonly INotificationService _notificationService;
 
     public InstagramOperationStatusService(
         ICacheService cacheService,
-        INotificationService notificationService)
+        INotificationService notificationService
+    )
     {
         this._cacheService = cacheService;
         this._notificationService = notificationService;
@@ -44,22 +45,26 @@ internal sealed class InstagramOperationStatusService : IInstagramOperationStatu
         // Send SignalR notification based on operation type
         string userIdStr = userId.ToString();
 
-        if (operationType == InstagramOperationType.Linking)
+        switch (operationType)
         {
-            await this._notificationService.SendInstagramLinkingStatusAsync(
-                userIdStr, status, message, cancellationToken);
-        }
-        else if (operationType == InstagramOperationType.Renewal)
-        {
-            await this._notificationService.SendInstagramRenewalStatusAsync(
-                userIdStr, status, message, cancellationToken);
+            case InstagramOperationType.Linking:
+                await this._notificationService.SendInstagramLinkingStatusAsync(
+                    userIdStr, status, message, cancellationToken
+                );
+                break;
+            case InstagramOperationType.Renewal:
+                await this._notificationService.SendInstagramRenewalStatusAsync(
+                    userIdStr, status, message, cancellationToken
+                );
+                break;
         }
     }
 
     public async Task<InstagramOperationStatus> GetStatusAsync(
         Guid userId,
         string operationType,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         string cacheKey = IInstagramOperationStatusService.GetCacheKey(userId, operationType);
 
