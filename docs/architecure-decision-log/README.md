@@ -47,13 +47,14 @@ For a diploma project, this serves two purposes: it helps me remember *why* I ma
 | [011](011-messagins-with-outbox&inbox.md) | Outbox & Inbox Pattern | Accepted | Medium |
 | [012](012-reverse-proxy.md) | Reverse Proxy Implementation | Accepted | Low |
 
-### Specialized Solutions (013-015)
+### Specialized Solutions (013-016)
 
 | ADR | Title | Status | Impact |
 |-----|-------|--------|--------|
 | [013](013-adoption-of-saga-orchestration.md) | Saga Orchestration Pattern | Accepted | Medium |
 | [014](014-mongodb-adoption-analytics.md) | MongoDB for Analytics | Accepted | Medium |
 | [015](015-aspire-adoption.md) | .NET Aspire Adoption | Accepted | Medium |
+| [016](016-change-data-capture.md) | Change Data Capture for Elasticsearch | Accepted | Medium |
 
 ---
 
@@ -62,16 +63,16 @@ For a diploma project, this serves two purposes: it helps me remember *why* I ma
 ### By Topic
 
 - **Architecture**: [003](003-modular-monolith-architecture.md), [007](007-modules-overview.md), [008](008-event-driven-architecture.md)
-- **Data & Persistence**: [014](014-mongodb-adoption-analytics.md), [011](011-messagins-with-outbox&inbox.md)
+- **Data & Persistence**: [014](014-mongodb-adoption-analytics.md), [011](011-messagins-with-outbox&inbox.md), [016](016-change-data-capture.md)
 - **Communication**: [008](008-event-driven-architecture.md), [011](011-messagins-with-outbox&inbox.md), [012](012-reverse-proxy.md)
 - **Orchestration**: [015](015-aspire-adoption.md)
 - **Development Patterns**: [002](002-technology-stack.md), [005](005-cqrs-implementation.md), [006](006-mediatr-pipelines.md)
 
 ### Most Recent
 
-1. [015](015-aspire-adoption.md) — .NET Aspire Adoption
-2. [014](014-mongodb-adoption-analytics.md) — MongoDB for Analytics
-3. [013](013-adoption-of-saga-orchestration.md) — Saga Orchestration Pattern
+1. [016](016-change-data-capture.md) — Change Data Capture for Elasticsearch
+2. [015](015-aspire-adoption.md) — .NET Aspire Adoption
+3. [014](014-mongodb-adoption-analytics.md) — MongoDB for Analytics
 
 ---
 
@@ -143,10 +144,10 @@ Any specific guidance for implementing this decision.
 
 | Metric | Count |
 |--------|-------|
-| **Total ADRs** | 15 |
-| **Accepted** | 15 |
+| **Total ADRs** | 16 |
+| **Accepted** | 16 |
 | **High Impact** | 3 |
-| **Medium Impact** | 7 |
+| **Medium Impact** | 8 |
 | **Low Impact** | 5 |
 
 ---

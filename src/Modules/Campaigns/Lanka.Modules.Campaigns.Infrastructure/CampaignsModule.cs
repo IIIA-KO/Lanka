@@ -70,13 +70,17 @@ public static class CampaignsModule
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ChangeCapture.CampaignsChangeCaptureInterceptor>();
+
         services.AddDbContext<CampaignsDbContext>((sp, options) =>
             options
                 .UseNpgsql(
                     configuration.GetConnectionString("Database"),
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Campaigns))
-                .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
+                .AddInterceptors(
+                    sp.GetRequiredService<ChangeCapture.CampaignsChangeCaptureInterceptor>(),
+                    sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<ICampaignRepository, CampaignRepository>();

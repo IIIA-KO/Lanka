@@ -82,7 +82,38 @@ Separating reads from writes allows optimizing each path independently. In Lanka
 
 Modules communicate through events rather than direct calls. This keeps them loosely coupled — the Users module doesn't need to know what Analytics does with user data.
 
-### 4. Clean Architecture Layers
+### 4. Change Data Capture (CDC)
+
+Keeping Elasticsearch in sync with PostgreSQL is a cross-cutting concern that spans multiple modules. Rather than requiring each entity to manually raise search-sync domain events (error-prone — easy to forget or duplicate), Lanka uses an automated CDC pipeline built on EF Core `SaveChangesInterceptor`.
+
+```
+Entity modified ──► EF SaveChanges ──► ChangeCaptureInterceptor
+                                           │
+                                    Detects IChangeCaptured entities
+                                    Extracts search data from properties
+                                    Writes OutboxMessage
+                                           │
+                                    ProcessOutboxJob ──► RabbitMQ ──► Matching Module ──► Elasticsearch
+```
+
+**How it works:**
+
+- Entities opt in by implementing the empty `IChangeCaptured` marker interface (Domain layer — no search knowledge)
+- Per-module interceptors in Infrastructure extract title, content, tags, and metadata from entity properties
+- The interceptor writes directly to the outbox table in the same transaction as the entity change
+- The outbox job dispatches the event to a handler that publishes a `SearchSyncIntegrationEvent` to RabbitMQ
+- The Matching module consumes it and updates Elasticsearch
+
+**Why this approach:**
+
+- **Automatic** — impossible to forget raising an event; if the entity is saved, the change is captured
+- **Transactional** — outbox message is committed with the entity change, so they're always consistent
+- **Domain-clean** — entities only know about `IChangeCaptured`, not about search, Elasticsearch, or integration events
+- **Low boilerplate** — adding a new entity to search requires 2 changes (marker + interceptor case)
+
+See [ADL 016](../architecure-decision-log/016-change-data-capture.md) for the full decision record and alternatives considered.
+
+### 5. Clean Architecture Layers
 
 ```
 ┌──────────────────────────────────────────┐

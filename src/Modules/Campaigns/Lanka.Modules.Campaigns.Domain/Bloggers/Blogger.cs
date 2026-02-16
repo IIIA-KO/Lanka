@@ -11,7 +11,7 @@ using Lanka.Modules.Campaigns.Domain.Pacts;
 
 namespace Lanka.Modules.Campaigns.Domain.Bloggers;
 
-public class Blogger : Entity<BloggerId>
+public class Blogger : Entity<BloggerId>, IChangeCaptured
 {
     public FirstName FirstName { get; private set; }
 
@@ -71,8 +71,6 @@ public class Blogger : Entity<BloggerId>
             Category.None
         );
 
-        blogger.RaiseDomainEvent(new BloggerCreatedDomainEvent(blogger.Id));
-
         return blogger;
     }
 
@@ -118,7 +116,7 @@ public class Blogger : Entity<BloggerId>
 
     public void Delete()
     {
-        this.RaiseDomainEvent(new BloggerDeletedDomainEvent(this.Id));
+        // Intentionally empty — change capture is handled by the EF interceptor.
     }
 
     public void UpdateInstagramData(string? username, int? followersCount, int? mediaCount)

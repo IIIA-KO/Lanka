@@ -8,7 +8,7 @@ using Name = Lanka.Modules.Campaigns.Domain.Campaigns.Names.Name;
 
 namespace Lanka.Modules.Campaigns.Domain.Campaigns;
 
-public class Campaign : Entity<CampaignId>
+public class Campaign : Entity<CampaignId>, IChangeCaptured
 {
     public static readonly CampaignStatus[] ActiveCampaignStatuses =
     [

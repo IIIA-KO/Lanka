@@ -2,9 +2,9 @@ using Lanka.Common.Application.EventBus;
 
 namespace Lanka.Common.IntegrationEvents;
 
-public abstract class SearchSyncIntegrationEvent : IntegrationEvent
+public class SearchSyncIntegrationEvent : IntegrationEvent
 {
-    protected SearchSyncIntegrationEvent(
+    public SearchSyncIntegrationEvent(
         Guid id,
         DateTime occurredOnUtc,
         Guid entityId,
@@ -12,10 +12,12 @@ public abstract class SearchSyncIntegrationEvent : IntegrationEvent
         string? title = null,
         string? content = null,
         IReadOnlyCollection<string>? tags = null,
-        IDictionary<string, object>? metadata = null
+        IDictionary<string, object>? metadata = null,
+        string itemType = ""
     ) : base(id, occurredOnUtc)
     {
         this.EntityId = entityId;
+        this.ItemType = itemType;
         this.Operation = operation;
         this.Title = title;
         this.Content = content;
@@ -24,6 +26,7 @@ public abstract class SearchSyncIntegrationEvent : IntegrationEvent
     }
 
     public Guid EntityId { get; }
+    public string ItemType { get; }
     public SearchSyncOperation Operation { get; }
     public string? Title { get; }
     public string? Content { get; }

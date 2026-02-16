@@ -8,7 +8,7 @@ using Lanka.Modules.Campaigns.Domain.Reviews.Ratings;
 
 namespace Lanka.Modules.Campaigns.Domain.Reviews;
 
-public sealed class Review : Entity<ReviewId>
+public sealed class Review : Entity<ReviewId>, IChangeCaptured
 {
     private Review() { }
 
@@ -113,6 +113,6 @@ public sealed class Review : Entity<ReviewId>
     
     public void Delete()
     {
-        this.RaiseDomainEvent(new ReviewDeletedDomainEvent(this.Id));
+        // Intentionally empty — change capture is handled by the EF interceptor.
     }
 }

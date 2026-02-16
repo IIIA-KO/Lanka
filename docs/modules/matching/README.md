@@ -212,12 +212,9 @@ public sealed record SearchDocumentsQuery(
 
 | Event | Source | Purpose |
 |-------|--------|---------|
-| `BloggerSearchSyncIntegrationEvent` | Campaigns | Sync blogger profiles for search |
-| `CampaignSearchSyncIntegrationEvent` | Campaigns | Index campaign data |
-| `ReviewSearchSyncIntegrationEvent` | Campaigns | Index review content |
-| `OfferSearchSyncIntegrationEvent` | Campaigns | Index service offerings |
-| `PactSearchSyncIntegrationEvent` | Campaigns | Index contract content |
-| `InstagramAccountSearchSyncIntegrationEvent` | Analytics | Sync Instagram account data |
+| `SearchSyncIntegrationEvent` | Campaigns, Analytics | Unified event for all entity changes (create/update/delete) |
+
+A single `SearchSyncIntegrationEvent` carries an `ItemType` field that identifies the entity kind (Blogger, Campaign, Offer, Pact, Review, InstagramAccount). The handler maps it to the appropriate `SearchableItemType` and delegates to `SearchSyncIntegrationEventService`.
 
 ### **📤 Published Events**
 *The Matching module is primarily a read-side projection and does not publish domain events. It only consumes events from other modules to maintain its search index.*
@@ -290,15 +287,80 @@ public sealed record SearchDocumentsQuery(
 
 ## 📊 **Data Flow**
 
-### **🔄 Document Indexing Flow**
-1. Other module publishes integration event (e.g., `CampaignSearchSyncIntegrationEvent`)
-2. Matching module consumes event via `IntegrationEventConsumer`
-3. Event handler processes data and creates `IndexDocumentCommand`
-4. `IndexDocumentCommandHandler` creates `SearchableDocument`
-5. Document indexed in Elasticsearch via `ElasticSearchIndexService`
-6. Document metadata stored in PostgreSQL for tracking
+### **🔄 How Elasticsearch Gets Updated (Change Data Capture)**
+
+Elasticsearch stays in sync with the source data automatically via a Change Data Capture (CDC) pipeline built on EF Core interceptors. No manual domain event raising is required — any entity marked with `IChangeCaptured` is tracked automatically.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Source Module (Campaigns / Analytics)                                │
+│                                                                      │
+│  1. Entity modified (create/update/delete)                           │
+│     │                                                                │
+│  2. DbContext.SaveChangesAsync() called                              │
+│     │                                                                │
+│  3. ChangeCaptureInterceptor detects IChangeCaptured entities        │
+│     ├─ Reads entity properties directly from ChangeTracker           │
+│     ├─ Extracts title, content, tags, metadata                       │
+│     └─ Creates OutboxMessage with EntityChangeCapturedDomainEvent     │
+│     │                                                                │
+│  4. InsertOutboxMessagesInterceptor runs (existing domain events)     │
+│     │                                                                │
+│  5. SaveChanges commits entity + outbox messages in one transaction   │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │  ProcessOutboxJob   │
+                    │  (Quartz, periodic) │
+                    └─────────┬──────────┘
+                              │
+                    ┌─────────▼──────────────────────────────┐
+                    │  EntityChangeCapturedDomainEventHandler  │
+                    │  Converts domain event →                │
+                    │  SearchSyncIntegrationEvent              │
+                    │  Publishes to IEventBus (RabbitMQ)       │
+                    └─────────┬──────────────────────────────┘
+                              │
+              ┌───────────────▼───────────────┐
+              │  Matching Module               │
+              │                                │
+              │  ProcessInboxJob picks up event │
+              │         │                      │
+              │  SearchSyncIntegrationHandler   │
+              │  Maps ItemType → SearchableItem │
+              │         │                      │
+              │  SearchSyncIntegrationService   │
+              │  ├─ Create → IndexDocument     │
+              │  ├─ Update → UpdateDocument    │
+              │  └─ Delete → RemoveDocument    │
+              │         │                      │
+              │  Elasticsearch updated         │
+              └────────────────────────────────┘
+```
+
+**Key files in the pipeline:**
+
+| Step | File | Layer |
+|------|------|-------|
+| Marker interface | `IChangeCaptured` | Common.Domain |
+| Base interceptor | `ChangeCaptureInterceptorBase` | Common.Infrastructure |
+| Campaigns interceptor | `CampaignsChangeCaptureInterceptor` | Campaigns.Infrastructure |
+| Analytics interceptor | `AnalyticsChangeCaptureInterceptor` | Analytics.Infrastructure |
+| Domain event | `EntityChangeCapturedDomainEvent` | Common.Domain |
+| Domain event handler | `EntityChangeCapturedDomainEventHandler` | Campaigns/Analytics.Application |
+| Integration event | `SearchSyncIntegrationEvent` | Common.IntegrationEvents |
+| Matching handler | `SearchSyncIntegrationEventHandler` | Matching.Presentation |
+| Index service | `SearchSyncIntegrationEventService` | Matching.Presentation |
+
+**Adding a new entity to search:**
+
+1. Add `IChangeCaptured` to the entity class
+2. Add a case to the module's `ChangeCaptureInterceptor` to extract search data
+3. Done — no domain events, no integration event subclasses, no per-entity handlers
 
 ### **🔍 Search Query Flow**
+
 1. User submits search via `SearchDocumentsQuery`
 2. `SearchDocumentsQueryHandler` validates and processes query
 3. Query converted to Elasticsearch DSL
@@ -306,15 +368,6 @@ public sealed record SearchDocumentsQuery(
 5. Results converted to domain objects
 6. Response cached for 3 minutes
 7. Structured results returned to client
-
-### **⚡ Real-time Sync Flow**
-1. Campaign module updates blogger profile
-2. `BloggerUpdatedDomainEvent` published
-3. `BloggerSearchSyncIntegrationEvent` published to message bus
-4. Matching module consumes event
-5. `UpdateSearchableDocumentContentCommand` executed
-6. Elasticsearch index updated in real-time
-7. Search results immediately reflect changes
 
 ---
 

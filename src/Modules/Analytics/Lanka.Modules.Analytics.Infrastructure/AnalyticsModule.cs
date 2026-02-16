@@ -218,13 +218,17 @@ public static class AnalyticsModule
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ChangeCapture.AnalyticsChangeCaptureInterceptor>();
+
         services.AddDbContext<AnalyticsDbContext>((sp, options) =>
             options
                 .UseNpgsql(
                     configuration.GetConnectionString("Database"),
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Analytics))
-                .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
+                .AddInterceptors(
+                    sp.GetRequiredService<ChangeCapture.AnalyticsChangeCaptureInterceptor>(),
+                    sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention()
         );
 
