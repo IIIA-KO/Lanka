@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, take, takeUntil } from 'rxjs';
@@ -46,7 +45,6 @@ const AVATAR_COLORS = [
   selector: 'app-search',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     InputTextModule,
     AutoCompleteModule,
