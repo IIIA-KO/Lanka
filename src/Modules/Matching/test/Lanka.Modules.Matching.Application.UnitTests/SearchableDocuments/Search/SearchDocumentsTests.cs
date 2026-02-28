@@ -63,21 +63,26 @@ public class SearchDocumentsTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenQueryIsInvalid()
+    public async Task Handle_ShouldReturnSuccess_WhenQueryIsEmpty()
     {
         // Arrange
-        var invalidQuery = new SearchDocumentsQuery(
-            string.Empty, // Invalid empty query
+        var emptyQuery = new SearchDocumentsQuery(
+            string.Empty,
             Page: 1,
             Size: 10
         );
 
+        SearchResult searchResult = CreateMockSearchResult();
+        this._searchServiceMock
+            .SearchAsync(Arg.Any<SearchQuery>(), Arg.Any<CancellationToken>())
+            .Returns(searchResult);
+
         // Act
-        Result<SearchDocumentsResponse> result = await this._handler.Handle(invalidQuery, CancellationToken.None);
+        Result<SearchDocumentsResponse> result = await this._handler.Handle(emptyQuery, CancellationToken.None);
 
         // Assert
-        result.IsFailure.Should().BeTrue();
-        await this._searchServiceMock.DidNotReceive()
+        result.IsSuccess.Should().BeTrue();
+        await this._searchServiceMock.Received(1)
             .SearchAsync(Arg.Any<SearchQuery>(), Arg.Any<CancellationToken>());
     }
 
@@ -177,6 +182,8 @@ public class SearchDocumentsTests
             SearchResultItem.Create(
                 Guid.NewGuid(),
                 SearchableItemType.Blogger.ToString(),
+                "Test Blogger",
+                "A test blogger profile",
                 0.95,
                 highlights1,
                 new Dictionary<string, object> { ["category"] = "tech" }
@@ -184,6 +191,8 @@ public class SearchDocumentsTests
             SearchResultItem.Create(
                 Guid.NewGuid(),
                 SearchableItemType.Campaign.ToString(),
+                "Test Campaign",
+                "A test campaign description",
                 0.87,
                 highlights2,
                 new Dictionary<string, object> { ["category"] = "programming" }

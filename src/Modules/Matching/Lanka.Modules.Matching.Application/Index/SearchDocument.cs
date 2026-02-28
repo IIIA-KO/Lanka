@@ -65,7 +65,7 @@ public sealed class SearchDocument
         };
     }
 
-    private static Guid GenerateDeterministicId(Guid sourceEntityId, SearchableItemType type)
+    public static Guid GenerateDeterministicId(Guid sourceEntityId, SearchableItemType type)
     {
         byte[] sourceBytes = sourceEntityId.ToByteArray();
         byte[] typeBytes = BitConverter.GetBytes((int)type);

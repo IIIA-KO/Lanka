@@ -260,25 +260,18 @@ public static class ElasticsearchSeeder
 
             var metadata = new Dictionary<string, object>
             {
-                ["email"] = blogger.Email,
-                ["birthDate"] = blogger.BirthDate.ToString("O", CultureInfo.InvariantCulture),
-                ["category"] = blogger.CategoryName
+                ["BirthDate"] = blogger.BirthDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                ["Category"] = blogger.CategoryName,
+                ["InstagramUsername"] = blogger.InstagramMetadataUsername ?? string.Empty,
+                ["FollowersCount"] = blogger.InstagramMetadataFollowersCount ?? 0,
+                ["MediaCount"] = blogger.InstagramMetadataMediaCount ?? 0,
+                ["EngagementRate"] = blogger.InstagramMetadataEngagementRate ?? 0.0,
+                ["AudienceTopAgeGroup"] = blogger.InstagramMetadataAudienceTopAgeGroup ?? string.Empty,
+                ["AudienceTopGender"] = blogger.InstagramMetadataAudienceTopGender ?? string.Empty,
+                ["AudienceTopGenderPercentage"] = blogger.InstagramMetadataAudienceTopGenderPercentage ?? 0.0,
+                ["AudienceTopCountry"] = blogger.InstagramMetadataAudienceTopCountry ?? string.Empty,
+                ["AudienceTopCountryPercentage"] = blogger.InstagramMetadataAudienceTopCountryPercentage ?? 0.0,
             };
-
-            if (blogger.InstagramMetadataUsername is not null)
-            {
-                metadata["instagramUsername"] = blogger.InstagramMetadataUsername;
-            }
-
-            if (blogger.InstagramMetadataFollowersCount.HasValue)
-            {
-                metadata["followersCount"] = blogger.InstagramMetadataFollowersCount.Value;
-            }
-
-            if (blogger.InstagramMetadataMediaCount.HasValue)
-            {
-                metadata["mediaCount"] = blogger.InstagramMetadataMediaCount.Value;
-            }
 
             Result<SearchDocument> result = SearchDocument.Create(
                 sourceEntityId: blogger.Id,

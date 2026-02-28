@@ -15,6 +15,8 @@ public sealed record SearchDocumentsResponse(
 public sealed record SearchResultResponse(
     Guid ItemId,
     SearchableItemType Type,
+    string Title,
+    string Content,
     double RelevanceScore,
     IReadOnlyCollection<SearchHighlightResponse> Highlights,
     IReadOnlyDictionary<string, object> Metadata
@@ -25,6 +27,8 @@ public sealed record SearchResultResponse(
         return new SearchResultResponse(
             result.ItemId,
             result.Type,
+            result.Title,
+            result.Content,
             result.RelevanceScore,
             result.Highlights.Select(h => new SearchHighlightResponse(h.FieldName, h.Fragments)).ToList(),
             result.Metadata.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)

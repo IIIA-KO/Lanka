@@ -12,8 +12,7 @@ internal sealed class SearchDocumentsQueryValidator : AbstractValidator<SearchDo
         this
             .RuleFor(q => q.Query)
             .NotNull()
-            .NotEmpty()
-            .WithMessage("Query is required.")
+            .WithMessage("Query must not be null.")
             .MaximumLength(SearchText.MaxLength)
             .WithMessage($"Query must not exceed {SearchText.MaxLength} characters.");
         

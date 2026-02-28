@@ -26,11 +26,6 @@ public sealed record SearchText
 
     private static Result ValidateText(string text)
     {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return SearchTextErrors.EmptyText;
-        }
-
         if (text.Length > MaxLength)
         {
             return SearchTextErrors.TextTooLong(MaxLength);

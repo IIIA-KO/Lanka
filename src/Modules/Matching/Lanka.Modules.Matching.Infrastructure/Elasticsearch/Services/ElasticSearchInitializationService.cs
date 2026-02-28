@@ -11,11 +11,12 @@ using ExistsResponse = Elastic.Clients.Elasticsearch.IndexManagement.ExistsRespo
 
 namespace Lanka.Modules.Matching.Infrastructure.Elasticsearch.Services;
 
-internal sealed class ElasticSearchInitializationService : IHostedService
+public sealed class ElasticSearchInitializationService : IHostedService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ElasticSearchOptions _options;
     private readonly ILogger<ElasticSearchInitializationService> _logger;
+    private bool _initialized;
 
     public ElasticSearchInitializationService(
         IServiceProvider serviceProvider,
@@ -30,6 +31,13 @@ internal sealed class ElasticSearchInitializationService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        if (this._initialized)
+        {
+            return;
+        }
+
+        this._initialized = true;
+
         using IServiceScope scope = this._serviceProvider.CreateScope();
         ElasticsearchClient client = scope.ServiceProvider.GetRequiredService<ElasticsearchClient>();
 
@@ -67,7 +75,14 @@ internal sealed class ElasticSearchInitializationService : IHostedService
         ExistsResponse existsResponse =
             await client.Indices.ExistsAsync(this._options.DefaultIndex, cancellationToken);
 
-        if (existsResponse.Exists)
+        if (existsResponse.Exists && this._options.RecreateIndex)
+        {
+            this._logger.LogInformation("Deleting Elasticsearch index '{IndexName}' (RecreateIndex=true)",
+                this._options.DefaultIndex);
+
+            await client.Indices.DeleteAsync(this._options.DefaultIndex, cancellationToken);
+        }
+        else if (existsResponse.Exists)
         {
             this._logger.LogInformation("Elasticsearch index '{IndexName}' already exists",
                 this._options.DefaultIndex

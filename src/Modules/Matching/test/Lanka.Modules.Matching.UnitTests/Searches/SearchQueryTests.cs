@@ -60,25 +60,25 @@ public class SearchQueryTests : BaseTest
     }
 
     [Fact]
-    public void Create_ShouldReturnFailure_WhenTextIsEmpty()
+    public void Create_ShouldReturnSuccess_WhenTextIsEmpty()
     {
         // Act
         Result<SearchQuery> result = SearchQuery.Create(SearchQueryData.EmptyText);
 
         // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().NotBeNull();
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Text.Should().BeEmpty();
     }
 
     [Fact]
-    public void Create_ShouldReturnFailure_WhenTextIsWhitespace()
+    public void Create_ShouldReturnSuccess_WhenTextIsWhitespace()
     {
         // Act
         Result<SearchQuery> result = SearchQuery.Create(SearchQueryData.WhitespaceText);
 
         // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().NotBeNull();
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Text.Should().BeEmpty();
     }
 
     [Fact]

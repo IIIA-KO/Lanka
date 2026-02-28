@@ -32,7 +32,8 @@ internal sealed class SearchDocumentsQueryHandler : IQueryHandler<SearchDocument
             request.CreatedBefore,
             request.OnlyActive,
             request.Page,
-            request.Size
+            request.Size,
+            request.ExcludeItemId
         );
 
         if (searchQueryResult.IsFailure)

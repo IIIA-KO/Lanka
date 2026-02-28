@@ -7,4 +7,6 @@ public sealed class ElasticSearchOptions
     public int PageSize { get; set; } = 10;
 
     public int MaxPageSize { get; set; } = 100;
+
+    public bool RecreateIndex { get; set; }
 }

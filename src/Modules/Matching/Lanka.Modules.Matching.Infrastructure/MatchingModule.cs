@@ -99,7 +99,8 @@ public static class MatchingModule
         services.AddScoped<ISearchService, ElasticSearchService>();
         services.AddScoped<ISearchIndexService, ElasticSearchIndexService>();
 
-        services.AddHostedService<ElasticSearchInitializationService>();
+        services.AddSingleton<ElasticSearchInitializationService>();
+        services.AddHostedService(sp => sp.GetRequiredService<ElasticSearchInitializationService>());
     }
 
     private static void AddIntegrationEventHandlers(this IServiceCollection services)

@@ -22,6 +22,7 @@ public sealed record SearchQuery
     public bool OnlyActive { get; init; }
     public int Page { get; init; }
     public int Size { get; init; }
+    public Guid? ExcludeItemId { get; init; }
 
     private SearchQuery(
         string text,
@@ -35,7 +36,8 @@ public sealed record SearchQuery
         DateTimeOffset? createdBefore,
         bool onlyActive,
         int page,
-        int size
+        int size,
+        Guid? excludeItemId
     )
     {
         this.Text = text;
@@ -50,6 +52,7 @@ public sealed record SearchQuery
         this.OnlyActive = onlyActive;
         this.Page = page;
         this.Size = size;
+        this.ExcludeItemId = excludeItemId;
     }
 
     public static Result<SearchQuery> Create(
@@ -64,7 +67,8 @@ public sealed record SearchQuery
         DateTimeOffset? createdBefore = null,
         bool onlyActive = true,
         int page = 1,
-        int size = 20
+        int size = 20,
+        Guid? excludeItemId = null
     )
     {
         Result<SearchText> searchTextResult = SearchText.Create(text);
@@ -92,7 +96,8 @@ public sealed record SearchQuery
                     createdBefore,
                     onlyActive,
                     page,
-                    size
+                    size,
+                    excludeItemId
                 )
             );
 

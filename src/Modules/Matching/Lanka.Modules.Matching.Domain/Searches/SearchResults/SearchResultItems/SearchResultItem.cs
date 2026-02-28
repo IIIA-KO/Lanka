@@ -8,6 +8,8 @@ public sealed record SearchResultItem
 {
     public Guid ItemId { get; init; }
     public SearchableItemType Type { get; init; }
+    public string Title { get; init; }
+    public string Content { get; init; }
     public double RelevanceScore { get; init; }
     public IReadOnlyCollection<SearchHighlight> Highlights { get; init; }
     public IReadOnlyDictionary<string, object> Metadata { get; init; }
@@ -15,6 +17,8 @@ public sealed record SearchResultItem
     private SearchResultItem(
         Guid itemId,
         SearchableItemType type,
+        string title,
+        string content,
         double relevanceScore,
         IReadOnlyCollection<SearchHighlight> highlights,
         IReadOnlyDictionary<string, object> metadata
@@ -22,6 +26,8 @@ public sealed record SearchResultItem
     {
         this.ItemId = itemId;
         this.Type = type;
+        this.Title = title;
+        this.Content = content;
         this.RelevanceScore = relevanceScore;
         this.Highlights = highlights;
         this.Metadata = metadata;
@@ -30,6 +36,8 @@ public sealed record SearchResultItem
     public static Result<SearchResultItem> Create(
         Guid itemId,
         string? type,
+        string title,
+        string content,
         double relevanceScore,
         IEnumerable<SearchHighlight>? highlights = null,
         IDictionary<string, object>? metadata = null
@@ -44,9 +52,11 @@ public sealed record SearchResultItem
 
         return new SearchResultItem(
             itemId,
-            Enum.TryParse(type, out SearchableItemType enumType) 
-                ? enumType 
+            Enum.TryParse(type, out SearchableItemType enumType)
+                ? enumType
                 : SearchableItemType.Unknown,
+            title,
+            content,
             relevanceScore,
             highlights?.ToList() ?? [],
             metadata?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value) ?? []
