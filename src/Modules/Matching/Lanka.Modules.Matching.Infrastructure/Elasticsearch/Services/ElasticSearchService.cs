@@ -3,6 +3,7 @@ using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Lanka.Common.Domain;
 using Lanka.Modules.Matching.Application.Abstractions.Search;
+using Lanka.Modules.Matching.Application.Index;
 using Lanka.Modules.Matching.Domain.SearchableItems;
 using Lanka.Modules.Matching.Domain.Searches.SearchQueries;
 using Lanka.Modules.Matching.Domain.Searches.SearchResults;
@@ -179,12 +180,16 @@ internal sealed class ElasticSearchService : ISearchService
     {
         try
         {
+#pragma warning disable CA1308 // Elasticsearch icu_analyzer stores tokens as lowercase
+            string normalizedQuery = partialQuery.ToLowerInvariant();
+#pragma warning restore CA1308
+
             var query = new BoolQuery
             {
                 Should =
                 [
-                    new PrefixQuery { Field = "title", Value = partialQuery },
-                    new WildcardQuery { Field = "title", Value = $"*{partialQuery}*" }
+                    new PrefixQuery { Field = "title", Value = normalizedQuery },
+                    new WildcardQuery { Field = "title", Value = $"*{normalizedQuery}*" }
                 ],
                 MinimumShouldMatch = 1
             };
@@ -227,29 +232,119 @@ internal sealed class ElasticSearchService : ISearchService
 
     private static Query BuildQuery(SearchQuery query)
     {
+        Query textQuery;
+
         if (string.IsNullOrWhiteSpace(query.Text))
         {
-            return new MatchAllQuery();
+            textQuery = new MatchAllQuery();
         }
-        
-        var multiMatchQuery = new MultiMatchQuery
+        else
         {
-            Query = query.Text,
-            Fields = new Field[] { new("title^2"), new("content"), new("tags") }, // Boost title matches
-            Type = TextQueryType.BestFields
+            var multiMatchQuery = new MultiMatchQuery
+            {
+                Query = query.Text,
+                Fields = new Field[] { new("title^2"), new("content"), new("tags") },
+                Type = TextQueryType.BestFields
+            };
+
+            if (query.EnableFuzzySearch)
+            {
+                multiMatchQuery.Fuzziness = new Fuzziness("AUTO");
+            }
+
+            textQuery = multiMatchQuery;
+        }
+
+        List<Query> filters = [];
+
+        if (query.ItemTypes.Count > 0)
+        {
+            filters.Add(BuildTypeFilter(query.ItemTypes));
+        }
+
+        if (query.OnlyActive)
+        {
+            filters.Add(new TermQuery { Field = "isActive", Value = "true" });
+        }
+
+        foreach (KeyValuePair<string, object> entry in query.NumericFilters)
+        {
+            string key = entry.Key;
+            double value = Convert.ToDouble(entry.Value, System.Globalization.CultureInfo.InvariantCulture);
+
+            if (key.EndsWith("Min", StringComparison.Ordinal))
+            {
+                string fieldName = "metadata." + key[..^3];
+                filters.Add(new NumberRangeQuery(fieldName) { Gte = value });
+            }
+            else if (key.EndsWith("Max", StringComparison.Ordinal))
+            {
+                string fieldName = "metadata." + key[..^3];
+                filters.Add(new NumberRangeQuery(fieldName) { Lte = value });
+            }
+        }
+
+        foreach (KeyValuePair<string, IReadOnlyCollection<string>> facet in query.FacetFilters)
+        {
+            string fieldName = "metadata." + facet.Key + ".keyword";
+
+            if (facet.Value.Count == 1)
+            {
+                filters.Add(new TermQuery { Field = fieldName, Value = facet.Value.First() });
+            }
+            else
+            {
+                filters.Add(new TermsQuery
+                {
+                    Field = fieldName,
+                    Terms = new TermsQueryField(facet.Value.Select(v => FieldValue.String(v)).ToArray())
+                });
+            }
+        }
+
+        if (query.CreatedAfter.HasValue || query.CreatedBefore.HasValue)
+        {
+            var rangeQuery = new DateRangeQuery("lastUpdated");
+
+            if (query.CreatedAfter.HasValue)
+            {
+                rangeQuery.Gte = DateMath.Anchored(query.CreatedAfter.Value.DateTime);
+            }
+
+            if (query.CreatedBefore.HasValue)
+            {
+                rangeQuery.Lte = DateMath.Anchored(query.CreatedBefore.Value.DateTime);
+            }
+
+            filters.Add(rangeQuery);
+        }
+
+        if (filters.Count == 0 && !query.ExcludeItemId.HasValue)
+        {
+            return textQuery;
+        }
+
+        var boolQuery = new BoolQuery
+        {
+            Must = [textQuery],
+            Filter = filters
         };
 
-        if (query.FuzzyDistance > 0)
+        if (query.ExcludeItemId.HasValue)
         {
-            multiMatchQuery.Fuzziness =
-                new Fuzziness(query.FuzzyDistance.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            boolQuery.MustNot =
+            [
+                new TermQuery { Field = "sourceEntityId", Value = query.ExcludeItemId.Value.ToString() }
+            ];
         }
 
-        return multiMatchQuery;
+        return boolQuery;
     }
 
     private Query BuildMoreLikeThisQuery(Guid sourceEntityId, SearchableItemType sourceType, SearchQuery query)
     {
+        Guid documentId = SearchDocument.GenerateDeterministicId(sourceEntityId, sourceType);
+
         var moreLikeThisQuery = new MoreLikeThisQuery
         {
             Fields = new Field[] { "title", "content", "tags" },
@@ -258,7 +353,7 @@ internal sealed class ElasticSearchService : ISearchService
                 new LikeDocument
                 {
                     Index = this._options.DefaultIndex,
-                    Id = sourceEntityId.ToString()
+                    Id = documentId.ToString()
                 }
             ],
             MinTermFreq = 1,
@@ -285,24 +380,8 @@ internal sealed class ElasticSearchService : ISearchService
             ]
         };
 
-        if (query.ItemTypes.Any())
-        {
-            var typeFilters = query.ItemTypes
-                .Select(type => (Query)new TermQuery { Field = "type", Value = type.ToString() })
-                .ToList();
-
-            if (typeFilters.Any())
-            {
-                boolQuery.Filter = boolQuery.Filter.Concat(typeFilters).ToList();
-            }
-        }
-        else
-        {
-            boolQuery.Filter = boolQuery.Filter.Concat(
-            [
-                new TermQuery { Field = "type", Value = sourceType.ToString() }
-            ]).ToList();
-        }
+        Query typeFilter = BuildTypeFilter(query.ItemTypes.Any() ? query.ItemTypes : [sourceType]);
+        boolQuery.Filter = boolQuery.Filter.Concat([typeFilter]).ToList();
 
         if (query.OnlyActive)
         {
@@ -368,6 +447,8 @@ internal sealed class ElasticSearchService : ISearchService
             Result<SearchResultItem> resultItem = SearchResultItem.Create(
                 doc.SourceEntityId,
                 doc.Type,
+                doc.Title,
+                doc.Content,
                 hit.Score ?? 0.0,
                 highlights,
                 doc.Metadata.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
@@ -380,5 +461,21 @@ internal sealed class ElasticSearchService : ISearchService
             this._logger.LogError(ex, "Error mapping search result item for document {DocumentId}", doc.Id);
             return null;
         }
+    }
+
+    private static Query BuildTypeFilter(IReadOnlyCollection<SearchableItemType> itemTypes)
+    {
+        if (itemTypes.Count == 1)
+        {
+            return new TermQuery { Field = "type", Value = itemTypes.First().ToString() };
+        }
+
+        return new BoolQuery
+        {
+            Should = itemTypes
+                .Select(type => (Query)new TermQuery { Field = "type", Value = type.ToString() })
+                .ToList(),
+            MinimumShouldMatch = 1,
+        };
     }
 }

@@ -2,12 +2,7 @@ using Elastic.Clients.Elasticsearch;
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
-using Lanka.Modules.Analytics.IntegrationEvents;
-using Lanka.Modules.Campaigns.IntegrationEvents.Bloggers;
-using Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
-using Lanka.Modules.Campaigns.IntegrationEvents.Offers;
-using Lanka.Modules.Campaigns.IntegrationEvents.Pacts;
-using Lanka.Modules.Campaigns.IntegrationEvents.Reviews;
+using Lanka.Common.IntegrationEvents;
 using Lanka.Modules.Matching.Application.Abstractions.Data;
 using Lanka.Modules.Matching.Application.Abstractions.Search;
 using Lanka.Modules.Matching.Infrastructure.Database;
@@ -45,22 +40,7 @@ public static class MatchingModule
 
     public static void ConfigureConsumers(IRegistrationConfigurator registrationConfigurator, string instanceId)
     {
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<BloggerSearchSyncIntegrationEvent>>()
-            .Endpoint(configuration => configuration.InstanceId = instanceId);
-
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<CampaignSearchSyncIntegrationEvent>>()
-            .Endpoint(configuration => configuration.InstanceId = instanceId);
-
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<ReviewSearchSyncIntegrationEvent>>()
-            .Endpoint(configuration => configuration.InstanceId = instanceId);
-
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<OfferSearchSyncIntegrationEvent>>()
-            .Endpoint(configuration => configuration.InstanceId = instanceId);
-
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<PactSearchSyncIntegrationEvent>>()
-            .Endpoint(configuration => configuration.InstanceId = instanceId);
-
-        registrationConfigurator.AddConsumer<IntegrationEventConsumer<InstagramAccountSearchSyncIntegrationEvent>>()
+        registrationConfigurator.AddConsumer<IntegrationEventConsumer<SearchSyncIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
 
@@ -119,7 +99,8 @@ public static class MatchingModule
         services.AddScoped<ISearchService, ElasticSearchService>();
         services.AddScoped<ISearchIndexService, ElasticSearchIndexService>();
 
-        services.AddHostedService<ElasticSearchInitializationService>();
+        services.AddSingleton<ElasticSearchInitializationService>();
+        services.AddHostedService(sp => sp.GetRequiredService<ElasticSearchInitializationService>());
     }
 
     private static void AddIntegrationEventHandlers(this IServiceCollection services)

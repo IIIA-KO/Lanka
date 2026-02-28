@@ -3,6 +3,7 @@ using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
+using Lanka.Modules.Analytics.Application.Abstractions.Audience;
 using Lanka.Modules.Analytics.Application.Abstractions.Data;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 using Lanka.Modules.Analytics.Application.Instagram.UserActivity;
@@ -218,13 +219,17 @@ public static class AnalyticsModule
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ChangeCapture.AnalyticsChangeCaptureInterceptor>();
+
         services.AddDbContext<AnalyticsDbContext>((sp, options) =>
             options
                 .UseNpgsql(
                     configuration.GetConnectionString("Database"),
                     npgsqlOptions => npgsqlOptions
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Analytics))
-                .AddInterceptors(sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
+                .AddInterceptors(
+                    sp.GetRequiredService<ChangeCapture.AnalyticsChangeCaptureInterceptor>(),
+                    sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
                 .UseSnakeCaseNamingConvention()
         );
 
@@ -247,6 +252,8 @@ public static class AnalyticsModule
 
         services.AddScoped<IUserActivityRepository, UserActivityRepository>();
         services.AddScoped<IUserActivityService, UserActivityService>();
+
+        services.AddScoped<IAudienceSummaryProvider, AudienceSummaryProvider>();
 
         services.AddScoped<IMongoCleanupService, MongoCleanupService>();
 

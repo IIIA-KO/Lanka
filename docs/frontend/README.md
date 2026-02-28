@@ -14,8 +14,9 @@ The frontend is functional but still evolving. Core features work, but test cove
 | Instagram Linking | Working | OAuth flow, callback handling, status display |
 | User Profile | Working | View and edit profile, avatar upload |
 | Analytics Dashboard | Basic | Charts display data, but limited interactivity |
+| Blogger Discovery | Working | Advanced search with filters, similar bloggers, sorting |
 | Campaign Management | In Progress | Brand side partially implemented |
-| Blogger Features | In Progress | Search, offers, reviews partially done |
+| Blogger Features | In Progress | Offers, reviews partially done |
 | Test Coverage | Minimal | Infrastructure exists, few actual tests |
 | i18n | Working | English and Ukrainian translations |
 
@@ -48,13 +49,14 @@ client/lanka-client/
 │   │   │   ├── guards/        # Route guards (auth, instagram-linked)
 │   │   │   ├── interceptors/  # HTTP interceptors (error handling)
 │   │   │   ├── layouts/       # Main layout, auth layout
-│   │   │   └── services/      # Cross-cutting services
+│   │   │   └── services/      # Cross-cutting services (incl. SearchService)
 │   │   ├── features/          # Feature modules
 │   │   │   ├── auth/          # Login, register, logout
 │   │   │   ├── analytics/     # Instagram analytics dashboards
 │   │   │   ├── bloggers/      # Blogger-specific features
 │   │   │   ├── brands/        # Brand/campaign creation
 │   │   │   ├── link-instagram/# OAuth callback handling
+│   │   │   ├── search/        # Blogger discovery & search
 │   │   │   └── settings/      # Profile settings
 │   │   ├── shared/            # Reusable components
 │   │   └── app.routes.ts      # Route definitions
@@ -102,6 +104,7 @@ API clients are in `core/api/`. Each agent handles requests to a specific backen
 - `users-agent.ts` — Authentication, profile
 - `analytics-agent.ts` — Instagram statistics
 - `campaigns-agent.ts` — Campaign operations
+- `search-agent.ts` — Search, suggestions, similar bloggers
 
 Base URL comes from environment files. Development points to `https://localhost:4308` (the gateway).
 
@@ -120,6 +123,32 @@ Base URL comes from environment files. Development points to `https://localhost:
 4. Frontend sends code to backend
 5. SignalR provides real-time status updates
 6. UI updates when linking completes or fails
+
+### Blogger Discovery (Search)
+
+The search page (`features/search/`) provides a full-featured blogger discovery experience backed by Elasticsearch:
+
+**Search Bar** — PrimeNG `AutoComplete` with server-side suggestions (debounced, min 2 chars). Submit via button or Enter key.
+
+**Filter Bar** — Six dropdown filters, all optional:
+- Category (38 categories)
+- Follower range (1K-10K, 10K-50K, 50K-100K, 100K-500K, 500K+)
+- Engagement rate range (<1%, 1-3%, 3-5%, 5-8%, 8%+)
+- Audience country (US, GB, UA, DE, FR, BR, IN, CA, AU, JP)
+- Audience gender (Male, Female)
+- Audience age group (13-17, 18-24, 25-34, 35-44, 45-54, 55-64, 65+)
+
+**Results Table** — PrimeNG `p-table` with:
+- Client-side column sorting (Followers, ER%, Posts, Category)
+- Column tooltips explaining each metric
+- Self-exclusion (current user never appears in results)
+- Click-to-navigate to blogger profile
+
+**Pagination** — Custom page navigation with ellipsis gaps for large result sets.
+
+**Similar Bloggers** — After search, Elasticsearch More Like This (MLT) finds bloggers similar to the top result, displayed as cards below the table.
+
+**State Management** — `SearchService` (singleton) manages search state via `BehaviorSubject`. State includes query, filters, page, results, loading, and error. Each search cancels any in-flight request.
 
 ### Real-time Updates
 

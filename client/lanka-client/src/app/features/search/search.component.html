@@ -1,0 +1,348 @@
+<div class="search-container">
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <div class="search-input-group">
+            <i class="pi pi-search search-icon"></i>
+            <p-autoComplete [(ngModel)]="searchQuery" [suggestions]="filteredSuggestions"
+                (completeMethod)="onSearchQueryChange($event)" (onSelect)="onSuggestionSelect($event)"
+                (onKeyUp)="onSearchKeyDown($event)" [placeholder]="'SEARCH.PLACEHOLDER' | translate"
+                class="w-full" inputStyleClass="w-full search-input" [minLength]="2" [delay]="300">
+            </p-autoComplete>
+            @if (searchQuery) {
+                <button class="clear-button p-link" (click)="clearSearch()" aria-label="Clear search">
+                    <i class="pi pi-times"></i>
+                </button>
+            }
+            <button class="search-submit-btn" (click)="onSearchSubmit()"
+                [attr.aria-label]="'SEARCH.ACTIONS.SEARCH' | translate">
+                {{ 'SEARCH.ACTIONS.SEARCH' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <p-select [options]="categoryOptions" [(ngModel)]="selectedCategory"
+            optionLabel="label" optionValue="value"
+            [placeholder]="'SEARCH.FILTERS.CATEGORY' | translate"
+            (onChange)="onFilterChange()" [showClear]="true"
+            [filter]="true" filterBy="label"
+            appendTo="body" class="filter-select">
+        </p-select>
+
+        <p-select [options]="followerRanges" [(ngModel)]="selectedFollowerRange"
+            optionLabel="label" optionValue="value"
+            [placeholder]="'SEARCH.FILTERS.FOLLOWERS' | translate"
+            (onChange)="onFollowerRangeChange()" [showClear]="true"
+            appendTo="body" class="filter-select">
+        </p-select>
+
+        <p-select [options]="engagementRateRanges" [(ngModel)]="selectedEngagementRange"
+            optionLabel="label" optionValue="value"
+            [placeholder]="'SEARCH.FILTERS.ENGAGEMENT_RATE' | translate"
+            (onChange)="onEngagementRangeChange()" [showClear]="true"
+            appendTo="body" class="filter-select">
+        </p-select>
+
+        <p-select [options]="countryOptions" [(ngModel)]="selectedCountry"
+            optionLabel="label" optionValue="value"
+            [placeholder]="'SEARCH.FILTERS.AUDIENCE_COUNTRY' | translate"
+            (onChange)="onFilterChange()" [showClear]="true"
+            appendTo="body" class="filter-select">
+        </p-select>
+
+        <p-select [options]="genderOptions" [(ngModel)]="selectedGender"
+            optionLabel="label" optionValue="value"
+            [placeholder]="'SEARCH.FILTERS.AUDIENCE_GENDER' | translate"
+            (onChange)="onFilterChange()" [showClear]="true"
+            appendTo="body" class="filter-select">
+        </p-select>
+
+        <p-select [options]="ageGroupOptions" [(ngModel)]="selectedAgeGroup"
+            optionLabel="label" optionValue="value"
+            [placeholder]="'SEARCH.FILTERS.AUDIENCE_AGE' | translate"
+            (onChange)="onFilterChange()" [showClear]="true"
+            appendTo="body" class="filter-select">
+        </p-select>
+
+        <div class="filter-bar-end">
+            @if (searchState?.results && !loading) {
+                <span class="results-count">
+                    {{ 'SEARCH.RESULTS.FOUND' | translate:{ total: searchState!.results!.totalCount } }}
+                </span>
+            }
+            @if (activeFilterCount > 0) {
+                <button class="clear-filters-btn p-link" (click)="clearFilters()">
+                    <i class="pi pi-filter-slash"></i>
+                    {{ 'SEARCH.ACTIONS.CLEAR_FILTERS' | translate }}
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading) {
+        <div class="loading-container">
+            @for (i of [1,2,3,4,5,6]; track $index) {
+                <div class="skeleton-row">
+                    <p-skeleton shape="circle" size="2.25rem"></p-skeleton>
+                    <div class="skeleton-text">
+                        <p-skeleton width="60%" height="0.875rem"></p-skeleton>
+                        <p-skeleton width="35%" height="0.75rem"></p-skeleton>
+                    </div>
+                    <p-skeleton width="4rem" height="0.875rem"></p-skeleton>
+                    <p-skeleton width="3rem" height="0.875rem"></p-skeleton>
+                    <p-skeleton width="5rem" height="1.5rem" borderRadius="1rem"></p-skeleton>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !loading) {
+        <div class="empty-state">
+            <div class="empty-state-icon error">
+                <i class="pi pi-exclamation-circle"></i>
+            </div>
+            <h3>{{ 'SEARCH.EMPTY.NO_RESULTS_TITLE' | translate }}</h3>
+            <p class="text-color-secondary">{{ error | translate }}</p>
+            <p-button [label]="'SEARCH.ACTIONS.TRY_AGAIN' | translate" icon="pi pi-refresh" class="mt-3"
+                (onClick)="onSearchSubmit()" [rounded]="true" severity="secondary"></p-button>
+        </div>
+    }
+
+    <!-- No Results State -->
+    @if (searchState?.results?.results?.length === 0 && !loading && !error) {
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="pi pi-search"></i>
+            </div>
+            <h3>{{ 'SEARCH.EMPTY.NO_RESULTS_TITLE' | translate }}</h3>
+            <p class="text-color-secondary">
+                {{ 'SEARCH.EMPTY.NO_RESULTS_COPY' | translate:{ query: searchQuery || '—' } }}
+            </p>
+            @if (activeFilterCount > 0) {
+                <p-button [label]="'SEARCH.ACTIONS.CLEAR_FILTERS' | translate"
+                    icon="pi pi-filter-slash" class="mt-3" severity="secondary" [rounded]="true"
+                    (onClick)="clearFilters()"></p-button>
+            }
+        </div>
+    }
+
+    <!-- Results Table -->
+    @if (searchState?.results?.results && searchState!.results!.results!.length > 0 && !loading) {
+        <div class="results-table-wrapper">
+            <p-table [value]="searchState!.results!.results" [tableStyle]="{ 'min-width': '56rem' }"
+                class="p-datatable-sm search-table" [rowHover]="true">
+                <ng-template #header>
+                    <tr>
+                        <th>{{ 'SEARCH.TABLE.ACCOUNT' | translate }}</th>
+                        <th pSortableColumn="metadata.FollowersCount" style="width: 8rem" class="text-right sortable-col">
+                            {{ 'SEARCH.TABLE.FOLLOWERS' | translate }}
+                            <p-sortIcon field="metadata.FollowersCount" />
+                        </th>
+                        <th pSortableColumn="metadata.EngagementRate" style="width: 6rem" class="text-right sortable-col">
+                            {{ 'SEARCH.TABLE.ER' | translate }}
+                            <p-sortIcon field="metadata.EngagementRate" />
+                            <i class="pi pi-info-circle col-hint"
+                                [pTooltip]="'SEARCH.TABLE.ER_HINT' | translate"
+                                tooltipPosition="top" [escape]="false"></i>
+                        </th>
+                        <th pSortableColumn="metadata.MediaCount" style="width: 7.5rem" class="text-right sortable-col">
+                            {{ 'SEARCH.TABLE.POSTS' | translate }}
+                            <p-sortIcon field="metadata.MediaCount" />
+                            <i class="pi pi-info-circle col-hint"
+                                [pTooltip]="'SEARCH.TABLE.POSTS_HINT' | translate"
+                                tooltipPosition="top"></i>
+                        </th>
+                        <th style="width: 9rem">
+                            {{ 'SEARCH.TABLE.AUDIENCE_COUNTRY' | translate }}
+                            <i class="pi pi-info-circle col-hint"
+                                [pTooltip]="'SEARCH.TABLE.AUDIENCE_COUNTRY_HINT' | translate"
+                                tooltipPosition="top"></i>
+                        </th>
+                        <th style="width: 8rem">
+                            {{ 'SEARCH.TABLE.AUDIENCE_GENDER' | translate }}
+                            <i class="pi pi-info-circle col-hint"
+                                [pTooltip]="'SEARCH.TABLE.AUDIENCE_GENDER_HINT' | translate"
+                                tooltipPosition="top"></i>
+                        </th>
+                        <th style="width: 7.5rem">
+                            {{ 'SEARCH.TABLE.AUDIENCE_AGE' | translate }}
+                            <i class="pi pi-info-circle col-hint"
+                                [pTooltip]="'SEARCH.TABLE.AUDIENCE_AGE_HINT' | translate"
+                                tooltipPosition="top"></i>
+                        </th>
+                        <th pSortableColumn="metadata.Category" style="width: 9rem" class="sortable-col">
+                            {{ 'SEARCH.TABLE.CATEGORY' | translate }}
+                            <p-sortIcon field="metadata.Category" />
+                            <i class="pi pi-info-circle col-hint"
+                                [pTooltip]="'SEARCH.TABLE.CATEGORY_HINT' | translate"
+                                tooltipPosition="top"></i>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-result>
+                    @if (result.itemId !== currentBloggerId) {
+                        <tr class="result-row" (click)="navigateToResult(result)">
+                            <td>
+                                <div class="account-cell">
+                                    <div class="account-avatar" [style.background]="getAvatarColor(result.title)">
+                                        {{ getInitials(result.title) }}
+                                    </div>
+                                    <div class="account-info">
+                                        <span class="account-name">{{ result.title }}</span>
+                                        @if (getInstagramUsername(result)) {
+                                            <span class="account-handle">
+                                                &#64;{{ getInstagramUsername(result) }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-right">
+                                <span class="metric-value metric-mono">{{ getFollowers(result) }}</span>
+                            </td>
+                            <td class="text-right">
+                                <span class="er-badge" [class]="getEngagementClass(result)">
+                                    {{ getEngagementRate(result) }}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                <span class="metric-value metric-mono">{{ getMediaCount(result) }}</span>
+                            </td>
+                            <td>
+                                @if (getTopCountry(result) !== '—') {
+                                    <span class="metric-value">
+                                        {{ getTopCountry(result) }}
+                                    </span>
+                                } @else {
+                                    <span class="metric-dim">&mdash;</span>
+                                }
+                            </td>
+                            <td>
+                                @if (getTopGender(result) !== '—') {
+                                    <span class="metric-value">
+                                        {{ getTopGender(result) }}
+                                    </span>
+                                } @else {
+                                    <span class="metric-dim">&mdash;</span>
+                                }
+                            </td>
+                            <td>
+                                @if (getTopAgeGroup(result) !== '—') {
+                                    <span class="metric-value">
+                                        {{ getTopAgeGroup(result) }}
+                                    </span>
+                                } @else {
+                                    <span class="metric-dim">&mdash;</span>
+                                }
+                            </td>
+                            <td>
+                                @if (getCategory(result) !== '—') {
+                                    <span class="category-tag"
+                                        [style]="getCategoryStyle(getCategory(result))">
+                                        {{ getCategory(result) }}
+                                    </span>
+                                } @else {
+                                    <span class="metric-dim">&mdash;</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </ng-template>
+            </p-table>
+
+            <!-- Pagination -->
+            @if (totalPages > 1 && hasActiveSearch) {
+                <div class="pagination">
+                    <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="goToPreviousPage()"
+                        aria-label="Previous page">
+                        <i class="pi pi-chevron-left"></i>
+                        <span>{{ 'SEARCH.RESULTS.PREV' | translate }}</span>
+                    </button>
+
+                    <div class="page-numbers">
+                        @for (p of pageNumbers; track $index) {
+                            @if (p === null) {
+                                <span class="page-ellipsis">&hellip;</span>
+                            } @else {
+                                <button class="page-num" [class.active]="p === currentPage"
+                                    (click)="goToPage(p)" [attr.aria-label]="'Page ' + p"
+                                    [attr.aria-current]="p === currentPage ? 'page' : null">
+                                    {{ p }}
+                                </button>
+                            }
+                        }
+                    </div>
+
+                    <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="goToNextPage()"
+                        aria-label="Next page">
+                        <span>{{ 'SEARCH.RESULTS.NEXT' | translate }}</span>
+                        <i class="pi pi-chevron-right"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Similar Bloggers -->
+    @if ((similarResults.length > 0 || loadingSimilar) && hasActiveSearch) {
+        <div class="similar-section">
+            <h3 class="similar-title">
+                <i class="pi pi-sparkles"></i>
+                {{ 'SEARCH.SIMILAR.TITLE' | translate }}
+            </h3>
+
+            <!-- Loading -->
+            @if (loadingSimilar) {
+                <div class="similar-grid">
+                    @for (i of [1,2,3,4]; track $index) {
+                        <div class="similar-card similar-card-skeleton">
+                            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+                            <p-skeleton width="70%" height="0.875rem"></p-skeleton>
+                            <p-skeleton width="50%" height="0.75rem"></p-skeleton>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Cards -->
+            @if (!loadingSimilar && similarResults.length > 0) {
+                <div class="similar-grid">
+                    @for (result of similarResults; track result.itemId) {
+                        <div class="similar-card" (click)="navigateToResult(result)">
+                            <div class="similar-avatar" [style.background]="getAvatarColor(result.title)">
+                                {{ getInitials(result.title) }}
+                            </div>
+                            <div class="similar-info">
+                                <span class="similar-name">{{ result.title }}</span>
+                                @if (getInstagramUsername(result)) {
+                                    <span class="similar-handle">
+                                        &#64;{{ getInstagramUsername(result) }}
+                                    </span>
+                                }
+                            </div>
+                            <div class="similar-stats">
+                                <span class="similar-stat">
+                                    <i class="pi pi-users"></i> {{ getFollowers(result) }}
+                                </span>
+                                @if (getEngagementRate(result) !== '—') {
+                                    <span class="similar-stat">
+                                        <i class="pi pi-chart-line"></i> {{ getEngagementRate(result) }}
+                                    </span>
+                                }
+                            </div>
+                            @if (getCategory(result) !== '—') {
+                                <span class="category-tag similar-category"
+                                    [style]="getCategoryStyle(getCategory(result))">
+                                    {{ getCategory(result) }}
+                                </span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

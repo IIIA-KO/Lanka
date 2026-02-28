@@ -83,12 +83,19 @@ export class ProfileComponent implements OnInit {
   public ngOnInit(): void {
     this.profile = this.route.snapshot.data['profile'] ?? null;
     this.instagramAccountLinked = Boolean(this.profile?.instagramUsername);
-    this.refreshInstagramLinkedState();
 
     if (this.profile) {
       this.loadAnalytics();
       this.loadPact();
-      this.loadRecentPosts();
+
+      if (this.instagramAccountLinked) {
+        // Instagram username already in profile data — load posts immediately
+        this.loadRecentPosts();
+      } else {
+        // Username not yet propagated to Campaigns module — check link status
+        // and load posts if the account is actually linked
+        this.refreshInstagramLinkedState();
+      }
     }
   }
 
@@ -243,10 +250,12 @@ export class ProfileComponent implements OnInit {
     this.api.Users.getLinkInstagramStatus().subscribe({
       next: (status) => {
         this.instagramAccountLinked = status?.status === 'completed';
+        if (this.instagramAccountLinked) {
+          this.loadRecentPosts();
+        }
       },
       error: (error: unknown) => {
         console.error('[ProfileComponent] Error checking Instagram link state:', error);
-        this.instagramAccountLinked = false;
       },
     });
   }

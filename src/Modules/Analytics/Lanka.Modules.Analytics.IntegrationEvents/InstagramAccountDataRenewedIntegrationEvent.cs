@@ -11,7 +11,13 @@ public sealed class InstagramAccountDataRenewedIntegrationEvent : IntegrationEve
         string username,
         int followersCount,
         int mediaCount,
-        string providerId
+        string providerId,
+        double? engagementRate = null,
+        string? audienceTopAgeGroup = null,
+        string? audienceTopGender = null,
+        double? audienceTopGenderPercentage = null,
+        string? audienceTopCountry = null,
+        double? audienceTopCountryPercentage = null
     ) : base(id, occurredOnUtc)
     {
         this.UserId = userId;
@@ -19,6 +25,12 @@ public sealed class InstagramAccountDataRenewedIntegrationEvent : IntegrationEve
         this.FollowersCount = followersCount;
         this.MediaCount = mediaCount;
         this.ProviderId = providerId;
+        this.EngagementRate = engagementRate;
+        this.AudienceTopAgeGroup = audienceTopAgeGroup;
+        this.AudienceTopGender = audienceTopGender;
+        this.AudienceTopGenderPercentage = audienceTopGenderPercentage;
+        this.AudienceTopCountry = audienceTopCountry;
+        this.AudienceTopCountryPercentage = audienceTopCountryPercentage;
     }
 
     public Guid UserId { get; }
@@ -30,4 +42,16 @@ public sealed class InstagramAccountDataRenewedIntegrationEvent : IntegrationEve
     public int MediaCount { get; init; }
 
     public string ProviderId { get; }
+
+    public double? EngagementRate { get; init; }
+
+    public string? AudienceTopAgeGroup { get; init; }
+
+    public string? AudienceTopGender { get; init; }
+
+    public double? AudienceTopGenderPercentage { get; init; }
+
+    public string? AudienceTopCountry { get; init; }
+
+    public double? AudienceTopCountryPercentage { get; init; }
 }

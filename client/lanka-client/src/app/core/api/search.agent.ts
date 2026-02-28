@@ -1,36 +1,52 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { FriendlyErrorService } from '../services/friendly-error.service';
 
 export interface ISearchRequest {
-  q: string;
+  q?: string;
   page?: number;
   size?: number;
-  sort?: string;
-  filters?: Record<string, unknown>;
   itemTypes?: string;
   onlyActive?: boolean;
+  priceMin?: number;
+  priceMax?: number;
+  followersMin?: number;
+  followersMax?: number;
+  engagementRateMin?: number;
+  engagementRateMax?: number;
+  category?: string;
+  audienceCountry?: string;
+  audienceGender?: string;
+  audienceAgeGroup?: string;
+  createdAfter?: string;
+  createdBefore?: string;
+  excludeItemId?: string;
+}
+
+export interface ISearchHighlight {
+  fieldName: string;
+  fragments: string[];
 }
 
 export interface ISearchResult {
-  id: string;
+  itemId: string;
+  type: string;
   title: string;
   content: string;
-  type: string;
-  score: number;
-  highlights?: string[];
-  metadata?: Record<string, unknown>;
+  relevanceScore: number;
+  highlights: ISearchHighlight[];
+  metadata: Record<string, unknown>;
 }
 
 export interface ISearchResponse {
   results: ISearchResult[];
-  total: number;
+  totalCount: number;
   page: number;
   size: number;
-  took: number;
-  suggestions?: string[];
+  searchDuration: string;
+  facets: Record<string, { value: string; count: number }[]>;
 }
 
 export interface ISimilarSearchRequest {
@@ -41,6 +57,7 @@ export interface ISimilarSearchRequest {
 
 export interface ISearchSuggestionsRequest {
   query: string;
+  itemType?: number;
   limit?: number;
 }
 
@@ -53,61 +70,85 @@ export class SearchAgent {
   private readonly http = inject(HttpClient);
   private readonly friendlyErrorService = inject(FriendlyErrorService);
 
-  /**
-   * Search for documents using Elasticsearch
-   */
   public searchDocuments(request: ISearchRequest): Observable<ISearchResponse> {
     let params = new HttpParams();
-    
-    params = params.set('q', request.q);
+
+    if (request.q) params = params.set('q', request.q);
     if (request.page) params = params.set('page', request.page.toString());
     if (request.size) params = params.set('size', request.size.toString());
-    if (request.sort) params = params.set('sort', request.sort);
     if (request.itemTypes) params = params.set('itemTypes', request.itemTypes);
     if (request.onlyActive !== undefined) {
       params = params.set('onlyActive', String(request.onlyActive));
     }
-    
-    // Add filters as query parameters
-    if (request.filters) {
-      Object.entries(request.filters).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          params = params.set(`filters.${key}`, value.toString());
-        }
-      });
+    if (request.priceMin !== undefined) {
+      params = params.set('priceMin', request.priceMin.toString());
+    }
+    if (request.priceMax !== undefined) {
+      params = params.set('priceMax', request.priceMax.toString());
+    }
+    if (request.followersMin !== undefined) {
+      params = params.set('followersMin', request.followersMin.toString());
+    }
+    if (request.followersMax !== undefined) {
+      params = params.set('followersMax', request.followersMax.toString());
+    }
+    if (request.engagementRateMin !== undefined) {
+      params = params.set('engagementRateMin', request.engagementRateMin.toString());
+    }
+    if (request.engagementRateMax !== undefined) {
+      params = params.set('engagementRateMax', request.engagementRateMax.toString());
+    }
+    if (request.category) {
+      params = params.set('category', request.category);
+    }
+    if (request.audienceCountry) {
+      params = params.set('audienceCountry', request.audienceCountry);
+    }
+    if (request.audienceGender) {
+      params = params.set('audienceGender', request.audienceGender);
+    }
+    if (request.audienceAgeGroup) {
+      params = params.set('audienceAgeGroup', request.audienceAgeGroup);
+    }
+    if (request.createdAfter) {
+      params = params.set('createdAfter', request.createdAfter);
+    }
+    if (request.createdBefore) {
+      params = params.set('createdBefore', request.createdBefore);
+    }
+    if (request.excludeItemId) {
+      params = params.set('excludeItemId', request.excludeItemId);
     }
 
     return this.http
-      .get<ISearchResponse>(`${BASE_URL}/searchable-documents`, { params })
+      .get<ISearchResponse>(`${BASE_URL}/search`, { params })
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Get search suggestions based on query
-   */
   public getSearchSuggestions(request: ISearchSuggestionsRequest): Observable<string[]> {
     let params = new HttpParams();
-    
-    params = params.set('query', request.query);
+
+    params = params.set('q', request.query);
+    if (request.itemType !== undefined) params = params.set('itemType', request.itemType.toString());
     if (request.limit) params = params.set('limit', request.limit.toString());
 
     return this.http
-      .get<string[]>(`${BASE_URL}/searchable-documents/suggestions`, { params })
+      .get<string[]>(`${BASE_URL}/search/suggestions`, { params })
       .pipe(catchError(this.handleError));
   }
 
-  /**
-   * Find similar documents using More Like This (MLT) query
-   */
   public searchSimilar(request: ISimilarSearchRequest): Observable<ISearchResult[]> {
     let params = new HttpParams();
-    
+
     params = params.set('sourceType', request.sourceType);
-    if (request.limit) params = params.set('limit', request.limit.toString());
+    if (request.limit) params = params.set('size', request.limit.toString());
 
     return this.http
-      .get<ISearchResult[]>(`${BASE_URL}/searchable-documents/similar/${request.sourceItemId}`, { params })
-      .pipe(catchError(this.handleError));
+      .get<ISearchResponse>(`${BASE_URL}/search/similar/${request.sourceItemId}`, { params })
+      .pipe(
+        map(response => response.results),
+        catchError(this.handleError)
+      );
   }
 
   private readonly handleError = (error: unknown): Observable<never> => {

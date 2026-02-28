@@ -2,13 +2,12 @@ using Lanka.Common.Contracts.Currencies;
 using Lanka.Common.Contracts.Monies;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Domain.Offers.Descriptions;
-using Lanka.Modules.Campaigns.Domain.Offers.DomainEvents;
 using Lanka.Modules.Campaigns.Domain.Offers.Names;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 
 namespace Lanka.Modules.Campaigns.Domain.Offers;
 
-public class Offer : Entity<OfferId>
+public class Offer : Entity<OfferId>, IChangeCaptured
 {
     public PactId PactId { get; init; }
 
@@ -57,8 +56,6 @@ public class Offer : Entity<OfferId>
         (Name _name, Description _description, Money price) = validationResult.Value;
 
         var offer = new Offer(OfferId.New(), pactId, _name, _description, price);
-        
-        offer.RaiseDomainEvent(new OfferCreatedDomainEvent(offer.Id));
 
         return offer;
     }
@@ -79,8 +76,6 @@ public class Offer : Entity<OfferId>
         }
 
         (this.Name, this.Description, this.Price) = validationResult.Value;
-        
-        this.RaiseDomainEvent(new OfferUpdatedDomainEvent(this.Id));
 
         return Result.Success();
     }
@@ -116,6 +111,6 @@ public class Offer : Entity<OfferId>
     
     public void Delete()
     {
-        this.RaiseDomainEvent(new OfferDeletedDomainEvent(this.Id));
+        // Intentionally empty — change capture is handled by the EF interceptor.
     }
 }

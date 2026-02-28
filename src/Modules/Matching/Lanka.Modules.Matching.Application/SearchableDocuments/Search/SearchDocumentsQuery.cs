@@ -17,7 +17,8 @@ public sealed record SearchDocumentsQuery(
     DateTimeOffset? CreatedBefore = null,
     bool OnlyActive = true,
     int Page = 1,
-    int Size = 20
+    int Size = 20,
+    Guid? ExcludeItemId = null
 ) : ICachedQuery<SearchDocumentsResponse>
 {
     public string CacheKey => this.GenerateCacheKey();
@@ -64,6 +65,11 @@ public sealed record SearchDocumentsQuery(
         }
 
         keyBuilder.Append(CultureInfo.InvariantCulture, $"-active-{this.OnlyActive}-page-{this.Page}-size-{this.Size}");
+
+        if (this.ExcludeItemId.HasValue)
+        {
+            keyBuilder.Append(CultureInfo.InvariantCulture, $"-exclude-{this.ExcludeItemId.Value}");
+        }
 
         return keyBuilder.ToString();
     }

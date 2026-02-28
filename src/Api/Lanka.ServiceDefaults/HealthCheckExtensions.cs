@@ -84,8 +84,9 @@ public static class HealthCheckExtensions
 
             if (!string.IsNullOrEmpty(realm))
             {
+                string keycloakBaseUrl = Authentication.JwtBearerConfigureOptions.GetKeycloakBaseUrl(builder.Configuration);
                 healthChecks.AddUrlGroup(
-                    new Uri($"http://lanka-identity/realms/{realm}"),
+                    new Uri($"{keycloakBaseUrl}/realms/{realm}"),
                     HttpMethod.Get,
                     "keycloak");
             }

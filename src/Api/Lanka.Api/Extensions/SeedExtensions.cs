@@ -6,6 +6,7 @@ using Lanka.Modules.Analytics.Infrastructure.Encryption;
 using Lanka.Modules.Campaigns.Infrastructure.Database.Seeders;
 using Lanka.Modules.Matching.Application.Abstractions.Search;
 using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Seeders;
+using Lanka.Modules.Matching.Infrastructure.Elasticsearch.Services;
 using Lanka.Modules.Users.Infrastructure.Database.Seeders;
 using MongoDB.Driver;
 using Serilog;
@@ -116,6 +117,11 @@ internal static class SeedExtensions
             // Seed Elasticsearch
             try
             {
+                // Ensure Elasticsearch index is created before seeding
+                // (hosted services haven't started yet at this point in startup)
+                ElasticSearchInitializationService esInitService = scope.ServiceProvider.GetRequiredService<ElasticSearchInitializationService>();
+                await esInitService.StartAsync(CancellationToken.None);
+
                 ISearchIndexService? searchIndexService = scope.ServiceProvider.GetService<ISearchIndexService>();
 
                 if (searchIndexService is null)

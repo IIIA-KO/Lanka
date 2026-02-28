@@ -18,7 +18,7 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("campaigns")
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -569,6 +569,30 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                             b1.Property<Guid>("BloggerId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
+
+                            b1.Property<string>("AudienceTopAgeGroup")
+                                .HasColumnType("text")
+                                .HasColumnName("instagram_metadata_audience_top_age_group");
+
+                            b1.Property<string>("AudienceTopCountry")
+                                .HasColumnType("text")
+                                .HasColumnName("instagram_metadata_audience_top_country");
+
+                            b1.Property<double?>("AudienceTopCountryPercentage")
+                                .HasColumnType("double precision")
+                                .HasColumnName("instagram_metadata_audience_top_country_percentage");
+
+                            b1.Property<string>("AudienceTopGender")
+                                .HasColumnType("text")
+                                .HasColumnName("instagram_metadata_audience_top_gender");
+
+                            b1.Property<double?>("AudienceTopGenderPercentage")
+                                .HasColumnType("double precision")
+                                .HasColumnName("instagram_metadata_audience_top_gender_percentage");
+
+                            b1.Property<double?>("EngagementRate")
+                                .HasColumnType("double precision")
+                                .HasColumnName("instagram_metadata_engagement_rate");
 
                             b1.Property<int?>("FollowersCount")
                                 .HasColumnType("integer")

@@ -7,7 +7,7 @@ using Lanka.Modules.Analytics.Domain.Tokens;
 
 namespace Lanka.Modules.Analytics.Domain.InstagramAccounts;
 
-public class InstagramAccount : Entity<InstagramAccountId>
+public class InstagramAccount : Entity<InstagramAccountId>, IChangeCaptured
 {
     public UserId UserId { get; private set; }
     
@@ -115,7 +115,7 @@ public class InstagramAccount : Entity<InstagramAccountId>
 
     public void Delete()
     {
-        this.RaiseDomainEvent(new InstagramAccountDeletedDomainEvent(this.Id, this.UserId));
+        // Intentionally empty — change capture is handled by the EF interceptor.
     }
 
     private static Result<(FacebookPageId, AdvertisementAccountId, Metadata)> Validate(

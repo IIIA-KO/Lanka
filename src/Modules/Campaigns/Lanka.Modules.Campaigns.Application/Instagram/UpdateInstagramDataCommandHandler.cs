@@ -31,7 +31,13 @@ internal sealed class UpdateInstagramDataCommandHandler : ICommandHandler<Update
         blogger.UpdateInstagramData(
             request.Username,
             request.FollowersCount,
-            request.MediaCount
+            request.MediaCount,
+            request.EngagementRate,
+            request.AudienceTopAgeGroup,
+            request.AudienceTopGender,
+            request.AudienceTopGenderPercentage,
+            request.AudienceTopCountry,
+            request.AudienceTopCountryPercentage
         );
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);

@@ -26,7 +26,7 @@
     "CAMPAIGNS": "Campaigns",
     "CAMPAIGN_DETAILS": "Campaign Details",
     "CREATE_CAMPAIGN": "Create Campaign",
-    "SEARCH": "Discover Bloggers",
+    "SEARCH": "Search",
     "PROFILE": "Profile",
     "SETTINGS": "Settings",
     "CALENDAR": "Calendar",
@@ -105,37 +105,68 @@
     "RIGHTS": "All rights reserved."
   },
   "SEARCH": {
-    "TITLE": "Discover Bloggers",
-    "SUBTITLE": "Find the perfect influencers for your brand",
-    "PLACEHOLDER": "Search by name, bio, location, niche...",
-    "FILTERS": {
-      "TITLE": "Filters",
-      "FOLLOWERS": "Followers: {{range}}",
-      "ENGAGEMENT": "Engagement Rate"
+    "TITLE": "Blogger Discovery",
+    "SUBTITLE": "Find the right influencers for your campaign",
+    "PLACEHOLDER": "Search bloggers by name, category...",
+    "HEADER_PLACEHOLDER": "Search...",
+    "TYPES": {
+      "ALL": "All",
+      "BLOGGER": "Bloggers",
+      "CAMPAIGN": "Campaigns",
+      "OFFER": "Offers"
     },
-    "ENGAGEMENT_OPTIONS": {
-      "ANY": "Any",
-      "LOW": "Low (<2%)",
-      "MEDIUM": "Medium (2-5%)",
-      "HIGH": "High (>5%)"
+    "FILTERS": {
+      "ALL": "All",
+      "TITLE": "Filters",
+      "CATEGORY": "Category",
+      "FOLLOWERS": "Followers",
+      "AUDIENCE_GENDER": "Audience Gender",
+      "AUDIENCE_AGE": "Audience Age",
+      "ENGAGEMENT_RATE": "Engagement Rate",
+      "AUDIENCE_COUNTRY": "Audience Country",
+      "TYPE": "Type",
+      "PRICE_RANGE": "Price Range",
+      "PRICE_MIN": "Min",
+      "PRICE_MAX": "Max",
+      "ACTIVE_ONLY": "Active Only"
+    },
+    "TABLE": {
+      "ACCOUNT": "Account",
+      "FOLLOWERS": "Followers",
+      "ER": "ER %",
+      "ER_HINT": "Engagement Rate — share of followers who actively interact with posts (likes + comments). Higher is better: 3.5%+ is high, 1.5–3.5% is average.",
+      "POSTS": "Posts",
+      "POSTS_HINT": "Total number of posts published on Instagram.",
+      "AUDIENCE_COUNTRY": "Top Country",
+      "AUDIENCE_COUNTRY_HINT": "Country with the largest share of this blogger's audience, with percentage shown.",
+      "AUDIENCE_GENDER": "Top Gender",
+      "AUDIENCE_GENDER_HINT": "Dominant gender among this blogger's audience, with percentage shown.",
+      "AUDIENCE_AGE": "Top Age",
+      "AUDIENCE_AGE_HINT": "Most common age group among this blogger's audience.",
+      "CATEGORY": "Category",
+      "CATEGORY_HINT": "Primary content category that this blogger focuses on."
     },
     "ACTIONS": {
+      "SEARCH": "Search",
       "TRY_AGAIN": "Try Again",
-      "CLEAR": "Clear Search"
+      "CLEAR": "Clear Search",
+      "CLEAR_FILTERS": "Clear Filters"
     },
     "EMPTY": {
       "START_TITLE": "Start Searching",
-      "START_COPY": "Search for bloggers by name, bio, location, or niche",
-      "NO_RESULTS_TITLE": "No Bloggers Found",
-      "NO_RESULTS_COPY": "No bloggers found for \"{{query}}\". Try different keywords or adjust filters."
+      "START_COPY": "Search for bloggers across the platform",
+      "NO_RESULTS_TITLE": "No Results Found",
+      "NO_RESULTS_COPY": "No bloggers found matching your filters. Try adjusting your criteria."
     },
     "RESULTS": {
-      "FOUND": "Found {{total}} bloggers",
-      "FOLLOWERS": "Followers",
-      "POSTS": "Posts",
-      "ENGAGEMENT": "Engagement",
-      "VIEW_PROFILE": "View Profile",
-      "PAGINATION": "Showing {first} to {last} of {totalRecords} bloggers"
+      "FOUND": "{{total}} bloggers found",
+      "VIEW_DETAILS": "View Details",
+      "PAGINATION": "Showing {first} to {last} of {totalRecords} bloggers",
+      "PREV": "Previous",
+      "NEXT": "Next"
+    },
+    "SIMILAR": {
+      "TITLE": "Similar bloggers you might like"
     }
   },
   "PROFILE": {

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { PactComponent } from './features/bloggers/pact/pact.component';
 import { CampaignsComponent } from './features/bloggers/campaigns/campaigns.component';
-import { SearchComponent } from './features/bloggers/search/search.component';
+import { SearchComponent } from './features/search/search.component';
 import { ProfileComponent } from './features/bloggers/profile/profile.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';

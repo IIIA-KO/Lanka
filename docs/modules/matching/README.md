@@ -71,12 +71,16 @@ graph TB
 - ✅ **Full-Text Search**: Multi-field search across title, content, and tags
 - ✅ **Fuzzy Search**: Configurable distance matching for typo tolerance
 - ✅ **Faceted Search**: Multi-dimensional filtering by type, date, metadata
-- ✅ **Numeric Filters**: Range-based filtering for numerical values
+- ✅ **Numeric Filters**: Range-based filtering (followers, engagement rate, price)
+- ✅ **Audience Filters**: Country, gender, and age group facet filters
 - ✅ **Date Range Filtering**: Time-based content filtering
 - ✅ **Search Highlighting**: Automatic highlighting of matching terms
 - ✅ **Pagination**: Efficient result pagination with configurable page sizes
-- ✅ **Similarity Search**: Find similar content based on existing items
+- ✅ **Similarity Search**: More Like This (MLT) query for content discovery
+- ✅ **Autocomplete Suggestions**: Prefix + wildcard title matching with debounce
+- ✅ **Self-Exclusion**: Exclude specific items from results (e.g., current user)
 - ✅ **Synonym Support**: Query expansion with synonyms
+- ✅ **Client-Side Sorting**: PrimeNG table sorting on numeric and text columns
 
 ### **📊 Document Management**
 - ✅ **Document Indexing**: `IndexDocumentCommand` - Add content to search index
@@ -182,7 +186,8 @@ public enum SearchableItemType
 
 ### **🔍 Search Queries**
 - ✅ `SearchDocumentsQuery` - Main search functionality with all advanced features
-- ✅ `SearchSimilarQuery` - Find similar content based on source item
+- ✅ `SearchSimilarQuery` - Find similar content based on source item (MLT)
+- ✅ `GetSearchSuggestionsQuery` - Autocomplete suggestions from indexed titles
 
 ### **🎯 Search Features**
 
@@ -194,15 +199,38 @@ public sealed record SearchDocumentsQuery(
     bool EnableSynonyms = true,                                     // Synonym expansion
     double FuzzyDistance = 0.8,                                     // Fuzzy matching threshold
     string? ItemTypes = null,                                       // Filter by content types
-    IDictionary<string, object>? NumericFilters = null,            // Numeric range filters
-    IDictionary<string, IReadOnlyCollection<string>>? FacetFilters = null, // Facet filters
+    double? PriceAmountMin = null,                                  // Price range filters
+    double? PriceAmountMax = null,
+    double? FollowersCountMin = null,                               // Follower count range
+    double? FollowersCountMax = null,
+    double? EngagementRateMin = null,                               // Engagement rate range
+    double? EngagementRateMax = null,
+    string? Category = null,                                        // Category facet filter
+    string? AudienceCountry = null,                                 // Top audience country
+    string? AudienceGender = null,                                  // Top audience gender
+    string? AudienceAgeGroup = null,                                // Top audience age group
     DateTimeOffset? CreatedAfter = null,                           // Date range start
     DateTimeOffset? CreatedBefore = null,                          // Date range end
     bool OnlyActive = true,                                        // Include only active content
     int Page = 1,                                                  // Pagination page
-    int Size = 20                                                  // Results per page
+    int Size = 20,                                                 // Results per page
+    Guid? ExcludeItemId = null                                     // Exclude specific item
 ) : ICachedQuery<SearchDocumentsResponse>;
 ```
+
+#### **Metadata Fields Used for Filtering**
+
+| Field | Filter Type | Description |
+|-------|-------------|-------------|
+| `metadata.FollowersCount` | Numeric range | Instagram follower count |
+| `metadata.EngagementRate` | Numeric range | Engagement rate percentage |
+| `metadata.PriceAmount` | Numeric range | Offer price |
+| `metadata.Category.keyword` | Facet (term) | Blogger category |
+| `metadata.AudienceTopCountry.keyword` | Facet (term) | Top audience country |
+| `metadata.AudienceTopGender.keyword` | Facet (term) | Top audience gender |
+| `metadata.AudienceTopAgeGroup.keyword` | Facet (term) | Top audience age group |
+| `metadata.InstagramUsername` | Display only | Instagram handle |
+| `metadata.MediaCount` | Display only | Number of posts |
 
 ---
 
@@ -212,12 +240,9 @@ public sealed record SearchDocumentsQuery(
 
 | Event | Source | Purpose |
 |-------|--------|---------|
-| `BloggerSearchSyncIntegrationEvent` | Campaigns | Sync blogger profiles for search |
-| `CampaignSearchSyncIntegrationEvent` | Campaigns | Index campaign data |
-| `ReviewSearchSyncIntegrationEvent` | Campaigns | Index review content |
-| `OfferSearchSyncIntegrationEvent` | Campaigns | Index service offerings |
-| `PactSearchSyncIntegrationEvent` | Campaigns | Index contract content |
-| `InstagramAccountSearchSyncIntegrationEvent` | Analytics | Sync Instagram account data |
+| `SearchSyncIntegrationEvent` | Campaigns, Analytics | Unified event for all entity changes (create/update/delete) |
+
+A single `SearchSyncIntegrationEvent` carries an `ItemType` field that identifies the entity kind (Blogger, Campaign, Offer, Pact, Review, InstagramAccount). The handler maps it to the appropriate `SearchableItemType` and delegates to `SearchSyncIntegrationEventService`.
 
 ### **📤 Published Events**
 *The Matching module is primarily a read-side projection and does not publish domain events. It only consumes events from other modules to maintain its search index.*
@@ -290,15 +315,80 @@ public sealed record SearchDocumentsQuery(
 
 ## 📊 **Data Flow**
 
-### **🔄 Document Indexing Flow**
-1. Other module publishes integration event (e.g., `CampaignSearchSyncIntegrationEvent`)
-2. Matching module consumes event via `IntegrationEventConsumer`
-3. Event handler processes data and creates `IndexDocumentCommand`
-4. `IndexDocumentCommandHandler` creates `SearchableDocument`
-5. Document indexed in Elasticsearch via `ElasticSearchIndexService`
-6. Document metadata stored in PostgreSQL for tracking
+### **🔄 How Elasticsearch Gets Updated (Change Data Capture)**
+
+Elasticsearch stays in sync with the source data automatically via a Change Data Capture (CDC) pipeline built on EF Core interceptors. No manual domain event raising is required — any entity marked with `IChangeCaptured` is tracked automatically.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Source Module (Campaigns / Analytics)                                │
+│                                                                      │
+│  1. Entity modified (create/update/delete)                           │
+│     │                                                                │
+│  2. DbContext.SaveChangesAsync() called                              │
+│     │                                                                │
+│  3. ChangeCaptureInterceptor detects IChangeCaptured entities        │
+│     ├─ Reads entity properties directly from ChangeTracker           │
+│     ├─ Extracts title, content, tags, metadata                       │
+│     └─ Creates OutboxMessage with EntityChangeCapturedDomainEvent     │
+│     │                                                                │
+│  4. InsertOutboxMessagesInterceptor runs (existing domain events)     │
+│     │                                                                │
+│  5. SaveChanges commits entity + outbox messages in one transaction   │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │  ProcessOutboxJob   │
+                    │  (Quartz, periodic) │
+                    └─────────┬──────────┘
+                              │
+                    ┌─────────▼──────────────────────────────┐
+                    │  EntityChangeCapturedDomainEventHandler  │
+                    │  Converts domain event →                │
+                    │  SearchSyncIntegrationEvent              │
+                    │  Publishes to IEventBus (RabbitMQ)       │
+                    └─────────┬──────────────────────────────┘
+                              │
+              ┌───────────────▼───────────────┐
+              │  Matching Module               │
+              │                                │
+              │  ProcessInboxJob picks up event │
+              │         │                      │
+              │  SearchSyncIntegrationHandler   │
+              │  Maps ItemType → SearchableItem │
+              │         │                      │
+              │  SearchSyncIntegrationService   │
+              │  ├─ Create → IndexDocument     │
+              │  ├─ Update → UpdateDocument    │
+              │  └─ Delete → RemoveDocument    │
+              │         │                      │
+              │  Elasticsearch updated         │
+              └────────────────────────────────┘
+```
+
+**Key files in the pipeline:**
+
+| Step | File | Layer |
+|------|------|-------|
+| Marker interface | `IChangeCaptured` | Common.Domain |
+| Base interceptor | `ChangeCaptureInterceptorBase` | Common.Infrastructure |
+| Campaigns interceptor | `CampaignsChangeCaptureInterceptor` | Campaigns.Infrastructure |
+| Analytics interceptor | `AnalyticsChangeCaptureInterceptor` | Analytics.Infrastructure |
+| Domain event | `EntityChangeCapturedDomainEvent` | Common.Domain |
+| Domain event handler | `EntityChangeCapturedDomainEventHandler` | Campaigns/Analytics.Application |
+| Integration event | `SearchSyncIntegrationEvent` | Common.IntegrationEvents |
+| Matching handler | `SearchSyncIntegrationEventHandler` | Matching.Presentation |
+| Index service | `SearchSyncIntegrationEventService` | Matching.Presentation |
+
+**Adding a new entity to search:**
+
+1. Add `IChangeCaptured` to the entity class
+2. Add a case to the module's `ChangeCaptureInterceptor` to extract search data
+3. Done — no domain events, no integration event subclasses, no per-entity handlers
 
 ### **🔍 Search Query Flow**
+
 1. User submits search via `SearchDocumentsQuery`
 2. `SearchDocumentsQueryHandler` validates and processes query
 3. Query converted to Elasticsearch DSL
@@ -306,15 +396,6 @@ public sealed record SearchDocumentsQuery(
 5. Results converted to domain objects
 6. Response cached for 3 minutes
 7. Structured results returned to client
-
-### **⚡ Real-time Sync Flow**
-1. Campaign module updates blogger profile
-2. `BloggerUpdatedDomainEvent` published
-3. `BloggerSearchSyncIntegrationEvent` published to message bus
-4. Matching module consumes event
-5. `UpdateSearchableDocumentContentCommand` executed
-6. Elasticsearch index updated in real-time
-7. Search results immediately reflect changes
 
 ---
 
@@ -337,9 +418,45 @@ public sealed record SearchDocumentsQuery(
 ## 📋 **API Endpoints**
 
 ### **Search Operations**
-- `GET /search` - Main search endpoint with all advanced features
-- `GET /search/similar` - Find similar content
-- `GET /search/suggestions` - Get search autocomplete suggestions
+
+#### `GET /search` — Full-text search with filters
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `q` | `string?` | `""` | Free-text search query |
+| `fuzzy` | `bool?` | `true` | Enable fuzzy matching |
+| `synonyms` | `bool?` | `true` | Enable synonym expansion |
+| `fuzzyDistance` | `double?` | `0.8` | Fuzzy distance threshold |
+| `itemTypes` | `string?` | — | Comma-separated item type IDs |
+| `followersMin` / `followersMax` | `double?` | — | Follower count range |
+| `engagementRateMin` / `engagementRateMax` | `double?` | — | Engagement rate range |
+| `category` | `string?` | — | Category facet filter |
+| `audienceCountry` | `string?` | — | Top audience country |
+| `audienceGender` | `string?` | — | Top audience gender |
+| `audienceAgeGroup` | `string?` | — | Top audience age group |
+| `createdAfter` / `createdBefore` | `DateTimeOffset?` | — | Date range |
+| `onlyActive` | `bool?` | `true` | Active documents only |
+| `excludeItemId` | `Guid?` | — | Exclude specific item from results |
+| `page` / `size` | `int?` | `1` / `20` | Pagination |
+
+#### `GET /search/suggestions` — Autocomplete suggestions
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `q` | `string` | (required) | Partial query text (min 2 chars) |
+| `itemType` | `int?` | — | Filter by item type |
+| `limit` | `int?` | `10` | Max suggestions |
+
+Returns `string[]` of matching document titles via prefix + wildcard queries.
+
+#### `GET /search/similar/{sourceItemId:guid}` — More Like This
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sourceItemId` | `Guid` | (route) | Source item to find similar items for |
+| `sourceType` | `SearchableItemType` | (required) | Type of the source item |
+| `itemTypes` | `string?` | — | Filter result types |
+| `onlyActive` | `bool?` | `true` | Active only |
+| `page` / `size` | `int?` | `1` / `20` | Pagination |
+
+Uses Elasticsearch MLT query on `title`, `content`, and `tags` fields with `MinimumShouldMatch = 30%` and ICU analyzer.
 
 ### **Document Management** *(Internal APIs)*
 - `POST /documents/index` - Index new document

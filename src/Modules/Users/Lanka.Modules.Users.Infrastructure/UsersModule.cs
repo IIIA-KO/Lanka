@@ -129,9 +129,11 @@ public static class UsersModule
                 return;
             }
 
-            options.BaseUrl = "http://lanka-identity";
-            options.AdminUrl = $"http://lanka-identity/admin/realms/{options.Realm}";
-            options.TokenUrl = $"http://lanka-identity/realms/{options.Realm}/protocol/openid-connect/token";
+            string keycloakBaseUrl = configuration["services:lanka-identity:http:0"]
+                                    ?? $"http://{"lanka-identity"}";
+            options.BaseUrl = keycloakBaseUrl;
+            options.AdminUrl = $"{keycloakBaseUrl}/admin/realms/{options.Realm}";
+            options.TokenUrl = $"{keycloakBaseUrl}/realms/{options.Realm}/protocol/openid-connect/token";
         });
 
         services.AddTransient<KeycloakAuthDelegatingHandler>();
