@@ -66,13 +66,8 @@ For a diploma project, this serves two purposes: it helps me remember *why* I ma
 - **Data & Persistence**: [014](014-mongodb-adoption-analytics.md), [011](011-messagins-with-outbox&inbox.md), [016](016-change-data-capture.md)
 - **Communication**: [008](008-event-driven-architecture.md), [011](011-messagins-with-outbox&inbox.md), [012](012-reverse-proxy.md)
 - **Orchestration**: [015](015-aspire-adoption.md)
+- **Search & Discovery**: [016](016-change-data-capture.md)
 - **Development Patterns**: [002](002-technology-stack.md), [005](005-cqrs-implementation.md), [006](006-mediatr-pipelines.md)
-
-### Most Recent
-
-1. [016](016-change-data-capture.md) — Change Data Capture for Elasticsearch
-2. [015](015-aspire-adoption.md) — .NET Aspire Adoption
-3. [014](014-mongodb-adoption-analytics.md) — MongoDB for Analytics
 
 ---
 
@@ -137,18 +132,6 @@ Any specific guidance for implementing this decision.
 
 - Links to relevant resources
 ```
-
----
-
-## Statistics
-
-| Metric | Count |
-|--------|-------|
-| **Total ADRs** | 16 |
-| **Accepted** | 16 |
-| **High Impact** | 3 |
-| **Medium Impact** | 8 |
-| **Low Impact** | 5 |
 
 ---
 

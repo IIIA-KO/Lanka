@@ -71,12 +71,16 @@ graph TB
 - ✅ **Full-Text Search**: Multi-field search across title, content, and tags
 - ✅ **Fuzzy Search**: Configurable distance matching for typo tolerance
 - ✅ **Faceted Search**: Multi-dimensional filtering by type, date, metadata
-- ✅ **Numeric Filters**: Range-based filtering for numerical values
+- ✅ **Numeric Filters**: Range-based filtering (followers, engagement rate, price)
+- ✅ **Audience Filters**: Country, gender, and age group facet filters
 - ✅ **Date Range Filtering**: Time-based content filtering
 - ✅ **Search Highlighting**: Automatic highlighting of matching terms
 - ✅ **Pagination**: Efficient result pagination with configurable page sizes
-- ✅ **Similarity Search**: Find similar content based on existing items
+- ✅ **Similarity Search**: More Like This (MLT) query for content discovery
+- ✅ **Autocomplete Suggestions**: Prefix + wildcard title matching with debounce
+- ✅ **Self-Exclusion**: Exclude specific items from results (e.g., current user)
 - ✅ **Synonym Support**: Query expansion with synonyms
+- ✅ **Client-Side Sorting**: PrimeNG table sorting on numeric and text columns
 
 ### **📊 Document Management**
 - ✅ **Document Indexing**: `IndexDocumentCommand` - Add content to search index
@@ -182,7 +186,8 @@ public enum SearchableItemType
 
 ### **🔍 Search Queries**
 - ✅ `SearchDocumentsQuery` - Main search functionality with all advanced features
-- ✅ `SearchSimilarQuery` - Find similar content based on source item
+- ✅ `SearchSimilarQuery` - Find similar content based on source item (MLT)
+- ✅ `GetSearchSuggestionsQuery` - Autocomplete suggestions from indexed titles
 
 ### **🎯 Search Features**
 
@@ -194,15 +199,38 @@ public sealed record SearchDocumentsQuery(
     bool EnableSynonyms = true,                                     // Synonym expansion
     double FuzzyDistance = 0.8,                                     // Fuzzy matching threshold
     string? ItemTypes = null,                                       // Filter by content types
-    IDictionary<string, object>? NumericFilters = null,            // Numeric range filters
-    IDictionary<string, IReadOnlyCollection<string>>? FacetFilters = null, // Facet filters
+    double? PriceAmountMin = null,                                  // Price range filters
+    double? PriceAmountMax = null,
+    double? FollowersCountMin = null,                               // Follower count range
+    double? FollowersCountMax = null,
+    double? EngagementRateMin = null,                               // Engagement rate range
+    double? EngagementRateMax = null,
+    string? Category = null,                                        // Category facet filter
+    string? AudienceCountry = null,                                 // Top audience country
+    string? AudienceGender = null,                                  // Top audience gender
+    string? AudienceAgeGroup = null,                                // Top audience age group
     DateTimeOffset? CreatedAfter = null,                           // Date range start
     DateTimeOffset? CreatedBefore = null,                          // Date range end
     bool OnlyActive = true,                                        // Include only active content
     int Page = 1,                                                  // Pagination page
-    int Size = 20                                                  // Results per page
+    int Size = 20,                                                 // Results per page
+    Guid? ExcludeItemId = null                                     // Exclude specific item
 ) : ICachedQuery<SearchDocumentsResponse>;
 ```
+
+#### **Metadata Fields Used for Filtering**
+
+| Field | Filter Type | Description |
+|-------|-------------|-------------|
+| `metadata.FollowersCount` | Numeric range | Instagram follower count |
+| `metadata.EngagementRate` | Numeric range | Engagement rate percentage |
+| `metadata.PriceAmount` | Numeric range | Offer price |
+| `metadata.Category.keyword` | Facet (term) | Blogger category |
+| `metadata.AudienceTopCountry.keyword` | Facet (term) | Top audience country |
+| `metadata.AudienceTopGender.keyword` | Facet (term) | Top audience gender |
+| `metadata.AudienceTopAgeGroup.keyword` | Facet (term) | Top audience age group |
+| `metadata.InstagramUsername` | Display only | Instagram handle |
+| `metadata.MediaCount` | Display only | Number of posts |
 
 ---
 
@@ -390,9 +418,45 @@ Elasticsearch stays in sync with the source data automatically via a Change Data
 ## 📋 **API Endpoints**
 
 ### **Search Operations**
-- `GET /search` - Main search endpoint with all advanced features
-- `GET /search/similar` - Find similar content
-- `GET /search/suggestions` - Get search autocomplete suggestions
+
+#### `GET /search` — Full-text search with filters
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `q` | `string?` | `""` | Free-text search query |
+| `fuzzy` | `bool?` | `true` | Enable fuzzy matching |
+| `synonyms` | `bool?` | `true` | Enable synonym expansion |
+| `fuzzyDistance` | `double?` | `0.8` | Fuzzy distance threshold |
+| `itemTypes` | `string?` | — | Comma-separated item type IDs |
+| `followersMin` / `followersMax` | `double?` | — | Follower count range |
+| `engagementRateMin` / `engagementRateMax` | `double?` | — | Engagement rate range |
+| `category` | `string?` | — | Category facet filter |
+| `audienceCountry` | `string?` | — | Top audience country |
+| `audienceGender` | `string?` | — | Top audience gender |
+| `audienceAgeGroup` | `string?` | — | Top audience age group |
+| `createdAfter` / `createdBefore` | `DateTimeOffset?` | — | Date range |
+| `onlyActive` | `bool?` | `true` | Active documents only |
+| `excludeItemId` | `Guid?` | — | Exclude specific item from results |
+| `page` / `size` | `int?` | `1` / `20` | Pagination |
+
+#### `GET /search/suggestions` — Autocomplete suggestions
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `q` | `string` | (required) | Partial query text (min 2 chars) |
+| `itemType` | `int?` | — | Filter by item type |
+| `limit` | `int?` | `10` | Max suggestions |
+
+Returns `string[]` of matching document titles via prefix + wildcard queries.
+
+#### `GET /search/similar/{sourceItemId:guid}` — More Like This
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sourceItemId` | `Guid` | (route) | Source item to find similar items for |
+| `sourceType` | `SearchableItemType` | (required) | Type of the source item |
+| `itemTypes` | `string?` | — | Filter result types |
+| `onlyActive` | `bool?` | `true` | Active only |
+| `page` / `size` | `int?` | `1` / `20` | Pagination |
+
+Uses Elasticsearch MLT query on `title`, `content`, and `tags` fields with `MinimumShouldMatch = 30%` and ICU analyzer.
 
 ### **Document Management** *(Internal APIs)*
 - `POST /documents/index` - Index new document
