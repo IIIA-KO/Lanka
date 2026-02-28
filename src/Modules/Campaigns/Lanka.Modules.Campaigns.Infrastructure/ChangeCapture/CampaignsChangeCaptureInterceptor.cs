@@ -26,6 +26,13 @@ internal sealed class CampaignsChangeCaptureInterceptor : ChangeCaptureIntercept
                     { "Category", b.Category.Name },
                     { "InstagramUsername", b.InstagramMetadata.Username ?? string.Empty },
                     { "FollowersCount", b.InstagramMetadata.FollowersCount ?? 0 },
+                    { "MediaCount", b.InstagramMetadata.MediaCount ?? 0 },
+                    { "EngagementRate", b.InstagramMetadata.EngagementRate ?? 0.0 },
+                    { "AudienceTopAgeGroup", b.InstagramMetadata.AudienceTopAgeGroup ?? string.Empty },
+                    { "AudienceTopGender", b.InstagramMetadata.AudienceTopGender ?? string.Empty },
+                    { "AudienceTopGenderPercentage", b.InstagramMetadata.AudienceTopGenderPercentage ?? 0.0 },
+                    { "AudienceTopCountry", b.InstagramMetadata.AudienceTopCountry ?? string.Empty },
+                    { "AudienceTopCountryPercentage", b.InstagramMetadata.AudienceTopCountryPercentage ?? 0.0 },
                 }),
 
             Campaign c => new CapturedChangeData(

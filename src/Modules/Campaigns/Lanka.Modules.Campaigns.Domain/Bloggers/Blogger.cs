@@ -119,9 +119,21 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
         // Intentionally empty — change capture is handled by the EF interceptor.
     }
 
-    public void UpdateInstagramData(string? username, int? followersCount, int? mediaCount)
+    public void UpdateInstagramData(
+        string? username,
+        int? followersCount,
+        int? mediaCount,
+        double? engagementRate = null,
+        string? audienceTopAgeGroup = null,
+        string? audienceTopGender = null,
+        double? audienceTopGenderPercentage = null,
+        string? audienceTopCountry = null,
+        double? audienceTopCountryPercentage = null)
     {
-        this.InstagramMetadata = new InstagramMetadata(username, followersCount, mediaCount);
+        this.InstagramMetadata = new InstagramMetadata(
+            username, followersCount, mediaCount,
+            engagementRate, audienceTopAgeGroup, audienceTopGender,
+            audienceTopGenderPercentage, audienceTopCountry, audienceTopCountryPercentage);
     }
 
     private static Result<(FirstName, LastName, BirthDate, Bio, Category)> Validate(

@@ -27,7 +27,13 @@ internal sealed class InstagramAccountDataRenewedIntegrationEventHandler
                 integrationEvent.UserId,
                 integrationEvent.Username,
                 integrationEvent.FollowersCount,
-                integrationEvent.MediaCount
+                integrationEvent.MediaCount,
+                integrationEvent.EngagementRate,
+                integrationEvent.AudienceTopAgeGroup,
+                integrationEvent.AudienceTopGender,
+                integrationEvent.AudienceTopGenderPercentage,
+                integrationEvent.AudienceTopCountry,
+                integrationEvent.AudienceTopCountryPercentage
             ),
             cancellationToken
         );

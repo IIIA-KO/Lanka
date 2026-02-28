@@ -10,17 +10,50 @@ public static class BloggerSeeder
 {
     private static readonly string[] _categories =
     [
-        "Fashion and Style",
+        "Animals",
+        "Art",
+        "Automobiles",
+        "Clothing and Footwear",
+        "Comedy",
         "Cooking and Food",
-        "Technology",
-        "Travel",
+        "Cryptocurrency",
+        "DIY and Crafts",
+        "Education",
+        "Entrepreneurship",
+        "Environment",
+        "Fashion and Style",
+        "Finance",
         "Fitness",
         "Gaming",
+        "Health and Wellness",
+        "History",
+        "Home Decor",
+        "Horticulture",
+        "Legal Advice",
+        "Literature",
+        "Marketing",
+        "Mental Health",
+        "Movies and TV",
         "Music",
-        "Art",
+        "News",
+        "Parenting",
+        "Personal Development",
         "Photography",
-        "Sports"
+        "Politics",
+        "Real Estate",
+        "Relationships",
+        "Religion and Spirituality",
+        "Science",
+        "Self Improvement",
+        "Social Media",
+        "Sports",
+        "Technology",
+        "Travel"
     ];
+
+    private static readonly string[] _ageGroups = ["13-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
+    private static readonly string[] _genders = ["Male", "Female"];
+    private static readonly string[] _countries = ["US", "GB", "UA", "DE", "FR", "BR", "IN", "CA", "AU", "JP"];
 
     public static async Task<(List<Guid> Ids, List<BloggerSeedData> Data)> SeedAsync(
         IDbConnection connection,
@@ -132,6 +165,12 @@ public static class BloggerSeeder
                                instagram_metadata_username AS InstagramMetadataUsername,
                                instagram_metadata_followers_count AS InstagramMetadataFollowersCount,
                                instagram_metadata_media_count AS InstagramMetadataMediaCount,
+                               instagram_metadata_engagement_rate AS InstagramMetadataEngagementRate,
+                               instagram_metadata_audience_top_age_group AS InstagramMetadataAudienceTopAgeGroup,
+                               instagram_metadata_audience_top_gender AS InstagramMetadataAudienceTopGender,
+                               instagram_metadata_audience_top_gender_percentage AS InstagramMetadataAudienceTopGenderPercentage,
+                               instagram_metadata_audience_top_country AS InstagramMetadataAudienceTopCountry,
+                               instagram_metadata_audience_top_country_percentage AS InstagramMetadataAudienceTopCountryPercentage,
                                profile_photo_id AS ProfilePhotoId,
                                profile_photo_uri AS ProfilePhotoUri
                            FROM campaigns.bloggers
@@ -213,6 +252,24 @@ public static class BloggerSeeder
                 InstagramMetadataUsername = igAccount?.MetadataUserName,
                 InstagramMetadataFollowersCount = igAccount?.MetadataFollowersCount,
                 InstagramMetadataMediaCount = igAccount?.MetadataMediaCount,
+                InstagramMetadataEngagementRate = igAccount is not null
+                    ? Math.Round(faker.Random.Double(0.5, 8.0), 2)
+                    : null,
+                InstagramMetadataAudienceTopAgeGroup = igAccount is not null
+                    ? faker.PickRandom(_ageGroups)
+                    : null,
+                InstagramMetadataAudienceTopGender = igAccount is not null
+                    ? faker.PickRandom(_genders)
+                    : null,
+                InstagramMetadataAudienceTopGenderPercentage = igAccount is not null
+                    ? Math.Round(faker.Random.Double(40.0, 85.0), 1)
+                    : null,
+                InstagramMetadataAudienceTopCountry = igAccount is not null
+                    ? faker.PickRandom(_countries)
+                    : null,
+                InstagramMetadataAudienceTopCountryPercentage = igAccount is not null
+                    ? Math.Round(faker.Random.Double(15.0, 60.0), 1)
+                    : null,
                 ProfilePhotoId = null,
                 ProfilePhotoUri = null
             });
@@ -231,10 +288,18 @@ public static class BloggerSeeder
                            INSERT INTO campaigns.bloggers
                                (id, first_name, last_name, email, birth_date, bio, category_name,
                                 instagram_metadata_username, instagram_metadata_followers_count, instagram_metadata_media_count,
+                                instagram_metadata_engagement_rate,
+                                instagram_metadata_audience_top_age_group, instagram_metadata_audience_top_gender,
+                                instagram_metadata_audience_top_gender_percentage,
+                                instagram_metadata_audience_top_country, instagram_metadata_audience_top_country_percentage,
                                 profile_photo_id, profile_photo_uri)
                            VALUES
                                (@Id, @FirstName, @LastName, @Email, @BirthDate, @Bio, @CategoryName,
                                 @InstagramMetadataUsername, @InstagramMetadataFollowersCount, @InstagramMetadataMediaCount,
+                                @InstagramMetadataEngagementRate,
+                                @InstagramMetadataAudienceTopAgeGroup, @InstagramMetadataAudienceTopGender,
+                                @InstagramMetadataAudienceTopGenderPercentage,
+                                @InstagramMetadataAudienceTopCountry, @InstagramMetadataAudienceTopCountryPercentage,
                                 @ProfilePhotoId, @ProfilePhotoUri)
                            """;
 
