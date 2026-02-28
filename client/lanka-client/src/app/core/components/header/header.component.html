@@ -5,6 +5,16 @@
             <img src="/logo/lanka-logo-green.svg" [alt]="'COMMON.APP_NAME' | translate" class="logo" />
           </a>
         </div>
+
+        <div class="search-wrapper hidden md:block">
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input type="text" pInputText [(ngModel)]="headerSearchQuery"
+                    [placeholder]="'SEARCH.HEADER_PLACEHOLDER' | translate"
+                    class="search-input"
+                    (keydown.enter)="onHeaderSearch()" />
+            </span>
+        </div>
     </div>
 
     <div class="header-right">

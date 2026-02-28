@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd, ActivatedRoute, RouterLink } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -20,6 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     AvatarModule,
     MenuModule,
     InputTextModule,
@@ -34,6 +36,7 @@ export class HeaderComponent implements OnInit {
   public pageTitle$: Observable<string>;
   public profile$: Observable<IBloggerProfile>;
   public userMenuItems: MenuItem[] = [];
+  public headerSearchQuery = '';
 
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
@@ -79,6 +82,14 @@ export class HeaderComponent implements OnInit {
     }
 
     return this.translate.instant('COMMON.BLOGGER');
+  }
+
+  public onHeaderSearch(): void {
+    const query = this.headerSearchQuery.trim();
+    if (query) {
+      this.router.navigate(['/search'], { queryParams: { q: query } });
+      this.headerSearchQuery = '';
+    }
   }
 
   private buildMenuItems(): void {

@@ -1,32 +1,23 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
-import { SearchAgent, ISearchRequest, ISearchResponse, ISimilarSearchRequest, ISearchSuggestionsRequest } from '../../api/search.agent';
+import { BehaviorSubject, Observable, Subscription, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+import { SearchAgent, ISearchRequest, ISearchResponse, ISearchResult, ISimilarSearchRequest, ISearchSuggestionsRequest } from '../../api/search.agent';
 
-export interface ISearchFilters {
-  type?: string;
-  dateRange?: {
-    from: Date;
-    to: Date;
-  };
-  priceRange?: {
-    min: number;
-    max: number;
-  };
-  rating?: number;
-  // Blogger-specific filters
-  minFollowers?: number;
-  maxFollowers?: number;
-  engagementRate?: string; // 'low' | 'medium' | 'high'
-  location?: string;
-  niches?: string[];
+export interface IBloggerFilters {
+  category?: string;
+  followersMin?: number;
+  followersMax?: number;
+  engagementRateMin?: number;
+  engagementRateMax?: number;
+  audienceCountry?: string;
+  audienceGender?: string;
+  audienceAgeGroup?: string;
 }
 
 export interface ISearchState {
   query: string;
   page: number;
   size: number;
-  sort: string;
-  filters: ISearchFilters;
+  filters: IBloggerFilters;
   results: ISearchResponse | null;
   loading: boolean;
   error: string | null;
@@ -37,75 +28,79 @@ export interface ISearchState {
 })
 export class SearchService {
   public readonly searchState$;
-  public readonly searchResults$;
   public readonly suggestions$;
 
   private readonly searchAgent = inject(SearchAgent);
   private readonly searchStateSubject = new BehaviorSubject<ISearchState>({
     query: '',
     page: 1,
-    size: 10,
-    sort: 'relevance',
+    size: 20,
     filters: {},
     results: null,
     loading: false,
     error: null,
   });
 
+  private searchSubscription: Subscription | null = null;
+  private excludeItemId?: string;
+
   constructor() {
     this.searchState$ = this.searchStateSubject.asObservable();
 
-    this.searchResults$ = this.searchState$.pipe(
-      switchMap(state => {
-        if (!state.query.trim()) {
-          return of(null);
-        }
-        return this.performSearch(state);
-      })
-    );
-
     this.suggestions$ = this.searchState$.pipe(
+      map(state => state.query),
       debounceTime(300),
-      distinctUntilChanged((prev, curr) => prev.query === curr.query),
-      switchMap(state => {
-        if (!state.query.trim() || state.query.length < 2) {
+      distinctUntilChanged(),
+      switchMap(query => {
+        if (!query.trim() || query.length < 2) {
           return of([]);
         }
-        return this.getSuggestions(state.query);
+        return this.searchAgent.getSearchSuggestions({ query, limit: 10 });
       })
     );
   }
 
   public search(query: string): void {
-    this.updateSearchState({ query, page: 1 });
+    this.updateState({ query, page: 1 });
+    this.executeSearch();
   }
 
   public setPage(page: number): void {
-    this.updateSearchState({ page });
+    this.updateState({ page });
+    this.executeSearch();
   }
 
   public setPageSize(size: number): void {
-    this.updateSearchState({ size, page: 1 });
+    this.updateState({ size, page: 1 });
+    this.executeSearch();
   }
 
-  public setSort(sort: string): void {
-    this.updateSearchState({ sort, page: 1 });
+  public setFilters(filters: IBloggerFilters): void {
+    this.updateState({ filters, page: 1 });
+    this.executeSearch();
   }
 
-  public setFilters(filters: ISearchFilters): void {
-    this.updateSearchState({ filters, page: 1 });
+  public setExcludeId(id: string): void {
+    this.excludeItemId = id;
+  }
+
+  public browse(): void {
+    this.executeSearch();
   }
 
   public clearSearch(): void {
-    this.updateSearchState({
+    this.searchSubscription?.unsubscribe();
+    this.updateState({
       query: '',
       page: 1,
+      filters: {},
       results: null,
+      loading: false,
       error: null,
     });
   }
 
-  public searchSimilar(sourceItemId: string, sourceType: string, limit = 5): Observable<unknown[]> {
+  public searchSimilar(sourceItemId: string, sourceType: string, limit = 5): Observable<ISearchResult[]> {
     const request: ISimilarSearchRequest = {
       sourceItemId,
       sourceType,
@@ -124,74 +119,40 @@ export class SearchService {
     return this.searchAgent.getSearchSuggestions(request);
   }
 
-  private performSearch(state: ISearchState): Observable<ISearchResponse | null> {
-    if (!state.query.trim()) {
-      return of(null);
-    }
+  private executeSearch(): void {
+    const state = this.searchStateSubject.value;
 
-    this.updateSearchState({ loading: true, error: null });
+    this.updateState({ loading: true, error: null });
+    this.searchSubscription?.unsubscribe();
 
     const request: ISearchRequest = {
-      q: state.query,
+      q: state.query.trim() || undefined,
       page: state.page,
       size: state.size,
-      sort: state.sort,
-      filters: this.buildFilters(state.filters),
+      itemTypes: '1', // Blogger type only
+      onlyActive: true,
+      followersMin: state.filters.followersMin,
+      followersMax: state.filters.followersMax,
+      engagementRateMin: state.filters.engagementRateMin,
+      engagementRateMax: state.filters.engagementRateMax,
+      category: state.filters.category,
+      audienceCountry: state.filters.audienceCountry,
+      audienceGender: state.filters.audienceGender,
+      audienceAgeGroup: state.filters.audienceAgeGroup,
+      excludeItemId: this.excludeItemId,
     };
 
-    return this.searchAgent.searchDocuments(request);
+    this.searchSubscription = this.searchAgent.searchDocuments(request).subscribe({
+      next: (response) => {
+        this.updateState({ results: response, loading: false });
+      },
+      error: (error) => {
+        this.updateState({ loading: false, error: error?.message || 'Search failed' });
+      },
+    });
   }
 
-  private getSuggestions(query: string): Observable<string[]> {
-    return this.searchAgent.getSearchSuggestions({ query, limit: 10 });
-  }
-
-  private buildFilters(filters: ISearchFilters): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
-
-    if (filters.type) {
-      result['type'] = filters.type;
-    }
-
-    if (filters.dateRange) {
-      result['dateFrom'] = filters.dateRange.from.toISOString();
-      result['dateTo'] = filters.dateRange.to.toISOString();
-    }
-
-    if (filters.priceRange) {
-      result['priceMin'] = filters.priceRange.min;
-      result['priceMax'] = filters.priceRange.max;
-    }
-
-    if (filters.rating !== undefined) {
-      result['rating'] = filters.rating;
-    }
-
-    // Blogger-specific filters
-    if (filters.minFollowers !== undefined) {
-      result['minFollowers'] = filters.minFollowers;
-    }
-
-    if (filters.maxFollowers !== undefined) {
-      result['maxFollowers'] = filters.maxFollowers;
-    }
-
-    if (filters.engagementRate) {
-      result['engagementRate'] = filters.engagementRate;
-    }
-
-    if (filters.location) {
-      result['location'] = filters.location;
-    }
-
-    if (filters.niches && filters.niches.length > 0) {
-      result['niches'] = filters.niches.join(',');
-    }
-
-    return result;
-  }
-
-  private updateSearchState(updates: Partial<ISearchState>): void {
+  private updateState(updates: Partial<ISearchState>): void {
     const currentState = this.searchStateSubject.value;
     this.searchStateSubject.next({ ...currentState, ...updates });
   }

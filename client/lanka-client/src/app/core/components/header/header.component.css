@@ -44,15 +44,19 @@
 
 .p-input-icon-left {
   width: 100%;
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
 }
 
 .p-input-icon-left > i {
+  position: absolute;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  margin-top: 0;
-  left: 1rem;
+  z-index: 1;
+  color: var(--p-text-color-secondary);
+  pointer-events: none;
 }
 
 .search-input {

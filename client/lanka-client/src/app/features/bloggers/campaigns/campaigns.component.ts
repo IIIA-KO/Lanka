@@ -231,7 +231,7 @@ export class CampaignsComponent implements OnInit {
     const updatedAt = this.extractIsoString(metadata['updatedAt']) ?? new Date().toISOString();
 
     return {
-      id: result.id,
+      id: result.itemId,
       name: result.title ?? 'Untitled Campaign',
       description: result.content ?? '',
       status,
