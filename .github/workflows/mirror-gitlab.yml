@@ -22,7 +22,8 @@ jobs:
 
       - name: Push to GitLab
         run: |
-          git remote remove gitlab || true
-          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@${GITLAB_REPO}
+          REPO="${GITLAB_REPO#https://}"
+          git remote remove gitlab 2>/dev/null || true
+          git remote add gitlab "https://oauth2:${GITLAB_TOKEN}@${REPO}"
           git push gitlab --all
           git push gitlab --tags
