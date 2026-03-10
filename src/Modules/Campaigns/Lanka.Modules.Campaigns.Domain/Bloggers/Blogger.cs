@@ -114,11 +114,6 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
         return Result.Success();
     }
 
-    public void Delete()
-    {
-        // Intentionally empty — change capture is handled by the EF interceptor.
-    }
-
     public void UpdateInstagramData(
         string? username,
         int? followersCount,
@@ -128,7 +123,8 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
         string? audienceTopGender = null,
         double? audienceTopGenderPercentage = null,
         string? audienceTopCountry = null,
-        double? audienceTopCountryPercentage = null)
+        double? audienceTopCountryPercentage = null
+    )
     {
         this.InstagramMetadata = new InstagramMetadata(
             username, followersCount, mediaCount,

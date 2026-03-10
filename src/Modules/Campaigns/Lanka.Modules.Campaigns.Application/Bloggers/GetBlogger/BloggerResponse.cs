@@ -28,6 +28,18 @@ public sealed class BloggerResponse
 
     public string Category { get; init; }
 
+    public double? EngagementRate { get; init; }
+
+    public string? AudienceTopAgeGroup { get; init; }
+
+    public string? AudienceTopGender { get; init; }
+
+    public double? AudienceTopGenderPercentage { get; init; }
+
+    public string? AudienceTopCountry { get; init; }
+
+    public double? AudienceTopCountryPercentage { get; init; }
+
     public static BloggerResponse FromBlogger(Blogger blogger)
     {
         return new BloggerResponse
@@ -43,7 +55,13 @@ public sealed class BloggerResponse
             InstagramUsername = blogger.InstagramMetadata.Username,
             InstagramFollowersCount = blogger.InstagramMetadata.FollowersCount,
             InstagramMediaCount = blogger.InstagramMetadata.MediaCount,
-            Category = blogger.Category.Name
+            Category = blogger.Category.Name,
+            EngagementRate = blogger.InstagramMetadata.EngagementRate,
+            AudienceTopAgeGroup = blogger.InstagramMetadata.AudienceTopAgeGroup,
+            AudienceTopGender = blogger.InstagramMetadata.AudienceTopGender,
+            AudienceTopGenderPercentage = blogger.InstagramMetadata.AudienceTopGenderPercentage,
+            AudienceTopCountry = blogger.InstagramMetadata.AudienceTopCountry,
+            AudienceTopCountryPercentage = blogger.InstagramMetadata.AudienceTopCountryPercentage
         };
     }
 }

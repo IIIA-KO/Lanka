@@ -65,11 +65,6 @@ public sealed class Pact : Entity<PactId>, IChangeCaptured
         return Result.Success();
     }
 
-    public void Delete()
-    {
-        // Intentionally empty — change capture is handled by the EF interceptor.
-    }
-
     private static Result<Content> Validate(string content)
     {
         Result<Content> contentResult = Content.Create(content);

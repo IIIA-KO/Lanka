@@ -10,15 +10,15 @@ internal sealed class GetGenderDistributionQueryHandler
     : IQueryHandler<GetGenderDistributionQuery, GenderDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
-    private readonly IInstagramAudienceService _instagramAudienceService;
+    private readonly IInstagramServiceFactory<IInstagramAudienceService> _instagramAudienceServiceFactory;
 
     public GetGenderDistributionQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
-        IInstagramAudienceService instagramAudienceService
+        IInstagramServiceFactory<IInstagramAudienceService> instagramAudienceServiceFactory
     )
     {
         this._instagramAccountRepository = instagramAccountRepository;
-        this._instagramAudienceService = instagramAudienceService;
+        this._instagramAudienceServiceFactory = instagramAudienceServiceFactory;
     }
 
     public async Task<Result<GenderDistributionResponse>> Handle(
@@ -36,7 +36,10 @@ internal sealed class GetGenderDistributionQueryHandler
             return Result.Failure<GenderDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        Result<GenderDistribution> result = await this._instagramAudienceService.GetAudienceGenderPercentage(
+        IInstagramAudienceService audienceService = this._instagramAudienceServiceFactory
+            .GetService(account.Email.Value);
+
+        Result<GenderDistribution> result = await audienceService.GetAudienceGenderPercentage(
             account,
             cancellationToken
         );

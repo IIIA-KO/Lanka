@@ -108,9 +108,4 @@ public class Offer : Entity<OfferId>, IChangeCaptured
     {
         this.LastCooperatedOnUtc = utcNow;
     }
-    
-    public void Delete()
-    {
-        // Intentionally empty — change capture is handled by the EF interceptor.
-    }
 }

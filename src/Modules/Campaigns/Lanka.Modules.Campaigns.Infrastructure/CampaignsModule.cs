@@ -59,6 +59,10 @@ public static class CampaignsModule
         registrationConfigurator
             .AddConsumer<IntegrationEventConsumer<InstagramAccountDataRenewedIntegrationEvent>>()
             .Endpoint(configuration => configuration.InstanceId = instanceId);
+
+        registrationConfigurator
+            .AddConsumer<IntegrationEventConsumer<InstagramAccountDataFetchedIntegrationEvent>>()
+            .Endpoint(configuration => configuration.InstanceId = instanceId);
     }
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)

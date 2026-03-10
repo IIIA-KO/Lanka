@@ -208,7 +208,7 @@ public static class OfferSeeder
                     PactId = pactId,
                     Name = offerName,
                     Description = faker.Lorem.Sentence(8),
-                    PriceAmount = faker.Random.Decimal(50, 5000),
+                    PriceAmount = Math.Round(faker.Random.Decimal(50, 5000), 2),
                     PriceCurrency = faker.PickRandom(_currencies),
                     LastCooperatedOnUtc = lastCooperatedOnUtc,
                     BloggerId = pactBlogger.BloggerId,

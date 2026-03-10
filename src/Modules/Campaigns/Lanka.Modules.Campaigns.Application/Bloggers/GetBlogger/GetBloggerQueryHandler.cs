@@ -34,7 +34,13 @@ internal sealed class GetBloggerQueryHandler
                  instagram_metadata_username AS {nameof(BloggerResponse.InstagramUsername)},
                  instagram_metadata_followers_count AS {nameof(BloggerResponse.InstagramFollowersCount)},
                  instagram_metadata_media_count AS {nameof(BloggerResponse.InstagramMediaCount)},
-                 category_name AS {nameof(BloggerResponse.Category)}
+                 category_name AS {nameof(BloggerResponse.Category)},
+                 instagram_metadata_engagement_rate AS {nameof(BloggerResponse.EngagementRate)},
+                 instagram_metadata_audience_top_age_group AS {nameof(BloggerResponse.AudienceTopAgeGroup)},
+                 instagram_metadata_audience_top_gender AS {nameof(BloggerResponse.AudienceTopGender)},
+                 instagram_metadata_audience_top_gender_percentage AS {nameof(BloggerResponse.AudienceTopGenderPercentage)},
+                 instagram_metadata_audience_top_country AS {nameof(BloggerResponse.AudienceTopCountry)},
+                 instagram_metadata_audience_top_country_percentage AS {nameof(BloggerResponse.AudienceTopCountryPercentage)}
              FROM campaigns.bloggers
              WHERE id = @BloggerId
              """;

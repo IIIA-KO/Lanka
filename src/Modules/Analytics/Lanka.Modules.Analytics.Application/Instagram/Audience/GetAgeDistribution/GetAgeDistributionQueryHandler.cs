@@ -10,15 +10,15 @@ internal sealed class GetAgeDistributionQueryHandler
     : IQueryHandler<GetAgeDistributionQuery, AgeDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
-    private readonly IInstagramAudienceService _instagramAudienceService;
+    private readonly IInstagramServiceFactory<IInstagramAudienceService> _instagramAudienceServiceFactory;
 
     public GetAgeDistributionQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
-        IInstagramAudienceService instagramAudienceService
+        IInstagramServiceFactory<IInstagramAudienceService> instagramAudienceServiceFactory
     )
     {
         this._instagramAccountRepository = instagramAccountRepository;
-        this._instagramAudienceService = instagramAudienceService;
+        this._instagramAudienceServiceFactory = instagramAudienceServiceFactory;
     }
 
     public async Task<Result<AgeDistributionResponse>> Handle(
@@ -36,7 +36,10 @@ internal sealed class GetAgeDistributionQueryHandler
             return Result.Failure<AgeDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        Result<AgeDistribution> result = await this._instagramAudienceService.GetAudienceAgesPercentage(
+        IInstagramAudienceService audienceService = this._instagramAudienceServiceFactory
+            .GetService(account.Email.Value);
+
+        Result<AgeDistribution> result = await audienceService.GetAudienceAgesPercentage(
             account,
             cancellationToken
         );
