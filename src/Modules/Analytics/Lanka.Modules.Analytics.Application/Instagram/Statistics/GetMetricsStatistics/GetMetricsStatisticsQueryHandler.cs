@@ -10,15 +10,15 @@ internal sealed class GetMetricsStatisticsQueryHandler
     : IQueryHandler<GetMetricsStatisticsQuery, MetricsStatisticsResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
-    private readonly IInstagramStatisticsService _instagramStatisticsService;
+    private readonly IInstagramServiceFactory<IInstagramStatisticsService> _instagramStatisticsServiceFactory;
 
     public GetMetricsStatisticsQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
-        IInstagramStatisticsService instagramStatisticsService
+        IInstagramServiceFactory<IInstagramStatisticsService> instagramStatisticsServiceFactory
     )
     {
         this._instagramAccountRepository = instagramAccountRepository;
-        this._instagramStatisticsService = instagramStatisticsService;
+        this._instagramStatisticsServiceFactory = instagramStatisticsServiceFactory;
     }
 
     public async Task<Result<MetricsStatisticsResponse>> Handle(
@@ -36,8 +36,10 @@ internal sealed class GetMetricsStatisticsQueryHandler
             return Result.Failure<MetricsStatisticsResponse>(InstagramAccountErrors.NotFound);
         }
 
+        IInstagramStatisticsService statisticsService = this._instagramStatisticsServiceFactory
+            .GetService(account.Email.Value);
 
-        Result<MetricsStatistics> result = await this._instagramStatisticsService.GetMetricsStatistics(
+        Result<MetricsStatistics> result = await statisticsService.GetMetricsStatistics(
             account,
             request.StatisticsPeriod,
             cancellationToken

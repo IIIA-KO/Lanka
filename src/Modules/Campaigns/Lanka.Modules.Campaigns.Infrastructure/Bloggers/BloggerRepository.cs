@@ -37,7 +37,6 @@ internal sealed class BloggerRepository : IBloggerRepository
 
     public void Remove(Blogger blogger)
     {
-        blogger.Delete();
         this._dbContext.Bloggers.Remove(blogger);
     }
 }

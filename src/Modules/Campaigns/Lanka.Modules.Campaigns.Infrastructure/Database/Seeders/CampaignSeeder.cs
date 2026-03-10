@@ -243,7 +243,7 @@ public static class CampaignSeeder
                     DoneOnUtc = status >= 3 ? scheduledOnUtc.AddDays(faker.Random.Int(1, 5)) : null,
                     CompletedOnUtc = status == 4 ? scheduledOnUtc.AddDays(faker.Random.Int(6, 10)) : null,
                     CancelledOnUtc = status == 5 ? pendedOnUtc.AddDays(faker.Random.Int(1, 3)) : null,
-                    PriceAmount = faker.Random.Decimal(100, 5000),
+                    PriceAmount = Math.Round(faker.Random.Decimal(100, 5000), 2),
                     PriceCurrency = faker.PickRandom(_currencies),
                     CreatorFirstName = creatorName.FirstName,
                     CreatorLastName = creatorName.LastName,

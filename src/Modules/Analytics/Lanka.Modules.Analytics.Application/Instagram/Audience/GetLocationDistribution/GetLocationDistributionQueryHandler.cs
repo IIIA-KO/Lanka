@@ -10,15 +10,15 @@ internal sealed class GetLocationDistributionQueryHandler
     : IQueryHandler<GetLocationDistributionQuery, LocationDistributionResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
-    private readonly IInstagramAudienceService _instagramAudienceService;
+    private readonly IInstagramServiceFactory<IInstagramAudienceService> _instagramAudienceServiceFactory;
 
     public GetLocationDistributionQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
-        IInstagramAudienceService instagramAudienceService
+        IInstagramServiceFactory<IInstagramAudienceService> instagramAudienceServiceFactory
     )
     {
         this._instagramAccountRepository = instagramAccountRepository;
-        this._instagramAudienceService = instagramAudienceService;
+        this._instagramAudienceServiceFactory = instagramAudienceServiceFactory;
     }
 
     public async Task<Result<LocationDistributionResponse>> Handle(
@@ -36,7 +36,10 @@ internal sealed class GetLocationDistributionQueryHandler
             return Result.Failure<LocationDistributionResponse>(InstagramAccountErrors.NotFound);
         }
 
-        Result<LocationDistribution> result = await this._instagramAudienceService.GetAudienceTopLocations(
+        IInstagramAudienceService audienceService = this._instagramAudienceServiceFactory
+            .GetService(account.Email.Value);
+
+        Result<LocationDistribution> result = await audienceService.GetAudienceTopLocations(
             account,
             request.LocationType,
             cancellationToken

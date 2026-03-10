@@ -10,15 +10,15 @@ internal sealed class GetOverViewStatisticsQueryHandler
     : IQueryHandler<GetOverviewStatisticsQuery, OverviewStatisticsResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
-    private readonly IInstagramStatisticsService _instagramStatisticsService;
+    private readonly IInstagramServiceFactory<IInstagramStatisticsService> _instagramStatisticsServiceFactory;
 
     public GetOverViewStatisticsQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
-        IInstagramStatisticsService instagramStatisticsService
+        IInstagramServiceFactory<IInstagramStatisticsService> instagramStatisticsServiceFactory
     )
     {
         this._instagramAccountRepository = instagramAccountRepository;
-        this._instagramStatisticsService = instagramStatisticsService;
+        this._instagramStatisticsServiceFactory = instagramStatisticsServiceFactory;
     }
 
     public async Task<Result<OverviewStatisticsResponse>> Handle(
@@ -36,8 +36,10 @@ internal sealed class GetOverViewStatisticsQueryHandler
             return Result.Failure<OverviewStatisticsResponse>(InstagramAccountErrors.NotFound);
         }
 
+        IInstagramStatisticsService statisticsService = this._instagramStatisticsServiceFactory
+            .GetService(account.Email.Value);
 
-        Result<OverviewStatistics> result = await this._instagramStatisticsService.GetOverviewStatistics(
+        Result<OverviewStatistics> result = await statisticsService.GetOverviewStatistics(
             account,
             request.StatisticsPeriod,
             cancellationToken

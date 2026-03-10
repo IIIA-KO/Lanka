@@ -110,9 +110,4 @@ public sealed class Review : Entity<ReviewId>, IChangeCaptured
             .Add(commentResult)
             .Build(() => (ratingResult.Value, commentResult.Value));
     }
-    
-    public void Delete()
-    {
-        // Intentionally empty — change capture is handled by the EF interceptor.
-    }
 }

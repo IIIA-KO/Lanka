@@ -10,7 +10,7 @@ namespace Lanka.Modules.Analytics.Domain.InstagramAccounts;
 public class InstagramAccount : Entity<InstagramAccountId>, IChangeCaptured
 {
     public UserId UserId { get; private set; }
-    
+
     public Email Email { get; private set; }
 
     public FacebookPageId FacebookPageId { get; private set; }
@@ -111,11 +111,6 @@ public class InstagramAccount : Entity<InstagramAccountId>, IChangeCaptured
                 this.Metadata.Id
             )
         );
-    }
-
-    public void Delete()
-    {
-        // Intentionally empty — change capture is handled by the EF interceptor.
     }
 
     private static Result<(FacebookPageId, AdvertisementAccountId, Metadata)> Validate(

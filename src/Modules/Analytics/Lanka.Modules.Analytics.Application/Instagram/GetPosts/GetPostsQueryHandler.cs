@@ -9,15 +9,15 @@ namespace Lanka.Modules.Analytics.Application.Instagram.GetPosts;
 internal sealed class GetPostsQueryHandler : IQueryHandler<GetPostsQuery, PostsResponse>
 {
     private readonly IInstagramAccountRepository _instagramAccountRepository;
-    private readonly IInstagramPostService _instagramPostService;
+    private readonly IInstagramServiceFactory<IInstagramPostService> _instagramPostServiceFactory;
 
     public GetPostsQueryHandler(
         IInstagramAccountRepository instagramAccountRepository,
-        IInstagramPostService instagramPostService
+        IInstagramServiceFactory<IInstagramPostService> instagramPostServiceFactory
     )
     {
         this._instagramAccountRepository = instagramAccountRepository;
-        this._instagramPostService = instagramPostService;
+        this._instagramPostServiceFactory = instagramPostServiceFactory;
     }
 
     public async Task<Result<PostsResponse>> Handle(
@@ -40,7 +40,10 @@ internal sealed class GetPostsQueryHandler : IQueryHandler<GetPostsQuery, PostsR
             return Result.Failure<PostsResponse>(InstagramAccountErrors.TokenNotFound);
         }
 
-        Result<PostsResponse> result = await this._instagramPostService.GetUserPostsWithInsights(
+        IInstagramPostService postService = this._instagramPostServiceFactory
+            .GetService(account.Email.Value);
+
+        Result<PostsResponse> result = await postService.GetUserPostsWithInsights(
             account,
             request.Limit,
             request.CursorType ?? string.Empty,
