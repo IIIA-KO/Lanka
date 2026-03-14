@@ -102,7 +102,7 @@
                 <div class="flex flex-column gap-2">
                     <label for="email" class="font-medium">{{ 'REGISTER.EMAIL' | translate }}</label>
                     <input pInputText id="email" [value]="profile.email" disabled
-                        class="bg-gray-50 text-gray-700 font-medium" />
+                        class="font-medium w-full" />
                     <small class="text-gray-500">{{ 'SETTINGS.PRIVATE_INFO.EMAIL_HELP' | translate }}</small>
                 </div>
 
@@ -130,11 +130,10 @@
 
             <div class="mt-8 border-top-1 border-gray-200 pt-6">
                 <h3 class="text-xl font-semibold text-red-600 mb-2">{{ 'SETTINGS.DANGER.TITLE' | translate }}</h3>
-                <div
-                    class="border-1 border-red-200 bg-red-50 border-round p-4 flex justify-content-between align-items-center">
+                <div class="danger-panel border-1 border-round p-4 flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="m-0 font-medium text-red-900">{{ 'SETTINGS.DANGER.DELETE_TITLE' | translate }}</h4>
-                        <p class="m-0 text-red-700 text-sm mt-1">{{ 'SETTINGS.DANGER.DESCRIPTION' | translate }}</p>
+                        <h4 class="m-0 font-medium danger-title">{{ 'SETTINGS.DANGER.DELETE_TITLE' | translate }}</h4>
+                        <p class="m-0 text-sm mt-1 danger-desc">{{ 'SETTINGS.DANGER.DESCRIPTION' | translate }}</p>
                     </div>
 
                     <div *ngIf="!showDeleteConfirmation">
