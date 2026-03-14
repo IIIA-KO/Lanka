@@ -1,5 +1,7 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject, effect } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { ThemeService } from '../../../core/services/theme/theme.service';
 
 @Component({
   selector: 'app-analytics-chart',
@@ -10,6 +12,7 @@ import { ChartModule } from 'primeng/chart';
       [type]="type"
       [data]="chartData"
       [options]="chartOptions"
+      [plugins]="plugins"
     ></p-chart>
   `,
 })
@@ -30,27 +33,38 @@ export class AnalyticsChartComponent implements OnChanges {
       label: string;
       data: number[];
       backgroundColor: string[];
+      borderColor?: string;
+      borderWidth?: number;
     }[];
   } = {
     labels: [],
     datasets: [],
   };
 
-  public chartOptions: {
-    responsive: boolean;
-    plugins: {
-      legend: { position: 'top' };
-      tooltip: { enabled: boolean };
-    };
-  } = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      tooltip: { enabled: true },
-    },
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public chartOptions: any = {};
+  public plugins = [ChartDataLabels];
+
+  private readonly themeService = inject(ThemeService);
+
+  constructor() {
+    effect(() => {
+      // Register dependency on the theme signal
+      this.themeService.isDark();
+      
+      // Re-render chart when the theme is toggled if we already have data
+      if (this.labels && this.labels.length > 0) {
+        // We use setTimeout to allow Angular's change detection to settle before recreating objects
+        setTimeout(() => this.updateChart(), 0);
+      }
+    });
+  }
 
   public ngOnChanges(): void {
+    this.updateChart();
+  }
+
+  private updateChart(): void {
     let processedLabels = [...this.labels];
     let processedValues = [...this.values];
 
@@ -73,6 +87,8 @@ export class AnalyticsChartComponent implements OnChanges {
     }
 
     const colors = this.generateColors(processedLabels, processedValues);
+    const isDark = this.themeService.isDark();
+    const borderColor = isDark ? '#1e293b' : '#ffffff';
 
     this.chartData = {
       labels: processedLabels,
@@ -81,17 +97,69 @@ export class AnalyticsChartComponent implements OnChanges {
           label: this.title,
           data: processedValues,
           backgroundColor: colors,
+          borderColor: borderColor,
+          borderWidth: 2,
         },
       ],
     };
 
-    this.chartOptions = {
+    this.chartOptions = this.buildOptions();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private buildOptions(): any {
+    const isDark = this.themeService.isDark();
+    const textColor = isDark ? '#cbd5e1' : '#475569';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    const options: any = {
       responsive: true,
       plugins: {
-        legend: { position: 'top' },
-        tooltip: { enabled: true },
+        legend: { 
+          position: 'top',
+          display: this.type !== 'bar',
+          labels: { color: textColor }
+        },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: (context: { label: string; raw: number }) => {
+              const label = context.label || '';
+              const value = context.raw;
+              return `${label}: ${typeof value === 'number' ? value.toFixed(2) : value}%`;
+            }
+          }
+        },
+        datalabels: {
+          display: this.type === 'pie',
+          color: '#ffffff',
+          font: { weight: 'bold' },
+          formatter: (value: number) => {
+            if (value < 5) return '';
+            return value.toFixed(1) + '%';
+          }
+        }
       },
     };
+
+    if (this.type === 'bar') {
+      options.scales = {
+        x: {
+          ticks: { color: textColor },
+          grid: { color: gridColor }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: textColor,
+            callback: (value: number) => `${value}%`
+          },
+          grid: { color: gridColor }
+        }
+      };
+    }
+
+    return options;
   }
 
   private generateColors(labels: string[], values: number[]): string[] {
@@ -119,16 +187,16 @@ export class AnalyticsChartComponent implements OnChanges {
         // Sort descending
         indexed.sort((a, b) => b.val - a.val);
 
-        // Map back to original order 
+        // Map back to original order
         const colors = new Array(values.length);
         const total = values.length;
-        
+
         indexed.forEach((item, rank) => {
              // Rank 0 = Top = Most Vibrant
              // Rank N = Bottom = Most Pale
              colors[item.idx] = this.generateRankedColor(this.baseColor, rank, total);
         });
-        
+
         return colors;
     }
 
@@ -140,7 +208,7 @@ export class AnalyticsChartComponent implements OnChanges {
     if (count <= 0) return [];
 
     const palette = [
-      '#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', 
+      '#42A5F5', '#66BB6A', '#FFA726', '#AB47BC',
       '#FF7043', '#26A69A', '#8D6E63'
     ];
 
@@ -162,30 +230,20 @@ export class AnalyticsChartComponent implements OnChanges {
   }
 
   private generateRankedColor(hex: string, rank: number, total: number): string {
-      // Step-based fading logic.
-      // Even if values are identical, their rank will differ, ensuring distinctive colors.
-      
-      // Calculate a "Factor" from 1.0 (Top) down to 0.3 (Bottom)
-      // If total is 1, factor is 1.0
-      // If total is 5, factors: 1.0, 0.825, 0.65, 0.475, 0.3
-      
       const maxFactor = 1.0;
-      const minFactor = 0.35; // Don't go too pale
-      
+      const minFactor = 0.35;
+
       let ratio = 0;
       if (total > 1) {
           ratio = rank / (total - 1);
       }
-      
+
       const factor = maxFactor - (ratio * (maxFactor - minFactor));
 
       return this.adjustVibrancy(hex, factor);
   }
 
   private adjustVibrancy(hex: string, factor: number): string {
-      // Factor 1.0 = Original Color
-      // Factor 0.3 = Very Pale / Light / Desaturated version
-      
       let r = 0, g = 0, b = 0;
       if (hex.length === 4) {
           r = parseInt('0x' + hex[1] + hex[1]);
@@ -213,21 +271,7 @@ export class AnalyticsChartComponent implements OnChanges {
       l = (cmax + cmin) / 2;
       s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
 
-      // Modify Saturation and Lightness
-      // We want to reduce saturation and increase lightness as factor decreases.
-      
-      // New Saturation: Scale down
-      const newS = s * factor; 
-      
-      // New Lightness: Scale UP towards white/100%. 
-      // If factor is 1, L is L. If factor is 0, L is 1.0 (white).
-      // L + (1 - L) * (1 - factor)
-      
-      // We can also mix just Opacity if needed, but HSL is cleaner for pie charts
-      
-      // Let's keep it simpler:
-      // Just adjust Lightness to be lighter for lower ranks.
-      // Current L is base. Target L is 0.95 (near white).
+      const newS = s * factor;
       const targetL = 0.93;
       const newL = l + (targetL - l) * (1 - factor);
 

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { IOffer, ICreateOfferRequest, IEditOfferRequest } from '../models/campaigns';
+import { IOffer, ICreateOfferRequest, IEditOfferRequest, IAveragePrice } from '../models/campaigns';
 
 const BASE_URL = environment.apiUrl;
 
@@ -36,9 +36,9 @@ export class OffersAgent {
       .pipe(catchError(this.handleError));
   }
 
-  public getBloggerAverageOfferPrices(): Observable<Record<string, number>> {
+  public getBloggerAverageOfferPrices(bloggerId: string): Observable<IAveragePrice[]> {
     return this.http
-      .get<Record<string, number>>(`${BASE_URL}/offers/blogger/average-prices`)
+      .get<IAveragePrice[]>(`${BASE_URL}/offers/average-price/${bloggerId}`)
       .pipe(catchError(this.handleError));
   }
 

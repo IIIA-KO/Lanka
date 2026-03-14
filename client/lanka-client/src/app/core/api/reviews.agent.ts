@@ -2,29 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-
-export interface IReview {
-  id: string;
-  bloggerId: string;
-  campaignId: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ICreateReviewRequest {
-  bloggerId: string;
-  campaignId: string;
-  rating: number;
-  comment: string;
-}
-
-export interface IEditReviewRequest {
-  id: string;
-  rating: number;
-  comment: string;
-}
+import { IReview, ICreateReviewRequest, IEditReviewRequest } from '../models/campaigns';
 
 const BASE_URL = environment.apiUrl;
 
@@ -48,7 +26,7 @@ export class ReviewsAgent {
 
   public editReview(request: IEditReviewRequest): Observable<IReview> {
     return this.http
-      .put<IReview>(`${BASE_URL}/reviews/${request.id}`, request)
+      .put<IReview>(`${BASE_URL}/reviews/${request.reviewId}`, request)
       .pipe(catchError(this.handleError));
   }
 

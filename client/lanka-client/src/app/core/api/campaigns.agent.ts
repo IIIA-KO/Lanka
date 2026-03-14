@@ -72,6 +72,12 @@ export class CampaignsAgent {
       .pipe(catchError(this.handleError));
   }
 
+  public getBloggerCampaigns(bloggerId: string): Observable<ICampaign[]> {
+    return this.http
+      .get<ICampaign[]>(`${BASE_URL}/campaigns/bloggers/${bloggerId}`)
+      .pipe(catchError(this.handleError));
+  }
+
   public getCampaignsByStatus(status: string): Observable<ICampaign[]> {
     return this.http
       .get<ICampaign[]>(`${BASE_URL}/campaigns?status=${status}`)

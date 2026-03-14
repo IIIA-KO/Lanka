@@ -21,7 +21,10 @@ export interface IInteractionStatistics {
 
 export interface IInteractionStatisticsResponse {
   statisticsPeriod: string;
-  metrics: ITimeSeriesMetricData[];
+  engagementRate: number;
+  averageLikes: number;
+  averageComments: number;
+  cpe: number;
 }
 
 export interface IOverviewStatistics {
@@ -38,10 +41,7 @@ export interface IOverviewStatisticsResponse {
 
 export interface ITotalValueMetricData {
   name: string;
-  period: string;
-  totalValue: number;
-  title?: string;
-  description?: string;
+  value: number;
 }
 
 export interface IMetricsStatisticsResponse {

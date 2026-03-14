@@ -10,7 +10,11 @@ export interface IBloggerProfile {
   instagramUsername?: string;
   instagramFollowersCount?: number;
   instagramMediaCount?: number;
-  rating?: number; // Average rating from reviews
-  country?: string;
+  engagementRate?: number;
+  audienceTopAgeGroup?: string;
+  audienceTopGender?: string;
+  audienceTopGenderPercentage?: number;
+  audienceTopCountry?: string;
+  audienceTopCountryPercentage?: number;
   category?: string;
 }

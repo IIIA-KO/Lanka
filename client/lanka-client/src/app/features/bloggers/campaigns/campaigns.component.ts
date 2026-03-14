@@ -1,33 +1,35 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, Subject, catchError, of, takeUntil } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
 
 import { CampaignsAgent } from '../../../core/api/campaigns.agent';
-import { SearchAgent, ISearchResult } from '../../../core/api/search.agent';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ICampaign, CampaignStatus } from '../../../core/models/campaigns';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
-import { FriendlyErrorService, FriendlyHttpError } from '../../../core/services/friendly-error.service';
+
+export type RoleFilter = 'all' | 'creator' | 'client';
 
 @Component({
   standalone: true,
   selector: 'app-campaigns',
   imports: [
-    CommonModule,
+    DatePipe,
+    FormsModule,
     ButtonModule,
     CardModule,
     TagModule,
-    SelectModule,
+    SelectButtonModule,
     ProgressSpinnerModule,
     MessageModule,
     TooltipModule
@@ -35,74 +37,70 @@ import { FriendlyErrorService, FriendlyHttpError } from '../../../core/services/
   templateUrl: './campaigns.component.html',
   styleUrls: ['./campaigns.component.css']
 })
-export class CampaignsComponent implements OnInit {
-  public campaigns: ICampaign[] = [];
+export class CampaignsComponent implements OnInit, OnDestroy {
+  public allCampaigns: ICampaign[] = [];
   public loading = false;
   public error: string | null = null;
-  public emptyStateMessage = 'Your campaigns from brands will appear here.';
+
+  private readonly destroy$ = new Subject<void>();
+
+  public roleFilter: RoleFilter = 'all';
+  public roleOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'As Creator', value: 'creator' },
+    { label: 'As Client', value: 'client' }
+  ];
+
+  private currentUserId: string | null = null;
 
   private readonly campaignsAgent = inject(CampaignsAgent);
-  private readonly searchAgent = inject(SearchAgent);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
-  private readonly friendlyErrorService = inject(FriendlyErrorService);
+
+  public get campaigns(): ICampaign[] {
+    if (this.roleFilter === 'all' || !this.currentUserId) {
+      return this.allCampaigns;
+    }
+    return this.allCampaigns.filter(c =>
+      this.roleFilter === 'creator'
+        ? c.creatorId?.toLowerCase() === this.currentUserId
+        : c.clientId?.toLowerCase() === this.currentUserId
+    );
+  }
 
   public ngOnInit(): void {
+    this.currentUserId = this.authService.getUserIdFromToken()?.toLowerCase() ?? null;
     this.loadCampaigns();
   }
 
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   public loadCampaigns(): void {
+    if (!this.currentUserId) {
+      this.error = 'Unable to identify current user.';
+      return;
+    }
+
     this.loading = true;
     this.error = null;
 
-    const currentUserId = this.authService.getUserIdFromToken()?.toLowerCase() ?? null;
-
-    this.searchAgent
-      .searchDocuments({
-        q: '*',
-        size: 50,
-        itemTypes: SearchableItemType.Campaign,
-        onlyActive: true,
-      })
+    this.campaignsAgent.getBloggerCampaigns(this.currentUserId)
       .pipe(
-        map((response) =>
-          response.results
-            .map((result) => this.mapSearchResultToCampaign(result))
-            .filter((campaign): campaign is ICampaign => campaign !== null)
-            .filter((campaign) =>
-              !currentUserId || campaign.creatorId?.toLowerCase() === currentUserId
-            )
-            .sort(
-              (a, b) =>
-                new Date(b.scheduledOnUtc).getTime() - new Date(a.scheduledOnUtc).getTime()
-            )
-        ),
-        catchError((error: unknown) => {
-          const friendlyError =
-            error instanceof FriendlyHttpError
-              ? error
-              : this.friendlyErrorService.toFriendlyError(error, {
-                  fallbackMessage: 'We could not load your campaigns right now. Please try again shortly.',
-                });
-
-          if (friendlyError.status === 404 || friendlyError.status === 204) {
-            this.error = null;
-            this.emptyStateMessage = 'You have no active campaigns yet. They will appear here once brands add you to a campaign.';
-            return of([] as ICampaign[]);
-          }
-
-          this.error = friendlyError.message;
+        takeUntil(this.destroy$),
+        catchError(() => {
+          this.error = 'We could not load your campaigns right now. Please try again shortly.';
           return of([] as ICampaign[]);
         })
       )
       .subscribe({
         next: (campaigns) => {
-          this.campaigns = campaigns;
-        },
-        complete: () => {
+          this.allCampaigns = campaigns;
           this.loading = false;
-        },
+        }
       });
   }
 
@@ -130,9 +128,7 @@ export class CampaignsComponent implements OnInit {
     }
   }
 
-  public onCampaignAction(actionOrEvent: string | { value?: string }, campaignId: string): void {
-    const action = typeof actionOrEvent === 'string' ? actionOrEvent : actionOrEvent.value;
-
+  public onCampaignAction(action: string, campaignId: string): void {
     if (!action) {
       return;
     }
@@ -165,6 +161,7 @@ export class CampaignsComponent implements OnInit {
     }
 
     actionObservable.pipe(
+      takeUntil(this.destroy$),
       catchError(error => {
         this.snackbarService.showError('Error updating campaign: ' + error.message);
         return of(null);
@@ -184,110 +181,43 @@ export class CampaignsComponent implements OnInit {
     this.router.navigate(['/campaigns', campaignId]);
   }
 
-  public getAvailableActions(status: string): {label: string, value: string, icon: string}[] {
-    const actions = [];
+  public getAvailableActions(campaign: ICampaign): { label: string; value: string; icon: string }[] {
+    const actions: { label: string; value: string; icon: string }[] = [];
+    const isCreator = campaign.creatorId?.toLowerCase() === this.currentUserId;
+    const isClient = campaign.clientId?.toLowerCase() === this.currentUserId;
 
-    switch (status) {
+    switch (campaign.status) {
       case CampaignStatus.Pending:
-        actions.push(
-          {label: 'Confirm', value: 'confirm', icon: 'pi pi-check'},
-          {label: 'Reject', value: 'reject', icon: 'pi pi-times'}
-        );
+        if (isCreator) {
+          actions.push(
+            { label: 'Confirm', value: 'confirm', icon: 'pi pi-check' },
+            { label: 'Reject', value: 'reject', icon: 'pi pi-times' }
+          );
+        }
         break;
       case CampaignStatus.Confirmed:
-        actions.push(
-          {label: 'Mark as Done', value: 'done', icon: 'pi pi-flag'},
-          {label: 'Cancel', value: 'cancel', icon: 'pi pi-ban'}
-        );
+        if (isCreator) {
+          actions.push(
+            { label: 'Mark as Done', value: 'done', icon: 'pi pi-flag' },
+            { label: 'Cancel', value: 'cancel', icon: 'pi pi-ban' }
+          );
+        }
         break;
       case CampaignStatus.Done:
-        actions.push(
-          {label: 'Complete', value: 'complete', icon: 'pi pi-check-circle'}
-        );
+        if (isClient) {
+          actions.push(
+            { label: 'Complete', value: 'complete', icon: 'pi pi-check-circle' }
+          );
+        }
         break;
     }
 
     return actions;
   }
 
-  private mapSearchResultToCampaign(result: ISearchResult): ICampaign | null {
-    const metadata = result.metadata ?? {};
-
-    const status = this.normalizeStatus(metadata['status']);
-    const scheduledOnUtc = this.extractIsoString(metadata['scheduledOnUtc']);
-
-    if (!scheduledOnUtc) {
-      return null;
-    }
-
-    const offerId = this.extractGuidString(metadata['offerId']);
-    const clientId = this.extractGuidString(metadata['clientId']);
-    const creatorId = this.extractGuidString(metadata['creatorId']);
-
-    const price = metadata['price'] ? JSON.parse(String(metadata['price'])) : { amount: 0, currency: 'USD' };
-    const expectedCompletionDate = this.extractIsoString(metadata['expectedCompletionDate']) ?? new Date().toISOString();
-    const deliverables = metadata['deliverables'] ? JSON.parse(String(metadata['deliverables'])) : [];
-    const createdAt = this.extractIsoString(metadata['createdAt']) ?? new Date().toISOString();
-    const updatedAt = this.extractIsoString(metadata['updatedAt']) ?? new Date().toISOString();
-
-    return {
-      id: result.itemId,
-      name: result.title ?? 'Untitled Campaign',
-      description: result.content ?? '',
-      status,
-      offerId,
-      clientId,
-      creatorId,
-      price,
-      expectedCompletionDate,
-      deliverables,
-      scheduledOnUtc,
-      createdAt,
-      updatedAt
-    };
-  }
-
-  private normalizeStatus(statusValue: unknown): CampaignStatus {
-    const status = String(statusValue ?? '').toLowerCase();
-    switch (status) {
-      case 'pending':
-        return CampaignStatus.Pending;
-      case 'confirmed':
-        return CampaignStatus.Confirmed;
-      case 'rejected':
-        return CampaignStatus.Rejected;
-      case 'done':
-        return CampaignStatus.Done;
-      case 'completed':
-        return CampaignStatus.Completed;
-      case 'cancelled':
-        return CampaignStatus.Cancelled;
-      default:
-        return CampaignStatus.Pending;
-    }
-  }
-
-  private extractIsoString(value: unknown): string | null {
-    if (!value) {
-      return null;
-    }
-
-    if (typeof value === 'string') {
-      return value;
-    }
-
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
-
-    return null;
-  }
-
-  private extractGuidString(value: unknown): string {
-    return value ? String(value) : '';
+  public getRoleBadge(campaign: ICampaign): string {
+    if (campaign.creatorId?.toLowerCase() === this.currentUserId) return 'Creator';
+    if (campaign.clientId?.toLowerCase() === this.currentUserId) return 'Client';
+    return '';
   }
 }
-
-const SearchableItemType = {
-  Campaign: '2',
-} as const;

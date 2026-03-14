@@ -1,36 +1,64 @@
 <div class="dashboard-container">
-  <!-- Header Section -->
+
+  <!-- ─── Profile Header ─── -->
   <div class="profile-header card-style mb-4">
     <div class="flex flex-column md:flex-row align-items-center md:align-items-start gap-4">
-      <!-- Avatar -->
       <div class="avatar-wrapper">
         <img [src]="profile.profilePhotoUri || '/icons/no-profile.svg'" alt="Profile Avatar" class="profile-avatar" />
       </div>
 
-      <!-- Info -->
       <div class="profile-info flex-grow-1">
         <div class="flex justify-content-between align-items-start">
           <div>
-            <h1 class="text-3xl font-bold m-0 mb-2">{{ profile.firstName }} {{ profile.lastName }}</h1>
-            <p class="text-color-secondary m-0 mb-3 line-height-3">{{ profile.bio | slice:0:100 }}{{
-              (profile.bio?.length || 0) > 100 ? '...' : '' }}</p>
+            <h1 class="text-3xl font-bold m-0 mb-1">{{ profile.firstName }} {{ profile.lastName }}</h1>
 
-            <div class="flex align-items-center gap-3 mb-3 text-sm text-color-secondary">
-              <span *ngIf="profile.rating && profile.rating > 0" class="flex align-items-center gap-1">
-                <i class="pi pi-star-fill text-yellow-500"></i>
-                <span>{{ profile.rating.toFixed(1) }}</span>
-              </span>
+            <div class="flex align-items-center gap-3 mb-2 text-sm text-color-secondary">
               <span class="flex align-items-center gap-1">
                 <i class="pi pi-tag text-teal-600"></i>
-                <span>{{ profile.category || '—' }}</span>
+                <span>{{ profile.category || ('COMMON.UNAVAILABLE' | translate) }}</span>
               </span>
+              @if (profile.audienceTopCountry) {
+                <span class="flex align-items-center gap-1">
+                  <i class="pi pi-map-marker"></i> {{ profile.audienceTopCountry }}
+                </span>
+              }
+              @if (profile.engagementRate != null) {
+                <span class="flex align-items-center gap-1">
+                  <i class="pi pi-chart-line text-teal-500"></i>
+                  <span>{{ formatPercent(profile.engagementRate) }} ER</span>
+                </span>
+              }
             </div>
 
+            <div class="flex align-items-center gap-2 mb-2">
+              <div class="flex gap-1">
+                @for (star of getRatingArray(5); track $index) {
+                  <i class="pi"
+                     [class.pi-star-fill]="$index < averageRating"
+                     [class.pi-star]="$index >= averageRating"
+                     [class.text-yellow-500]="$index < averageRating"
+                     [class.text-gray-300]="$index >= averageRating"
+                     style="font-size: 0.9rem"></i>
+                }
+              </div>
+              @if (reviews.length > 0) {
+                <span class="text-sm text-color-secondary">
+                  {{ averageRating }} ({{ reviews.length }} {{ reviews.length === 1 ? 'review' : 'reviews' }})
+                </span>
+              }
+            </div>
+
+            <p class="text-color-secondary m-0 mb-3 line-height-3 text-sm">
+              {{ profile.bio | slice:0:120 }}{{ (profile.bio?.length || 0) > 120 ? '...' : '' }}
+            </p>
+
             <div class="social-links flex gap-2">
-              <a *ngIf="profile.instagramUsername" [href]="'https://instagram.com/' + profile.instagramUsername"
-                target="_blank" class="social-btn instagram">
-                <i class="pi pi-instagram"></i>
-              </a>
+              @if (profile.instagramUsername) {
+                <a [href]="'https://instagram.com/' + profile.instagramUsername"
+                   target="_blank" class="social-btn instagram">
+                  <i class="pi pi-instagram"></i>
+                </a>
+              }
             </div>
           </div>
 
@@ -45,9 +73,9 @@
     </div>
   </div>
 
-  <!-- KPI Cards Row -->
+  <!-- ─── KPI Cards (4 columns) ─── -->
   <div class="grid mb-4">
-    <div class="col-12 md:col-6 lg:col-4">
+    <div class="col-12 md:col-6 lg:col-3">
       <div class="kpi-card card-style">
         <div class="kpi-icon bg-blue-100 text-blue-600">
           <i class="pi pi-users"></i>
@@ -58,18 +86,7 @@
         </div>
       </div>
     </div>
-    <div class="col-12 md:col-6 lg:col-4">
-      <div class="kpi-card card-style">
-        <div class="kpi-icon bg-green-100 text-green-600">
-          <i class="pi pi-money-bill"></i>
-        </div>
-        <div class="kpi-content">
-          <span class="kpi-label">{{ 'PROFILE.METRICS.PRICE_RANGE' | translate }}</span>
-          <span class="kpi-value text-xl">{{ priceRange }}</span>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 md:col-6 lg:col-4">
+    <div class="col-12 md:col-6 lg:col-3">
       <div class="kpi-card card-style">
         <div class="kpi-icon bg-purple-100 text-purple-600">
           <i class="pi pi-images"></i>
@@ -80,140 +97,502 @@
         </div>
       </div>
     </div>
+    <div class="col-12 md:col-6 lg:col-3">
+      <div class="kpi-card card-style">
+        <div class="kpi-icon bg-teal-100 text-teal-600">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">{{ 'PROFILE.METRICS.ENGAGEMENT_RATE' | translate }}</span>
+          <span class="kpi-value">{{ profile.engagementRate != null ? formatPercent(profile.engagementRate) : ('COMMON.UNAVAILABLE' | translate) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-6 lg:col-3">
+      <div class="kpi-card card-style">
+        <div class="kpi-icon bg-green-100 text-green-600">
+          <i class="pi pi-money-bill"></i>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label align-items-center flex">
+            {{ 'PROFILE.METRICS.PRICE_RANGE' | translate }}
+            <i class="pi pi-info-circle text-gray-400 ml-1 text-sm cursor-pointer"
+               [pTooltip]="'PROFILE.METRICS.PRICE_RANGE_HINT' | translate"
+               tooltipPosition="top"></i>
+          </span>
+          @if (averagePrices.length > 0) {
+            <div class="flex flex-wrap gap-2 mt-2">
+              @for (price of averagePrices; track price.currency) {
+                <p-tag [severity]="'success'" styleClass="text-sm px-2 py-1 font-bold border-round-xl">
+                  {{ price.amount | number:'1.0-0' }} {{ price.currency }}
+                </p-tag>
+              }
+            </div>
+          } @else {
+            <span class="kpi-value text-xl">{{ 'COMMON.UNAVAILABLE' | translate }}</span>
+          }
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="grid">
-    <!-- Main Content (Left) -->
-    <div class="col-12 lg:col-8">
-      <!-- Bio Section -->
-      <div class="card-style mb-4 p-4">
-        <h3 class="text-xl font-bold mb-3">{{ 'PROFILE.ABOUT.TITLE' | translate }}</h3>
-        <p class="line-height-3 text-color-secondary m-0">
-          {{ profile.bio || ('PROFILE.ABOUT.EMPTY' | translate) }}
-        </p>
-      </div>
+  <!-- ─── Tabbed Content ─── -->
+  <div class="card-style">
+    <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
+      <p-tablist>
+        <p-tab value="0">{{ 'PROFILE.TABS.OVERVIEW' | translate }}</p-tab>
+        <p-tab value="1">{{ 'PROFILE.TABS.STATISTICS' | translate }}</p-tab>
+        <p-tab value="2">{{ 'PROFILE.TABS.REVIEWS' | translate }} ({{ reviews.length }})</p-tab>
+        <p-tab value="3">{{ 'PROFILE.TABS.SETTINGS' | translate }}</p-tab>
+      </p-tablist>
 
-      <!-- Recent Posts -->
-      <div class="card-style p-4">
-        <div class="flex justify-content-between align-items-center mb-3">
-          <h3 class="text-xl font-bold m-0">{{ 'PROFILE.POSTS.TITLE' | translate }}</h3>
-          <a *ngIf="recentPosts.length > 0" href="https://instagram.com/{{ profile.instagramUsername }}" target="_blank"
-            class="text-teal-600 hover:text-teal-700 text-sm font-semibold no-underline">
-            {{ 'PROFILE.POSTS.VIEW_ALL' | translate }} <i class="pi pi-external-link ml-1"></i>
-          </a>
-        </div>
-
-        <!-- Loading State -->
-        <div *ngIf="loadingPosts" class="flex gap-3 overflow-x-auto pb-2">
-          <div *ngFor="let i of [1,2,3,4,5,6]" class="post-skeleton">
-            <div class="bg-gray-100 border-round" style="width: 180px; height: 180px;"></div>
-          </div>
-        </div>
-
-        <!-- Posts Grid -->
-        <div *ngIf="!loadingPosts && recentPosts.length > 0" class="flex gap-3 overflow-x-auto pb-2">
-          <a *ngFor="let post of recentPosts" [href]="post.permalink" target="_blank" class="post-card no-underline">
-            <div class="post-thumbnail">
-              <img [src]="post.mediaType === 'VIDEO' ? post.thumbnailUrl : post.mediaUrl"
-                [alt]="'Instagram post from ' + post.timestamp" class="post-image">
-              <div *ngIf="post.mediaType === 'VIDEO'" class="video-indicator">
-                <i class="pi pi-play-circle"></i>
+      <p-tabpanels>
+        <!-- ═══════════ OVERVIEW ═══════════ -->
+        <p-tabpanel value="0">
+          <!-- Overview metrics -->
+          @if (overview && overview.metrics.length > 0) {
+            <div class="card-style mb-4 mt-3" style="box-shadow: none; background: var(--surface-50);">
+              <div class="flex align-items-center justify-content-between mb-3">
+                <h3 class="section-title m-0">{{ 'PROFILE.OVERVIEW.TITLE' | translate }}</h3>
+                <p-selectButton [options]="statsPeriodOptions" [(ngModel)]="statsPeriod"
+                  optionLabel="label" optionValue="value"
+                  styleClass="period-toggle"
+                  (ngModelChange)="onPeriodChange()"></p-selectButton>
+              </div>
+              <div class="grid">
+                @for (metric of overview.metrics; track metric.name) {
+                  <div class="col-6 md:col-3 text-center py-2 overview-metric-col">
+                    <span class="text-xl font-bold block" style="color: var(--p-primary-color)">
+                      {{ formatMetric(metric.value) }}
+                    </span>
+                    <span class="text-sm text-color-secondary flex align-items-center justify-content-center gap-1">
+                      {{ 'PROFILE.OVERVIEW.' + metric.name.toUpperCase() | translate }}
+                      <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.OVERVIEW.' + metric.name.toUpperCase() + '_HINT' | translate" tooltipPosition="top"></i>
+                    </span>
+                  </div>
+                }
               </div>
             </div>
-            <div class="post-insights">
-              <div class="insight-item">
-                <i class="pi pi-heart text-pink-500"></i>
-                <span>{{ formatNumber(getInsightValue(post, 'likes')) }}</span>
+          }
+
+          <!-- Recent Posts -->
+          @if (recentPosts.length > 0 || loadingPosts) {
+            <div class="mt-3 mb-4">
+              <h3 class="section-title">{{ 'PROFILE.POSTS.TITLE' | translate }}</h3>
+              @if (loadingPosts) {
+                <div class="flex gap-3 overflow-x-auto pb-2">
+                  @for (i of [1,2,3,4,5,6]; track i) {
+                    <div class="post-skeleton">
+                      <div class="bg-gray-100 border-round" style="width: 180px; height: 180px;"></div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="flex gap-3 overflow-x-auto pb-2">
+                  @for (post of recentPosts; track post.id) {
+                    <a [href]="post.permalink" target="_blank" class="post-card no-underline">
+                      <div class="post-thumbnail">
+                        <img [src]="post.mediaType === 'VIDEO' ? post.thumbnailUrl : post.mediaUrl"
+                          [alt]="'Instagram post from ' + post.timestamp" class="post-image">
+                        @if (post.mediaType === 'VIDEO') {
+                          <div class="video-indicator">
+                            <i class="pi pi-play-circle"></i>
+                          </div>
+                        }
+                      </div>
+                      <div class="post-insights">
+                        <div class="insight-item">
+                          <i class="pi pi-heart text-pink-500"></i>
+                          <span>{{ formatNumber(getInsightValue(post, 'likes')) }}</span>
+                        </div>
+                        <div class="insight-item">
+                          <i class="pi pi-comment text-blue-500"></i>
+                          <span>{{ formatNumber(getInsightValue(post, 'comments')) }}</span>
+                        </div>
+                        <div class="insight-item">
+                          <i class="pi pi-eye text-purple-500"></i>
+                          <span>{{ formatNumber(getInsightValue(post, 'reach')) }}</span>
+                        </div>
+                      </div>
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          } @else if (!instagramAccountLinked && !loadingPosts) {
+            <div class="mt-3 mb-4 text-center p-5">
+              <i class="pi pi-instagram text-4xl text-gray-400 mb-3"></i>
+              <p class="text-gray-600 m-0">{{ 'PROFILE.POSTS.CONNECT_PROMPT' | translate }}</p>
+            </div>
+          }
+
+          <div class="grid">
+            <!-- Left: Empty (We removed redundant charts here to push users to Statistics tab) -->
+          </div>
+        </p-tabpanel>
+
+        <!-- ═══════════ STATISTICS ═══════════ -->
+        <p-tabpanel value="1">
+          <div class="flex align-items-center justify-content-between mt-3 mb-4">
+            <p-selectButton [options]="statsSubTabs" [(ngModel)]="statsSubTab"
+              optionLabel="label" optionValue="value"></p-selectButton>
+            <p-selectButton [options]="statsPeriodOptions" [(ngModel)]="statsPeriod"
+              optionLabel="label" optionValue="value"
+              styleClass="period-toggle"
+              (ngModelChange)="onPeriodChange()"></p-selectButton>
+          </div>
+
+          @if (loadingAnalytics || loadingStatistics) {
+            <div class="flex justify-content-center py-5">
+              <p-progressSpinner [style]="{ width: '2rem', height: '2rem' }"></p-progressSpinner>
+            </div>
+          } @else {
+            <!-- AUDIENCE: demographics only -->
+            @if (statsSubTab === 'audience') {
+
+              <!-- Summary callout row -->
+              @if (topAgeGroup || topGender || topCountry) {
+                <div class="audience-summary-row mb-4">
+                  @if (topCountry) {
+                    <div class="audience-stat">
+                      <i class="pi pi-map-marker audience-stat-icon text-orange-500"></i>
+                      <div>
+                        <span class="audience-stat-label">Top Location</span>
+                        <span class="audience-stat-value">
+                          {{ topCountry }}
+                          @if (topCountryPct) {
+                            <span class="audience-stat-pct">{{ formatPercent(topCountryPct) }}</span>
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  }
+                  @if (topAgeGroup) {
+                    <div class="audience-stat">
+                      <i class="pi pi-users audience-stat-icon text-blue-500"></i>
+                      <div>
+                        <span class="audience-stat-label">Top Age Group</span>
+                        <span class="audience-stat-value">{{ topAgeGroup }}</span>
+                      </div>
+                    </div>
+                  }
+                  @if (topGender) {
+                    <div class="audience-stat">
+                      <i class="pi pi-heart audience-stat-icon text-pink-500"></i>
+                      <div>
+                        <span class="audience-stat-label">Dominant Gender</span>
+                        <span class="audience-stat-value">
+                          {{ topGender | titlecase }}
+                          @if (topGenderPct) {
+                            <span class="audience-stat-pct">{{ formatPercent(topGenderPct) }}</span>
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+
+              <!-- Location -->
+              <div class="analytics-card mb-4">
+                <div class="flex align-items-center justify-content-between mb-3">
+                  <span class="font-semibold flex align-items-center gap-2">
+                    <i class="pi pi-map-marker text-orange-500"></i>
+                    {{ 'PROFILE.ANALYTICS.LOCATION' | translate }}
+                  </span>
+                  <p-selectButton [options]="locationModes" [(ngModel)]="locationMode"
+                    optionLabel="label" optionValue="value"
+                    styleClass="location-toggle"></p-selectButton>
+                </div>
+                @if (activeLocation.labels.length > 0) {
+                  <app-analytics-chart
+                    title=""
+                    type="bar"
+                    [labels]="activeLocation.labels"
+                    [values]="activeLocation.values"
+                    colorMode="saturation"
+                    baseColor="#FFA726">
+                  </app-analytics-chart>
+                } @else {
+                  <div class="audience-empty">
+                    <i class="pi pi-map text-3xl text-color-secondary mb-2"></i>
+                    <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_LOCATION_DATA' | translate }}</p>
+                  </div>
+                }
               </div>
-              <div class="insight-item">
-                <i class="pi pi-comment text-blue-500"></i>
-                <span>{{ formatNumber(getInsightValue(post, 'comments')) }}</span>
+
+              <!-- Age & Gender side-by-side -->
+              <div class="grid">
+                <div class="col-12 lg:col-7">
+                  <div class="analytics-card mb-4 h-full">
+                    <span class="font-semibold flex align-items-center gap-2 mb-3">
+                      <i class="pi pi-users text-blue-500"></i>
+                      {{ 'PROFILE.ANALYTICS.AGE' | translate }}
+                    </span>
+                    @if (age.labels.length > 0) {
+                      <app-analytics-chart
+                        title=""
+                        type="bar"
+                        [labels]="age.labels"
+                        [values]="age.values"
+                        colorMode="saturation"
+                        baseColor="#42A5F5">
+                      </app-analytics-chart>
+                    } @else {
+                      <div class="audience-empty">
+                        <i class="pi pi-chart-bar text-3xl text-color-secondary mb-2"></i>
+                        <p class="text-color-secondary m-0">No age data available</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="col-12 lg:col-5">
+                  <div class="analytics-card mb-4 h-full">
+                    <span class="font-semibold flex align-items-center gap-2 mb-3">
+                      <i class="pi pi-heart text-pink-500"></i>
+                      {{ 'PROFILE.ANALYTICS.GENDER' | translate }}
+                    </span>
+                    @if (gender.labels.length > 0) {
+                      <app-analytics-chart
+                        title=""
+                        [labels]="gender.labels"
+                        [values]="gender.values"
+                        [colorMapping]="genderColorMapping"
+                        [maxPieSegments]="100">
+                      </app-analytics-chart>
+                    } @else {
+                      <div class="audience-empty">
+                        <i class="pi pi-chart-pie text-3xl text-color-secondary mb-2"></i>
+                        <p class="text-color-secondary m-0">No gender data available</p>
+                      </div>
+                    }
+                  </div>
+                </div>
               </div>
-              <div class="insight-item">
-                <i class="pi pi-eye text-purple-500"></i>
-                <span>{{ formatNumber(getInsightValue(post, 'reach')) }}</span>
+            }
+
+
+            <!-- ENGAGEMENT: performance metrics + interaction -->
+            @if (statsSubTab === 'engagement') {
+              <div class="grid">
+                <div class="col-12 lg:col-7">
+                  @if (engagement) {
+                    <div class="card-style mb-4" style="box-shadow: none; background: var(--surface-50);">
+                      <h3 class="section-title">{{ 'PROFILE.PERFORMANCE.TITLE' | translate }}</h3>
+                      <div class="metric-table">
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PROFILE.PERFORMANCE.ENGAGEMENT_RATE' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.PERFORMANCE.ENGAGEMENT_RATE_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="engagement.engagementRate != null" [severity]="getMetricStatusColor(getErStatus(engagement.engagementRate))" [value]="getMetricStatusLabel(getErStatus(engagement.engagementRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            {{ formatPercent(engagement.engagementRate) }}
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PROFILE.PERFORMANCE.REACH_RATE' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.PERFORMANCE.REACH_RATE_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="engagement.reachRate != null" [severity]="getMetricStatusColor(getRrStatus(engagement.reachRate))" [value]="getMetricStatusLabel(getRrStatus(engagement.reachRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            {{ formatPercent(engagement.reachRate) }}
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PROFILE.PERFORMANCE.ER_REACH' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.PERFORMANCE.ER_REACH_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="engagement.erReach != null" [severity]="getMetricStatusColor(getErReachStatus(engagement.erReach))" [value]="getMetricStatusLabel(getErReachStatus(engagement.erReach)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            {{ formatPercent(engagement.erReach) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (interaction) {
+                    <div class="card-style mb-4" style="box-shadow: none; background: var(--surface-50);">
+                      <h3 class="section-title">{{ 'PROFILE.PERFORMANCE.INTERACTIONS' | translate }}</h3>
+                      <div class="metric-table">
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PROFILE.PERFORMANCE.AVG_LIKES' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.PERFORMANCE.AVG_LIKES_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            {{ formatMetric(interaction.averageLikes) }}
+                            <i class="pi pi-heart text-pink-400" style="font-size: 0.8rem"></i>
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PROFILE.PERFORMANCE.AVG_COMMENTS' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.PERFORMANCE.AVG_COMMENTS_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            {{ formatMetric(interaction.averageComments) }}
+                            <i class="pi pi-comment text-blue-400" style="font-size: 0.8rem"></i>
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PROFILE.PERFORMANCE.CPE' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PROFILE.PERFORMANCE.CPE_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="interaction.cpe != null" [severity]="getMetricStatusColor(getCpeStatus(interaction.cpe))" [value]="getMetricStatusLabel(getCpeStatus(interaction.cpe)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            ~{{ interaction.cpe | number:'1.2-2' }} $
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="col-12 lg:col-5">
+                  @if (reach.labels.length > 0) {
+                    <div class="analytics-card mb-4 h-full">
+                      <app-analytics-chart
+                        [title]="'PROFILE.ANALYTICS.REACH' | translate"
+                        [labels]="reach.labels"
+                        [values]="reach.values"
+                        [colorMapping]="reachColorMapping"
+                        [maxPieSegments]="100">
+                      </app-analytics-chart>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @if (!engagement && !interaction && reach.labels.length === 0) {
+                <div class="text-center py-5">
+                  <i class="pi pi-chart-bar text-4xl text-gray-300 mb-2"></i>
+                  <p class="text-color-secondary m-0">{{ 'PROFILE.PERFORMANCE.EMPTY' | translate }}</p>
+                </div>
+              }
+            }
+          }
+        </p-tabpanel>
+
+        <!-- ═══════════ REVIEWS ═══════════ -->
+        <p-tabpanel value="2">
+          @if (loadingReviews) {
+            <div class="flex justify-content-center py-5">
+              <p-progressSpinner [style]="{ width: '2rem', height: '2rem' }"></p-progressSpinner>
+            </div>
+          } @else if (reviews.length === 0) {
+            <div class="text-center py-6">
+              <i class="pi pi-star text-4xl text-gray-300 mb-2"></i>
+              <p class="text-color-secondary m-0">{{ 'PROFILE.REVIEWS.EMPTY' | translate }}</p>
+            </div>
+          } @else {
+            <div class="flex flex-column gap-3 mt-3">
+              @for (review of reviews; track review.id) {
+                <div class="review-card">
+                  <div class="flex align-items-center gap-2 mb-2">
+                    <div class="flex gap-1">
+                      @for (star of getRatingArray(review.rating); track $index) {
+                        <i class="pi"
+                           [class.pi-star-fill]="star"
+                           [class.pi-star]="!star"
+                           [class.text-yellow-500]="star"
+                           [class.text-gray-300]="!star"
+                           style="font-size: 0.85rem"></i>
+                      }
+                    </div>
+                    <span class="font-semibold text-sm ml-1">{{ review.rating }}/5</span>
+                    <span class="text-sm text-color-secondary ml-auto">
+                      {{ review.createdOnUtc | date:'MMM d, yyyy' }}
+                    </span>
+                  </div>
+                  <p class="m-0 line-height-3 text-sm">{{ review.comment }}</p>
+                </div>
+              }
+            </div>
+          }
+        </p-tabpanel>
+
+        <!-- ═══════════ SETTINGS ═══════════ -->
+        <p-tabpanel value="3">
+          <div class="grid mt-3">
+            <div class="col-12 lg:col-7">
+              <!-- Bio -->
+              <div class="card-style mb-4" style="box-shadow: none; background: var(--surface-50);">
+                <h3 class="section-title">{{ 'PROFILE.ABOUT.TITLE' | translate }}</h3>
+                <p class="line-height-3 text-color-secondary m-0">
+                  {{ profile.bio || ('PROFILE.ABOUT.EMPTY' | translate) }}
+                </p>
+              </div>
+
+              <!-- Instagram Connection -->
+              <div class="card-style" style="box-shadow: none; background: var(--surface-50);">
+                <h3 class="section-title">{{ 'PROFILE.CONNECTION.TITLE' | translate }}</h3>
+                <div class="flex align-items-center gap-3 mb-3">
+                  <div class="status-indicator" [class.bg-green-500]="instagramAccountLinked"
+                    [class.bg-red-500]="!instagramAccountLinked" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                  <span>{{ instagramAccountLinked ? ('PROFILE.CONNECTION.CONNECTED' | translate) : ('PROFILE.CONNECTION.DISCONNECTED' | translate) }}</span>
+                </div>
+                @if (!instagramAccountLinked) {
+                  <p-button [label]="'PROFILE.CONNECTION.CONNECT' | translate" (onClick)="handleRenewInstagramAccess()"
+                    styleClass="w-full"></p-button>
+                } @else {
+                  <p-button [label]="'PROFILE.CONNECTION.REFRESH' | translate" (onClick)="handleRenewInstagramAccess()"
+                    styleClass="p-button-outlined w-full"></p-button>
+                }
               </div>
             </div>
-          </a>
-        </div>
 
-        <!-- Empty State -->
-        <div *ngIf="!loadingPosts && recentPosts.length === 0 && instagramAccountLinked" class="text-center p-5">
-          <i class="pi pi-image text-4xl text-gray-400 mb-3"></i>
-          <p class="text-gray-600 m-0">{{ 'PROFILE.POSTS.EMPTY' | translate }}</p>
-        </div>
-
-        <!-- Not Connected State -->
-        <div *ngIf="!instagramAccountLinked" class="text-center p-5">
-          <i class="pi pi-instagram text-4xl text-gray-400 mb-3"></i>
-          <p class="text-gray-600 m-0">{{ 'PROFILE.POSTS.CONNECT_PROMPT' | translate }}</p>
-        </div>
-      </div>
-
-      <!-- Analytics Section (Existing) -->
-      <div class="card-style mt-4 p-4" *ngIf="instagramAccountLinked">
-        <div class="flex justify-content-between align-items-center mb-3">
-          <h3 class="text-xl font-bold m-0">{{ 'PROFILE.ANALYTICS.TITLE' | translate }}</h3>
-          <span class="text-sm text-color-secondary">{{ 'PROFILE.ANALYTICS.SUBTITLE' | translate }}</span>
-        </div>
-        <div class="analytics-row">
-          <div class="analytics-card">
-            <app-analytics-chart
-              [title]="'PROFILE.ANALYTICS.AGE' | translate"
-              [labels]="age.labels"
-              [values]="age.values"
-              colorMode="saturation"
-              baseColor="#FFA726">
-            </app-analytics-chart>
+            <div class="col-12 lg:col-5">
+              <!-- Audience Summary -->
+              @if (profile.audienceTopAgeGroup || profile.audienceTopGender || profile.audienceTopCountry) {
+                <div class="card-style" style="box-shadow: none; background: var(--surface-50);">
+                  <h3 class="section-title">{{ 'PROFILE.AUDIENCE_SUMMARY.TITLE' | translate }}</h3>
+                  <div class="metric-table">
+                    @if (profile.audienceTopAgeGroup) {
+                      <div class="metric-row">
+                        <span class="text-color-secondary">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_AGE' | translate }}</span>
+                        <span class="font-bold">{{ profile.audienceTopAgeGroup }}</span>
+                      </div>
+                    }
+                    @if (profile.audienceTopGender) {
+                      <div class="metric-row">
+                        <span class="text-color-secondary">{{ 'PROFILE.AUDIENCE_SUMMARY.DOMINANT_GENDER' | translate }}</span>
+                        <span class="font-bold">
+                          {{ profile.audienceTopGender }}
+                          @if (profile.audienceTopGenderPercentage) {
+                            <span class="text-color-secondary font-normal text-sm ml-1">
+                              ({{ formatPercent(profile.audienceTopGenderPercentage) }})
+                            </span>
+                          }
+                        </span>
+                      </div>
+                    }
+                    @if (profile.audienceTopCountry) {
+                      <div class="metric-row">
+                        <span class="text-color-secondary">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_COUNTRY' | translate }}</span>
+                        <span class="font-bold">
+                          {{ profile.audienceTopCountry }}
+                          @if (profile.audienceTopCountryPercentage) {
+                            <span class="text-color-secondary font-normal text-sm ml-1">
+                              ({{ formatPercent(profile.audienceTopCountryPercentage) }})
+                            </span>
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
           </div>
-          <div class="analytics-card">
-            <app-analytics-chart
-              [title]="'PROFILE.ANALYTICS.GENDER' | translate"
-              [labels]="gender.labels"
-              [values]="gender.values"
-              [colorMapping]="genderColorMapping"
-              [maxPieSegments]="100">
-            </app-analytics-chart>
-          </div>
-          <div class="analytics-card">
-            <app-analytics-chart
-              [title]="'PROFILE.ANALYTICS.LOCATION' | translate"
-              [labels]="location.labels"
-              [values]="location.values">
-            </app-analytics-chart>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sidebar (Right) -->
-    <div class="col-12 lg:col-4">
-      <!-- Mini Calendar Widget (Placeholder) -->
-      <div class="card-style p-4 mb-4">
-        <h3 class="text-xl font-bold mb-3">{{ 'PROFILE.CALENDAR.TITLE' | translate }}</h3>
-        <div class="calendar-placeholder bg-teal-50 border-round p-3 text-center text-teal-700"
-          style="height: 200px; display: flex; align-items: center; justify-content: center;">
-          <div>
-            <i class="pi pi-calendar text-4xl mb-2"></i>
-            <p class="m-0">{{ 'PROFILE.CALENDAR.EMPTY' | translate }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Instagram Connect Status -->
-      <div class="card-style p-4">
-        <h3 class="text-xl font-bold mb-3">{{ 'PROFILE.CONNECTION.TITLE' | translate }}</h3>
-        <div class="flex align-items-center gap-3 mb-3">
-          <div class="status-indicator" [class.bg-green-500]="instagramAccountLinked"
-            [class.bg-red-500]="!instagramAccountLinked" style="width: 10px; height: 10px; border-radius: 50%;"></div>
-          <span>{{ instagramAccountLinked ? ('PROFILE.CONNECTION.CONNECTED' | translate) : ('PROFILE.CONNECTION.DISCONNECTED' | translate) }}</span>
-        </div>
-        <p-button *ngIf="!instagramAccountLinked" [label]="'PROFILE.CONNECTION.CONNECT' | translate" (onClick)="handleRenewInstagramAccess()"
-          styleClass="w-full"></p-button>
-        <p-button *ngIf="instagramAccountLinked" [label]="'PROFILE.CONNECTION.REFRESH' | translate" (onClick)="handleRenewInstagramAccess()"
-          styleClass="p-button-outlined w-full"></p-button>
-      </div>
-
-    </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   </div>
 </div>

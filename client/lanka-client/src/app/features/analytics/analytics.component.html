@@ -155,7 +155,7 @@
                     </div>
                     <div class="insight-item">
                       <i class="pi pi-chart-bar"></i>
-                      <span>{{ formatNumber(getPostInsightValue(post, 'impressions')) }}</span>
+                      <span>{{ formatNumber(getPostInsightValue(post, 'views')) }}</span>
                     </div>
                   </div>
                 </ng-template>
@@ -189,15 +189,22 @@
               </ng-template>
               
               <ng-template pTemplate="content">
-                <div class="interaction-metrics">
-                  <div *ngFor="let metric of interactionStats.metrics" class="interaction-metric">
-                    <h4>{{ metric.title || metric.name }}</h4>
-                    <div class="metric-timeline">
-                      <div *ngFor="let value of metric.values" class="timeline-item">
-                        <span class="timeline-date">{{ value.endTime | date:'short' }}</span>
-                        <span class="timeline-value">{{ formatNumber(value.value) }}</span>
-                      </div>
-                    </div>
+                <div class="interaction-metrics grid">
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>Engagement Rate</h4>
+                    <span class="text-xl font-bold">{{ interactionStats.engagementRate | number:'1.2-2' }}%</span>
+                  </div>
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>Avg. Likes</h4>
+                    <span class="text-xl font-bold">{{ formatNumber(interactionStats.averageLikes) }}</span>
+                  </div>
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>Avg. Comments</h4>
+                    <span class="text-xl font-bold">{{ formatNumber(interactionStats.averageComments) }}</span>
+                  </div>
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>CPE</h4>
+                    <span class="text-xl font-bold">{{ interactionStats.cpe | number:'1.2-2' }}</span>
                   </div>
                 </div>
               </ng-template>

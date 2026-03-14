@@ -67,6 +67,11 @@ export interface IPendCampaignRequest {
   offerId: string;
 }
 
+export interface IAveragePrice {
+  currency: string;
+  amount: number;
+}
+
 // Offer Models
 export interface IOffer {
   id: string;
