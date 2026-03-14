@@ -10,7 +10,16 @@
     "EDIT": "Edit",
     "DELETE": "Delete",
     "PRIVACY_POLICY": "Privacy Policy",
-    "BLOGGER": "Blogger"
+    "BLOGGER": "Blogger",
+    "UNAVAILABLE": "N/A",
+    "STATUS": {
+      "POOR": "Low",
+      "AVERAGE": "Avg",
+      "GOOD": "Good",
+      "EXCELLENT": "High"
+    },
+    "THEME_LIGHT": "Light Mode",
+    "THEME_DARK": "Dark Mode"
   },
   "ERRORS": {
     "UNEXPECTED": "An unexpected error occurred.",
@@ -125,7 +134,8 @@
       "ENGAGEMENT_RATE": "Engagement Rate",
       "AUDIENCE_COUNTRY": "Audience Country",
       "TYPE": "Type",
-      "PRICE_RANGE": "Price Range",
+      "PRICE_RANGE": "Campaign Price",
+      "PRICE_RANGE_HINT": "Average price per currency.",
       "PRICE_MIN": "Min",
       "PRICE_MAX": "Max",
       "ACTIVE_ONLY": "Active Only"
@@ -177,8 +187,10 @@
     },
     "METRICS": {
       "FOLLOWERS": "Followers",
-      "PRICE_RANGE": "Ad Price Range",
-      "POSTS": "Posts"
+      "PRICE_RANGE": "Campaign Price",
+      "PRICE_RANGE_HINT": "Average price per currency.",
+      "POSTS": "Posts",
+      "ENGAGEMENT_RATE": "Engagement Rate"
     },
     "ABOUT": {
       "TITLE": "About Me",
@@ -195,7 +207,57 @@
       "SUBTITLE": "Snapshots of your audience",
       "AGE": "Age",
       "GENDER": "Gender",
-      "LOCATION": "Location"
+      "LOCATION": "Location",
+      "REACH": "Reach Distribution",
+      "NO_LOCATION_DATA": "No location data available"
+    },
+    "PERFORMANCE": {
+      "TITLE": "Performance Metrics",
+      "EMPTY": "Performance data not available yet",
+      "ENGAGEMENT_RATE": "Engagement Rate",
+      "REACH_RATE": "Reach Rate",
+      "ER_REACH": "ER / Reach",
+      "AVG_LIKES": "Avg. Likes",
+      "AVG_COMMENTS": "Avg. Comments",
+      "CPE": "CPE",
+      "INTERACTIONS": "Interactions",
+      "ENGAGEMENT_RATE_HINT": "Ratio of total interactions (likes + comments + saves) to followers.",
+      "REACH_RATE_HINT": "Percentage of followers who saw the content.",
+      "ER_REACH_HINT": "Engagement Rate based on actual reach rather than total followers.",
+      "AVG_LIKES_HINT": "Average number of likes per day in this period.",
+      "AVG_COMMENTS_HINT": "Average number of comments per day in this period.",
+      "CPE_HINT": "Cost Per Engagement (if ad spend data is available)."
+    },
+    "OVERVIEW": {
+      "TITLE": "Account Overview",
+      "PERIOD": "Last 7 days",
+      "EMPTY": "Overview data not available",
+      "FOLLOWERS_COUNT": "Followers Count",
+      "FOLLOWERS_COUNT_HINT": "Total number of followers.",
+      "REACH": "Reach",
+      "REACH_HINT": "Number of unique accounts that have seen the content.",
+      "VIEWS": "Views",
+      "VIEWS_HINT": "Total number of times the content was viewed (impressions).",
+      "TOTAL_INTERACTIONS": "Total Interactions",
+      "TOTAL_INTERACTIONS_HINT": "Sum of likes, comments, saves, and shares.",
+      "COMMENTS": "Comments",
+      "COMMENTS_HINT": "Total number of comments received.",
+      "LIKES": "Likes",
+      "LIKES_HINT": "Total number of likes received.",
+      "SAVES": "Saves",
+      "SAVES_HINT": "Total number of times content was saved.",
+      "SHARES": "Shares",
+      "SHARES_HINT": "Total number of times content was shared."
+    },
+    "REVIEWS": {
+      "TITLE": "Reviews",
+      "EMPTY": "No reviews yet"
+    },
+    "AUDIENCE_SUMMARY": {
+      "TITLE": "Audience Summary",
+      "TOP_AGE": "Top Age Group",
+      "DOMINANT_GENDER": "Dominant Gender",
+      "TOP_COUNTRY": "Top Country"
     },
     "CALENDAR": {
       "TITLE": "Calendar",
@@ -210,6 +272,12 @@
     },
     "DELETE_SUCCESS": "Your account has been deleted.",
     "DELETE_ERROR": "Failed to delete account. Please try again later.",
+    "TABS": {
+      "OVERVIEW": "Overview",
+      "STATISTICS": "Statistics",
+      "REVIEWS": "Reviews",
+      "SETTINGS": "Settings"
+    },
     "SHARE": {
       "TITLE": "My Lanka profile",
       "MESSAGE": "Check out {{name}} on Lanka.",
@@ -464,6 +532,87 @@
     "STEP_CHECK_NETWORK": "Check the network tab in DevTools.",
     "STEP_REPRODUCE": "Reproduce the error in Postman. If it happens there too, no need to debug Angular code.",
     "STACK_TRACE": "Stack trace"
+  },
+  "PUBLIC_PROFILE": {
+    "LOADING": "Loading profile...",
+    "GO_BACK": "Go Back",
+    "KPI": {
+      "FOLLOWERS": "Followers",
+      "POSTS": "Posts",
+      "ENGAGEMENT_RATE": "Engagement Rate",
+      "AD_PRICE": "Campaign Price",
+      "AD_PRICE_HINT": "Average price per currency."
+    },
+    "TABS": {
+      "OVERVIEW": "Overview",
+      "STATISTICS": "Statistics",
+      "REVIEWS": "Reviews",
+      "CAMPAIGN": "Campaign"
+    },
+    "PERFORMANCE": {
+      "TITLE": "Performance",
+      "ENGAGEMENT_RATE": "Engagement Rate",
+      "REACH_RATE": "Reach Rate",
+      "ER_REACH": "ER / Reach",
+      "AVG_LIKES": "Avg. Likes",
+      "AVG_COMMENTS": "Avg. Comments",
+      "CPE": "CPE",
+      "ENGAGEMENT_RATE_HINT": "Ratio of total interactions (likes + comments + saves) to followers.",
+      "REACH_RATE_HINT": "Percentage of followers who saw the content.",
+      "ER_REACH_HINT": "Engagement Rate based on actual reach rather than total followers.",
+      "AVG_LIKES_HINT": "Average number of likes per day in this period.",
+      "AVG_COMMENTS_HINT": "Average number of comments per day in this period.",
+      "CPE_HINT": "Cost Per Engagement (if ad spend data is available)."
+    },
+    "OVERVIEW": {
+      "TITLE": "Account Overview",
+      "FOLLOWERS_COUNT": "Followers Count",
+      "FOLLOWERS_COUNT_HINT": "Total number of followers.",
+      "REACH": "Reach",
+      "REACH_HINT": "Number of unique accounts that have seen the content.",
+      "VIEWS": "Views",
+      "VIEWS_HINT": "Total number of times the content was viewed (impressions).",
+      "TOTAL_INTERACTIONS": "Total Interactions",
+      "TOTAL_INTERACTIONS_HINT": "Sum of likes, comments, saves, and shares.",
+      "COMMENTS": "Comments",
+      "COMMENTS_HINT": "Total number of comments received.",
+      "LIKES": "Likes",
+      "LIKES_HINT": "Total number of likes received.",
+      "SAVES": "Saves",
+      "SAVES_HINT": "Total number of times content was saved.",
+      "SHARES": "Shares",
+      "SHARES_HINT": "Total number of times content was shared."
+    },
+    "STATISTICS": {
+      "TOP_LOCATIONS": "Top Locations",
+      "NO_LOCATION_DATA": "No location data available",
+      "ENGAGEMENT_RATES": "Engagement Rates",
+      "INTERACTIONS": "Interactions"
+    },
+    "REVIEWS": {
+      "EMPTY": "No reviews yet"
+    },
+    "POSTS": {
+      "TITLE": "Recent Posts"
+    },
+    "CAMPAIGN": {
+      "ABOUT": "About",
+      "NO_OFFERS": "No offers available yet",
+      "SERVICES": "Services & Pricing",
+      "START": "Start Campaign"
+    },
+    "AUDIENCE": {
+      "TITLE": "Audience",
+      "TOP_AGE": "Top Age Group",
+      "DOMINANT_GENDER": "Dominant Gender",
+      "TOP_COUNTRY": "Top Country"
+    },
+    "STATS_EMPTY": "Statistics not available yet",
+    "AUDIENCE_EMPTY": "Audience data not available",
+    "ENGAGEMENT_EMPTY": "No engagement data",
+    "ACTIONS": {
+      "WORK_WITH_ME": "Work with me"
+    }
   },
   "INSTAGRAM_STATUS": {
     "DEFAULT_TITLE": "Instagram status",
