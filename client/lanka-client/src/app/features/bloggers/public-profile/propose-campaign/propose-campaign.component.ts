@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CampaignsAgent } from '../../../../core/api/campaigns.agent';
 import { IPendCampaignRequest } from '../../../../core/models/campaigns';
@@ -14,7 +13,6 @@ import { SnackbarService } from '../../../../core/services/snackbar/snackbar.ser
   selector: 'app-propose-campaign',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
