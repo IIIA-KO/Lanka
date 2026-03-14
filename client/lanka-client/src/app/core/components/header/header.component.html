@@ -25,6 +25,17 @@
             <app-language-switcher></app-language-switcher>
         </div>
 
+        <div class="theme-wrapper ml-1 md:ml-2">
+            <p-button 
+                [icon]="theme.isDark() ? 'pi pi-sun' : 'pi pi-moon'" 
+                [text]="true" 
+                [rounded]="true" 
+                (onClick)="theme.toggleTheme()"
+                [pTooltip]="(theme.isDark() ? 'COMMON.THEME_LIGHT' : 'COMMON.THEME_DARK') | translate"
+                tooltipPosition="bottom">
+            </p-button>
+        </div>
+
         <!-- User Menu -->
         @let profile = profile$ | async;
         <div class="user-profile" (click)="menu.toggle($event)" (keydown.enter)="menu.toggle($event)" tabindex="0"

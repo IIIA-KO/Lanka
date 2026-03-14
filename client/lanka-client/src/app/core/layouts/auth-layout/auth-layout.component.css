@@ -2,9 +2,27 @@
   background-color: var(--app-ground);
 }
 
+.tab-container {
+  border-bottom: 1px solid var(--app-border, #e2e8f0);
+}
+
+.tab-link {
+  color: var(--text-color-secondary);
+  transition: color 0.15s;
+}
+
+.tab-link:hover {
+  color: var(--text-color);
+}
+
 .active-tab {
   font-weight: 600;
+  color: var(--text-color) !important;
   border-bottom: 2px solid var(--p-primary-color)
+}
+
+.logo-dark {
+  filter: brightness(0) saturate(100%) invert(88%) sepia(3%) saturate(1028%) hue-rotate(188deg) brightness(89%) contrast(85%); /* Makes the green logo a soft slate-white */
 }
 
 .form-container {
