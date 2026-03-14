@@ -8,7 +8,11 @@ namespace Lanka.Modules.Analytics.Domain.Statistics;
 
 public sealed class InteractionStatistics : AnalyticsDataWithTtl
 {
-    [BsonId] public Guid InstagramAccountId { get; set; }
+    [BsonId]
+    public string Id => $"{this.InstagramAccountId}-{this.StatisticsPeriod}";
+    
+
+    public Guid InstagramAccountId { get; set; }
     public StatisticsPeriod StatisticsPeriod { get; set; }
     public double EngagementRate { get; set; }
     public double AverageLikes { get; set; }
@@ -34,9 +38,7 @@ public sealed class InteractionStatistics : AnalyticsDataWithTtl
         UserActivityLevel userActivityLevel
     )
     {
-        if (!InstagramJsonService.HasData(interactionResponse)
-            || !InstagramJsonService.HasData(adsResponse)
-           )
+        if (!InstagramJsonService.HasData(interactionResponse))
         {
             return Result.Failure<InteractionStatistics>(InvalidData);
         }
@@ -46,12 +48,12 @@ public sealed class InteractionStatistics : AnalyticsDataWithTtl
         int likes = InstagramJsonService.ParseMetricTotalValue(interactionResponse, "likes");
         int comments = InstagramJsonService.ParseMetricTotalValue(interactionResponse, "comments");
 
-        if (reach == 0 || daysCount <= 0)
+        if (daysCount <= 0)
         {
             return Result.Failure<InteractionStatistics>(InvalidData);
         }
 
-        double engagementRate = (double)interactions / reach * 100;
+        double engagementRate = reach > 0 ? (double)interactions / reach * 100 : 0;
         double averageLikes = (double)likes / daysCount;
         double averageComments = (double)comments / daysCount;
 

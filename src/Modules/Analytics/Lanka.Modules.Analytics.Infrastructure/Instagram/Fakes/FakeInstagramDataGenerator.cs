@@ -109,7 +109,7 @@ public static class FakeInstagramDataGenerator
             [
                 new TimeSeriesMetricData
                 {
-                    Name = "impressions",
+                    Name = "views",
                     Values = Enumerable.Range(0, daysOfData).ToDictionary(
                         i => DateTime.UtcNow.Date.AddDays(-i),
                         _ => Faker.Random.Int(100, 5000))
@@ -137,7 +137,7 @@ public static class FakeInstagramDataGenerator
             [
                 new TotalValueMetricData { Name = "followers_count", Value = Faker.Random.Int(1000, 50000) },
                 new TotalValueMetricData { Name = "reach", Value = Faker.Random.Int(5000, 100000) },
-                new TotalValueMetricData { Name = "impressions", Value = Faker.Random.Int(10000, 200000) }
+                new TotalValueMetricData { Name = "views", Value = Faker.Random.Int(10000, 200000) }
             ]
         };
     }
@@ -183,12 +183,17 @@ public static class FakeInstagramDataGenerator
 
         for (int i = 0; i < ranges.Length - 1; i++)
         {
-            double percentage = Math.Round(Faker.Random.Double(5, Math.Min(40, remaining)), 2);
+            // Use a buffer to ensure we don't exhaust the pool too early, but never exceed remaining
+            double max = Math.Min(35, remaining);
+            double percentage = remaining > 0 
+                ? Math.Round(Faker.Random.Double(0, max), 2)
+                : 0;
+            
             distribution.Add(new AgePercentage { AgeGroup = ranges[i], Percentage = percentage });
             remaining -= percentage;
         }
 
-        distribution.Add(new AgePercentage { AgeGroup = ranges[^1], Percentage = Math.Round(remaining, 2) });
+        distribution.Add(new AgePercentage { AgeGroup = ranges[^1], Percentage = Math.Max(0, Math.Round(remaining, 2)) });
         return [.. distribution];
     }
 
@@ -217,12 +222,16 @@ public static class FakeInstagramDataGenerator
 
         for (int i = 0; i < selected.Count - 1; i++)
         {
-            double percentage = Math.Round(Faker.Random.Double(10, Math.Min(30, remaining)), 2);
+            double max = Math.Min(30, remaining);
+            double percentage = remaining > 0 
+                ? Math.Round(Faker.Random.Double(0, max), 2)
+                : 0;
+                
             result.Add(new LocationPercentage { Location = selected[i], Percentage = percentage });
             remaining -= percentage;
         }
 
-        result.Add(new LocationPercentage { Location = selected[^1], Percentage = Math.Round(remaining, 2) });
+        result.Add(new LocationPercentage { Location = selected[^1], Percentage = Math.Max(0, Math.Round(remaining, 2)) });
         return [.. result];
     }
 
@@ -297,7 +306,7 @@ public static class FakeInstagramDataGenerator
         int comments = Faker.Random.Int(5, 500);
         int saves = Faker.Random.Int(10, 1000);
         int reach = Faker.Random.Int(likes, likes * 3);
-        int impressions = Faker.Random.Int(reach, reach * 2);
+        int views = Faker.Random.Int(reach, reach * 2);
 
         return new CachedInstagramPost
         {
@@ -319,7 +328,7 @@ public static class FakeInstagramDataGenerator
                     { Name = "reach", Period = "lifetime", Values = [new CachedInsightValue { Value = reach }] },
                 new CachedInsight
                 {
-                    Name = "impressions", Period = "lifetime", Values = [new CachedInsightValue { Value = impressions }]
+                    Name = "views", Period = "lifetime", Values = [new CachedInsightValue { Value = views }]
                 }
             ]
         };
@@ -368,7 +377,7 @@ public static class FakeInstagramDataGenerator
             [
                 new InstagramInsight
                 {
-                    Name = "impressions", Values = [new InstagramInsightValue { Value = Faker.Random.Int(100, 10000) }]
+                    Name = "views", Values = [new InstagramInsightValue { Value = Faker.Random.Int(100, 10000) }]
                 },
                 new InstagramInsight
                     { Name = "reach", Values = [new InstagramInsightValue { Value = Faker.Random.Int(50, 8000) }] },

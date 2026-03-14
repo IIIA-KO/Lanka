@@ -7,7 +7,9 @@ namespace Lanka.Modules.Analytics.Domain.Statistics;
 
 public sealed class OverviewStatistics : AnalyticsDataWithTtl
 {
-    [BsonId] public Guid InstagramAccountId { get; set; }
+    [BsonId] public string Id => $"{this.InstagramAccountId}-{this.StatisticsPeriod}";
+
+    public Guid InstagramAccountId { get; set; }
     public StatisticsPeriod StatisticsPeriod { get; set; }
     public List<TotalValueMetricData> Metrics { get; set; } = [];
 
@@ -36,10 +38,9 @@ public sealed class OverviewStatistics : AnalyticsDataWithTtl
         {
             if (!metricElement.TryGetProperty("name", out JsonElement nameProp)
                 || !metricElement.TryGetProperty("total_value", out JsonElement totalValueProp)
-                || !totalValueProp.TryGetProperty("value", out JsonElement valueProp)
-               )
+                || !totalValueProp.TryGetProperty("value", out JsonElement valueProp))
             {
-                return Result.Failure<OverviewStatistics>(InvalidData);
+                continue;
             }
 
             var metricData = new TotalValueMetricData

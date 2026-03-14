@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
@@ -75,10 +74,10 @@ internal sealed class InstagramStatisticsService : IInstagramStatisticsService
         {
             JsonElement response = await this._instagramStatisticsApi.GetInsightsAsync(
                 instagramAccount.Metadata.Id,
-                metric: "reach,follower_count,impressions,profile_views",
+                metric: "reach,follower_count,views",
                 period: "day",
-                since: dateRange.Since.ToString(CultureInfo.InvariantCulture),
-                until: dateRange.Until.ToString(CultureInfo.InvariantCulture),
+                since: dateRange.SinceUnix,
+                until: dateRange.UntilUnix,
                 access_token: accessToken,
                 cancellationToken: cancellationToken
             );
@@ -150,10 +149,10 @@ internal sealed class InstagramStatisticsService : IInstagramStatisticsService
         {
             JsonElement response = await this._instagramStatisticsApi.GetInsightsAsync(
                 instagramAccount.Metadata.Id,
-                metric: "reach,impressions,total_interactions,comments,profile_views,website_clicks",
+                metric: "reach,views,total_interactions,comments",
                 period: "day",
-                since: dateRange.Since.ToString(CultureInfo.InvariantCulture),
-                until: dateRange.Until.ToString(CultureInfo.InvariantCulture),
+                since: dateRange.SinceUnix,
+                until: dateRange.UntilUnix,
                 access_token: accessToken,
                 metric_type: "total_value",
                 cancellationToken: cancellationToken
@@ -228,8 +227,8 @@ internal sealed class InstagramStatisticsService : IInstagramStatisticsService
                 instagramAccount.Metadata.Id,
                 metric: "total_interactions,reach,likes,comments",
                 period: "day",
-                since: dateRange.Since.ToString(CultureInfo.InvariantCulture),
-                until: dateRange.Until.ToString(CultureInfo.InvariantCulture),
+                since: dateRange.SinceUnix,
+                until: dateRange.UntilUnix,
                 access_token: accessToken,
                 metric_type: "total_value",
                 cancellationToken: cancellationToken
@@ -240,18 +239,22 @@ internal sealed class InstagramStatisticsService : IInstagramStatisticsService
                 return fallbackData ?? Result.Failure<InteractionStatistics>(InteractionStatistics.InvalidData);
             }
 
-            JsonElement ads = await this._instagramStatisticsApi.GetAdInsightsAsync(
-                instagramAccount.Metadata.Id,
-                fields: "spend",
-                since: dateRange.Since.ToString(CultureInfo.InvariantCulture),
-                until: dateRange.Until.ToString(CultureInfo.InvariantCulture),
-                access_token: accessToken,
-                cancellationToken: cancellationToken
-            );
-
-            if (ads.ValueKind is JsonValueKind.Undefined)
+            JsonElement ads;
+            try
             {
-                return fallbackData ?? Result.Failure<InteractionStatistics>(InteractionStatistics.InvalidData);
+                ads = await this._instagramStatisticsApi.GetAdInsightsAsync(
+                    instagramAccount.AdvertisementAccountId.Value,
+                    fields: "spend",
+                    since: dateRange.SinceUnix,
+                    until: dateRange.UntilUnix,
+                    access_token: accessToken,
+                    cancellationToken: cancellationToken
+                );
+            }
+            catch
+            {
+                // Ad insights may fail if the account has no ad account — use empty data (CPE = 0)
+                ads = JsonDocument.Parse("""{"data": []}""").RootElement;
             }
 
             int daysCount = dateRange.Until.DayNumber - dateRange.Since.DayNumber + 1;
@@ -324,10 +327,10 @@ internal sealed class InstagramStatisticsService : IInstagramStatisticsService
         {
             JsonElement response = await this._instagramStatisticsApi.GetInsightsAsync(
                 instagramAccount.Metadata.Id,
-                metric: "reach,impressions,profile_views,likes,comments,saves",
+                metric: "reach,views,likes,comments,saves",
                 period: "day",
-                since: dateRange.Since.ToString(CultureInfo.InvariantCulture),
-                until: dateRange.Until.ToString(CultureInfo.InvariantCulture),
+                since: dateRange.SinceUnix,
+                until: dateRange.UntilUnix,
                 access_token: accessToken,
                 metric_type: "total_value",
                 cancellationToken: cancellationToken

@@ -7,7 +7,9 @@ namespace Lanka.Modules.Analytics.Domain.Statistics;
 
 public sealed class EngagementStatistics : AnalyticsDataWithTtl
 {
-    [BsonId] public Guid InstagramAccountId { get; set; }
+    [BsonId] public string Id => $"{this.InstagramAccountId}-{this.StatisticsPeriod}";
+
+    public Guid InstagramAccountId { get; set; }
 
     public StatisticsPeriod StatisticsPeriod { get; set; }
 
@@ -45,14 +47,14 @@ public sealed class EngagementStatistics : AnalyticsDataWithTtl
 
         double totalEngagements = likes + comments + saves;
 
-        if (reach == 0 || followersCount <= 0)
+        if (followersCount <= 0)
         {
             return Result.Failure<EngagementStatistics>(InvalidData);
         }
 
         double reachRate = (double)reach / followersCount * 100;
         double engagementRate = totalEngagements / followersCount * 100;
-        double erReach = totalEngagements / reach * 100;
+        double erReach = reach > 0 ? totalEngagements / reach * 100 : 0;
 
         return new EngagementStatistics(userActivityLevel)
         {
