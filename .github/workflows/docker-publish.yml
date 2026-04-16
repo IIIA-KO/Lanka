@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/docker-publish
   workflow_dispatch:
 
 permissions:
