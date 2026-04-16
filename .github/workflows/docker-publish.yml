@@ -1,0 +1,47 @@
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  API_PROJECT: "src/Api/Lanka.Api/Lanka.Api.csproj"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/lanka-api
+
+jobs:
+  docker:
+    name: Publish Container Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.API_PROJECT }}
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Publish container image
+        run: |
+          dotnet publish ${{ env.API_PROJECT }} \
+            --configuration Release \
+            --no-restore \
+            --os linux --arch x64 \
+            /t:PublishContainer \
+            -p ContainerRegistry=${{ env.REGISTRY }} \
+            -p ContainerRepository=${{ env.IMAGE_NAME }} \
+            -p ContainerImageTags='"latest;${{ github.sha }}"'
