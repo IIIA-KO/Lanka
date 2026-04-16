@@ -260,8 +260,11 @@
       "TOP_COUNTRY": "Top Country"
     },
     "CALENDAR": {
-      "TITLE": "Calendar",
-      "EMPTY": "No upcoming events"
+      "TITLE": "Campaigns calendar",
+      "EMPTY": "No upcoming events",
+      "BOOKED": "Campaign",
+      "EVENTS_ON": "Events on",
+      "CAMPAIGNS_COUNT": "{{count}} campaigns"
     },
     "CONNECTION": {
       "TITLE": "Instagram Connection",
@@ -613,6 +616,126 @@
     "ACTIONS": {
       "WORK_WITH_ME": "Work with me"
     }
+  },
+  "CAMPAIGNS": {
+    "TITLE": "My Campaigns",
+    "VIEW": {
+      "CALENDAR": "Calendar",
+      "LIST": "List"
+    },
+    "ROLE": {
+      "ALL": "All",
+      "CREATOR": "As Creator",
+      "CLIENT": "As Client"
+    },
+    "STATUS": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "DONE": "Done",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "REJECTED": "Rejected"
+    },
+    "ACTIONS": {
+      "CONFIRM": "Confirm",
+      "REJECT": "Reject",
+      "MARK_DONE": "Mark as Done",
+      "COMPLETE": "Complete",
+      "CANCEL": "Cancel",
+      "LEAVE_REVIEW": "Leave Review",
+      "VIEW_DETAILS": "View Details",
+      "REFRESH": "Refresh"
+    },
+    "ACTION_REQUIRED": {
+      "TITLE": "Action Required",
+      "COUNT": "({{count}})"
+    },
+    "CONFIRM_CANCEL": "Are you sure you want to cancel this campaign? This cannot be undone.",
+    "CONFIRM_CANCEL_HEADER": "Cancel Campaign",
+    "CONFIRM_REJECT": "Are you sure you want to reject this campaign?",
+    "CONFIRM_REJECT_HEADER": "Reject Campaign",
+    "REVIEW": {
+      "TITLE": "Leave a Review",
+      "RATING_LABEL": "Rating",
+      "COMMENT_LABEL": "Comment",
+      "COMMENT_OPTIONAL": "(optional)",
+      "COMMENT_PLACEHOLDER": "Share your experience working with this creator...",
+      "SUBMIT": "Submit Review",
+      "CANCEL": "Cancel",
+      "SUCCESS": "Review submitted successfully",
+      "ERROR": "Failed to submit review",
+      "RATING_REQUIRED": "Please select a rating before submitting."
+    },
+    "EMPTY": {
+      "ALL": "Your campaigns will appear here once you start collaborating.",
+      "CREATOR": "No campaigns where you are the creator.",
+      "CLIENT": "No campaigns where you are the client.",
+      "MONTH": "No campaigns this month",
+      "LIST": "No campaigns match your filters."
+    },
+    "CALENDAR": {
+      "CAMPAIGN_COUNT_ONE": "{{count}} campaign",
+      "CAMPAIGN_COUNT_OTHER": "{{count}} campaigns",
+      "MORE": "+{{count}} more"
+    },
+    "LIST": {
+      "SEARCH_PLACEHOLDER": "Search by name...",
+      "STATUS_FILTER": "Filter by status",
+      "COL_DATE": "Date",
+      "COL_CAMPAIGN": "Campaign",
+      "COL_ROLE": "Role",
+      "COL_STATUS": "Status",
+      "COL_PRICE": "Price",
+      "COL_ACTIONS": "Actions"
+    },
+    "DETAIL": {
+      "BACK": "Back to Campaigns",
+      "GO_BACK": "Go Back",
+      "PARTICIPANTS": "Participants",
+      "ROLE_CREATOR": "Creator",
+      "ROLE_CLIENT": "Client",
+      "YOU_ARE_CREATOR": "You are the Creator",
+      "YOU_ARE_CLIENT": "You are the Client",
+      "KEY_DATES": "Key Dates",
+      "DATE_PROPOSED": "Proposed",
+      "DATE_SCHEDULED": "Scheduled for",
+      "DATE_CONFIRMED": "Confirmed",
+      "DATE_DONE": "Done",
+      "DATE_COMPLETED": "Completed",
+      "DATE_REJECTED": "Rejected",
+      "DATE_CANCELLED": "Cancelled",
+      "REFERENCE": "Reference",
+      "CAMPAIGN_ID": "Campaign ID",
+      "OFFER_ID": "Offer ID",
+      "TIMELINE": "Status Timeline",
+      "TIMELINE_PENDING": "Pending",
+      "ACTIONS_TITLE": "Actions",
+      "CONFIRM_CAMPAIGN": "Confirm Campaign",
+      "REJECT": "Reject",
+      "MARK_DONE": "Mark as Done",
+      "COMPLETE_CAMPAIGN": "Complete Campaign",
+      "CANCEL_CAMPAIGN": "Cancel Campaign",
+      "LEAVE_REVIEW": "Leave a Review",
+      "CONFIRM_DIALOG_CONFIRM_MSG": "Accept this campaign and commit to delivering the work?",
+      "CONFIRM_DIALOG_CONFIRM_HEADER": "Confirm Campaign",
+      "CONFIRM_DIALOG_REJECT_MSG": "Reject this campaign proposal?",
+      "CONFIRM_DIALOG_REJECT_HEADER": "Reject Campaign",
+      "CONFIRM_DIALOG_CANCEL_MSG": "Cancel this campaign? This cannot be undone.",
+      "CONFIRM_DIALOG_CANCEL_HEADER": "Cancel Campaign",
+      "SUCCESS_CONFIRMED": "Campaign confirmed",
+      "SUCCESS_REJECTED": "Campaign rejected",
+      "SUCCESS_DONE": "Marked as done",
+      "SUCCESS_COMPLETED": "Campaign completed",
+      "SUCCESS_CANCELLED": "Campaign cancelled",
+      "ERROR_ACTION": "Action failed. Please try again.",
+      "ERROR_LOAD": "Failed to load campaign details.",
+      "ERROR_NO_ID": "Campaign not found.",
+      "REVIEW_SUBMITTED": "Review submitted"
+    },
+    "ERROR": "We could not load your campaigns right now. Please try again shortly.",
+    "ERROR_USER": "Unable to identify current user profile.",
+    "ROLE_CREATOR": "Creator",
+    "ROLE_CLIENT": "Client"
   },
   "INSTAGRAM_STATUS": {
     "DEFAULT_TITLE": "Instagram status",

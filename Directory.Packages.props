@@ -54,7 +54,7 @@
         <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.0" />
         <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
         <!-- Api -->
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
         <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
@@ -77,19 +77,19 @@
         <!-- Search -->
         <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.0" />
         <!-- Workers -->
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
-        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2" />
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.5" />
         <!-- Aspire Hosting (AppHost) -->
-        <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.1.2" />
-        <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.2" />
-        <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.1.2" />
-        <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.1.2" />
+        <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.0" />
+        <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.0" />
+        <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.2.0" />
+        <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.2.0" />
         <PackageVersion Include="Aspire.Hosting.Elasticsearch" Version="13.1.0" />
-        <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.1.2-preview.1.26125.13" />
-        <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.1.2" />
+        <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.2.0-preview.1.26170.3" />
+        <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.2.0" />
         <!-- Aspire Client Libraries -->
-        <PackageVersion Include="Aspire.MongoDB.Driver" Version="13.1.2" />
-        <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.1.2" />
+        <PackageVersion Include="Aspire.MongoDB.Driver" Version="13.2.0" />
+        <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.2.0" />
         <!-- Aspire ServiceDefaults -->
         <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.2.0" />
         <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.2.0" />

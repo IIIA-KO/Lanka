@@ -55,6 +55,7 @@ import { DeliverableTemplatesService } from '../../../core/services/deliverable-
 import { IInstagramPost } from '../../../core/models/analytics/analytics.posts';
 import { AnalyticsChartComponent } from '../../analytics/chart/chart.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ProfileCalendarComponent } from '../components/profile-calendar/profile-calendar.component';
 
 @Component({
   imports: [
@@ -63,6 +64,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     FormsModule,
     DatePipe,
     AnalyticsChartComponent,
+    ProfileCalendarComponent,
     ButtonModule,
     CardModule,
     TagModule,

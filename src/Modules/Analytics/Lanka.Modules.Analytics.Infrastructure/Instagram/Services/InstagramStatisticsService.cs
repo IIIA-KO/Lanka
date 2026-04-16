@@ -349,6 +349,7 @@ internal sealed class InstagramStatisticsService : IInstagramStatisticsService
             Result<EngagementStatistics> result = EngagementStatistics.Create(
                 response,
                 instagramAccount.Metadata.FollowersCount,
+                statisticsPeriod,
                 userActivityLevel
             );
 

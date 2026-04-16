@@ -260,8 +260,11 @@
       "TOP_COUNTRY": "Основна країна"
     },
     "CALENDAR": {
-      "TITLE": "Календар",
-      "EMPTY": "Найближчих подій немає"
+      "TITLE": "Календар кампаній",
+      "EMPTY": "Найближчих подій немає",
+      "BOOKED": "Кампанія",
+      "EVENTS_ON": "Події на",
+      "CAMPAIGNS_COUNT": "{{count}} кампаній"
     },
     "CONNECTION": {
       "TITLE": "Підключення Instagram",
@@ -613,6 +616,126 @@
     "ACTIONS": {
       "WORK_WITH_ME": "Співпрацювати зі мною"
     }
+  },
+  "CAMPAIGNS": {
+    "TITLE": "Мої кампанії",
+    "VIEW": {
+      "CALENDAR": "Календар",
+      "LIST": "Список"
+    },
+    "ROLE": {
+      "ALL": "Усі",
+      "CREATOR": "Як автор",
+      "CLIENT": "Як клієнт"
+    },
+    "STATUS": {
+      "PENDING": "Очікує",
+      "CONFIRMED": "Підтверджено",
+      "DONE": "Виконано",
+      "COMPLETED": "Завершено",
+      "CANCELLED": "Скасовано",
+      "REJECTED": "Відхилено"
+    },
+    "ACTIONS": {
+      "CONFIRM": "Підтвердити",
+      "REJECT": "Відхилити",
+      "MARK_DONE": "Позначити як виконане",
+      "COMPLETE": "Завершити",
+      "CANCEL": "Скасувати",
+      "LEAVE_REVIEW": "Залишити відгук",
+      "VIEW_DETAILS": "Деталі",
+      "REFRESH": "Оновити"
+    },
+    "ACTION_REQUIRED": {
+      "TITLE": "Необхідна дія",
+      "COUNT": "({{count}})"
+    },
+    "CONFIRM_CANCEL": "Ви впевнені, що хочете скасувати цю кампанію? Цю дію не можна відмінити.",
+    "CONFIRM_CANCEL_HEADER": "Скасувати кампанію",
+    "CONFIRM_REJECT": "Ви впевнені, що хочете відхилити цю кампанію?",
+    "CONFIRM_REJECT_HEADER": "Відхилити кампанію",
+    "REVIEW": {
+      "TITLE": "Залишити відгук",
+      "RATING_LABEL": "Оцінка",
+      "COMMENT_LABEL": "Коментар",
+      "COMMENT_OPTIONAL": "(необов'язково)",
+      "COMMENT_PLACEHOLDER": "Поділіться враженням від роботи з цим автором...",
+      "SUBMIT": "Надіслати відгук",
+      "CANCEL": "Скасувати",
+      "SUCCESS": "Відгук надіслано успішно",
+      "ERROR": "Не вдалося надіслати відгук",
+      "RATING_REQUIRED": "Будь ласка, виберіть оцінку перед надсиланням."
+    },
+    "EMPTY": {
+      "ALL": "Ваші кампанії з'являться тут після початку співпраці.",
+      "CREATOR": "Немає кампаній, де ви є автором.",
+      "CLIENT": "Немає кампаній, де ви є клієнтом.",
+      "MONTH": "Немає кампаній у цьому місяці",
+      "LIST": "Немає кампаній, що відповідають фільтрам."
+    },
+    "CALENDAR": {
+      "CAMPAIGN_COUNT_ONE": "{{count}} кампанія",
+      "CAMPAIGN_COUNT_OTHER": "{{count}} кампаній",
+      "MORE": "+{{count}} ще"
+    },
+    "LIST": {
+      "SEARCH_PLACEHOLDER": "Пошук за назвою...",
+      "STATUS_FILTER": "Фільтр за статусом",
+      "COL_DATE": "Дата",
+      "COL_CAMPAIGN": "Кампанія",
+      "COL_ROLE": "Роль",
+      "COL_STATUS": "Статус",
+      "COL_PRICE": "Ціна",
+      "COL_ACTIONS": "Дії"
+    },
+    "DETAIL": {
+      "BACK": "Назад до кампаній",
+      "GO_BACK": "Назад",
+      "PARTICIPANTS": "Учасники",
+      "ROLE_CREATOR": "Автор",
+      "ROLE_CLIENT": "Клієнт",
+      "YOU_ARE_CREATOR": "Ви є автором",
+      "YOU_ARE_CLIENT": "Ви є клієнтом",
+      "KEY_DATES": "Ключові дати",
+      "DATE_PROPOSED": "Запропоновано",
+      "DATE_SCHEDULED": "Заплановано на",
+      "DATE_CONFIRMED": "Підтверджено",
+      "DATE_DONE": "Виконано",
+      "DATE_COMPLETED": "Завершено",
+      "DATE_REJECTED": "Відхилено",
+      "DATE_CANCELLED": "Скасовано",
+      "REFERENCE": "Довідка",
+      "CAMPAIGN_ID": "ID кампанії",
+      "OFFER_ID": "ID пропозиції",
+      "TIMELINE": "Хронологія статусів",
+      "TIMELINE_PENDING": "Очікує",
+      "ACTIONS_TITLE": "Дії",
+      "CONFIRM_CAMPAIGN": "Підтвердити кампанію",
+      "REJECT": "Відхилити",
+      "MARK_DONE": "Позначити як виконане",
+      "COMPLETE_CAMPAIGN": "Завершити кампанію",
+      "CANCEL_CAMPAIGN": "Скасувати кампанію",
+      "LEAVE_REVIEW": "Залишити відгук",
+      "CONFIRM_DIALOG_CONFIRM_MSG": "Прийняти цю кампанію та взяти на себе зобов'язання виконати роботу?",
+      "CONFIRM_DIALOG_CONFIRM_HEADER": "Підтвердити кампанію",
+      "CONFIRM_DIALOG_REJECT_MSG": "Відхилити цю пропозицію кампанії?",
+      "CONFIRM_DIALOG_REJECT_HEADER": "Відхилити кампанію",
+      "CONFIRM_DIALOG_CANCEL_MSG": "Скасувати цю кампанію? Цю дію не можна відмінити.",
+      "CONFIRM_DIALOG_CANCEL_HEADER": "Скасувати кампанію",
+      "SUCCESS_CONFIRMED": "Кампанію підтверджено",
+      "SUCCESS_REJECTED": "Кампанію відхилено",
+      "SUCCESS_DONE": "Позначено як виконане",
+      "SUCCESS_COMPLETED": "Кампанію завершено",
+      "SUCCESS_CANCELLED": "Кампанію скасовано",
+      "ERROR_ACTION": "Дія не вдалася. Спробуйте ще раз.",
+      "ERROR_LOAD": "Не вдалося завантажити деталі кампанії.",
+      "ERROR_NO_ID": "Кампанію не знайдено.",
+      "REVIEW_SUBMITTED": "Відгук надіслано"
+    },
+    "ERROR": "Не вдалося завантажити ваші кампанії. Спробуйте ще раз.",
+    "ERROR_USER": "Не вдалося визначити поточний профіль користувача.",
+    "ROLE_CREATOR": "Автор",
+    "ROLE_CLIENT": "Клієнт"
   },
   "INSTAGRAM_STATUS": {
     "DEFAULT_TITLE": "Статус Instagram",

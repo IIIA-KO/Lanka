@@ -100,6 +100,7 @@ internal sealed class SearchDocuments : SearchEndpointBase
                         itemTypes,
                         numericFilters.Count > 0 ? numericFilters : null,
                         facetFilters.Count > 0 ? facetFilters : null,
+                        null,
                         createdAfter,
                         createdBefore,
                         onlyActive ?? true,

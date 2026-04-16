@@ -28,6 +28,7 @@ internal sealed class SearchDocumentsQueryHandler : IQueryHandler<SearchDocument
             request.ItemTypes,
             request.NumericFilters,
             request.FacetFilters,
+            request.OrFacetFilters,
             request.CreatedAfter,
             request.CreatedBefore,
             request.OnlyActive,

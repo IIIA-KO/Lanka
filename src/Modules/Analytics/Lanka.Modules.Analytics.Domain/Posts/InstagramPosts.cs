@@ -5,8 +5,7 @@ namespace Lanka.Modules.Analytics.Domain.Posts;
 
 public sealed class InstagramPosts : AnalyticsDataWithTtl
 {
-    [BsonId]
-    public Guid InstagramAccountId { get; set; }
+    [BsonId] public Guid InstagramAccountId { get; set; }
 
     public List<CachedInstagramPost> Posts { get; set; } = [];
 
@@ -15,9 +14,18 @@ public sealed class InstagramPosts : AnalyticsDataWithTtl
     public InstagramPosts() { }
 
     public InstagramPosts(UserActivityLevel activityLevel)
-        : base(GetTtlForActivityLevel(activityLevel))
+        : base(GetTtlForPostsActivityLevel(activityLevel))
     {
     }
+
+    private static TimeSpan GetTtlForPostsActivityLevel(UserActivityLevel activityLevel) => activityLevel switch
+    {
+        UserActivityLevel.PowerUser => TimeSpan.FromHours(12),
+        UserActivityLevel.Active => TimeSpan.FromHours(24),
+        UserActivityLevel.Occasional => TimeSpan.FromHours(36),
+        UserActivityLevel.Inactive => TimeSpan.FromHours(48),
+        _ => TimeSpan.FromHours(24)
+    };
 }
 
 public sealed class CachedInstagramPost

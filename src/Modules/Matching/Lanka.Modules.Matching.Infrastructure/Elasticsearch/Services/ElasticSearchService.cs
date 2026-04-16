@@ -302,6 +302,20 @@ internal sealed class ElasticSearchService : ISearchService
             }
         }
 
+        foreach ((string field, IReadOnlyCollection<string> values) in query.OrFacetFilters)
+        {
+            string fieldName = "metadata." + field + ".keyword";
+            var shouldClauses = values
+                .Select(v => (Query)new TermQuery { Field = fieldName, Value = v })
+                .ToList();
+
+            filters.Add(new BoolQuery
+            {
+                Should = shouldClauses,
+                MinimumShouldMatch = 1
+            });
+        }
+
         if (query.CreatedAfter.HasValue || query.CreatedBefore.HasValue)
         {
             var rangeQuery = new DateRangeQuery("lastUpdated");

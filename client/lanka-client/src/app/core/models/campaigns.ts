@@ -32,8 +32,18 @@ export interface ICampaign {
   expectedCompletionDate: string;
   deliverables: IDeliverable[];
   scheduledOnUtc: string;
+  pendedOnUtc: string;
+  confirmedOnUtc?: string;
+  rejectedOnUtc?: string;
+  cancelledOnUtc?: string;
+  doneOnUtc?: string;
+  completedOnUtc?: string;
   createdAt: string;
   updatedAt: string;
+  creatorFirstName?: string;
+  creatorLastName?: string;
+  clientFirstName?: string;
+  clientLastName?: string;
 }
 
 // Deliverable Model

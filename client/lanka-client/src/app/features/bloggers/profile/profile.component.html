@@ -225,6 +225,9 @@
               <p class="text-gray-600 m-0">{{ 'PROFILE.POSTS.CONNECT_PROMPT' | translate }}</p>
             </div>
           }
+          <div class="mt-4 mb-4">
+            <app-profile-calendar [bloggerId]="profile.id" [isOwnProfile]="true"></app-profile-calendar>
+          </div>
 
           <div class="grid">
             <!-- Left: Empty (We removed redundant charts here to push users to Statistics tab) -->

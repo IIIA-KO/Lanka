@@ -39,6 +39,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
+import { ProfileCalendarComponent } from '../components/profile-calendar/profile-calendar.component';
 
 @Component({
   selector: 'app-public-profile',
@@ -60,7 +61,8 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
     ProposeCampaignComponent,
     TranslateModule,
     TooltipModule,
-    TagModule
+    TagModule,
+    ProfileCalendarComponent
   ],
   templateUrl: './public-profile.component.html',
   styleUrl: './public-profile.component.css'

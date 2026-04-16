@@ -5,7 +5,9 @@ using Lanka.Modules.Analytics.Application.Abstractions.Data;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
 using Lanka.Modules.Analytics.Application.Abstractions.Models.Accounts;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts;
+using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Domain.InstagramAccounts.Metadatas;
+using Lanka.Modules.Analytics.Domain.Statistics;
 using Lanka.Modules.Analytics.Domain.Tokens;
 using Lanka.Modules.Analytics.Infrastructure.Instagram;
 using Microsoft.Extensions.Logging;
@@ -20,6 +22,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly InstagramOptions _instagramOptions;
     private readonly IInstagramServiceFactory<IInstagramAccountsService> _instagramAccountsServiceFactory;
+    private readonly IInstagramServiceFactory<IInstagramStatisticsService> _instagramStatisticsServiceFactory;
     private readonly RateLimiter _rateLimiter;
     private readonly IInstagramAccountRepository _instagramAccountRepository;
     private readonly ITokenRepository _tokenRepository;
@@ -30,6 +33,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         IDateTimeProvider dateTimeProvider,
         IOptions<InstagramOptions> instagramOptions,
         IInstagramServiceFactory<IInstagramAccountsService> instagramAccountsServiceFactory,
+        IInstagramServiceFactory<IInstagramStatisticsService> instagramStatisticsServiceFactory,
         RateLimiter rateLimiter,
         IInstagramAccountRepository instagramAccountRepository,
         ITokenRepository tokenRepository,
@@ -40,6 +44,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         this._dateTimeProvider = dateTimeProvider;
         this._instagramOptions = instagramOptions.Value;
         this._instagramAccountsServiceFactory = instagramAccountsServiceFactory;
+        this._instagramStatisticsServiceFactory = instagramStatisticsServiceFactory;
         this._rateLimiter = rateLimiter;
         this._instagramAccountRepository = instagramAccountRepository;
         this._tokenRepository = tokenRepository;
@@ -100,7 +105,7 @@ internal sealed class UpdateInstagramAccountsJob : IJob
             {
                 this._logger.LogError(exception,
                     "Exception occurred while processing Instagram account {AccountId}", account.Id);
-                return;
+                failureCount++;
             }
         }
 
@@ -127,10 +132,11 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         if (token is null)
         {
             this._logger.LogWarning(
-                "No token found for user associated with Instagram account {AccountId}",
-                account.Id
+                "No token found for user associated with Instagram account {Email} {AccountId}",
+                account.Email.Value, account.Id
             );
 
+            account.LastUpdatedAtUtc = this._dateTimeProvider.UtcNow;
             return;
         }
 
@@ -138,10 +144,11 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         if (token.AccessToken.Value.StartsWith("fake_token_", StringComparison.OrdinalIgnoreCase))
         {
             this._logger.LogDebug(
-                "Skipping mock Instagram account {AccountId} with fake token",
-                account.Id
+                "Skipping mock Instagram account {Email} {AccountId} with fake token",
+                account.Email.Value, account.Id
             );
 
+            account.LastUpdatedAtUtc = this._dateTimeProvider.UtcNow;
             return;
         }
 
@@ -160,9 +167,11 @@ internal sealed class UpdateInstagramAccountsJob : IJob
         if (instagramAccountResult.IsFailure)
         {
             this._logger.LogError(
-                "Failed to retrieve Instagram user info for account {AccountId}: {ErrorMessage}",
-                account.Id, instagramAccountResult.Error.Description
+                "Failed to retrieve Instagram user info for account {Email}: {ErrorMessage}",
+                account.Email.Value, instagramAccountResult.Error.Description
             );
+
+            account.LastUpdatedAtUtc = this._dateTimeProvider.UtcNow;
             return;
         }
 
@@ -175,6 +184,12 @@ internal sealed class UpdateInstagramAccountsJob : IJob
 
         if (existingInstagramAccount is null)
         {
+            this._logger.LogWarning(
+                "Account not found on second query for {Email} {AccountId}",
+                account.Email.Value, account.Id
+            );
+
+            account.LastUpdatedAtUtc = this._dateTimeProvider.UtcNow;
             return;
         }
 
@@ -187,6 +202,22 @@ internal sealed class UpdateInstagramAccountsJob : IJob
                 fetchedInstagramAccount.BusinessDiscovery.MediaCount
             ).Value
         );
+
+        existingInstagramAccount.Token = token;
+
+        IInstagramStatisticsService statisticsService = this._instagramStatisticsServiceFactory
+            .GetService(account.Email.Value);
+
+        Result<EngagementStatistics> engagementResult = await statisticsService
+            .GetEngagementStatistics(existingInstagramAccount, StatisticsPeriod.Day21, cancellationToken);
+
+        if (engagementResult.IsFailure)
+        {
+            this._logger.LogWarning(
+                "Failed to pre-fetch engagement statistics for account {AccountId}: {ErrorMessage}",
+                account.Id, engagementResult.Error.Description
+            );
+        }
 
         this._logger.LogInformation("Updated metadata for Instagram account {AccountId}", account.Id);
     }

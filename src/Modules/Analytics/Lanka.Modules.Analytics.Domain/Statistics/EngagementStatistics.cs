@@ -32,6 +32,7 @@ public sealed class EngagementStatistics : AnalyticsDataWithTtl
     public static Result<EngagementStatistics> Create(
         JsonElement response,
         int followersCount,
+        StatisticsPeriod statisticsPeriod,
         UserActivityLevel userActivityLevel
     )
     {
@@ -52,8 +53,10 @@ public sealed class EngagementStatistics : AnalyticsDataWithTtl
             return Result.Failure<EngagementStatistics>(InvalidData);
         }
 
-        double reachRate = (double)reach / followersCount * 100;
-        double engagementRate = totalEngagements / followersCount * 100;
+        int daysCount = (int)statisticsPeriod;
+
+        double reachRate = (double)reach / followersCount / daysCount * 100;
+        double engagementRate = totalEngagements / followersCount / daysCount * 100;
         double erReach = reach > 0 ? totalEngagements / reach * 100 : 0;
 
         return new EngagementStatistics(userActivityLevel)

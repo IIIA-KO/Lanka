@@ -13,6 +13,7 @@ public sealed record SearchDocumentsQuery(
     string? ItemTypes = null,
     IDictionary<string, object>? NumericFilters = null,
     IDictionary<string, IReadOnlyCollection<string>>? FacetFilters = null,
+    IReadOnlyList<(string Field, IReadOnlyCollection<string> Values)>? OrFacetFilters = null,
     DateTimeOffset? CreatedAfter = null,
     DateTimeOffset? CreatedBefore = null,
     bool OnlyActive = true,

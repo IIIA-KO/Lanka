@@ -1,282 +1,273 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { Subject, takeUntil, catchError, of, forkJoin } from 'rxjs';
 
-// PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
-import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
-import { TextareaModule } from 'primeng/textarea';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { RatingModule } from 'primeng/rating';
+import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CampaignsAgent } from '../../../../core/api/campaigns.agent';
-import { AuthService } from '../../../../core/services/auth/auth.service';
+import { BloggersAgent } from '../../../../core/api/bloggers.agent';
 import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service';
 import { ICampaign, CampaignStatus } from '../../../../core/models/campaigns';
-import { DeliverableTemplatesService } from '../../../../core/services/deliverable-templates.service';
 
 @Component({
   standalone: true,
   selector: 'app-campaign-detail',
   imports: [
-    CommonModule,
+    DatePipe,
+    DecimalPipe,
     RouterModule,
     FormsModule,
+    TranslateModule,
     ButtonModule,
-    CardModule,
     TagModule,
     DividerModule,
-    DialogModule,
     ProgressSpinnerModule,
     MessageModule,
-    TextareaModule
+    ConfirmDialogModule,
+    RatingModule,
+    DialogModule,
+    TooltipModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './campaign-detail.component.html',
-  styleUrls: ['./campaign-detail.component.css']
+  styleUrls: ['./campaign-detail.component.css'],
 })
-export class CampaignDetailComponent implements OnInit {
+export class CampaignDetailComponent implements OnInit, OnDestroy {
   public campaign: ICampaign | null = null;
-  public loading = false;
+  public creatorProfile: import('../../../../core/models/blogger').IBloggerProfile | null = null;
+  public clientProfile:  import('../../../../core/models/blogger').IBloggerProfile | null = null;
+  public loading = true;
   public error: string | null = null;
   public isCreator = false;
   public isClient = false;
-
-  // Dialog states
-  public showAcceptDialog = false;
-  public showRejectDialog = false;
-  public showDoneDialog = false;
-  public showCompleteDialog = false;
-  public showCancelDialog = false;
-  public rejectReason = '';
   public processingAction = false;
 
+  // Review dialog
+  public showReviewDialog = false;
+  public reviewRating = 0;
+  public reviewComment = '';
+  public reviewSubmitted = false;
+
   public readonly CampaignStatus = CampaignStatus;
-  public readonly templatesService = inject(DeliverableTemplatesService);
+
+  private currentUserId: string | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly campaignsAgent = inject(CampaignsAgent);
-  private readonly authService = inject(AuthService);
+  private readonly bloggersAgent = inject(BloggersAgent);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
 
   public ngOnInit(): void {
     const campaignId = this.route.snapshot.paramMap.get('id');
-    if (campaignId) {
-      this.loadCampaign(campaignId);
-    } else {
-      this.error = 'Campaign ID not found';
+    if (!campaignId) {
+      this.error = this.translate.instant('CAMPAIGNS.DETAIL.ERROR_NO_ID');
+      this.loading = false;
+      return;
     }
+
+    forkJoin({
+      profile:  this.bloggersAgent.getProfile().pipe(catchError(() => of(null))),
+      campaign: this.campaignsAgent.getCampaign(campaignId).pipe(catchError(() => of(null))),
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ profile, campaign }) => {
+        if (!campaign) {
+          this.error = this.translate.instant('CAMPAIGNS.DETAIL.ERROR_LOAD');
+          this.loading = false;
+          return;
+        }
+        this.campaign = campaign;
+        this.currentUserId = profile?.id?.toLowerCase() ?? null;
+        this.isCreator = !!this.currentUserId && campaign.creatorId?.toLowerCase() === this.currentUserId;
+        this.isClient  = !!this.currentUserId && campaign.clientId?.toLowerCase()  === this.currentUserId;
+
+        // Fetch participant profiles for photos
+        forkJoin({
+          creator: this.bloggersAgent.getBlogger(campaign.creatorId).pipe(catchError(() => of(null))),
+          client:  this.bloggersAgent.getBlogger(campaign.clientId).pipe(catchError(() => of(null))),
+        })
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(({ creator, client }) => {
+            this.creatorProfile = creator;
+            this.clientProfile  = client;
+            this.loading = false;
+          });
+      });
   }
 
-  public getStatusColor(status: string): string {
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ── Status helpers ────────────────────────────────────────────────────────
+  public getStatusSeverity(status: string): string {
     switch (status) {
-      case CampaignStatus.Pending:
-        return 'warn';
-      case CampaignStatus.Confirmed:
-        return 'info';
-      case CampaignStatus.Done:
-        return 'secondary';
-      case CampaignStatus.Completed:
-        return 'success';
-      case CampaignStatus.Rejected:
-      case CampaignStatus.Cancelled:
-        return 'danger';
-      default:
-        return 'info';
+      case CampaignStatus.Pending:   return 'warning';
+      case CampaignStatus.Confirmed: return 'success';
+      case CampaignStatus.Done:      return 'info';
+      case CampaignStatus.Completed: return 'success';
+      case CampaignStatus.Rejected:  return 'danger';
+      case CampaignStatus.Cancelled: return 'secondary';
+      default: return 'secondary';
     }
   }
 
-  public canAccept(): boolean {
-    return this.isCreator && this.campaign?.status === CampaignStatus.Pending;
+  public getStatusIcon(status: string): string {
+    switch (status) {
+      case CampaignStatus.Pending:   return 'pi pi-clock';
+      case CampaignStatus.Confirmed: return 'pi pi-check';
+      case CampaignStatus.Done:      return 'pi pi-flag';
+      case CampaignStatus.Completed: return 'pi pi-check-circle';
+      case CampaignStatus.Rejected:  return 'pi pi-times';
+      case CampaignStatus.Cancelled: return 'pi pi-ban';
+      default: return 'pi pi-circle';
+    }
   }
 
-  public canReject(): boolean {
-    return this.isCreator && this.campaign?.status === CampaignStatus.Pending;
+  // ── Timeline ─────────────────────────────────────────────────────────────
+  public get timelineEvents(): { label: string; date: string | undefined; icon: string; active: boolean; terminal?: boolean }[] {
+    if (!this.campaign) { return []; }
+    const c = this.campaign;
+    const s = c.status as CampaignStatus;
+
+    const reachedConfirmed = s === CampaignStatus.Confirmed || s === CampaignStatus.Done || s === CampaignStatus.Completed;
+    const reachedDone      = s === CampaignStatus.Done || s === CampaignStatus.Completed;
+    const reachedCompleted = s === CampaignStatus.Completed;
+
+    const events = [
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_PROPOSED'),  date: c.pendedOnUtc,    icon: 'pi pi-send',         active: true },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_CONFIRMED'),  date: c.confirmedOnUtc,  icon: 'pi pi-check',        active: reachedConfirmed },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_SCHEDULED'),  date: c.scheduledOnUtc,  icon: 'pi pi-calendar',     active: reachedConfirmed },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_DONE'),       date: c.doneOnUtc,       icon: 'pi pi-flag',         active: reachedDone },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_COMPLETED'),  date: c.completedOnUtc,  icon: 'pi pi-check-circle', active: reachedCompleted, terminal: true },
+    ];
+
+    if (s === CampaignStatus.Rejected) {
+      events.push({ label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_REJECTED'), date: c.rejectedOnUtc, icon: 'pi pi-times', active: true, terminal: true });
+    }
+    if (s === CampaignStatus.Cancelled) {
+      events.push({ label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_CANCELLED'), date: c.cancelledOnUtc, icon: 'pi pi-ban', active: true, terminal: true });
+    }
+
+    return events;
   }
 
-  public canMarkAsDone(): boolean {
-    return this.isCreator && this.campaign?.status === CampaignStatus.Confirmed;
-  }
+  // ── Actions ──────────────────────────────────────────────────────────────
+  public canConfirm():   boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
+  public canReject():    boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
+  public canMarkDone():  boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Confirmed; }
+  public canCancel():    boolean { return (this.isCreator || this.isClient) && this.campaign?.status === CampaignStatus.Confirmed; }
+  public canComplete():  boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Done; }
+  public canReview():    boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Completed && !this.reviewSubmitted; }
 
-  public canComplete(): boolean {
-    return this.isClient && this.campaign?.status === CampaignStatus.Done;
-  }
-
-  public canCancel(): boolean {
-    return this.campaign?.status === CampaignStatus.Confirmed;
-  }
-
-  public openAcceptDialog(): void {
-    this.showAcceptDialog = true;
-  }
-
-  public openRejectDialog(): void {
-    this.rejectReason = '';
-    this.showRejectDialog = true;
-  }
-
-  public openDoneDialog(): void {
-    this.showDoneDialog = true;
-  }
-
-  public openCompleteDialog(): void {
-    this.showCompleteDialog = true;
-  }
-
-  public openCancelDialog(): void {
-    this.showCancelDialog = true;
-  }
-
-  public confirmAccept(): void {
-    if (!this.campaign) return;
-
-    this.processingAction = true;
-    this.campaignsAgent.confirmCampaign(this.campaign.id).pipe(
-      catchError(() => {
-        this.snackbarService.showError('Failed to accept campaign');
-        return of(null);
-      })
-    ).subscribe({
-      next: () => {
-        this.snackbarService.showSuccess('Campaign accepted successfully');
-        this.showAcceptDialog = false;
-        this.loadCampaign(this.campaign!.id);
-      },
-      complete: () => {
-        this.processingAction = false;
-      }
+  public onConfirm(): void {
+    this.confirmationService.confirm({
+      message: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_CONFIRM_MSG'),
+      header: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_CONFIRM_HEADER'),
+      icon: 'pi pi-check-circle',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => this.execute(() => this.campaignsAgent.confirmCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_CONFIRMED'),
     });
   }
 
-  public confirmReject(): void {
-    if (!this.campaign) return;
-
-    this.processingAction = true;
-    this.campaignsAgent.rejectCampaign(this.campaign.id).pipe(
-      catchError(() => {
-        this.snackbarService.showError('Failed to reject campaign');
-        return of(null);
-      })
-    ).subscribe({
-      next: () => {
-        this.snackbarService.showSuccess('Campaign rejected');
-        this.showRejectDialog = false;
-        this.loadCampaign(this.campaign!.id);
-      },
-      complete: () => {
-        this.processingAction = false;
-      }
+  public onReject(): void {
+    this.confirmationService.confirm({
+      message: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_REJECT_MSG'),
+      header: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_REJECT_HEADER'),
+      icon: 'pi pi-times-circle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.execute(() => this.campaignsAgent.rejectCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_REJECTED'),
     });
   }
 
-  public confirmDone(): void {
-    if (!this.campaign) return;
+  public onMarkDone(): void {
+    this.execute(() => this.campaignsAgent.markCampaignAsDone(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_DONE');
+  }
 
-    this.processingAction = true;
-    this.campaignsAgent.markCampaignAsDone(this.campaign.id).pipe(
-      catchError(() => {
-        this.snackbarService.showError('Failed to mark campaign as done');
-        return of(null);
-      })
-    ).subscribe({
-      next: () => {
-        this.snackbarService.showSuccess('Campaign marked as done');
-        this.showDoneDialog = false;
-        this.loadCampaign(this.campaign!.id);
-      },
-      complete: () => {
-        this.processingAction = false;
-      }
+  public onCancel(): void {
+    this.confirmationService.confirm({
+      message: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_CANCEL_MSG'),
+      header: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_CANCEL_HEADER'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.execute(() => this.campaignsAgent.cancelCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_CANCELLED'),
     });
   }
 
-  public confirmComplete(): void {
-    if (!this.campaign) return;
-
-    this.processingAction = true;
-    this.campaignsAgent.completeCampaign(this.campaign.id).pipe(
-      catchError(() => {
-        this.snackbarService.showError('Failed to complete campaign');
-        return of(null);
-      })
-    ).subscribe({
-      next: () => {
-        this.snackbarService.showSuccess('Campaign completed successfully');
-        this.showCompleteDialog = false;
-        this.loadCampaign(this.campaign!.id);
-      },
-      complete: () => {
-        this.processingAction = false;
-      }
-    });
+  public onComplete(): void {
+    this.execute(() => this.campaignsAgent.completeCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_COMPLETED');
   }
 
-  public confirmCancel(): void {
-    if (!this.campaign) return;
-
+  public submitReview(): void {
+    if (!this.campaign || !this.reviewRating) { return; }
     this.processingAction = true;
-    this.campaignsAgent.cancelCampaign(this.campaign.id).pipe(
-      catchError(() => {
-        this.snackbarService.showError('Failed to cancel campaign');
-        return of(null);
-      })
-    ).subscribe({
-      next: () => {
-        this.snackbarService.showSuccess('Campaign cancelled');
-        this.showCancelDialog = false;
-        this.loadCampaign(this.campaign!.id);
-      },
-      complete: () => {
-        this.processingAction = false;
-      }
-    });
+    this.campaignsAgent.createReview({
+      campaignId: this.campaign.id,
+      rating: this.reviewRating,
+      comment: this.reviewComment,
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.reviewSubmitted = true;
+          this.showReviewDialog = false;
+          this.processingAction = false;
+          this.snackbarService.showSuccess(this.translate.instant('CAMPAIGNS.DETAIL.REVIEW_SUBMITTED'));
+        },
+        error: () => {
+          this.processingAction = false;
+          this.snackbarService.showError(this.translate.instant('CAMPAIGNS.REVIEW.ERROR'));
+        },
+      });
   }
 
   public goBack(): void {
     this.router.navigate(['/campaigns']);
   }
 
-  public getDeliverableFormatClass(format: string): string {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.templatesService.getFormatBadgeClass(format as any);
+  private execute(action: () => import('rxjs').Observable<unknown>, successMsgKey: string): void {
+    if (!this.campaign) { return; }
+    this.processingAction = true;
+    const id = this.campaign.id;
+    action()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.processingAction = false;
+          this.snackbarService.showSuccess(this.translate.instant(successMsgKey));
+          this.reload(id);
+        },
+        error: () => {
+          this.processingAction = false;
+          this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION'));
+        },
+      });
   }
 
-  private loadCampaign(id: string): void {
+  private reload(id: string): void {
     this.loading = true;
-    this.error = null;
-
-    this.campaignsAgent.getCampaign(id).pipe(
-      catchError((error) => {
-        this.error = error.message || 'Failed to load campaign';
-        return of(null);
-      })
-    ).subscribe({
-      next: (campaign) => {
-        if (campaign) {
-          this.campaign = campaign;
-          this.detectUserRole();
-        }
-      },
-      complete: () => {
-        this.loading = false;
-      }
-    });
-  }
-
-  private detectUserRole(): void {
-    if (!this.campaign) return;
-
-    const currentUserId = this.authService.getUserIdFromToken();
-    if (!currentUserId) return;
-
-    // Creator is the offer owner (creatorId)
-    this.isCreator = this.campaign.creatorId === currentUserId;
-    // Client is the campaign proposer (clientId)
-    this.isClient = this.campaign.clientId === currentUserId;
+    this.campaignsAgent.getCampaign(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: c => { this.campaign = c; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
   }
 }

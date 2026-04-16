@@ -54,6 +54,7 @@ internal sealed class InstagramAccountRepository : IInstagramAccountRepository
                 igAccount.LastUpdatedAtUtc == null
                 || igAccount.LastUpdatedAtUtc <= cutoff)
             .OrderBy(igAccount => igAccount.LastUpdatedAtUtc)
+            .ThenBy(igAccount => igAccount.Id)
             .Take(batchSize)
             .ToArrayAsync(cancellationToken);
     }
