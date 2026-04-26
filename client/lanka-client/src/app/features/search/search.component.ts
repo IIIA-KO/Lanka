@@ -373,7 +373,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (this.selectedCountry) filters.audienceCountry = this.selectedCountry;
     if (this.selectedGender) filters.audienceGender = this.selectedGender;
     if (this.selectedAgeGroup) filters.audienceAgeGroup = this.selectedAgeGroup;
-
     // Always sync the query text to the service state
     this.searchService.search(this.searchQuery.trim());
     this.searchService.setFilters(filters);
