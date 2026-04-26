@@ -25,7 +25,7 @@
               @if (profile.engagementRate != null) {
                 <span class="flex align-items-center gap-1">
                   <i class="pi pi-chart-line text-teal-500"></i>
-                  <span>{{ formatPercent(profile.engagementRate) }} ER</span>
+                  <span>{{ formatPercent(profile.engagementRate) }} {{ 'PROFILE.ER_SUFFIX' | translate }}</span>
                 </span>
               }
             </div>
@@ -43,7 +43,7 @@
               </div>
               @if (reviews.length > 0) {
                 <span class="text-sm text-color-secondary">
-                  {{ averageRating }} ({{ reviews.length }} {{ reviews.length === 1 ? 'review' : 'reviews' }})
+                  {{ averageRating }} ({{ reviews.length }} {{ reviews.length === 1 ? ('PROFILE.REVIEW_SINGULAR' | translate) : ('PROFILE.REVIEW_PLURAL' | translate) }})
                 </span>
               }
             </div>
@@ -260,7 +260,7 @@
                     <div class="audience-stat">
                       <i class="pi pi-map-marker audience-stat-icon text-orange-500"></i>
                       <div>
-                        <span class="audience-stat-label">Top Location</span>
+                        <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_LOCATION' | translate }}</span>
                         <span class="audience-stat-value">
                           {{ topCountry }}
                           @if (topCountryPct) {
@@ -274,7 +274,7 @@
                     <div class="audience-stat">
                       <i class="pi pi-users audience-stat-icon text-blue-500"></i>
                       <div>
-                        <span class="audience-stat-label">Top Age Group</span>
+                        <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_AGE' | translate }}</span>
                         <span class="audience-stat-value">{{ topAgeGroup }}</span>
                       </div>
                     </div>
@@ -283,7 +283,7 @@
                     <div class="audience-stat">
                       <i class="pi pi-heart audience-stat-icon text-pink-500"></i>
                       <div>
-                        <span class="audience-stat-label">Dominant Gender</span>
+                        <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.DOMINANT_GENDER' | translate }}</span>
                         <span class="audience-stat-value">
                           {{ topGender | titlecase }}
                           @if (topGenderPct) {
@@ -345,7 +345,7 @@
                     } @else {
                       <div class="audience-empty">
                         <i class="pi pi-chart-bar text-3xl text-color-secondary mb-2"></i>
-                        <p class="text-color-secondary m-0">No age data available</p>
+                        <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_AGE_DATA' | translate }}</p>
                       </div>
                     }
                   </div>
@@ -368,7 +368,7 @@
                     } @else {
                       <div class="audience-empty">
                         <i class="pi pi-chart-pie text-3xl text-color-secondary mb-2"></i>
-                        <p class="text-color-secondary m-0">No gender data available</p>
+                        <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_GENDER_DATA' | translate }}</p>
                       </div>
                     }
                   </div>

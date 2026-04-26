@@ -89,25 +89,15 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
 
   // Statistics sub-tab
   public statsSubTab = 'audience';
-  public statsSubTabs = [
-    { label: 'Audience', value: 'audience' },
-    { label: 'Engagement', value: 'engagement' }
-  ];
+  public statsSubTabs: { label: string; value: string }[] = [];
 
   // Location mode toggle
   public locationMode = 'country';
-  public locationModes = [
-    { label: 'Countries', value: 'country' },
-    { label: 'Cities', value: 'city' }
-  ];
+  public locationModes: { label: string; value: string }[] = [];
 
   // Statistics period toggle
   public statsPeriod: StatisticsPeriod = StatisticsPeriod.week;
-  public statsPeriodOptions = [
-    { label: '1d', value: StatisticsPeriod.day },
-    { label: '7d', value: StatisticsPeriod.week },
-    { label: '21d', value: StatisticsPeriod.day21 }
-  ];
+  public statsPeriodOptions: { label: string; value: StatisticsPeriod }[] = [];
 
   public readonly genderColorMapping = GENDER_COLOR_MAPPING;
   public readonly reachColorMapping = REACH_COLOR_MAPPING;
@@ -203,7 +193,26 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
     return this.locationMode === 'city' ? this.locationCity : this.locationCountry;
   }
 
+  private initTranslatedOptions(): void {
+    this.locationModes = [
+      { label: this.translate.instant('PROFILE.LOCATION.COUNTRIES'), value: 'country' },
+      { label: this.translate.instant('PROFILE.LOCATION.CITIES'), value: 'city' }
+    ];
+    this.statsPeriodOptions = [
+      { label: this.translate.instant('PROFILE.PERIOD.ONE_DAY'), value: StatisticsPeriod.day },
+      { label: this.translate.instant('PROFILE.PERIOD.SEVEN_DAYS'), value: StatisticsPeriod.week },
+      { label: this.translate.instant('PROFILE.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
+    ];
+    this.statsSubTabs = [
+      { label: this.translate.instant('PROFILE.TABS.AUDIENCE'), value: 'audience' },
+      { label: this.translate.instant('PROFILE.TABS.ENGAGEMENT'), value: 'engagement' }
+    ];
+  }
+
   public ngOnInit(): void {
+    this.initTranslatedOptions();
+    this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => this.initTranslatedOptions());
+
     const bloggerId = this.route.snapshot.paramMap.get('id');
     if (bloggerId) {
       this.loadBlogger(bloggerId);

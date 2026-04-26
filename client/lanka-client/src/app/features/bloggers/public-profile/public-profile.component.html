@@ -29,7 +29,7 @@
                 @if (blogger.engagementRate != null) {
                   <span class="flex align-items-center gap-1">
                     <i class="pi pi-chart-line text-teal-500"></i>
-                    <span>{{ formatPercent(blogger.engagementRate) }} ER</span>
+                    <span>{{ formatPercent(blogger.engagementRate) }} {{ 'PROFILE.ER_SUFFIX' | translate }}</span>
                   </span>
                 }
               </div>
@@ -47,7 +47,7 @@
                 </div>
                 @if (reviews.length > 0) {
                   <span class="text-sm text-color-secondary">
-                    {{ averageRating }} ({{ reviews.length }} {{ reviews.length === 1 ? 'review' : 'reviews' }})
+                    {{ averageRating }} ({{ reviews.length }} {{ reviews.length === 1 ? ('PROFILE.REVIEW_SINGULAR' | translate) : ('PROFILE.REVIEW_PLURAL' | translate) }})
                   </span>
                 }
               </div>
@@ -257,7 +257,7 @@
                       <div class="audience-stat">
                         <i class="pi pi-map-marker audience-stat-icon text-orange-500"></i>
                         <div>
-                          <span class="audience-stat-label">Top Location</span>
+                          <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_LOCATION' | translate }}</span>
                           <span class="audience-stat-value">
                             {{ topCountry || blogger.audienceTopCountry }}
                             @if (topCountryPct || blogger.audienceTopCountryPercentage) {
@@ -271,7 +271,7 @@
                       <div class="audience-stat">
                         <i class="pi pi-users audience-stat-icon text-blue-500"></i>
                         <div>
-                          <span class="audience-stat-label">Top Age Group</span>
+                          <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_AGE' | translate }}</span>
                           <span class="audience-stat-value">{{ topAgeGroup || blogger.audienceTopAgeGroup }}</span>
                         </div>
                       </div>
@@ -280,7 +280,7 @@
                       <div class="audience-stat">
                         <i class="pi pi-heart audience-stat-icon text-pink-500"></i>
                         <div>
-                          <span class="audience-stat-label">Dominant Gender</span>
+                          <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.DOMINANT_GENDER' | translate }}</span>
                           <span class="audience-stat-value">
                             {{ (topGender || blogger.audienceTopGender) | titlecase }}
                             @if (topGenderPct || blogger.audienceTopGenderPercentage) {
@@ -327,7 +327,7 @@
                     <div class="analytics-card mb-4 h-full">
                       <span class="font-semibold flex align-items-center gap-2 mb-3">
                         <i class="pi pi-users text-blue-500"></i>
-                        Age Distribution
+                        {{ 'PROFILE.ANALYTICS.AGE' | translate }}
                       </span>
                       @if (age.labels.length > 0) {
                         <app-analytics-chart
@@ -341,7 +341,7 @@
                       } @else {
                         <div class="audience-empty">
                           <i class="pi pi-chart-bar text-3xl text-color-secondary mb-2"></i>
-                          <p class="text-color-secondary m-0">No age data available</p>
+                          <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_AGE_DATA' | translate }}</p>
                         </div>
                       }
                     </div>
@@ -351,7 +351,7 @@
                     <div class="analytics-card mb-4 h-full">
                       <span class="font-semibold flex align-items-center gap-2 mb-3">
                         <i class="pi pi-heart text-pink-500"></i>
-                        Gender Split
+                        {{ 'PROFILE.ANALYTICS.GENDER' | translate }}
                       </span>
                       @if (gender.labels.length > 0) {
                         <app-analytics-chart
@@ -364,7 +364,7 @@
                       } @else {
                         <div class="audience-empty">
                           <i class="pi pi-chart-pie text-3xl text-color-secondary mb-2"></i>
-                          <p class="text-color-secondary m-0">No gender data available</p>
+                          <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_GENDER_DATA' | translate }}</p>
                         </div>
                       }
                     </div>
@@ -536,7 +536,7 @@
                       <p-accordion-header>
                         <span class="flex align-items-center gap-2">
                           <i class="pi pi-file-edit text-primary"></i>
-                          <span class="font-semibold">Pact</span>
+                          <span class="font-semibold">{{ 'PUBLIC_PROFILE.CAMPAIGN.PACT_LABEL' | translate }}</span>
                         </span>
                       </p-accordion-header>
                       <p-accordion-content>

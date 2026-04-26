@@ -1,45 +1,48 @@
-<p-dialog [(visible)]="visible" [modal]="true" [header]="'Propose Campaign: ' + (offerName || 'New Campaign')"
+<p-dialog [(visible)]="visible" [modal]="true"
+    [header]="'PUBLIC_PROFILE.PROPOSE.HEADER' | translate:{ name: offerName || ('PUBLIC_PROFILE.PROPOSE.NEW_CAMPAIGN' | translate) }"
     [style]="{ width: '90vw', maxWidth: '500px' }" (onHide)="onHide()">
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-column gap-3 pt-2">
 
         <div class="field">
-            <label for="name" class="block mb-2 font-medium">Campaign Name</label>
-            <input pInputText id="name" formControlName="name" placeholder="E.g., Summer Collection Launch"
+            <label for="name" class="block mb-2 font-medium">{{ 'PUBLIC_PROFILE.PROPOSE.NAME_LABEL' | translate }}</label>
+            <input pInputText id="name" formControlName="name"
+                [placeholder]="'PUBLIC_PROFILE.PROPOSE.NAME_PLACEHOLDER' | translate"
                 class="w-full" />
             @if (form.get('name')?.touched && form.get('name')?.invalid) {
                 <small class="p-error block mt-1">
-                    Name is required (min 3 chars)
+                    {{ 'PUBLIC_PROFILE.PROPOSE.NAME_REQUIRED' | translate }}
                 </small>
             }
         </div>
 
         <div class="field">
-            <label for="description" class="block mb-2 font-medium">Description & Requirements</label>
+            <label for="description" class="block mb-2 font-medium">{{ 'PUBLIC_PROFILE.PROPOSE.DESC_LABEL' | translate }}</label>
             <textarea pTextarea id="description" formControlName="description" rows="5"
-                placeholder="Describe your campaign goals, requirements, and any specific details..."
+                [placeholder]="'PUBLIC_PROFILE.PROPOSE.DESC_PLACEHOLDER' | translate"
                 class="w-full"></textarea>
             @if (form.get('description')?.touched && form.get('description')?.invalid) {
                 <small class="p-error block mt-1">
-                    Description is required (min 10 chars)
+                    {{ 'PUBLIC_PROFILE.PROPOSE.DESC_REQUIRED' | translate }}
                 </small>
             }
         </div>
 
         <div class="field">
-            <label for="scheduledDate" class="block mb-2 font-medium">Proposed Date</label>
+            <label for="scheduledDate" class="block mb-2 font-medium">{{ 'PUBLIC_PROFILE.PROPOSE.DATE_LABEL' | translate }}</label>
             <p-datepicker id="scheduledDate" formControlName="scheduledDate" [minDate]="minDate" [showIcon]="true"
-                class="w-full" inputStyleClass="w-full" placeholder="Select a date" />
+                class="w-full" inputStyleClass="w-full"
+                [placeholder]="'PUBLIC_PROFILE.PROPOSE.DATE_PLACEHOLDER' | translate" />
             @if (form.get('scheduledDate')?.touched && form.get('scheduledDate')?.invalid) {
                 <small class="p-error block mt-1">
-                    Date is required
+                    {{ 'PUBLIC_PROFILE.PROPOSE.DATE_REQUIRED' | translate }}
                 </small>
             }
         </div>
 
         <div class="flex justify-content-end gap-2 mt-4">
-            <p-button type="button" label="Cancel" class="p-button-text" (onClick)="onHide()"></p-button>
-            <p-button type="submit" label="Send Proposal" [loading]="loading" [disabled]="form.invalid"></p-button>
+            <p-button type="button" [label]="'PUBLIC_PROFILE.PROPOSE.CANCEL' | translate" class="p-button-text" (onClick)="onHide()"></p-button>
+            <p-button type="submit" [label]="'PUBLIC_PROFILE.PROPOSE.SUBMIT' | translate" [loading]="loading" [disabled]="form.invalid"></p-button>
         </div>
 
     </form>

@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-propose-campaign',
@@ -18,7 +19,8 @@ import { SnackbarService } from '../../../../core/services/snackbar/snackbar.ser
     DialogModule,
     InputTextModule,
     TextareaModule,
-    DatePickerModule
+    DatePickerModule,
+    TranslateModule
   ],
   templateUrl: './propose-campaign.component.html',
   styleUrls: ['./propose-campaign.component.css']
@@ -37,6 +39,7 @@ export class ProposeCampaignComponent {
   private readonly fb = inject(FormBuilder);
   private readonly campaignsApi = inject(CampaignsAgent);
   private readonly snackbar = inject(SnackbarService);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
     this.form = this.fb.group({
@@ -67,14 +70,14 @@ export class ProposeCampaignComponent {
 
     this.campaignsApi.proposeCampaign(request).subscribe({
       next: () => {
-        this.snackbar.showSuccess('Campaign proposal sent successfully!');
+        this.snackbar.showSuccess(this.translate.instant('PUBLIC_PROFILE.PROPOSE.SUCCESS'));
         this.loading = false;
         this.campaignCreated.emit();
         this.onHide();
       },
       error: (err: unknown) => {
         console.error('Failed to propose campaign', err);
-        this.snackbar.showError('Failed to send proposal. Please try again.');
+        this.snackbar.showError(this.translate.instant('PUBLIC_PROFILE.PROPOSE.ERROR'));
         this.loading = false;
       }
     });
