@@ -48,11 +48,16 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 export class AnalyticsComponent implements OnInit {
   public loading = false;
   public error: string | null = null;
+  public selectedPeriod: StatisticsPeriod = StatisticsPeriod.week;
+  public posts: IInstagramPost[] = [];
+  public overviewStats: IOverviewStatisticsResponse | null = null;
+  public engagementStats: IEngagementStatisticsResponse | null = null;
+  public interactionStats: IInteractionStatisticsResponse | null = null;
+  public tableStats: IMetricsStatisticsResponse | null = null;
 
   private readonly translate = inject(TranslateService);
-
-  // Period selection
-  public selectedPeriod: StatisticsPeriod = StatisticsPeriod.week;
+  private readonly analyticsAgent = inject(AnalyticsAgent);
+  private readonly snackbarService = inject(SnackbarService);
 
   public get periodOptions() {
     return [
@@ -61,18 +66,6 @@ export class AnalyticsComponent implements OnInit {
       { label: this.translate.instant('ANALYTICS.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
     ];
   }
-
-  // Data
-  public posts: IInstagramPost[] = [];
-  public overviewStats: IOverviewStatisticsResponse | null = null;
-  public engagementStats: IEngagementStatisticsResponse | null = null;
-  public interactionStats: IInteractionStatisticsResponse | null = null;
-  public tableStats: IMetricsStatisticsResponse | null = null;
-
-  // No chart dependencies needed
-
-  private readonly analyticsAgent = inject(AnalyticsAgent);
-  private readonly snackbarService = inject(SnackbarService);
 
   public ngOnInit(): void {
     this.loadAnalyticsData();

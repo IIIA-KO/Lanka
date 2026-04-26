@@ -38,18 +38,14 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
   public campaigns: ICampaign[] = [];
   public months: CalendarMonth[] = [];
   public loading = false;
-  
-  
+  public weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
+  public currentYear = new Date().getFullYear();
+  public baseDate = new Date();
+
   private readonly campaignsApi = inject(CampaignsAgent);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly datePipe = inject(DatePipe);
-
-  // Weekdays localized
-  public weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
-
-  public currentYear = new Date().getFullYear();
-  public baseDate = new Date();
 
   public ngOnInit(): void {
     // Determine language for weekdays if needed, or rely on a generic approach.
@@ -71,6 +67,39 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
         this.loadCampaigns();
       }
     }
+  }
+
+  public onDayClick(day: CalendarDay): void {
+    if (!this.isOwnProfile || day.events.length === 0) return;
+    this.router.navigate(['/campaigns'], {
+      queryParams: { view: 'calendar', d: day.date.toISOString() }
+    });
+  }
+
+  public getTooltipText(day: CalendarDay): string {
+    if (day.events.length === 0) return '';
+
+    if (this.isOwnProfile) {
+        return day.events.map(e => {
+            const time = this.datePipe.transform(e.scheduledOnUtc, 'shortTime');
+            const roleStr = e.creatorId?.toLowerCase() === this.bloggerId.toLowerCase()
+              ? this.translate.instant('CAMPAIGNS.ROLE_CREATOR')
+              : this.translate.instant('CAMPAIGNS.ROLE_CLIENT');
+            return `${time} - ${e.name} (${roleStr}, ${e.status})`;
+        }).join('\n');
+    } else {
+        return this.translate.instant('PROFILE.CALENDAR.CAMPAIGNS_COUNT', { count: day.events.length });
+    }
+  }
+
+  public nextMonth(): void {
+    this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + 1, 1);
+    this.loadCampaigns();
+  }
+
+  public prevMonth(): void {
+    this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() - 1, 1);
+    this.loadCampaigns();
   }
 
   private updateWeekdays(): void {
@@ -191,37 +220,4 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
     };
   }
 
-  public onDayClick(day: CalendarDay): void {
-    if (!this.isOwnProfile || day.events.length === 0) return;
-    this.router.navigate(['/campaigns'], {
-      queryParams: { view: 'calendar', d: day.date.toISOString() }
-    });
-  }
-
-  public getTooltipText(day: CalendarDay): string {
-    if (day.events.length === 0) return '';
-    
-    if (this.isOwnProfile) {
-        return day.events.map(e => {
-            const time = this.datePipe.transform(e.scheduledOnUtc, 'shortTime');
-            const roleStr = e.creatorId?.toLowerCase() === this.bloggerId.toLowerCase()
-              ? this.translate.instant('CAMPAIGNS.ROLE_CREATOR')
-              : this.translate.instant('CAMPAIGNS.ROLE_CLIENT');
-            // E.g. "14:30 - Promo for Brand X (Creator, Pending)"
-            return `${time} - ${e.name} (${roleStr}, ${e.status})`;
-        }).join('\n');
-    } else {
-        return this.translate.instant('PROFILE.CALENDAR.CAMPAIGNS_COUNT', { count: day.events.length });
-    }
-  }
-
-  public nextMonth(): void {
-    this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + 1, 1);
-    this.loadCampaigns();
-  }
-
-  public prevMonth(): void {
-    this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() - 1, 1);
-    this.loadCampaigns();
-  }
 }

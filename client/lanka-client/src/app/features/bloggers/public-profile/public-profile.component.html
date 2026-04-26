@@ -26,7 +26,7 @@
                     <i class="pi pi-map-marker"></i> {{ blogger.audienceTopCountry }}
                   </span>
                 }
-                @if (blogger.engagementRate != null) {
+                @if (blogger.engagementRate !== null) {
                   <span class="flex align-items-center gap-1">
                     <i class="pi pi-chart-line text-teal-500"></i>
                     <span>{{ formatPercent(blogger.engagementRate) }} {{ 'PROFILE.ER_SUFFIX' | translate }}</span>
@@ -108,7 +108,7 @@
           </div>
           <div>
             <span class="kpi-label">{{ 'PUBLIC_PROFILE.KPI.ENGAGEMENT_RATE' | translate }}</span>
-            <span class="kpi-value block">{{ blogger.engagementRate != null ? formatPercent(blogger.engagementRate) : ('COMMON.UNAVAILABLE' | translate) }}</span>
+            <span class="kpi-value block">{{ blogger.engagementRate !== null ? formatPercent(blogger.engagementRate) : ('COMMON.UNAVAILABLE' | translate) }}</span>
           </div>
         </div>
       </div>
@@ -387,7 +387,7 @@
                             <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.ENGAGEMENT_RATE_HINT' | translate" tooltipPosition="top"></i>
                           </span>
                           <span class="font-bold flex align-items-center gap-2">
-                            <p-tag *ngIf="engagement.engagementRate != null" [severity]="getMetricStatusColor(getErStatus(engagement.engagementRate))" [value]="getMetricStatusLabel(getErStatus(engagement.engagementRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            <p-tag *ngIf="engagement.engagementRate !== null" [severity]="getMetricStatusColor(getErStatus(engagement.engagementRate))" [value]="getMetricStatusLabel(getErStatus(engagement.engagementRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
                             {{ formatPercent(engagement.engagementRate) }}
                           </span>
                         </div>
@@ -397,7 +397,7 @@
                             <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.REACH_RATE_HINT' | translate" tooltipPosition="top"></i>
                           </span>
                           <span class="font-bold flex align-items-center gap-2">
-                            <p-tag *ngIf="engagement.reachRate != null" [severity]="getMetricStatusColor(getRrStatus(engagement.reachRate))" [value]="getMetricStatusLabel(getRrStatus(engagement.reachRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            <p-tag *ngIf="engagement.reachRate !== null" [severity]="getMetricStatusColor(getRrStatus(engagement.reachRate))" [value]="getMetricStatusLabel(getRrStatus(engagement.reachRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
                             {{ formatPercent(engagement.reachRate) }}
                           </span>
                         </div>
@@ -407,7 +407,7 @@
                             <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.ER_REACH_HINT' | translate" tooltipPosition="top"></i>
                           </span>
                           <span class="font-bold flex align-items-center gap-2">
-                            <p-tag *ngIf="engagement.erReach != null" [severity]="getMetricStatusColor(getErReachStatus(engagement.erReach))" [value]="getMetricStatusLabel(getErReachStatus(engagement.erReach)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            <p-tag *ngIf="engagement.erReach !== null" [severity]="getMetricStatusColor(getErReachStatus(engagement.erReach))" [value]="getMetricStatusLabel(getErReachStatus(engagement.erReach)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
                             {{ formatPercent(engagement.erReach) }}
                           </span>
                         </div>
@@ -445,7 +445,7 @@
                             <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.CPE_HINT' | translate" tooltipPosition="top"></i>
                           </span>
                           <span class="font-bold flex align-items-center gap-2">
-                            <p-tag *ngIf="interaction.cpe != null" [severity]="getMetricStatusColor(getCpeStatus(interaction.cpe))" [value]="getMetricStatusLabel(getCpeStatus(interaction.cpe)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            <p-tag *ngIf="interaction.cpe !== null" [severity]="getMetricStatusColor(getCpeStatus(interaction.cpe))" [value]="getMetricStatusLabel(getCpeStatus(interaction.cpe)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
                             ~{{ interaction.cpe | number:'1.2-2' }} $
                           </span>
                         </div>

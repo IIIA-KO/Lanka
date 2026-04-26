@@ -112,6 +112,7 @@ export class AnalyticsChartComponent implements OnChanges {
     const textColor = isDark ? '#cbd5e1' : '#475569';
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const options: any = {
       responsive: true,
       plugins: {

@@ -311,7 +311,9 @@
             @if (!loadingSimilar && similarResults.length > 0) {
                 <div class="similar-grid">
                     @for (result of similarResults; track result.itemId) {
-                        <div class="similar-card" (click)="navigateToResult(result)">
+                        <div class="similar-card" role="button" tabindex="0"
+                             (click)="navigateToResult(result)"
+                             (keyup.enter)="navigateToResult(result)">
                             <div class="similar-avatar" [style.background]="getAvatarColor(result.title)">
                                 {{ getInitials(result.title) }}
                             </div>

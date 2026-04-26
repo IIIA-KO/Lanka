@@ -112,6 +112,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly translate = inject(TranslateService);
   private readonly themeService = inject(ThemeService);
+  private lastSimilarSourceId: string | null = null;
 
   public get hasActiveSearch(): boolean {
     return this.searchQuery.trim().length > 0 || this.activeFilterCount > 0;
@@ -401,8 +402,6 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.loadSimilarResults(state);
       });
   }
-
-  private lastSimilarSourceId: string | null = null;
 
   private loadSimilarResults(state: ISearchState): void {
     const results = state.results?.results;

@@ -50,7 +50,9 @@
                 <div class="action-banner-item">
                     <div style="flex:1;min-width:0">
                         <div class="campaign-name-link font-semibold text-sm"
-                             (click)="viewCampaign(item.campaign.id)">{{ item.campaign.name }}</div>
+                             role="button" tabindex="0"
+                             (click)="viewCampaign(item.campaign.id)"
+                             (keyup.enter)="viewCampaign(item.campaign.id)">{{ item.campaign.name }}</div>
                         <div class="flex align-items-center gap-2 mt-1">
                             <p-tag [value]="item.campaign.status"
                                    [severity]="getStatusColor(item.campaign.status)"
@@ -115,7 +117,9 @@
                             <div class="cal-mini-cell"
                                  [class.cal-mini-cell--other-month]="!day.isCurrentMonth"
                                  [class.cal-mini-cell--clickable]="day.isCurrentMonth && day.campaigns.length > 0"
-                                 (click)="onDayClick(day)">
+                                 role="button" tabindex="0"
+                                 (click)="onDayClick(day)"
+                                 (keyup.enter)="onDayClick(day)">
                                 @if (day.isCurrentMonth) {
                                     <span class="cal-mini-num"
                                           [ngClass]="[getDayStatusClass(day), isSelectedDay(day) ? 'cal-mini-num--selected' : '']">
@@ -230,7 +234,9 @@
                             <div class="cam-detail-card">
                                 @for (campaign of detailCampaigns; track campaign.id) {
                                     <div class="cam-detail-list-item"
-                                         (click)="viewCampaign(campaign.id)">
+                                         role="button" tabindex="0"
+                                         (click)="viewCampaign(campaign.id)"
+                                         (keyup.enter)="viewCampaign(campaign.id)">
                                         <div style="flex:1;min-width:0">
                                             <div class="font-semibold text-sm campaign-name-link">
                                                 {{ campaign.name }}
@@ -398,20 +404,20 @@
 
         <div class="flex flex-column gap-4 pt-2">
             <div>
-                <label class="font-semibold mb-2 block">
+                <label for="campaignsReviewRating" class="font-semibold mb-2 block">
                     {{ 'CAMPAIGNS.REVIEW.RATING_LABEL' | translate }}
                     <span class="text-red-500">*</span>
                 </label>
-                <p-rating [(ngModel)]="reviewRating" />
+                <p-rating inputId="campaignsReviewRating" [(ngModel)]="reviewRating" />
             </div>
             <div>
-                <label class="font-semibold mb-2 block">
+                <label for="campaignsReviewComment" class="font-semibold mb-2 block">
                     {{ 'CAMPAIGNS.REVIEW.COMMENT_LABEL' | translate }}
                     <span class="text-sm" style="color:var(--text-color-secondary)">
                         {{ 'CAMPAIGNS.REVIEW.COMMENT_OPTIONAL' | translate }}
                     </span>
                 </label>
-                <textarea rows="4"
+                <textarea id="campaignsReviewComment" rows="4"
                     [(ngModel)]="reviewComment"
                     class="w-full p-inputtext border-round"
                     [placeholder]="'CAMPAIGNS.REVIEW.COMMENT_PLACEHOLDER' | translate"

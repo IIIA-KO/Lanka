@@ -275,18 +275,18 @@
               [modal]="true" [style]="{ width: '420px' }" [closable]="true">
         <div class="flex flex-column gap-4 pt-2">
             <div>
-                <label class="font-semibold mb-2 block">
+                <label for="detailReviewRating" class="font-semibold mb-2 block">
                     {{ 'CAMPAIGNS.REVIEW.RATING_LABEL' | translate }}
                     <span class="text-red-500">*</span>
                 </label>
-                <p-rating [(ngModel)]="reviewRating" />
+                <p-rating inputId="detailReviewRating" [(ngModel)]="reviewRating" />
             </div>
             <div>
-                <label class="font-semibold mb-2 block">
+                <label for="detailReviewComment" class="font-semibold mb-2 block">
                     {{ 'CAMPAIGNS.REVIEW.COMMENT_LABEL' | translate }}
                     <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.REVIEW.COMMENT_OPTIONAL' | translate }}</span>
                 </label>
-                <textarea rows="4" [(ngModel)]="reviewComment"
+                <textarea id="detailReviewComment" rows="4" [(ngModel)]="reviewComment"
                     class="w-full p-inputtext border-round"
                     [placeholder]="'CAMPAIGNS.REVIEW.COMMENT_PLACEHOLDER' | translate"
                     style="resize: vertical; font-family: inherit; font-size: 0.875rem;"></textarea>

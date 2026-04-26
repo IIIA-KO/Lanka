@@ -130,6 +130,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // Statistics sub-tab
   public statsSubTab = 'audience';
   public statsSubTabs: { label: string; value: string }[] = [];
+  public activeTab = '0';
 
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(AgentService);
@@ -151,24 +152,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (this.reviews.length === 0) return 0;
     const sum = this.reviews.reduce((acc, r) => acc + r.rating, 0);
     return Math.round((sum / this.reviews.length) * 10) / 10;
-  }
-
-  public activeTab = '0';
-
-  private initTranslatedOptions(): void {
-    this.locationModes = [
-      { label: this.translate.instant('PROFILE.LOCATION.COUNTRIES'), value: 'country' },
-      { label: this.translate.instant('PROFILE.LOCATION.CITIES'), value: 'city' }
-    ];
-    this.statsPeriodOptions = [
-      { label: this.translate.instant('PROFILE.PERIOD.ONE_DAY'), value: StatisticsPeriod.day },
-      { label: this.translate.instant('PROFILE.PERIOD.SEVEN_DAYS'), value: StatisticsPeriod.week },
-      { label: this.translate.instant('PROFILE.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
-    ];
-    this.statsSubTabs = [
-      { label: this.translate.instant('PROFILE.TABS.AUDIENCE'), value: 'audience' },
-      { label: this.translate.instant('PROFILE.TABS.ENGAGEMENT'), value: 'engagement' }
-    ];
   }
 
   public ngOnInit(): void {
@@ -326,6 +309,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   public onPeriodChange(): void {
     this.loadStatistics(this.statsPeriod);
+  }
+
+  private initTranslatedOptions(): void {
+    this.locationModes = [
+      { label: this.translate.instant('PROFILE.LOCATION.COUNTRIES'), value: 'country' },
+      { label: this.translate.instant('PROFILE.LOCATION.CITIES'), value: 'city' }
+    ];
+    this.statsPeriodOptions = [
+      { label: this.translate.instant('PROFILE.PERIOD.ONE_DAY'), value: StatisticsPeriod.day },
+      { label: this.translate.instant('PROFILE.PERIOD.SEVEN_DAYS'), value: StatisticsPeriod.week },
+      { label: this.translate.instant('PROFILE.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
+    ];
+    this.statsSubTabs = [
+      { label: this.translate.instant('PROFILE.TABS.AUDIENCE'), value: 'audience' },
+      { label: this.translate.instant('PROFILE.TABS.ENGAGEMENT'), value: 'engagement' }
+    ];
   }
 
   private loadAnalyticsAndDistributions(): void {

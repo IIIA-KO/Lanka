@@ -73,6 +73,72 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
 
+  // ── Timeline ─────────────────────────────────────────────────────────────
+  public get timelineEvents(): { label: string; date: string | undefined; icon: string; active: boolean; terminal?: boolean }[] {
+    if (!this.campaign) { return []; }
+    const c = this.campaign;
+    const s = c.status as CampaignStatus;
+
+    const reachedConfirmed = s === CampaignStatus.Confirmed || s === CampaignStatus.Done || s === CampaignStatus.Completed;
+    const reachedDone      = s === CampaignStatus.Done || s === CampaignStatus.Completed;
+    const reachedCompleted = s === CampaignStatus.Completed;
+
+    const events = [
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_PROPOSED'),  date: c.pendedOnUtc,    icon: 'pi pi-send',         active: true },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_CONFIRMED'),  date: c.confirmedOnUtc,  icon: 'pi pi-check',        active: reachedConfirmed },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_SCHEDULED'),  date: c.scheduledOnUtc,  icon: 'pi pi-calendar',     active: reachedConfirmed },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_DONE'),       date: c.doneOnUtc,       icon: 'pi pi-flag',         active: reachedDone },
+      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_COMPLETED'),  date: c.completedOnUtc,  icon: 'pi pi-check-circle', active: reachedCompleted, terminal: true },
+    ];
+
+    if (s === CampaignStatus.Rejected) {
+      events.push({ label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_REJECTED'), date: c.rejectedOnUtc, icon: 'pi pi-times', active: true, terminal: true });
+    }
+    if (s === CampaignStatus.Cancelled) {
+      events.push({ label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_CANCELLED'), date: c.cancelledOnUtc, icon: 'pi pi-ban', active: true, terminal: true });
+    }
+
+    return events;
+  }
+
+  // ── Step context ─────────────────────────────────────────────────────────
+  public get stepContext(): { myTurn: boolean; icon: string; headlineKey: string; bodyKey: string } | null {
+    if (!this.campaign) { return null; }
+    const s = this.campaign.status as CampaignStatus;
+
+    if (this.isCreator) {
+      switch (s) {
+        case CampaignStatus.Pending:
+          return { myTurn: true,  icon: 'pi pi-inbox',        headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_BODY' };
+        case CampaignStatus.Confirmed:
+          return { myTurn: true,  icon: 'pi pi-play-circle',  headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_CONFIRMED_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_CONFIRMED_BODY' };
+        case CampaignStatus.Done:
+          return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_DONE_HEADLINE',      bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_DONE_BODY' };
+        case CampaignStatus.Completed:
+          return { myTurn: false, icon: 'pi pi-check-circle', headlineKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_HEADLINE',         bodyKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_BODY' };
+        default:
+          return { myTurn: false, icon: 'pi pi-ban',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_HEADLINE',          bodyKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_BODY' };
+      }
+    }
+
+    if (this.isClient) {
+      switch (s) {
+        case CampaignStatus.Pending:
+          return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_BODY' };
+        case CampaignStatus.Confirmed:
+          return { myTurn: false, icon: 'pi pi-eye',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_CONFIRMED_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_CONFIRMED_BODY' };
+        case CampaignStatus.Done:
+          return { myTurn: true,  icon: 'pi pi-flag',         headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_DONE_HEADLINE',      bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_DONE_BODY' };
+        case CampaignStatus.Completed:
+          return { myTurn: false, icon: 'pi pi-check-circle', headlineKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_HEADLINE',        bodyKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_BODY' };
+        default:
+          return { myTurn: false, icon: 'pi pi-ban',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_HEADLINE',         bodyKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_BODY' };
+      }
+    }
+
+    return null;
+  }
+
   public ngOnInit(): void {
     const campaignId = this.route.snapshot.paramMap.get('id');
     if (!campaignId) {
@@ -139,72 +205,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       case CampaignStatus.Cancelled: return 'pi pi-ban';
       default: return 'pi pi-circle';
     }
-  }
-
-  // ── Timeline ─────────────────────────────────────────────────────────────
-  public get timelineEvents(): { label: string; date: string | undefined; icon: string; active: boolean; terminal?: boolean }[] {
-    if (!this.campaign) { return []; }
-    const c = this.campaign;
-    const s = c.status as CampaignStatus;
-
-    const reachedConfirmed = s === CampaignStatus.Confirmed || s === CampaignStatus.Done || s === CampaignStatus.Completed;
-    const reachedDone      = s === CampaignStatus.Done || s === CampaignStatus.Completed;
-    const reachedCompleted = s === CampaignStatus.Completed;
-
-    const events = [
-      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_PROPOSED'),  date: c.pendedOnUtc,    icon: 'pi pi-send',         active: true },
-      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_CONFIRMED'),  date: c.confirmedOnUtc,  icon: 'pi pi-check',        active: reachedConfirmed },
-      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_SCHEDULED'),  date: c.scheduledOnUtc,  icon: 'pi pi-calendar',     active: reachedConfirmed },
-      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_DONE'),       date: c.doneOnUtc,       icon: 'pi pi-flag',         active: reachedDone },
-      { label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_COMPLETED'),  date: c.completedOnUtc,  icon: 'pi pi-check-circle', active: reachedCompleted, terminal: true },
-    ];
-
-    if (s === CampaignStatus.Rejected) {
-      events.push({ label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_REJECTED'), date: c.rejectedOnUtc, icon: 'pi pi-times', active: true, terminal: true });
-    }
-    if (s === CampaignStatus.Cancelled) {
-      events.push({ label: this.translate.instant('CAMPAIGNS.DETAIL.DATE_CANCELLED'), date: c.cancelledOnUtc, icon: 'pi pi-ban', active: true, terminal: true });
-    }
-
-    return events;
-  }
-
-  // ── Step context ─────────────────────────────────────────────────────────
-  public get stepContext(): { myTurn: boolean; icon: string; headlineKey: string; bodyKey: string } | null {
-    if (!this.campaign) { return null; }
-    const s = this.campaign.status as CampaignStatus;
-
-    if (this.isCreator) {
-      switch (s) {
-        case CampaignStatus.Pending:
-          return { myTurn: true,  icon: 'pi pi-inbox',        headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_BODY' };
-        case CampaignStatus.Confirmed:
-          return { myTurn: true,  icon: 'pi pi-play-circle',  headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_CONFIRMED_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_CONFIRMED_BODY' };
-        case CampaignStatus.Done:
-          return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_DONE_HEADLINE',      bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_DONE_BODY' };
-        case CampaignStatus.Completed:
-          return { myTurn: false, icon: 'pi pi-check-circle', headlineKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_HEADLINE',         bodyKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_BODY' };
-        default:
-          return { myTurn: false, icon: 'pi pi-ban',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_HEADLINE',          bodyKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_BODY' };
-      }
-    }
-
-    if (this.isClient) {
-      switch (s) {
-        case CampaignStatus.Pending:
-          return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_BODY' };
-        case CampaignStatus.Confirmed:
-          return { myTurn: false, icon: 'pi pi-eye',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_CONFIRMED_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_CONFIRMED_BODY' };
-        case CampaignStatus.Done:
-          return { myTurn: true,  icon: 'pi pi-flag',         headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_DONE_HEADLINE',      bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_DONE_BODY' };
-        case CampaignStatus.Completed:
-          return { myTurn: false, icon: 'pi pi-check-circle', headlineKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_HEADLINE',        bodyKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_BODY' };
-        default:
-          return { myTurn: false, icon: 'pi pi-ban',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_HEADLINE',         bodyKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_BODY' };
-      }
-    }
-
-    return null;
   }
 
   // ── Actions ──────────────────────────────────────────────────────────────

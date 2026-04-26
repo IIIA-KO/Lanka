@@ -35,7 +35,9 @@
                                  [class.other-month]="!day.isCurrentMonth"
                                  [class.has-events]="day.events.length > 0"
                                  [class.interactive]="isOwnProfile && day.events.length > 0"
-                                 (click)="onDayClick(day)">
+                                 role="button" tabindex="0"
+                                 (click)="onDayClick(day)"
+                                 (keyup.enter)="onDayClick(day)">
 
                                 <span class="day-number border-circle flex align-items-center justify-content-center w-2rem h-2rem text-sm"
                                       [class.font-bold]="day.isCurrentMonth"

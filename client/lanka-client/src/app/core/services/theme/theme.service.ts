@@ -4,11 +4,10 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class ThemeService {
+  public readonly isDark = signal<boolean>(false);
+
   private readonly STORAGE_KEY = 'lanka-theme-preference';
   private readonly DARK_CLASS = 'lanka-dark';
-
-  // Read-only signal so components can react to theme changes
-  public readonly isDark = signal<boolean>(false);
 
   constructor() {
     this.initTheme();

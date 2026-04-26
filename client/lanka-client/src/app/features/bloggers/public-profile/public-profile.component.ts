@@ -85,7 +85,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
   public selectedOfferName: string | null = null;
 
   // Tabs state
-  public activeTab: string = '0';
+  public activeTab = '0';
 
   // Statistics sub-tab
   public statsSubTab = 'audience';
@@ -142,6 +142,10 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
     return Math.round((sum / this.reviews.length) * 10) / 10;
   }
 
+  public get location(): { labels: string[]; values: number[] } {
+    return this.locationMode === 'city' ? this.locationCity : this.locationCountry;
+  }
+
   public async handleShareProfile(): Promise<void> {
     if (!this.blogger?.id) {
       return;
@@ -158,7 +162,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
         await navigator.share({ title: shareTitle, text: shareText, url });
         this.snackbar.showSuccess(this.translate.instant('PROFILE.SHARE.SHARED'));
         return;
-      } catch (e: any) {
+      } catch {
         // Ignore user cancellation and fall through to clipboard
       }
     }
@@ -168,7 +172,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
         await navigator.clipboard.writeText(url);
         this.snackbar.showSuccess(this.translate.instant('PROFILE.SHARE.COPIED'));
         return;
-      } catch (e: any) {
+      } catch {
         // Fall through to error
       }
     }
@@ -187,26 +191,6 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 100);
-  }
-
-  public get location(): { labels: string[]; values: number[] } {
-    return this.locationMode === 'city' ? this.locationCity : this.locationCountry;
-  }
-
-  private initTranslatedOptions(): void {
-    this.locationModes = [
-      { label: this.translate.instant('PROFILE.LOCATION.COUNTRIES'), value: 'country' },
-      { label: this.translate.instant('PROFILE.LOCATION.CITIES'), value: 'city' }
-    ];
-    this.statsPeriodOptions = [
-      { label: this.translate.instant('PROFILE.PERIOD.ONE_DAY'), value: StatisticsPeriod.day },
-      { label: this.translate.instant('PROFILE.PERIOD.SEVEN_DAYS'), value: StatisticsPeriod.week },
-      { label: this.translate.instant('PROFILE.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
-    ];
-    this.statsSubTabs = [
-      { label: this.translate.instant('PROFILE.TABS.AUDIENCE'), value: 'audience' },
-      { label: this.translate.instant('PROFILE.TABS.ENGAGEMENT'), value: 'engagement' }
-    ];
   }
 
   public ngOnInit(): void {
@@ -293,6 +277,22 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
   public getMetricStatusColor(status: MetricStatus): string { return getMetricStatusColor(status); }
   public getMetricStatusIcon(status: MetricStatus): string { return getMetricStatusIcon(status); }
   public getMetricStatusLabel(status: MetricStatus): string { return getMetricStatusLabel(status); }
+
+  private initTranslatedOptions(): void {
+    this.locationModes = [
+      { label: this.translate.instant('PROFILE.LOCATION.COUNTRIES'), value: 'country' },
+      { label: this.translate.instant('PROFILE.LOCATION.CITIES'), value: 'city' }
+    ];
+    this.statsPeriodOptions = [
+      { label: this.translate.instant('PROFILE.PERIOD.ONE_DAY'), value: StatisticsPeriod.day },
+      { label: this.translate.instant('PROFILE.PERIOD.SEVEN_DAYS'), value: StatisticsPeriod.week },
+      { label: this.translate.instant('PROFILE.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
+    ];
+    this.statsSubTabs = [
+      { label: this.translate.instant('PROFILE.TABS.AUDIENCE'), value: 'audience' },
+      { label: this.translate.instant('PROFILE.TABS.ENGAGEMENT'), value: 'engagement' }
+    ];
+  }
 
   private loadBlogger(id: string): void {
     this.loading = true;

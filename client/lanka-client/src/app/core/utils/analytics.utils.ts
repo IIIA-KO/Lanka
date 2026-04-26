@@ -78,7 +78,7 @@ export function evaluateCpe(cpe: number | null | undefined): MetricStatus {
   return 'excellent';
 }
 
-export function getMetricStatusColor(status: MetricStatus): "success" | "info" | "warning" | "danger" | "secondary" {
+export function getMetricStatusColor(status: MetricStatus): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
   switch(status) {
     case 'poor': return 'danger';
     case 'average': return 'warning';

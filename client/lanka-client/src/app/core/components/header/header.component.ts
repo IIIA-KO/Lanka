@@ -42,6 +42,7 @@ export class HeaderComponent implements OnInit {
   public profile$: Observable<IBloggerProfile>;
   public userMenuItems: MenuItem[] = [];
   public headerSearchQuery = '';
+  public readonly theme = inject(ThemeService);
 
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
@@ -49,7 +50,6 @@ export class HeaderComponent implements OnInit {
   private api = inject(AgentService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
-  public readonly theme = inject(ThemeService);
 
   constructor() {
     this.pageTitle$ = this.router.events.pipe(

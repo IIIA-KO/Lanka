@@ -44,7 +44,6 @@ export interface MonthRow {
   campaigns: ICampaign[];
 }
 
-
 @Component({
   standalone: true,
   selector: 'app-campaigns',
@@ -71,12 +70,36 @@ export interface MonthRow {
   styleUrls: ['./campaigns.component.css']
 })
 export class CampaignsComponent implements OnInit, OnDestroy {
+  // ── Public fields ──────────────────────────────────────────────────────────
   public allCampaigns: ICampaign[] = [];
   public loading = false;
   public error: string | null = null;
-
   public baseDate = new Date();
+  public viewMode: ViewMode = 'calendar';
+  public roleFilter: RoleFilter = 'all';
+  public nameFilter = '';
+  public statusFilter: string[] = [];
+  public listPage = 1;
+  public readonly listPageSize = 10;
+  public selectedDate: Date | null = null;
+  public showReviewDialog = false;
+  public reviewCampaignId: string | null = null;
+  public reviewRating = 0;
+  public reviewComment = '';
+  public readonly reviewedCampaignIds = new Set<string>();
+  public currentUserId: string | null = null;
 
+  // ── Private fields ─────────────────────────────────────────────────────────
+  private readonly destroy$ = new Subject<void>();
+  private readonly campaignsAgent = inject(CampaignsAgent);
+  private readonly bloggersAgent = inject(BloggersAgent);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackbarService = inject(SnackbarService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translate = inject(TranslateService);
+
+  // ── Public getters ─────────────────────────────────────────────────────────
   public get weekdays(): string[] {
     const days = this.translate.instant('PROFILE.CALENDAR.WEEKDAYS');
     return Array.isArray(days) ? days : ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
@@ -102,8 +125,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     };
   }
 
-  // ── View mode ──────────────────────────────────────────────────────────────
-  public viewMode: ViewMode = 'calendar';
   public get viewOptions() {
     return [
       { label: this.translate.instant('CAMPAIGNS.VIEW.CALENDAR'), value: 'calendar', icon: 'pi pi-calendar' },
@@ -111,8 +132,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     ];
   }
 
-  // ── Role filter ────────────────────────────────────────────────────────────
-  public roleFilter: RoleFilter = 'all';
   public get roleOptions() {
     return [
       { label: this.translate.instant('CAMPAIGNS.ROLE.ALL'), value: 'all' },
@@ -120,12 +139,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       { label: this.translate.instant('CAMPAIGNS.ROLE.CLIENT'), value: 'client' },
     ];
   }
-
-  // ── List view filters + pagination ────────────────────────────────────────
-  public nameFilter = '';
-  public statusFilter: string[] = [];
-  public listPage = 1;
-  public readonly listPageSize = 10;
 
   public get totalListPages(): number {
     return Math.max(1, Math.ceil(this.filteredListCampaigns.length / this.listPageSize));
@@ -151,10 +164,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     return this.filteredListCampaigns.slice(start, start + this.listPageSize);
   }
 
-  public goToListPage(page: number | null): void {
-    if (page === null) return;
-    this.listPage = Math.min(Math.max(1, page), this.totalListPages);
-  }
   public get statusOptions() {
     return [
       { label: this.translate.instant('CAMPAIGNS.STATUS.PENDING'),   value: CampaignStatus.Pending },
@@ -165,9 +174,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       { label: this.translate.instant('CAMPAIGNS.STATUS.REJECTED'),  value: CampaignStatus.Rejected },
     ];
   }
-
-  // ── Selected day (calendar) ────────────────────────────────────────────────
-  public selectedDate: Date | null = null;
 
   public get selectedDayCampaigns(): ICampaign[] {
     if (!this.selectedDate) return [];
@@ -194,6 +200,73 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     }
     const upcoming = this.upcomingCampaign;
     return upcoming ? [upcoming] : [];
+  }
+
+  public get actionRequiredCampaigns(): { campaign: ICampaign; actions: { label: string; value: string; icon: string }[] }[] {
+    return this.allCampaigns
+      .map(c => ({ campaign: c, actions: this.getAvailableActions(c) }))
+      .filter(x => x.actions.length > 0);
+  }
+
+  public get filteredCampaigns(): ICampaign[] {
+    if (this.roleFilter === 'all' || !this.currentUserId) {
+      return this.allCampaigns;
+    }
+    return this.allCampaigns.filter(c =>
+      this.roleFilter === 'creator'
+        ? c.creatorId?.toLowerCase() === this.currentUserId
+        : c.clientId?.toLowerCase() === this.currentUserId
+    );
+  }
+
+  public get campaigns(): ICampaign[] {
+    return this.filteredCampaigns;
+  }
+
+  public get filteredListCampaigns(): ICampaign[] {
+    let campaigns = this.filteredCampaigns;
+
+    if (this.nameFilter.trim()) {
+      const query = this.nameFilter.toLowerCase();
+      campaigns = campaigns.filter(c => c.name.toLowerCase().includes(query));
+    }
+
+    if (this.statusFilter.length > 0) {
+      campaigns = campaigns.filter(c => this.statusFilter.includes(c.status));
+    }
+
+    return campaigns;
+  }
+
+  public get monthRows(): MonthRow[] {
+    const rows: MonthRow[] = [];
+    const filtered = this.filteredCampaigns;
+
+    for (let i = 0; i < 3; i++) {
+      const monthDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + i, 1);
+      const year = monthDate.getFullYear();
+      const month = monthDate.getMonth();
+
+      const monthCampaigns = filtered.filter(c => {
+        const d = new Date(c.scheduledOnUtc);
+        return d.getFullYear() === year && d.getMonth() === month;
+      });
+
+      rows.push({
+        monthDate,
+        monthName: this.getMonthName(monthDate),
+        year,
+        days: this.buildCalendarDays(year, month, monthCampaigns),
+        campaigns: monthCampaigns
+      });
+    }
+    return rows;
+  }
+
+  // ── Public methods ─────────────────────────────────────────────────────────
+  public goToListPage(page: number | null): void {
+    if (page === null) return;
+    this.listPage = Math.min(Math.max(1, page), this.totalListPages);
   }
 
   public onDayClick(day: CalendarDay): void {
@@ -223,90 +296,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     return [campaign.creatorFirstName, campaign.creatorLastName].filter(Boolean).join(' ');
   }
 
-  // ── Review dialog ──────────────────────────────────────────────────────────
-  public showReviewDialog = false;
-  public reviewCampaignId: string | null = null;
-  public reviewRating = 0;
-  public reviewComment = '';
-  public readonly reviewedCampaignIds = new Set<string>();
-
-  public currentUserId: string | null = null;
-
-  private readonly destroy$ = new Subject<void>();
-  private readonly campaignsAgent = inject(CampaignsAgent);
-  private readonly bloggersAgent = inject(BloggersAgent);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-  private readonly snackbarService = inject(SnackbarService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly translate = inject(TranslateService);
-
-  // ── Campaigns requiring user action ───────────────────────────────────────
-  public get actionRequiredCampaigns(): { campaign: ICampaign; actions: { label: string; value: string; icon: string }[] }[] {
-    return this.allCampaigns
-      .map(c => ({ campaign: c, actions: this.getAvailableActions(c) }))
-      .filter(x => x.actions.length > 0);
-  }
-
-  // ── Filtered campaigns (by role) ──────────────────────────────────────────
-  public get filteredCampaigns(): ICampaign[] {
-    if (this.roleFilter === 'all' || !this.currentUserId) {
-      return this.allCampaigns;
-    }
-    return this.allCampaigns.filter(c =>
-      this.roleFilter === 'creator'
-        ? c.creatorId?.toLowerCase() === this.currentUserId
-        : c.clientId?.toLowerCase() === this.currentUserId
-    );
-  }
-
-  // Kept for action guards (legacy)
-  public get campaigns(): ICampaign[] {
-    return this.filteredCampaigns;
-  }
-
-  // ── List view: filtered + searched ─────────────────────────────────────────
-  public get filteredListCampaigns(): ICampaign[] {
-    let campaigns = this.filteredCampaigns;
-
-    if (this.nameFilter.trim()) {
-      const query = this.nameFilter.toLowerCase();
-      campaigns = campaigns.filter(c => c.name.toLowerCase().includes(query));
-    }
-
-    if (this.statusFilter.length > 0) {
-      campaigns = campaigns.filter(c => this.statusFilter.includes(c.status));
-    }
-
-    return campaigns;
-  }
-
-  // ── Month rows (calendar + campaigns per month) ────────────────────────────
-  public get monthRows(): MonthRow[] {
-    const rows: MonthRow[] = [];
-    const filtered = this.filteredCampaigns;
-
-    for (let i = 0; i < 3; i++) {
-      const monthDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + i, 1);
-      const year = monthDate.getFullYear();
-      const month = monthDate.getMonth();
-
-      const monthCampaigns = filtered.filter(c => {
-        const d = new Date(c.scheduledOnUtc);
-        return d.getFullYear() === year && d.getMonth() === month;
-      });
-
-      rows.push({
-        monthDate,
-        monthName: this.getMonthName(monthDate),
-        year,
-        days: this.buildCalendarDays(year, month, monthCampaigns),
-        campaigns: monthCampaigns
-      });
-    }
-    return rows;
-  }
-
   public getMonthName(monthDate: Date): string {
     return monthDate.toLocaleDateString(this.translate.currentLang || 'uk', { month: 'long', year: 'numeric' }).toUpperCase();
   }
@@ -328,56 +317,16 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildCalendarDays(year: number, month: number, campaigns: ICampaign[]): CalendarDay[] {
-    const days: CalendarDay[] = [];
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
-
-    let firstDayOffset = new Date(year, month, 1).getDay() - 1;
-    if (firstDayOffset === -1) { firstDayOffset = 6; }
-
-    for (let i = 0; i < firstDayOffset; i++) {
-      const prevDate = new Date(year, month, -firstDayOffset + i + 1);
-      days.push({ date: prevDate, isCurrentMonth: false, isToday: false, hasCampaign: false, campaigns: [] });
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(year, month, d);
-      const dayCampaigns = campaigns.filter(
-        c => new Date(c.scheduledOnUtc).toDateString() === date.toDateString()
-      );
-      days.push({
-        date,
-        isCurrentMonth: true,
-        isToday: date.toDateString() === today.toDateString(),
-        hasCampaign: dayCampaigns.length > 0,
-        campaigns: dayCampaigns
-      });
-    }
-
-    // Pad to complete final row (multiple of 7)
-    while (days.length % 7 !== 0) {
-      const nextDate = new Date(year, month + 1, days.length - daysInMonth - firstDayOffset + 1);
-      days.push({ date: nextDate, isCurrentMonth: false, isToday: false, hasCampaign: false, campaigns: [] });
-    }
-
-    return days;
-  }
-
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
   public ngOnInit(): void {
     const params = this.route.snapshot.queryParams;
 
-    // Restore view mode
     if (params['view'] === 'list' || params['view'] === 'calendar') {
       this.viewMode = params['view'] as ViewMode;
     }
 
-    // Restore list filters
     if (params['name']) this.nameFilter = params['name'];
     if (params['status']) this.statusFilter = params['status'].split(',');
 
-    // Restore selected date (calendar mode)
     if (params['d']) {
       const parsed = new Date(params['d']);
       if (!isNaN(parsed.getTime())) {
@@ -406,7 +355,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Navigation ─────────────────────────────────────────────────────────────
   public prevMonth(): void {
     this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() - 1, 1);
     this.selectedDate = null;
@@ -428,7 +376,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     this.loadCampaigns();
   }
 
-  // ── View mode change ───────────────────────────────────────────────────────
   public onViewModeChange(): void {
     this.nameFilter = '';
     this.statusFilter = [];
@@ -437,16 +384,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     this.loadCampaigns();
   }
 
-  private syncUrlParams(params: Record<string, string | null>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: params,
-      queryParamsHandling: 'merge',
-      replaceUrl: true
-    });
-  }
-
-  // ── Data Loading ───────────────────────────────────────────────────────────
   public loadCampaigns(): void {
     if (!this.currentUserId) {
       this.error = this.translate.instant('CAMPAIGNS.ERROR_USER');
@@ -478,7 +415,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ── Status helpers ─────────────────────────────────────────────────────────
   public getStatusColor(status: string): string {
     switch (status) {
       case CampaignStatus.Pending:   return 'warning';
@@ -503,7 +439,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Campaign Actions ───────────────────────────────────────────────────────
   public onCampaignAction(action: string, campaignId: string): void {
     if (!action) { return; }
 
@@ -525,37 +460,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     }
 
     this.executeAction(action, campaignId);
-  }
-
-  private executeAction(action: string, campaignId: string): void {
-    this.loading = true;
-
-    const actionMap: Record<string, () => import('rxjs').Observable<unknown>> = {
-      confirm: () => this.campaignsAgent.confirmCampaign(campaignId),
-      reject:  () => this.campaignsAgent.rejectCampaign(campaignId),
-      done:    () => this.campaignsAgent.markCampaignAsDone(campaignId),
-      complete: () => this.campaignsAgent.completeCampaign(campaignId),
-      cancel:  () => this.campaignsAgent.cancelCampaign(campaignId),
-      pend:    () => this.campaignsAgent.pendCampaign(campaignId),
-    };
-
-    const factory = actionMap[action];
-    if (!factory) {
-      this.loading = false;
-      return;
-    }
-
-    factory().pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.loading = false;
-        this.snackbarService.showSuccess(this.translate.instant(`CAMPAIGNS.DETAIL.SUCCESS_${action.toUpperCase()}`));
-        this.loadCampaigns();
-      },
-      error: (err: Error) => {
-        this.loading = false;
-        this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION') + ': ' + err.message);
-      }
-    });
   }
 
   public viewCampaign(campaignId: string): void {
@@ -619,7 +523,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // ── Review dialog ──────────────────────────────────────────────────────────
   public openReviewDialog(campaignId: string): void {
     this.reviewCampaignId = campaignId;
     this.reviewRating = 0;
@@ -650,6 +553,82 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.snackbarService.showError(this.translate.instant('CAMPAIGNS.REVIEW.ERROR'));
+      }
+    });
+  }
+
+  // ── Private methods ────────────────────────────────────────────────────────
+  private buildCalendarDays(year: number, month: number, campaigns: ICampaign[]): CalendarDay[] {
+    const days: CalendarDay[] = [];
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+
+    let firstDayOffset = new Date(year, month, 1).getDay() - 1;
+    if (firstDayOffset === -1) { firstDayOffset = 6; }
+
+    for (let i = 0; i < firstDayOffset; i++) {
+      const prevDate = new Date(year, month, -firstDayOffset + i + 1);
+      days.push({ date: prevDate, isCurrentMonth: false, isToday: false, hasCampaign: false, campaigns: [] });
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dayCampaigns = campaigns.filter(
+        c => new Date(c.scheduledOnUtc).toDateString() === date.toDateString()
+      );
+      days.push({
+        date,
+        isCurrentMonth: true,
+        isToday: date.toDateString() === today.toDateString(),
+        hasCampaign: dayCampaigns.length > 0,
+        campaigns: dayCampaigns
+      });
+    }
+
+    while (days.length % 7 !== 0) {
+      const nextDate = new Date(year, month + 1, days.length - daysInMonth - firstDayOffset + 1);
+      days.push({ date: nextDate, isCurrentMonth: false, isToday: false, hasCampaign: false, campaigns: [] });
+    }
+
+    return days;
+  }
+
+  private syncUrlParams(params: Record<string, string | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  private executeAction(action: string, campaignId: string): void {
+    this.loading = true;
+
+    const actionMap: Record<string, () => import('rxjs').Observable<unknown>> = {
+      confirm: () => this.campaignsAgent.confirmCampaign(campaignId),
+      reject:  () => this.campaignsAgent.rejectCampaign(campaignId),
+      done:    () => this.campaignsAgent.markCampaignAsDone(campaignId),
+      complete: () => this.campaignsAgent.completeCampaign(campaignId),
+      cancel:  () => this.campaignsAgent.cancelCampaign(campaignId),
+      pend:    () => this.campaignsAgent.pendCampaign(campaignId),
+    };
+
+    const factory = actionMap[action];
+    if (!factory) {
+      this.loading = false;
+      return;
+    }
+
+    factory().pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.loading = false;
+        this.snackbarService.showSuccess(this.translate.instant(`CAMPAIGNS.DETAIL.SUCCESS_${action.toUpperCase()}`));
+        this.loadCampaigns();
+      },
+      error: (err: Error) => {
+        this.loading = false;
+        this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION') + ': ' + err.message);
       }
     });
   }

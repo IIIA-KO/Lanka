@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrls: ['./auth-layout.component.css']
 })
 export class AuthLayoutComponent {
-  private readonly translate = inject(TranslateService);
   public readonly themeService = inject(ThemeService);
+
+  private readonly translate = inject(TranslateService);
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { catchError, of, Subject, takeUntil } from 'rxjs';
 
 // PrimeNG Modules
