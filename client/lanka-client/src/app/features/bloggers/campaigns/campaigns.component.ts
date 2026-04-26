@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { DatePipe, NgClass } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -44,17 +44,13 @@ export interface MonthRow {
   campaigns: ICampaign[];
 }
 
-const WEEKDAYS = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'];
-const MONTHS_UK = [
-  'СІЧЕНЬ', 'ЛЮТИЙ', 'БЕРЕЗЕНЬ', 'КВІТЕНЬ', 'ТРАВЕНЬ', 'ЧЕРВЕНЬ',
-  'ЛИПЕНЬ', 'СЕРПЕНЬ', 'ВЕРЕСЕНЬ', 'ЖОВТЕНЬ', 'ЛИСТОПАД', 'ГРУДЕНЬ'
-];
 
 @Component({
   standalone: true,
   selector: 'app-campaigns',
   imports: [
     DatePipe,
+    NgClass,
     FormsModule,
     TranslateModule,
     ButtonModule,
@@ -80,7 +76,31 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   public error: string | null = null;
 
   public baseDate = new Date();
-  public weekdays = WEEKDAYS;
+
+  public get weekdays(): string[] {
+    const days = this.translate.instant('PROFILE.CALENDAR.WEEKDAYS');
+    return Array.isArray(days) ? days : ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+  }
+
+  public get currentMonthLabel(): string {
+    return this.getMonthName(this.baseDate);
+  }
+
+  public get currentMonth(): MonthRow {
+    const year = this.baseDate.getFullYear();
+    const month = this.baseDate.getMonth();
+    const monthCampaigns = this.filteredCampaigns.filter(c => {
+      const d = new Date(c.scheduledOnUtc);
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+    return {
+      monthDate: this.baseDate,
+      monthName: this.getMonthName(this.baseDate),
+      year,
+      days: this.buildCalendarDays(year, month, monthCampaigns),
+      campaigns: monthCampaigns
+    };
+  }
 
   // ── View mode ──────────────────────────────────────────────────────────────
   public viewMode: ViewMode = 'calendar';
@@ -101,9 +121,40 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     ];
   }
 
-  // ── List view filters ──────────────────────────────────────────────────────
+  // ── List view filters + pagination ────────────────────────────────────────
   public nameFilter = '';
   public statusFilter: string[] = [];
+  public listPage = 1;
+  public readonly listPageSize = 10;
+
+  public get totalListPages(): number {
+    return Math.max(1, Math.ceil(this.filteredListCampaigns.length / this.listPageSize));
+  }
+
+  public get listPageNumbers(): (number | null)[] {
+    const total = this.totalListPages;
+    const current = this.listPage;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const shown = new Set<number>([1, total]);
+    for (let p = Math.max(1, current - 1); p <= Math.min(total, current + 1); p++) shown.add(p);
+    const sorted = Array.from(shown).sort((a, b) => a - b);
+    const result: (number | null)[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push(null);
+      result.push(sorted[i]);
+    }
+    return result;
+  }
+
+  public get pagedListCampaigns(): ICampaign[] {
+    const start = (this.listPage - 1) * this.listPageSize;
+    return this.filteredListCampaigns.slice(start, start + this.listPageSize);
+  }
+
+  public goToListPage(page: number | null): void {
+    if (page === null) return;
+    this.listPage = Math.min(Math.max(1, page), this.totalListPages);
+  }
   public get statusOptions() {
     return [
       { label: this.translate.instant('CAMPAIGNS.STATUS.PENDING'),   value: CampaignStatus.Pending },
@@ -113,6 +164,63 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       { label: this.translate.instant('CAMPAIGNS.STATUS.CANCELLED'), value: CampaignStatus.Cancelled },
       { label: this.translate.instant('CAMPAIGNS.STATUS.REJECTED'),  value: CampaignStatus.Rejected },
     ];
+  }
+
+  // ── Selected day (calendar) ────────────────────────────────────────────────
+  public selectedDate: Date | null = null;
+
+  public get selectedDayCampaigns(): ICampaign[] {
+    if (!this.selectedDate) return [];
+    return this.filteredCampaigns.filter(c =>
+      new Date(c.scheduledOnUtc).toDateString() === this.selectedDate!.toDateString()
+    );
+  }
+
+  public get upcomingCampaign(): ICampaign | null {
+    const now = new Date();
+    const sorted = this.filteredCampaigns
+      .filter(c =>
+        new Date(c.scheduledOnUtc) >= now &&
+        c.status !== CampaignStatus.Cancelled &&
+        c.status !== CampaignStatus.Rejected
+      )
+      .sort((a, b) => new Date(a.scheduledOnUtc).getTime() - new Date(b.scheduledOnUtc).getTime());
+    return sorted[0] ?? null;
+  }
+
+  public get detailCampaigns(): ICampaign[] {
+    if (this.selectedDate && this.selectedDayCampaigns.length > 0) {
+      return this.selectedDayCampaigns;
+    }
+    const upcoming = this.upcomingCampaign;
+    return upcoming ? [upcoming] : [];
+  }
+
+  public onDayClick(day: CalendarDay): void {
+    if (!day.isCurrentMonth || day.campaigns.length === 0) return;
+    const toggled = this.selectedDate?.toDateString() === day.date.toDateString()
+      ? null : day.date;
+    this.selectedDate = toggled;
+    this.syncUrlParams({ d: toggled ? toggled.toISOString() : null });
+  }
+
+  public getDayStatusClass(day: CalendarDay): string {
+    if (day.campaigns.length === 0) return day.isToday ? 'cal-mini-num--today-empty' : 'cal-mini-num--plain';
+    const hasAction = day.campaigns.some(c => this.getAvailableActions(c).length > 0);
+    if (hasAction) return 'cal-mini-num--pending';
+    const status = day.campaigns[0].status.toLowerCase();
+    return `cal-mini-num--${status}`;
+  }
+
+  public isSelectedDay(day: CalendarDay): boolean {
+    return !!this.selectedDate && day.date.toDateString() === this.selectedDate.toDateString();
+  }
+
+  public getPartnerName(campaign: ICampaign): string {
+    if (campaign.creatorId?.toLowerCase() === this.currentUserId) {
+      return [campaign.clientFirstName, campaign.clientLastName].filter(Boolean).join(' ');
+    }
+    return [campaign.creatorFirstName, campaign.creatorLastName].filter(Boolean).join(' ');
   }
 
   // ── Review dialog ──────────────────────────────────────────────────────────
@@ -128,6 +236,7 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   private readonly campaignsAgent = inject(CampaignsAgent);
   private readonly bloggersAgent = inject(BloggersAgent);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly snackbarService = inject(SnackbarService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
@@ -189,7 +298,7 @@ export class CampaignsComponent implements OnInit, OnDestroy {
 
       rows.push({
         monthDate,
-        monthName: `${MONTHS_UK[month]} ${year}`,
+        monthName: this.getMonthName(monthDate),
         year,
         days: this.buildCalendarDays(year, month, monthCampaigns),
         campaigns: monthCampaigns
@@ -257,6 +366,26 @@ export class CampaignsComponent implements OnInit, OnDestroy {
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   public ngOnInit(): void {
+    const params = this.route.snapshot.queryParams;
+
+    // Restore view mode
+    if (params['view'] === 'list' || params['view'] === 'calendar') {
+      this.viewMode = params['view'] as ViewMode;
+    }
+
+    // Restore list filters
+    if (params['name']) this.nameFilter = params['name'];
+    if (params['status']) this.statusFilter = params['status'].split(',');
+
+    // Restore selected date (calendar mode)
+    if (params['d']) {
+      const parsed = new Date(params['d']);
+      if (!isNaN(parsed.getTime())) {
+        this.selectedDate = parsed;
+        this.baseDate = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+      }
+    }
+
     this.loading = true;
     this.bloggersAgent.getProfile()
       .pipe(takeUntil(this.destroy$))
@@ -280,11 +409,22 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   // ── Navigation ─────────────────────────────────────────────────────────────
   public prevMonth(): void {
     this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() - 1, 1);
+    this.selectedDate = null;
+    this.syncUrlParams({ d: null });
     this.loadCampaigns();
   }
 
   public nextMonth(): void {
     this.baseDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + 1, 1);
+    this.selectedDate = null;
+    this.syncUrlParams({ d: null });
+    this.loadCampaigns();
+  }
+
+  public goToToday(): void {
+    this.baseDate = new Date();
+    this.selectedDate = null;
+    this.syncUrlParams({ d: null });
     this.loadCampaigns();
   }
 
@@ -292,7 +432,18 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   public onViewModeChange(): void {
     this.nameFilter = '';
     this.statusFilter = [];
+    this.listPage = 1;
+    this.syncUrlParams({ view: this.viewMode, d: null, name: null, status: null });
     this.loadCampaigns();
+  }
+
+  private syncUrlParams(params: Record<string, string | null>): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   // ── Data Loading ───────────────────────────────────────────────────────────
@@ -310,7 +461,7 @@ export class CampaignsComponent implements OnInit, OnDestroy {
 
     if (this.viewMode === 'calendar') {
       startDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth(), 1).toISOString();
-      endDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + 3, 0, 23, 59, 59).toISOString();
+      endDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
     }
 
     this.campaignsAgent.getBloggerCampaigns(this.currentUserId, startDate, endDate)
@@ -409,6 +560,21 @@ export class CampaignsComponent implements OnInit, OnDestroy {
 
   public viewCampaign(campaignId: string): void {
     this.router.navigate(['/campaigns', campaignId]);
+  }
+
+  public rowAction(event: Event, action: string, campaignId: string): void {
+    event.stopPropagation();
+    this.onCampaignAction(action, campaignId);
+  }
+
+  public onNameFilterChange(value: string): void {
+    this.listPage = 1;
+    this.syncUrlParams({ name: value || null });
+  }
+
+  public onStatusFilterChange(values: string[]): void {
+    this.listPage = 1;
+    this.syncUrlParams({ status: values.length ? values.join(',') : null });
   }
 
   public getAvailableActions(campaign: ICampaign): { label: string; value: string; icon: string }[] {

@@ -1,36 +1,33 @@
-<div class="campaigns-container">
+<div class="cam-page">
 
-    <!-- ── Header ─────────────────────────────────────────────────────────── -->
-    <div class="page-header flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
-        <div class="flex align-items-center gap-3">
-            <h2 class="m-0 text-2xl font-bold">{{ 'CAMPAIGNS.TITLE' | translate }}</h2>
+    <!-- ── Toolbar ─────────────────────────────────────────────────────────── -->
+    <div class="cam-toolbar">
+        <div class="cam-toolbar-left">
+            <h2 class="cam-title">{{ 'CAMPAIGNS.TITLE' | translate }}</h2>
             @if (viewMode === 'calendar') {
-                <div class="flex gap-2">
-                    <p-button icon="pi pi-chevron-left" [outlined]="true" severity="secondary"
-                        size="small" (onClick)="prevMonth()"></p-button>
-                    <p-button icon="pi pi-chevron-right" [outlined]="true" severity="secondary"
-                        size="small" (onClick)="nextMonth()"></p-button>
+                <div class="cam-month-nav">
+                    <p-button icon="pi pi-chevron-left" [text]="true" severity="secondary"
+                        size="small" (onClick)="prevMonth()" />
+                    <span class="cam-month-label">{{ currentMonthLabel }}</span>
+                    <p-button icon="pi pi-chevron-right" [text]="true" severity="secondary"
+                        size="small" (onClick)="nextMonth()" />
                 </div>
+                <p-button [label]="'CAMPAIGNS.ACTIONS.TODAY' | translate"
+                    size="small" severity="secondary" [outlined]="true"
+                    (onClick)="goToToday()" />
             }
         </div>
-        <div class="flex align-items-center gap-3 flex-wrap">
+        <div class="cam-toolbar-right">
             <p-selectbutton [options]="viewOptions" [(ngModel)]="viewMode"
                 optionLabel="label" optionValue="value"
                 (onChange)="onViewModeChange()" />
             <p-selectbutton [options]="roleOptions" [(ngModel)]="roleFilter"
                 optionLabel="label" optionValue="value" />
-            <p-button icon="pi pi-refresh" [outlined]="true" severity="secondary"
-                size="small" (onClick)="loadCampaigns()" [loading]="loading"
-                [pTooltip]="'CAMPAIGNS.ACTIONS.REFRESH' | translate"></p-button>
+            <p-button icon="pi pi-refresh" [text]="true" severity="secondary" size="small"
+                (onClick)="loadCampaigns()" [loading]="loading"
+                [pTooltip]="'CAMPAIGNS.ACTIONS.REFRESH' | translate" />
         </div>
     </div>
-
-    <!-- ── Loading ────────────────────────────────────────────────────────── -->
-    @if (loading) {
-        <div class="flex justify-content-center p-6">
-            <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
-        </div>
-    }
 
     <!-- ── Error ──────────────────────────────────────────────────────────── -->
     @if (error && !loading) {
@@ -39,167 +36,283 @@
         </div>
     }
 
-    <!-- ── Required Action ────────────────────────────────────────────────── -->
+    <!-- ── Action Required Banner ─────────────────────────────────────────── -->
     @if (!loading && actionRequiredCampaigns.length > 0) {
-        <div class="action-required-panel surface-card border-round-xl shadow-1 mb-4">
-            <div class="action-required-header flex align-items-center gap-2 px-4 py-3">
-                <i class="pi pi-exclamation-circle text-orange-500"></i>
-                <span class="font-bold text-base">{{ 'CAMPAIGNS.ACTION_REQUIRED.TITLE' | translate }}</span>
-                <span class="text-sm text-color-secondary ml-1">
+        <div class="action-banner">
+            <div class="action-banner-head">
+                <i class="pi pi-exclamation-circle" style="color:#f59e0b;font-size:0.9rem"></i>
+                <span class="font-semibold text-sm">{{ 'CAMPAIGNS.ACTION_REQUIRED.TITLE' | translate }}</span>
+                <span class="text-sm" style="color:var(--text-color-secondary)">
                     {{ 'CAMPAIGNS.ACTION_REQUIRED.COUNT' | translate:{ count: actionRequiredCampaigns.length } }}
                 </span>
             </div>
-            <div class="action-required-list">
-                @for (item of actionRequiredCampaigns; track item.campaign.id; let last = $last) {
-                    <div class="action-required-item flex align-items-center gap-3 px-4 py-3"
-                         [class.border-bottom-1]="!last"
-                         [style.borderColor]="'var(--surface-border)'">
-                        <div class="flex-1 min-w-0">
-                            <div class="campaign-name-link font-semibold text-sm"
-                                 (click)="viewCampaign(item.campaign.id)">
-                                {{ item.campaign.name }}
-                            </div>
-                            <div class="flex align-items-center gap-2 mt-1">
-                                <p-tag [value]="item.campaign.status | translate"
-                                       [severity]="getStatusColor(item.campaign.status)"
-                                       [icon]="getStatusIcon(item.campaign.status)"
-                                       styleClass="text-xs" />
-                                <span class="text-xs text-color-secondary">
-                                    {{ item.campaign.scheduledOnUtc | date:'d MMM yyyy' }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 flex-shrink-0">
-                            @for (action of item.actions; track action.value) {
-                                <p-button
-                                    [label]="action.label"
-                                    [icon]="action.icon"
-                                    size="small"
-                                    [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' ? 'success' : 'primary'"
-                                    [outlined]="action.value === 'reject' || action.value === 'cancel'"
-                                    (onClick)="onCampaignAction(action.value, item.campaign.id)" />
-                            }
+            @for (item of actionRequiredCampaigns; track item.campaign.id) {
+                <div class="action-banner-item">
+                    <div style="flex:1;min-width:0">
+                        <div class="campaign-name-link font-semibold text-sm"
+                             (click)="viewCampaign(item.campaign.id)">{{ item.campaign.name }}</div>
+                        <div class="flex align-items-center gap-2 mt-1">
+                            <p-tag [value]="item.campaign.status"
+                                   [severity]="getStatusColor(item.campaign.status)"
+                                   [icon]="getStatusIcon(item.campaign.status)"
+                                   styleClass="text-xs" />
+                            <span class="text-xs" style="color:var(--text-color-secondary)">
+                                {{ item.campaign.scheduledOnUtc | date:'d MMM yyyy' }}
+                            </span>
                         </div>
                     </div>
-                }
-            </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        @for (action of item.actions; track action.value) {
+                            <p-button
+                                [label]="action.label"
+                                [icon]="action.icon"
+                                size="small"
+                                [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' ? 'success' : 'primary'"
+                                [outlined]="action.value === 'reject' || action.value === 'cancel'"
+                                (onClick)="onCampaignAction(action.value, item.campaign.id)" />
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    @if (loading) {
+        <div class="flex justify-content-center p-6">
+            <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
         </div>
     }
 
     <!-- ── Calendar View ──────────────────────────────────────────────────── -->
     @if (!loading && !error && viewMode === 'calendar') {
-        @if (filteredCampaigns.length === 0) {
-            <div class="empty-state text-center p-6">
-                <i class="pi pi-calendar-times" style="font-size:3rem; color:var(--text-color-secondary)"></i>
+
+        @if (filteredCampaigns.length === 0 && !upcomingCampaign) {
+            <div class="cam-empty">
+                <i class="pi pi-calendar-times" style="font-size:2.5rem;color:var(--text-color-secondary)"></i>
                 <h3 class="mt-3 mb-1">{{ 'CAMPAIGNS.EMPTY.MONTH' | translate }}</h3>
-                <p class="text-color-secondary m-0">
+                <p style="color:var(--text-color-secondary);margin:0">
                     @if (roleFilter === 'all') { {{ 'CAMPAIGNS.EMPTY.ALL' | translate }} }
                     @else if (roleFilter === 'creator') { {{ 'CAMPAIGNS.EMPTY.CREATOR' | translate }} }
                     @else { {{ 'CAMPAIGNS.EMPTY.CLIENT' | translate }} }
                 </p>
             </div>
         } @else {
-            @for (row of monthRows; track row.monthName) {
-                <div class="cal-month surface-card border-round-xl shadow-1 mb-4">
-                    <!-- Month header -->
-                    <div class="cal-month-header flex align-items-center justify-content-between px-4 py-3">
-                        <span class="font-bold text-base uppercase tracking-wide text-color-secondary">
-                            {{ getMonthName(row.monthDate) }}
-                        </span>
-                        <span class="text-sm text-color-secondary">
-                            {{ getMonthCampaignCount(row.campaigns.length) }}
-                        </span>
-                    </div>
+            <div class="cam-body">
 
-                    <!-- Weekday header row -->
-                    <div class="cal-grid cal-grid--header">
+                <!-- Left: mini calendar -->
+                <div class="cam-mini-cal">
+                    <div class="cam-month-title">{{ currentMonth.monthName }}</div>
+
+                    <div class="cal-mini-weekdays">
                         @for (wd of weekdays; track wd) {
-                            <div class="cal-weekday text-xs font-semibold text-color-secondary text-center py-2">
-                                {{ wd }}
-                            </div>
+                            <div class="cal-mini-weekday">{{ wd }}</div>
                         }
                     </div>
 
-                    <!-- Day cells -->
-                    <div class="cal-grid">
-                        @for (day of row.days; track day.date.getTime()) {
-                            <div class="cal-day-cell"
-                                 [class.cal-day--other-month]="!day.isCurrentMonth"
-                                 [class.cal-day--today]="day.isToday">
-                                <span class="cal-day-number" [class.cal-day-number--today]="day.isToday">
-                                    {{ day.isCurrentMonth ? day.date.getDate() : '' }}
-                                </span>
-                                @for (campaign of day.campaigns.slice(0, 2); track campaign.id) {
-                                    <div class="cal-event-chip {{ getStatusChipClass(campaign.status) }}"
-                                         (click)="viewCampaign(campaign.id)"
-                                         [title]="campaign.name + ' · ' + campaign.status">
-                                        <i class="{{ getStatusIcon(campaign.status) }} cal-event-icon"></i>
-                                        <span class="cal-event-name">{{ campaign.name }}</span>
-                                    </div>
-                                }
-                                @if (day.campaigns.length > 2) {
-                                    <div class="cal-event-chip cal-event-chip--overflow">
-                                        {{ 'CAMPAIGNS.CALENDAR.MORE' | translate:{ count: day.campaigns.length - 2 } }}
-                                    </div>
+                    <div class="cal-mini-grid">
+                        @for (day of currentMonth.days; track day.date.getTime()) {
+                            <div class="cal-mini-cell"
+                                 [class.cal-mini-cell--other-month]="!day.isCurrentMonth"
+                                 [class.cal-mini-cell--clickable]="day.isCurrentMonth && day.campaigns.length > 0"
+                                 (click)="onDayClick(day)">
+                                @if (day.isCurrentMonth) {
+                                    <span class="cal-mini-num"
+                                          [ngClass]="[getDayStatusClass(day), isSelectedDay(day) ? 'cal-mini-num--selected' : '']">
+                                        {{ day.date.getDate() }}
+                                    </span>
                                 }
                             </div>
                         }
                     </div>
                 </div>
-            }
+
+                <!-- Right: detail panel -->
+                <div class="cam-detail-col">
+                    @if (detailCampaigns.length > 0) {
+                        @let showingSelected = selectedDate && selectedDayCampaigns.length > 0;
+                        <div class="cam-next-label">
+                            <i class="pi pi-calendar" style="font-size:0.75rem"></i>
+                            @if (showingSelected) {
+                                {{ selectedDate | date:'d MMMM yyyy' }}
+                            } @else {
+                                {{ 'CAMPAIGNS.DETAIL.UPCOMING' | translate }}
+                            }
+                        </div>
+
+                        @if (detailCampaigns.length === 1) {
+                            <!-- Single campaign detail -->
+                            @let campaign = detailCampaigns[0];
+                            <div class="cam-detail-card">
+                                <div class="cam-detail-header">
+                                    <div class="cam-detail-date">
+                                        {{ campaign.scheduledOnUtc | date:'d MMMM yyyy' }}
+                                    </div>
+                                    <div class="cam-detail-name">{{ campaign.name }}</div>
+                                </div>
+
+                                <div class="cam-detail-row">
+                                    <span class="cam-detail-label">{{ 'CAMPAIGNS.DETAIL.STATUS_LABEL' | translate }}</span>
+                                    <span class="cam-detail-value">
+                                        <span class="detail-status-dot ds-{{ campaign.status }}">
+                                            {{ 'CAMPAIGNS.STATUS.' + campaign.status.toUpperCase() | translate }}
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div class="cam-detail-row">
+                                    <span class="cam-detail-label">{{ 'CAMPAIGNS.DETAIL.DATE_TIME' | translate }}</span>
+                                    <span class="cam-detail-value">
+                                        {{ campaign.scheduledOnUtc | date:'d MMM yyyy, HH:mm' }}
+                                    </span>
+                                </div>
+
+                                @if (getPartnerName(campaign)) {
+                                    <div class="cam-detail-row">
+                                        <span class="cam-detail-label">{{ 'CAMPAIGNS.DETAIL.PARTNER' | translate }}</span>
+                                        <span class="cam-detail-value">{{ getPartnerName(campaign) }}</span>
+                                    </div>
+                                }
+
+                                <div class="cam-detail-row">
+                                    <span class="cam-detail-label">{{ 'CAMPAIGNS.DETAIL.YOUR_ROLE' | translate }}</span>
+                                    <span class="cam-detail-value">
+                                        @if (campaign.creatorId?.toLowerCase() === currentUserId) {
+                                            {{ 'CAMPAIGNS.DETAIL.ROLE_CREATOR' | translate }}
+                                        } @else {
+                                            {{ 'CAMPAIGNS.DETAIL.ROLE_CLIENT' | translate }}
+                                        }
+                                    </span>
+                                </div>
+
+                                @if (campaign.price?.amount) {
+                                    <div class="cam-detail-row">
+                                        <span class="cam-detail-label">{{ 'CAMPAIGNS.DETAIL.PRICE_LABEL' | translate }}</span>
+                                        <span class="cam-detail-value font-bold">
+                                            {{ campaign.price.amount }} {{ campaign.price.currency }}
+                                        </span>
+                                    </div>
+                                }
+
+                                @if (getAvailableActions(campaign).length > 0) {
+                                    <div class="cam-detail-actions">
+                                        @for (action of getAvailableActions(campaign); track action.value) {
+                                            <p-button
+                                                [label]="action.label"
+                                                [icon]="action.icon"
+                                                size="small"
+                                                [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' || action.value === 'review' ? 'success' : 'primary'"
+                                                [outlined]="action.value === 'reject' || action.value === 'cancel'"
+                                                (onClick)="onCampaignAction(action.value, campaign.id)" />
+                                        }
+                                        <p-button
+                                            [label]="'CAMPAIGNS.ACTIONS.VIEW_DETAILS' | translate"
+                                            icon="pi pi-arrow-right"
+                                            size="small"
+                                            severity="secondary"
+                                            [text]="true"
+                                            (onClick)="viewCampaign(campaign.id)" />
+                                    </div>
+                                } @else {
+                                    <div class="cam-detail-actions">
+                                        <p-button
+                                            [label]="'CAMPAIGNS.ACTIONS.VIEW_DETAILS' | translate"
+                                            icon="pi pi-arrow-right"
+                                            size="small"
+                                            severity="secondary"
+                                            [outlined]="true"
+                                            (onClick)="viewCampaign(campaign.id)" />
+                                    </div>
+                                }
+                            </div>
+                        } @else {
+                            <!-- Multiple campaigns on selected day -->
+                            <div class="cam-detail-card">
+                                @for (campaign of detailCampaigns; track campaign.id) {
+                                    <div class="cam-detail-list-item"
+                                         (click)="viewCampaign(campaign.id)">
+                                        <div style="flex:1;min-width:0">
+                                            <div class="font-semibold text-sm campaign-name-link">
+                                                {{ campaign.name }}
+                                            </div>
+                                            <div class="flex align-items-center gap-2 mt-1">
+                                                <span class="detail-status-dot ds-{{ campaign.status }}"
+                                                      style="font-size:0.75rem">
+                                                    {{ 'CAMPAIGNS.STATUS.' + campaign.status.toUpperCase() | translate }}
+                                                </span>
+                                                <span class="text-xs" style="color:var(--text-color-secondary)">
+                                                    {{ campaign.scheduledOnUtc | date:'HH:mm' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <i class="pi pi-chevron-right text-xs" style="color:var(--text-color-secondary)"></i>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    } @else {
+                        <div class="cam-detail-card cam-detail-card--plain">
+                            <div class="cam-detail-empty">
+                                <i class="pi pi-calendar-plus" style="font-size:2rem;display:block;margin-bottom:0.75rem"></i>
+                                <p class="m-0 text-sm">{{ 'CAMPAIGNS.DETAIL.SELECT_DAY' | translate }}</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
         }
     }
 
     <!-- ── List View ──────────────────────────────────────────────────────── -->
     @if (!loading && !error && viewMode === 'list') {
-        <!-- Filter bar -->
-        <div class="list-filters flex gap-3 mb-4 flex-wrap align-items-center">
-            <div class="p-inputgroup" style="max-width: 280px">
+        <div class="list-filter-bar">
+            <div class="p-inputgroup" style="max-width:280px">
                 <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
                 <input pInputText type="text"
                     [placeholder]="'CAMPAIGNS.LIST.SEARCH_PLACEHOLDER' | translate"
-                    [(ngModel)]="nameFilter" />
+                    [(ngModel)]="nameFilter"
+                    (ngModelChange)="onNameFilterChange($event)" />
             </div>
             <p-multiselect [options]="statusOptions" [(ngModel)]="statusFilter"
                 optionLabel="label" optionValue="value"
                 [placeholder]="'CAMPAIGNS.LIST.STATUS_FILTER' | translate"
-                [style]="{'min-width': '200px'}" />
+                [style]="{'min-width':'200px'}"
+                (ngModelChange)="onStatusFilterChange($event)" />
         </div>
 
-        <!-- Table -->
-        <p-table [value]="filteredListCampaigns"
-                 [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5, 10, 25]"
+        <p-table [value]="pagedListCampaigns"
                  [sortField]="'scheduledOnUtc'" [sortOrder]="-1"
                  styleClass="p-datatable-sm"
-                 [tableStyle]="{'min-width': '700px'}">
+                 [tableStyle]="{'min-width':'700px'}"
+                 [paginator]="false">
 
             <ng-template pTemplate="header">
                 <tr>
-                    <th pSortableColumn="scheduledOnUtc" style="width: 130px">
+                    <th pSortableColumn="scheduledOnUtc" style="width:130px">
                         {{ 'CAMPAIGNS.LIST.COL_DATE' | translate }} <p-sortIcon field="scheduledOnUtc" />
                     </th>
                     <th pSortableColumn="name">
                         {{ 'CAMPAIGNS.LIST.COL_CAMPAIGN' | translate }} <p-sortIcon field="name" />
                     </th>
-                    <th style="width: 100px">{{ 'CAMPAIGNS.LIST.COL_ROLE' | translate }}</th>
-                    <th pSortableColumn="status" style="width: 130px">
+                    <th style="width:100px">{{ 'CAMPAIGNS.LIST.COL_ROLE' | translate }}</th>
+                    <th pSortableColumn="status" style="width:130px">
                         {{ 'CAMPAIGNS.LIST.COL_STATUS' | translate }} <p-sortIcon field="status" />
                     </th>
-                    <th style="width: 120px">{{ 'CAMPAIGNS.LIST.COL_PRICE' | translate }}</th>
-                    <th style="width: 180px">{{ 'CAMPAIGNS.LIST.COL_ACTIONS' | translate }}</th>
+                    <th style="width:120px">{{ 'CAMPAIGNS.LIST.COL_PRICE' | translate }}</th>
+                    <th style="width:160px"></th>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-campaign>
-                <tr>
-                    <td class="text-sm text-color-secondary">
+                <tr (click)="viewCampaign(campaign.id)" style="cursor:pointer">
+                    <td class="text-sm" style="color:var(--text-color-secondary)">
                         {{ campaign.scheduledOnUtc | date:'d MMM yyyy' }}
                     </td>
                     <td>
-                        <div class="campaign-name-link font-semibold" (click)="viewCampaign(campaign.id)">
-                            {{ campaign.name }}
-                        </div>
-                        <div class="text-xs text-color-secondary line-clamp-1 mt-1">
+                        <div class="font-semibold">{{ campaign.name }}</div>
+                        <div class="text-xs mt-1" style="color:var(--text-color-secondary);
+                            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">
                             {{ campaign.description }}
                         </div>
                     </td>
@@ -211,19 +324,18 @@
                         }
                     </td>
                     <td>
-                        <p-tag [value]="campaign.status"
-                            [severity]="getStatusColor(campaign.status)"
-                            [icon]="getStatusIcon(campaign.status)"
-                            styleClass="text-xs" />
+                        <span class="status-dot s-{{ campaign.status.toLowerCase() }}">
+                            {{ 'CAMPAIGNS.STATUS.' + campaign.status.toUpperCase() | translate }}
+                        </span>
                     </td>
                     <td class="text-sm font-semibold">
                         @if (campaign.price?.amount) {
                             {{ campaign.price.amount }} {{ campaign.price.currency }}
                         } @else {
-                            <span class="text-color-secondary">—</span>
+                            <span style="color:var(--text-color-secondary)">—</span>
                         }
                     </td>
-                    <td>
+                    <td (click)="$event.stopPropagation()">
                         <div class="flex gap-1 flex-wrap">
                             @for (action of getAvailableActions(campaign); track action.value) {
                                 <p-button
@@ -232,15 +344,8 @@
                                     size="small"
                                     [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' || action.value === 'review' ? 'success' : 'primary'"
                                     [outlined]="action.value === 'reject' || action.value === 'cancel'"
-                                    (onClick)="onCampaignAction(action.value, campaign.id)" />
+                                    (onClick)="rowAction($event, action.value, campaign.id)" />
                             }
-                            <p-button
-                                [label]="'CAMPAIGNS.ACTIONS.VIEW_DETAILS' | translate"
-                                icon="pi pi-eye"
-                                size="small"
-                                severity="secondary"
-                                [outlined]="true"
-                                (onClick)="viewCampaign(campaign.id)" />
                         </div>
                     </td>
                 </tr>
@@ -248,13 +353,36 @@
 
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-color-secondary">
+                    <td colspan="6" class="text-center py-5" style="color:var(--text-color-secondary)">
                         <i class="pi pi-inbox text-4xl mb-3 block"></i>
                         {{ 'CAMPAIGNS.EMPTY.LIST' | translate }}
                     </td>
                 </tr>
             </ng-template>
         </p-table>
+
+        @if (filteredListCampaigns.length > 0) {
+            <div class="list-pagination">
+                <button class="lpag-nav" [disabled]="listPage === 1" (click)="goToListPage(listPage - 1)">
+                    <i class="pi pi-chevron-left"></i>
+                    <span>{{ 'SEARCH.RESULTS.PREV' | translate }}</span>
+                </button>
+                <div class="lpag-numbers">
+                    @for (p of listPageNumbers; track $index) {
+                        @if (p === null) {
+                            <span class="lpag-ellipsis">&hellip;</span>
+                        } @else {
+                            <button class="lpag-num" [class.active]="p === listPage"
+                                (click)="goToListPage(p)">{{ p }}</button>
+                        }
+                    }
+                </div>
+                <button class="lpag-nav" [disabled]="listPage === totalListPages" (click)="goToListPage(listPage + 1)">
+                    <span>{{ 'SEARCH.RESULTS.NEXT' | translate }}</span>
+                    <i class="pi pi-chevron-right"></i>
+                </button>
+            </div>
+        }
     }
 
     <!-- ── Confirmation Dialog ────────────────────────────────────────────── -->
@@ -279,13 +407,15 @@
             <div>
                 <label class="font-semibold mb-2 block">
                     {{ 'CAMPAIGNS.REVIEW.COMMENT_LABEL' | translate }}
-                    <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.REVIEW.COMMENT_OPTIONAL' | translate }}</span>
+                    <span class="text-sm" style="color:var(--text-color-secondary)">
+                        {{ 'CAMPAIGNS.REVIEW.COMMENT_OPTIONAL' | translate }}
+                    </span>
                 </label>
                 <textarea rows="4"
                     [(ngModel)]="reviewComment"
                     class="w-full p-inputtext border-round"
                     [placeholder]="'CAMPAIGNS.REVIEW.COMMENT_PLACEHOLDER' | translate"
-                    style="resize: vertical; font-family: inherit; font-size: 0.875rem;">
+                    style="resize:vertical;font-family:inherit;font-size:0.875rem">
                 </textarea>
             </div>
         </div>
