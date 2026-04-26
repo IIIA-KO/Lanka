@@ -169,6 +169,44 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     return events;
   }
 
+  // ── Step context ─────────────────────────────────────────────────────────
+  public get stepContext(): { myTurn: boolean; icon: string; headlineKey: string; bodyKey: string } | null {
+    if (!this.campaign) { return null; }
+    const s = this.campaign.status as CampaignStatus;
+
+    if (this.isCreator) {
+      switch (s) {
+        case CampaignStatus.Pending:
+          return { myTurn: true,  icon: 'pi pi-inbox',        headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_BODY' };
+        case CampaignStatus.Confirmed:
+          return { myTurn: true,  icon: 'pi pi-play-circle',  headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_CONFIRMED_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_CONFIRMED_BODY' };
+        case CampaignStatus.Done:
+          return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_DONE_HEADLINE',      bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_DONE_BODY' };
+        case CampaignStatus.Completed:
+          return { myTurn: false, icon: 'pi pi-check-circle', headlineKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_HEADLINE',         bodyKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_BODY' };
+        default:
+          return { myTurn: false, icon: 'pi pi-ban',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_HEADLINE',          bodyKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_BODY' };
+      }
+    }
+
+    if (this.isClient) {
+      switch (s) {
+        case CampaignStatus.Pending:
+          return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_BODY' };
+        case CampaignStatus.Confirmed:
+          return { myTurn: false, icon: 'pi pi-eye',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_CONFIRMED_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_CONFIRMED_BODY' };
+        case CampaignStatus.Done:
+          return { myTurn: true,  icon: 'pi pi-flag',         headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_DONE_HEADLINE',      bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_DONE_BODY' };
+        case CampaignStatus.Completed:
+          return { myTurn: false, icon: 'pi pi-check-circle', headlineKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_HEADLINE',        bodyKey: 'CAMPAIGNS.DETAIL.STEP_COMPLETED_BODY' };
+        default:
+          return { myTurn: false, icon: 'pi pi-ban',          headlineKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_HEADLINE',         bodyKey: 'CAMPAIGNS.DETAIL.STEP_TERMINAL_BODY' };
+      }
+    }
+
+    return null;
+  }
+
   // ── Actions ──────────────────────────────────────────────────────────────
   public canConfirm():   boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
   public canReject():    boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
@@ -236,6 +274,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
           this.snackbarService.showError(this.translate.instant('CAMPAIGNS.REVIEW.ERROR'));
         },
       });
+  }
+
+  public participantRoute(id: string): string[] {
+    return id?.toLowerCase() === this.currentUserId ? ['/profile'] : ['/bloggers', id];
   }
 
   public goBack(): void {

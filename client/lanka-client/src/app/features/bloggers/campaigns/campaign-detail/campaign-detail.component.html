@@ -72,7 +72,7 @@
                 <div class="cd-card surface-card border-round-xl shadow-1 p-4 mb-4">
                     <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.PARTICIPANTS' | translate }}</h3>
                     <div class="flex flex-column gap-3">
-                        <a class="cd-participant" [routerLink]="['/bloggers', campaign.creatorId]">
+                        <a class="cd-participant" [routerLink]="participantRoute(campaign.creatorId)">
                             <div class="cd-avatar cd-avatar--creator">
                                 @if (creatorProfile?.profilePhotoUri) {
                                     <img [src]="creatorProfile!.profilePhotoUri" alt="Creator photo"
@@ -97,7 +97,7 @@
                             <i class="pi pi-arrow-up-right text-color-secondary text-xs"></i>
                         </a>
                         <p-divider styleClass="my-1" />
-                        <a class="cd-participant" [routerLink]="['/bloggers', campaign.clientId]">
+                        <a class="cd-participant" [routerLink]="participantRoute(campaign.clientId)">
                             <div class="cd-avatar cd-avatar--client">
                                 @if (clientProfile?.profilePhotoUri) {
                                     <img [src]="clientProfile!.profilePhotoUri" alt="Client photo"
