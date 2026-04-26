@@ -74,16 +74,12 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
   }
 
   private updateWeekdays(): void {
-    const isUa = this.translate.currentLang === 'uk' || this.translate.defaultLang === 'uk';
-    if (isUa || this.translate.currentLang !== 'en') {
-      this.weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД']; // Monday first
-    } else {
-      this.weekdays = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-    }
+    const days = this.translate.instant('PROFILE.CALENDAR.WEEKDAYS');
+    this.weekdays = Array.isArray(days) ? days : ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
   }
 
   private loadCampaigns(): void {
-    this.loading = true;
+    this.loading = this.months.length === 0;
     const startDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth(), 1).toISOString();
     const endDate = new Date(this.baseDate.getFullYear(), this.baseDate.getMonth() + 3, 0, 23, 59, 59).toISOString();
 
@@ -184,10 +180,9 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
         }
     }
 
-    const isUa = this.translate.currentLang === 'uk' || this.translate.defaultLang === 'uk';
-    const monthName = isUa 
-      ? this.getUaMonthName(month)
-      : date.toLocaleString('en-US', { month: 'long' });
+    const lang = this.translate.currentLang || this.translate.defaultLang || 'en';
+    const locale = lang === 'uk' ? 'uk-UA' : 'en-US';
+    const monthName = date.toLocaleString(locale, { month: 'long' });
 
     return {
       name: monthName.toUpperCase(),
@@ -196,17 +191,11 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
     };
   }
 
-  private getUaMonthName(monthIndex: number): string {
-    const months = [
-      'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
-      'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
-    ];
-    return months[monthIndex];
-  }
-
   public onDayClick(day: CalendarDay): void {
     if (!this.isOwnProfile || day.events.length === 0) return;
-    this.router.navigate(['/campaigns']);
+    this.router.navigate(['/campaigns'], {
+      queryParams: { view: 'calendar', d: day.date.toISOString() }
+    });
   }
 
   public getTooltipText(day: CalendarDay): string {
@@ -215,7 +204,9 @@ export class ProfileCalendarComponent implements OnInit, OnChanges {
     if (this.isOwnProfile) {
         return day.events.map(e => {
             const time = this.datePipe.transform(e.scheduledOnUtc, 'shortTime');
-            const roleStr = e.creatorId?.toLowerCase() === this.bloggerId.toLowerCase() ? 'Creator' : 'Client';
+            const roleStr = e.creatorId?.toLowerCase() === this.bloggerId.toLowerCase()
+              ? this.translate.instant('CAMPAIGNS.ROLE_CREATOR')
+              : this.translate.instant('CAMPAIGNS.ROLE_CLIENT');
             // E.g. "14:30 - Promo for Brand X (Creator, Pending)"
             return `${time} - ${e.name} (${roleStr}, ${e.status})`;
         }).join('\n');
