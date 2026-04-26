@@ -25,6 +25,7 @@ import {
   IMetricsStatisticsResponse
 } from '../../core/models/analytics/analytics.statistics';
 import { SnackbarService } from '../../core/services/snackbar/snackbar.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
@@ -38,7 +39,8 @@ import { SnackbarService } from '../../core/services/snackbar/snackbar.service';
     ProgressSpinnerModule,
     MessageModule,
     SelectModule,
-    TagModule
+    TagModule,
+    TranslateModule
   ],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css']
@@ -46,14 +48,19 @@ import { SnackbarService } from '../../core/services/snackbar/snackbar.service';
 export class AnalyticsComponent implements OnInit {
   public loading = false;
   public error: string | null = null;
-  
+
+  private readonly translate = inject(TranslateService);
+
   // Period selection
   public selectedPeriod: StatisticsPeriod = StatisticsPeriod.week;
-  public periodOptions = [
-    { label: 'Daily', value: StatisticsPeriod.day },
-    { label: 'Weekly', value: StatisticsPeriod.week },
-    { label: '21 Days', value: StatisticsPeriod.day21 }
-  ];
+
+  public get periodOptions() {
+    return [
+      { label: this.translate.instant('ANALYTICS.PERIOD.DAILY'), value: StatisticsPeriod.day },
+      { label: this.translate.instant('ANALYTICS.PERIOD.WEEKLY'), value: StatisticsPeriod.week },
+      { label: this.translate.instant('ANALYTICS.PERIOD.TWENTY_ONE_DAYS'), value: StatisticsPeriod.day21 }
+    ];
+  }
 
   // Data
   public posts: IInstagramPost[] = [];
@@ -139,7 +146,7 @@ export class AnalyticsComponent implements OnInit {
         this.tableStats = results.table;
       },
       error: (error) => {
-        this.error = 'Failed to load analytics data';
+        this.error = this.translate.instant('ANALYTICS.ERRORS.LOAD_FAILED');
         this.snackbarService.showError('Error loading analytics: ' + error.message);
       },
       complete: () => {

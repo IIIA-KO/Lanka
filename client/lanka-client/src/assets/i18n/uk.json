@@ -209,7 +209,9 @@
       "GENDER": "Стать",
       "LOCATION": "Локація",
       "REACH": "Розподіл охоплення",
-      "NO_LOCATION_DATA": "Дані про локації відсутні"
+      "NO_LOCATION_DATA": "Дані про локації відсутні",
+      "NO_AGE_DATA": "Даних про вік немає",
+      "NO_GENDER_DATA": "Даних про стать немає"
     },
     "PERFORMANCE": {
       "TITLE": "Показники ефективності",
@@ -257,14 +259,16 @@
       "TITLE": "Зведення аудиторії",
       "TOP_AGE": "Основна вікова група",
       "DOMINANT_GENDER": "Переважна стать",
-      "TOP_COUNTRY": "Основна країна"
+      "TOP_COUNTRY": "Основна країна",
+      "TOP_LOCATION": "Основна локація"
     },
     "CALENDAR": {
       "TITLE": "Календар кампаній",
       "EMPTY": "Найближчих подій немає",
       "BOOKED": "Кампанія",
       "EVENTS_ON": "Події на",
-      "CAMPAIGNS_COUNT": "{{count}} кампаній"
+      "CAMPAIGNS_COUNT": "{{count}} кампаній",
+      "WEEKDAYS": ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "НД"]
     },
     "CONNECTION": {
       "TITLE": "Підключення Instagram",
@@ -279,7 +283,9 @@
       "OVERVIEW": "Огляд",
       "STATISTICS": "Статистика",
       "REVIEWS": "Відгуки",
-      "SETTINGS": "Налаштування"
+      "SETTINGS": "Налаштування",
+      "AUDIENCE": "Аудиторія",
+      "ENGAGEMENT": "Залученість"
     },
     "SHARE": {
       "TITLE": "Мій профіль у Lanka",
@@ -288,7 +294,19 @@
       "SHARED": "Профіль надіслано",
       "UNAVAILABLE": "Неможливо поділитися з цього пристрою",
       "DEFAULT_NAME": "мій профіль"
-    }
+    },
+    "LOCATION": {
+      "COUNTRIES": "Країни",
+      "CITIES": "Міста"
+    },
+    "PERIOD": {
+      "ONE_DAY": "1д",
+      "SEVEN_DAYS": "7д",
+      "TWENTY_ONE_DAYS": "21д"
+    },
+    "REVIEW_SINGULAR": "відгук",
+    "REVIEW_PLURAL": "відгуків",
+    "ER_SUFFIX": "ER"
   },
   "SETTINGS": {
     "TITLE": "Налаштування профілю",
@@ -472,15 +490,15 @@
     "REQUIREMENTS": {
       "PRO_ACCOUNT": {
         "TITLE": "Професійний акаунт",
-        "DESCRIPTION": "Потрібен акаунт Бізнес або Creator."
+        "DESCRIPTION": "Особисті акаунти не підтримуються. Перейдіть на Бізнес або Creator: Instagram → Налаштування → Тип акаунту та інструменти."
       },
       "FACEBOOK": {
-        "TITLE": "Сторінка Facebook",
-        "DESCRIPTION": "Має бути прив'язана сторінка, якою ви керуєте."
+        "TITLE": "Сторінка Facebook + Адмін",
+        "DESCRIPTION": "Instagram має бути підключений до сторінки Facebook, де ви Адміністратор. Ролі Редактора або Аналітика недостатньо."
       },
       "INSIGHTS": {
-        "TITLE": "Доступ до Insights",
-        "DESCRIPTION": "Необхідний для підтвердження аудиторії."
+        "TITLE": "Дозвіл на дані",
+        "DESCRIPTION": "Коли Facebook запитає, які дані можна передавати — дозвольте доступ до статистики акаунту. Без цього аналітика не працюватиме."
       }
     }
   },
@@ -602,7 +620,8 @@
       "ABOUT": "Про блогера",
       "NO_OFFERS": "Пропозицій ще немає",
       "SERVICES": "Послуги та ціни",
-      "START": "Розпочати кампанію"
+      "START": "Розпочати кампанію",
+      "PACT_LABEL": "Пакт"
     },
     "AUDIENCE": {
       "TITLE": "Аудиторія",
@@ -615,6 +634,23 @@
     "ENGAGEMENT_EMPTY": "Дані про залученість відсутні",
     "ACTIONS": {
       "WORK_WITH_ME": "Співпрацювати зі мною"
+    },
+    "PROPOSE": {
+      "HEADER": "Запропонувати кампанію: {{name}}",
+      "NEW_CAMPAIGN": "Нова кампанія",
+      "NAME_LABEL": "Назва кампанії",
+      "NAME_PLACEHOLDER": "Напр., Літня колекція",
+      "NAME_REQUIRED": "Назва обов'язкова (мін. 3 символи)",
+      "DESC_LABEL": "Опис та вимоги",
+      "DESC_PLACEHOLDER": "Опишіть цілі кампанії, вимоги та інші деталі...",
+      "DESC_REQUIRED": "Опис обов'язковий (мін. 10 символів)",
+      "DATE_LABEL": "Дата початку",
+      "DATE_PLACEHOLDER": "Оберіть дату",
+      "DATE_REQUIRED": "Дата обов'язкова",
+      "CANCEL": "Скасувати",
+      "SUBMIT": "Надіслати пропозицію",
+      "SUCCESS": "Пропозицію кампанії надіслано!",
+      "ERROR": "Не вдалося надіслати пропозицію. Спробуйте ще раз."
     }
   },
   "CAMPAIGNS": {
@@ -644,7 +680,8 @@
       "CANCEL": "Скасувати",
       "LEAVE_REVIEW": "Залишити відгук",
       "VIEW_DETAILS": "Деталі",
-      "REFRESH": "Оновити"
+      "REFRESH": "Оновити",
+      "TODAY": "Сьогодні"
     },
     "ACTION_REQUIRED": {
       "TITLE": "Необхідна дія",
@@ -730,7 +767,31 @@
       "ERROR_ACTION": "Дія не вдалася. Спробуйте ще раз.",
       "ERROR_LOAD": "Не вдалося завантажити деталі кампанії.",
       "ERROR_NO_ID": "Кампанію не знайдено.",
-      "REVIEW_SUBMITTED": "Відгук надіслано"
+      "REVIEW_SUBMITTED": "Відгук надіслано",
+      "UPCOMING": "Найближча кампанія",
+      "NO_CAMPAIGNS": "Немає майбутніх кампаній",
+      "SELECT_DAY": "Натисніть на виділену дату, щоб побачити деталі кампанії",
+      "PARTNER": "Партнер",
+      "YOUR_ROLE": "Ваша роль",
+      "PRICE_LABEL": "Ціна",
+      "STATUS_LABEL": "Статус",
+      "DATE_TIME": "Дата і час",
+      "STEP_CREATOR_PENDING_HEADLINE": "Ваша черга відповісти",
+      "STEP_CREATOR_PENDING_BODY": "Розгляньте пропозицію кампанії та підтвердіть або відхиліть її.",
+      "STEP_CREATOR_CONFIRMED_HEADLINE": "Кампанія в процесі",
+      "STEP_CREATOR_CONFIRMED_BODY": "Виконуйте кампанію відповідно до домовленості. Позначте як виконане після завершення.",
+      "STEP_CREATOR_DONE_HEADLINE": "Очікуємо на клієнта",
+      "STEP_CREATOR_DONE_BODY": "Роботу подано. Клієнт перевірить результати та закриє кампанію.",
+      "STEP_CLIENT_PENDING_HEADLINE": "Очікуємо на автора",
+      "STEP_CLIENT_PENDING_BODY": "Автор розглядає вашу пропозицію та підтвердить або відхилить її.",
+      "STEP_CLIENT_CONFIRMED_HEADLINE": "Кампанія в процесі",
+      "STEP_CLIENT_CONFIRMED_BODY": "Автор виконує кампанію. Ви можете скасувати, якщо потрібно.",
+      "STEP_CLIENT_DONE_HEADLINE": "Ваша черга перевірити",
+      "STEP_CLIENT_DONE_BODY": "Роботу подано. Перегляньте результати та завершіть кампанію.",
+      "STEP_COMPLETED_HEADLINE": "Кампанію завершено",
+      "STEP_COMPLETED_BODY": "Цю кампанію успішно закрито.",
+      "STEP_TERMINAL_HEADLINE": "Кампанію закрито",
+      "STEP_TERMINAL_BODY": "Подальші дії недоступні."
     },
     "ERROR": "Не вдалося завантажити ваші кампанії. Спробуйте ще раз.",
     "ERROR_USER": "Не вдалося визначити поточний профіль користувача.",
@@ -747,5 +808,49 @@
     "UNAVAILABLE": "Статус недоступний",
     "CONNECT_PROMPT": "Підключіть Instagram-акаунт, щоб отримувати оновлення статусу.",
     "UPDATED_AT": "Оновлено {{date}}"
+  },
+  "ANALYTICS": {
+    "TITLE": "Аналітична панель",
+    "PERIOD": {
+      "DAILY": "День",
+      "WEEKLY": "Тиждень",
+      "TWENTY_ONE_DAYS": "21 день",
+      "PLACEHOLDER": "Оберіть період"
+    },
+    "ACTIONS": {
+      "REFRESH": "Оновити"
+    },
+    "TABS": {
+      "OVERVIEW": "Огляд",
+      "POSTS": "Публікації",
+      "INTERACTIONS": "Взаємодії"
+    },
+    "STATS": {
+      "REACH_RATE": "Коефіцієнт охоплення",
+      "ENGAGEMENT_RATE": "Коефіцієнт залученості",
+      "ER_REACH": "ER Охоплення"
+    },
+    "OVERVIEW": {
+      "TITLE": "Огляд статистики",
+      "SUMMARY_TITLE": "Зведення показників залученості",
+      "REACH_RATE_LABEL": "Коефіцієнт охоплення:",
+      "ENGAGEMENT_RATE_LABEL": "Коефіцієнт залученості:",
+      "ER_REACH_LABEL": "ER Охоплення:"
+    },
+    "INTERACTIONS": {
+      "TITLE": "Статистика взаємодій",
+      "DETAILED_TITLE": "Детальні показники",
+      "ENGAGEMENT_RATE": "Коефіцієнт залученості",
+      "AVG_LIKES": "Сер. лайки",
+      "AVG_COMMENTS": "Сер. коментарі",
+      "CPE": "CPE"
+    },
+    "POSTS": {
+      "EMPTY_TITLE": "Немає даних про публікації",
+      "EMPTY_DESCRIPTION": "Підключіть акаунт Instagram, щоб переглянути аналітику публікацій."
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "Не вдалося завантажити аналітичні дані"
+    }
   }
 }

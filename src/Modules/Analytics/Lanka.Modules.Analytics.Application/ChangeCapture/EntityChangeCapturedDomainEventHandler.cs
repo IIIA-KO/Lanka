@@ -28,7 +28,8 @@ internal sealed class EntityChangeCapturedDomainEventHandler
             domainEvent.Content,
             domainEvent.Tags,
             domainEvent.Metadata,
-            itemType: domainEvent.ItemType);
+            itemType: domainEvent.ItemType
+        );
 
         await this._eventBus.PublishAsync(integrationEvent, cancellationToken);
     }

@@ -209,7 +209,9 @@
       "GENDER": "Gender",
       "LOCATION": "Location",
       "REACH": "Reach Distribution",
-      "NO_LOCATION_DATA": "No location data available"
+      "NO_LOCATION_DATA": "No location data available",
+      "NO_AGE_DATA": "No age data available",
+      "NO_GENDER_DATA": "No gender data available"
     },
     "PERFORMANCE": {
       "TITLE": "Performance Metrics",
@@ -257,14 +259,16 @@
       "TITLE": "Audience Summary",
       "TOP_AGE": "Top Age Group",
       "DOMINANT_GENDER": "Dominant Gender",
-      "TOP_COUNTRY": "Top Country"
+      "TOP_COUNTRY": "Top Country",
+      "TOP_LOCATION": "Top Location"
     },
     "CALENDAR": {
       "TITLE": "Campaigns calendar",
       "EMPTY": "No upcoming events",
       "BOOKED": "Campaign",
       "EVENTS_ON": "Events on",
-      "CAMPAIGNS_COUNT": "{{count}} campaigns"
+      "CAMPAIGNS_COUNT": "{{count}} campaigns",
+      "WEEKDAYS": ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
     },
     "CONNECTION": {
       "TITLE": "Instagram Connection",
@@ -279,7 +283,9 @@
       "OVERVIEW": "Overview",
       "STATISTICS": "Statistics",
       "REVIEWS": "Reviews",
-      "SETTINGS": "Settings"
+      "SETTINGS": "Settings",
+      "AUDIENCE": "Audience",
+      "ENGAGEMENT": "Engagement"
     },
     "SHARE": {
       "TITLE": "My Lanka profile",
@@ -288,7 +294,19 @@
       "SHARED": "Profile shared",
       "UNAVAILABLE": "Share is unavailable on this device",
       "DEFAULT_NAME": "my profile"
-    }
+    },
+    "LOCATION": {
+      "COUNTRIES": "Countries",
+      "CITIES": "Cities"
+    },
+    "PERIOD": {
+      "ONE_DAY": "1d",
+      "SEVEN_DAYS": "7d",
+      "TWENTY_ONE_DAYS": "21d"
+    },
+    "REVIEW_SINGULAR": "review",
+    "REVIEW_PLURAL": "reviews",
+    "ER_SUFFIX": "ER"
   },
   "SETTINGS": {
     "TITLE": "Profile Settings",
@@ -472,15 +490,15 @@
     "REQUIREMENTS": {
       "PRO_ACCOUNT": {
         "TITLE": "Professional Account",
-        "DESCRIPTION": "Must be a Business or Creator account."
+        "DESCRIPTION": "Personal accounts cannot connect. Switch to Business or Creator in Instagram → Settings → Account type and tools."
       },
       "FACEBOOK": {
-        "TITLE": "Facebook Page",
-        "DESCRIPTION": "Must be linked to a Facebook Page you manage."
+        "TITLE": "Facebook Page + Admin",
+        "DESCRIPTION": "Your Instagram must be linked to a Facebook Page where you are an Admin. Editor or Analyst roles are not sufficient."
       },
       "INSIGHTS": {
-        "TITLE": "Insights Access",
-        "DESCRIPTION": "Required for verifying audience data."
+        "TITLE": "Allow Data Access",
+        "DESCRIPTION": "When Facebook asks what data to share, allow access to your account statistics. Without it, analytics will not work."
       }
     }
   },
@@ -602,7 +620,8 @@
       "ABOUT": "About",
       "NO_OFFERS": "No offers available yet",
       "SERVICES": "Services & Pricing",
-      "START": "Start Campaign"
+      "START": "Start Campaign",
+      "PACT_LABEL": "Pact"
     },
     "AUDIENCE": {
       "TITLE": "Audience",
@@ -615,6 +634,23 @@
     "ENGAGEMENT_EMPTY": "No engagement data",
     "ACTIONS": {
       "WORK_WITH_ME": "Work with me"
+    },
+    "PROPOSE": {
+      "HEADER": "Propose Campaign: {{name}}",
+      "NEW_CAMPAIGN": "New Campaign",
+      "NAME_LABEL": "Campaign Name",
+      "NAME_PLACEHOLDER": "E.g., Summer Collection Launch",
+      "NAME_REQUIRED": "Name is required (min 3 chars)",
+      "DESC_LABEL": "Description & Requirements",
+      "DESC_PLACEHOLDER": "Describe your campaign goals, requirements, and any specific details...",
+      "DESC_REQUIRED": "Description is required (min 10 chars)",
+      "DATE_LABEL": "Proposed Date",
+      "DATE_PLACEHOLDER": "Select a date",
+      "DATE_REQUIRED": "Date is required",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Send Proposal",
+      "SUCCESS": "Campaign proposal sent successfully!",
+      "ERROR": "Failed to send proposal. Please try again."
     }
   },
   "CAMPAIGNS": {
@@ -644,7 +680,8 @@
       "CANCEL": "Cancel",
       "LEAVE_REVIEW": "Leave Review",
       "VIEW_DETAILS": "View Details",
-      "REFRESH": "Refresh"
+      "REFRESH": "Refresh",
+      "TODAY": "Today"
     },
     "ACTION_REQUIRED": {
       "TITLE": "Action Required",
@@ -730,7 +767,31 @@
       "ERROR_ACTION": "Action failed. Please try again.",
       "ERROR_LOAD": "Failed to load campaign details.",
       "ERROR_NO_ID": "Campaign not found.",
-      "REVIEW_SUBMITTED": "Review submitted"
+      "REVIEW_SUBMITTED": "Review submitted",
+      "UPCOMING": "Upcoming campaign",
+      "NO_CAMPAIGNS": "No upcoming campaigns",
+      "SELECT_DAY": "Click a highlighted date to see campaign details",
+      "PARTNER": "Partner",
+      "YOUR_ROLE": "Your role",
+      "PRICE_LABEL": "Price",
+      "STATUS_LABEL": "Status",
+      "DATE_TIME": "Date & Time",
+      "STEP_CREATOR_PENDING_HEADLINE": "Your turn to respond",
+      "STEP_CREATOR_PENDING_BODY": "Review this campaign proposal and confirm or reject it.",
+      "STEP_CREATOR_CONFIRMED_HEADLINE": "Campaign in progress",
+      "STEP_CREATOR_CONFIRMED_BODY": "Execute the campaign as agreed. Mark as done when the work is complete.",
+      "STEP_CREATOR_DONE_HEADLINE": "Waiting for client",
+      "STEP_CREATOR_DONE_BODY": "Work submitted. The client will review and close the campaign.",
+      "STEP_CLIENT_PENDING_HEADLINE": "Waiting for creator",
+      "STEP_CLIENT_PENDING_BODY": "The creator is reviewing your proposal and will confirm or reject it.",
+      "STEP_CLIENT_CONFIRMED_HEADLINE": "Campaign in progress",
+      "STEP_CLIENT_CONFIRMED_BODY": "Creator is executing the campaign. You can cancel if needed.",
+      "STEP_CLIENT_DONE_HEADLINE": "Your turn to review",
+      "STEP_CLIENT_DONE_BODY": "Work has been submitted. Review the results and mark the campaign as complete.",
+      "STEP_COMPLETED_HEADLINE": "Campaign completed",
+      "STEP_COMPLETED_BODY": "This campaign was successfully closed.",
+      "STEP_TERMINAL_HEADLINE": "Campaign closed",
+      "STEP_TERMINAL_BODY": "No further actions are available."
     },
     "ERROR": "We could not load your campaigns right now. Please try again shortly.",
     "ERROR_USER": "Unable to identify current user profile.",
@@ -747,5 +808,49 @@
     "UNAVAILABLE": "Status unavailable",
     "CONNECT_PROMPT": "Connect your Instagram account to start tracking status updates.",
     "UPDATED_AT": "Updated {{date}}"
+  },
+  "ANALYTICS": {
+    "TITLE": "Analytics Dashboard",
+    "PERIOD": {
+      "DAILY": "Daily",
+      "WEEKLY": "Weekly",
+      "TWENTY_ONE_DAYS": "21 Days",
+      "PLACEHOLDER": "Select Period"
+    },
+    "ACTIONS": {
+      "REFRESH": "Refresh"
+    },
+    "TABS": {
+      "OVERVIEW": "Overview",
+      "POSTS": "Posts",
+      "INTERACTIONS": "Interactions"
+    },
+    "STATS": {
+      "REACH_RATE": "Reach Rate",
+      "ENGAGEMENT_RATE": "Engagement Rate",
+      "ER_REACH": "ER Reach"
+    },
+    "OVERVIEW": {
+      "TITLE": "Overview Statistics",
+      "SUMMARY_TITLE": "Engagement Metrics Summary",
+      "REACH_RATE_LABEL": "Reach Rate:",
+      "ENGAGEMENT_RATE_LABEL": "Engagement Rate:",
+      "ER_REACH_LABEL": "ER Reach:"
+    },
+    "INTERACTIONS": {
+      "TITLE": "Interaction Statistics",
+      "DETAILED_TITLE": "Detailed Metrics",
+      "ENGAGEMENT_RATE": "Engagement Rate",
+      "AVG_LIKES": "Avg. Likes",
+      "AVG_COMMENTS": "Avg. Comments",
+      "CPE": "CPE"
+    },
+    "POSTS": {
+      "EMPTY_TITLE": "No posts data available",
+      "EMPTY_DESCRIPTION": "Connect your Instagram account to see post analytics."
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "Failed to load analytics data"
+    }
   }
 }
