@@ -2,16 +2,23 @@ using System.Data;
 using Bogus;
 using Dapper;
 using Lanka.Common.Contracts.Seeding;
+using Lanka.Modules.Users.Infrastructure.Identity.Apis;
+using Lanka.Modules.Users.Infrastructure.Identity.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace Lanka.Modules.Users.Infrastructure.Database.Seeders;
 
 public static class UserSeeder
 {
+    private const string FakeEmailDomain = "@fake.lanka.test";
+    private const string FakePassword = "Dev1234!";
+
     public static async Task<List<UserSeedData>> SeedAsync(
         IDbConnection connection,
         IDbTransaction transaction,
-        int fakeUserCount
+        int fakeUserCount,
+        IServiceProvider? serviceProvider = null
     )
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -31,14 +38,79 @@ public static class UserSeeder
             return existingUsers;
         }
 
-        (List<UserSeedData> users, List<UserRoleSeedData> userRoles) = GenerateSeedData(fakeUserCount);
+        (List<UserSeedData> users, List<UserRoleSeedData> userRoles) =
+            GenerateSeedData(fakeUserCount);
+
+        if (serviceProvider is not null)
+        {
+            await CreateKeycloakAccountsAsync(users, serviceProvider);
+        }
 
         await InsertUsersAsync(connection, transaction, users);
         await InsertUserRolesAsync(connection, transaction, userRoles);
 
-        Log.Information("Seeded {Count} fake users with roles", users.Count);
+        Log.Information("Seeded {Count} fake users with roles (password: {Password})", users.Count, FakePassword);
+        LogUserMapping(users);
 
         return users;
+    }
+
+    private static async Task CreateKeycloakAccountsAsync(
+        List<UserSeedData> users,
+        IServiceProvider serviceProvider
+    )
+    {
+        IKeycloakAdminApi api = serviceProvider.GetRequiredService<IKeycloakAdminApi>();
+
+        for (int i = 0; i < users.Count; i++)
+        {
+            UserSeedData user = users[i];
+            try
+            {
+                List<UserRepresentation> existing = await api.QueryUsersByEmailAsync(user.Email);
+                if (existing.Any(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase)))
+                {
+                    Log.Debug("Fake user {Email} already exists in Keycloak", user.Email);
+                    continue;
+                }
+
+                var representation = new UserRepresentation(
+                    Username: user.Email,
+                    Email: user.Email,
+                    FirstName: user.FirstName,
+                    LastName: user.LastName,
+                    EmailVerified: true,
+                    Enabled: true,
+                    Credentials: [new CredentialRepresentation("password", FakePassword, false)]
+                );
+
+                HttpResponseMessage response = await api.CreateUserAsync(representation);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Log.Warning("Failed to create Keycloak user {Email}: {Status}", user.Email, response.StatusCode);
+                    continue;
+                }
+
+                string keycloakId = response.Headers.Location!.Segments[^1];
+                users[i] = user with { IdentityId = keycloakId };
+
+                Log.Debug("Created Keycloak account for {Email} ({Id})", user.Email, keycloakId);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Could not create Keycloak account for {Email}, keeping fake identity id", user.Email);
+            }
+        }
+    }
+
+    private static void LogUserMapping(List<UserSeedData> users)
+    {
+        Log.Information("=== Fake user login credentials (password: {Password}) ===", FakePassword);
+        foreach (UserSeedData u in users)
+        {
+            Log.Information("  {Email}  ({FirstName} {LastName})", u.Email, u.FirstName, u.LastName);
+        }
+        Log.Information("=== End of fake user list ===");
     }
 
     private static async Task<List<UserSeedData>> GetExistingUsersAsync(
@@ -47,10 +119,10 @@ public static class UserSeeder
         CancellationToken cancellationToken = default
     )
     {
-        const string checkSql = """
+        const string checkSql = $"""
                                 SELECT COUNT(*)
                                 FROM users.users
-                                WHERE identity_id LIKE 'fake-%'
+                                WHERE email LIKE '%{FakeEmailDomain}'
                                 """;
 
         var commandDefinition = new CommandDefinition(
@@ -66,7 +138,7 @@ public static class UserSeeder
             return [];
         }
 
-        const string selectSql = """
+        const string selectSql = $"""
                                  SELECT
                                      id AS Id,
                                      first_name AS FirstName,
@@ -76,8 +148,8 @@ public static class UserSeeder
                                      identity_id AS IdentityId,
                                      instagram_account_linked_on_utc AS InstagramAccountLinkedOnUtc
                                  FROM users.users
-                                 WHERE identity_id LIKE 'fake-%'
-                                 ORDER BY id
+                                 WHERE email LIKE '%{FakeEmailDomain}'
+                                 ORDER BY email
                                  """;
 
         var selectCommand = new CommandDefinition(
@@ -100,13 +172,14 @@ public static class UserSeeder
         for (int i = 0; i < fakeUserCount; i++)
         {
             var userId = Guid.NewGuid();
+            string email = $"dev{i + 1:D2}{FakeEmailDomain}";
 
             users.Add(new UserSeedData
             {
                 Id = userId,
                 FirstName = faker.Name.FirstName(),
                 LastName = faker.Name.LastName(),
-                Email = faker.Internet.Email(),
+                Email = email,
                 BirthDate = DateOnly.FromDateTime(faker.Date.Past(30, DateTime.Now.AddYears(-18))),
                 IdentityId = $"fake-{Guid.NewGuid()}",
                 InstagramAccountLinkedOnUtc = null

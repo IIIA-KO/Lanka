@@ -29,4 +29,7 @@ internal interface IKeycloakAdminApi
 
     [Get("/users")]
     Task<List<UserRepresentation>> QueryUsersByEmailAsync([Query] string email);
+
+    [Post("/users")]
+    Task<HttpResponseMessage> CreateUserAsync([Body] UserRepresentation user);
 }

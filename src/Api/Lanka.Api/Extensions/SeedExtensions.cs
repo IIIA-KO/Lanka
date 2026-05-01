@@ -48,7 +48,8 @@ internal static class SeedExtensions
 
             // Seed Users Module
             Log.Information("Seeding Users module");
-            List<UserSeedData> users = await UserSeeder.SeedAsync(connection, transaction, seedingOptions.FakeUserCount);
+            List<UserSeedData> users = await UserSeeder.SeedAsync(
+                connection, transaction, seedingOptions.FakeUserCount, scope.ServiceProvider);
 
             if (users.Count == 0)
             {

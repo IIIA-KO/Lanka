@@ -7,5 +7,6 @@ internal sealed record UserRepresentation(
     string LastName,
     bool EmailVerified,
     bool Enabled,
-    CredentialRepresentation[] Credentials
+    CredentialRepresentation[] Credentials,
+    string? Id = null
 );
