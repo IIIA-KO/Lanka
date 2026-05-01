@@ -29,6 +29,7 @@ internal sealed class SearchSimilarQueryHandler : IQueryHandler<SearchSimilarQue
             request.ItemTypes,
             request.NumericFilters,
             request.FacetFilters,
+            null,
             request.CreatedAfter,
             request.CreatedBefore,
             request.OnlyActive,

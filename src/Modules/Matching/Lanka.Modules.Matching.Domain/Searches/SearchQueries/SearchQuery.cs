@@ -17,6 +17,7 @@ public sealed record SearchQuery
     public IReadOnlyCollection<SearchableItemType> ItemTypes { get; init; }
     public IReadOnlyDictionary<string, object> NumericFilters { get; init; }
     public IReadOnlyDictionary<string, IReadOnlyCollection<string>> FacetFilters { get; init; }
+    public IReadOnlyList<(string Field, IReadOnlyCollection<string> Values)> OrFacetFilters { get; init; }
     public DateTimeOffset? CreatedAfter { get; init; }
     public DateTimeOffset? CreatedBefore { get; init; }
     public bool OnlyActive { get; init; }
@@ -32,6 +33,7 @@ public sealed record SearchQuery
         IReadOnlyCollection<SearchableItemType> itemTypes,
         IReadOnlyDictionary<string, object> numericFilters,
         IReadOnlyDictionary<string, IReadOnlyCollection<string>> facetFilters,
+        IReadOnlyList<(string Field, IReadOnlyCollection<string> Values)> orFacetFilters,
         DateTimeOffset? createdAfter,
         DateTimeOffset? createdBefore,
         bool onlyActive,
@@ -47,6 +49,7 @@ public sealed record SearchQuery
         this.ItemTypes = itemTypes;
         this.NumericFilters = numericFilters;
         this.FacetFilters = facetFilters;
+        this.OrFacetFilters = orFacetFilters;
         this.CreatedAfter = createdAfter;
         this.CreatedBefore = createdBefore;
         this.OnlyActive = onlyActive;
@@ -63,6 +66,7 @@ public sealed record SearchQuery
         string? itemTypes = null,
         IDictionary<string, object>? numericFilters = null,
         IDictionary<string, IReadOnlyCollection<string>>? facetFilters = null,
+        IReadOnlyList<(string Field, IReadOnlyCollection<string> Values)>? orFacetFilters = null,
         DateTimeOffset? createdAfter = null,
         DateTimeOffset? createdBefore = null,
         bool onlyActive = true,
@@ -92,6 +96,7 @@ public sealed record SearchQuery
                     itemTypesList,
                     numericFilters?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value) ?? [],
                     facetFilters?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value) ?? [],
+                    orFacetFilters ?? [],
                     createdAfter,
                     createdBefore,
                     onlyActive,
@@ -122,8 +127,9 @@ public sealed record SearchQuery
         string text,
         string? itemTypes = null,
         IDictionary<string, object>? numericFilters = null,
-        IDictionary<string, IReadOnlyCollection<string>>? facetFilters = null
-    ) => Create(text, itemTypes: itemTypes, numericFilters: numericFilters, facetFilters: facetFilters).Value;
+        IDictionary<string, IReadOnlyCollection<string>>? facetFilters = null,
+        IReadOnlyList<(string Field, IReadOnlyCollection<string> Values)>? orFacetFilters = null
+    ) => Create(text, itemTypes: itemTypes, numericFilters: numericFilters, facetFilters: facetFilters, orFacetFilters: orFacetFilters).Value;
 
     public static SearchQuery WithDateRange(
         string text,

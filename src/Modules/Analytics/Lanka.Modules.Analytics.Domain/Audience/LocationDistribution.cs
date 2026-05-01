@@ -7,7 +7,9 @@ namespace Lanka.Modules.Analytics.Domain.Audience;
 
 public sealed class LocationDistribution : AnalyticsDataWithTtl
 {
-    [BsonId] public Guid InstagramAccountId { get; set; }
+    [BsonId] public string Id => $"{this.InstagramAccountId}-{this.LocationType}";
+
+    public Guid InstagramAccountId { get; set; }
 
     public LocationType LocationType { get; set; }
 
@@ -37,7 +39,10 @@ public sealed class LocationDistribution : AnalyticsDataWithTtl
                 json,
                 (location, percentage) =>
                     new LocationPercentage { Location = location, Percentage = percentage }
-            );
+            )
+            .OrderByDescending(x => x.Percentage)
+            .Take(5)
+            .ToArray();
 
         return new LocationDistribution(userActivityLevel)
         {

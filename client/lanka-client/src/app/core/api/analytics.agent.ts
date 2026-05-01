@@ -29,8 +29,8 @@ export class AnalyticsAgent {
   public getLocationDistribution(locationType?: LocationType): Observable<ILocationDistribution> {
     let params = new HttpParams();
 
-    if (locationType) {
-      params = params.set('locationType', locationType);
+    if (locationType != null) {
+      params = params.set('locationType', locationType.toString());
     }
 
     return this.http
@@ -39,14 +39,70 @@ export class AnalyticsAgent {
   }
 
   public getReachDistribution(period: StatisticsPeriod): Observable<IReachDistribution> {
-    let params = new HttpParams();
-
-    if (period) {
-      params = params.set('period', period);
-    }
+    const params = new HttpParams().set('period', period.toString());
 
     return this.http
       .get<IReachDistribution>(`${BASE_URL}/analytics/audience/reach-distribution`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Public blogger audience analytics (by userId)
+  public getBloggerAgeDistribution(userId: string): Observable<IAgeDistribution> {
+    return this.http
+      .get<IAgeDistribution>(`${BASE_URL}/analytics/audience/${userId}/age-distribution`)
+      .pipe(catchError(this.handleError));
+  }
+
+  public getBloggerGenderDistribution(userId: string): Observable<IGenderDistribution> {
+    return this.http
+      .get<IGenderDistribution>(`${BASE_URL}/analytics/audience/${userId}/gender-distribution`)
+      .pipe(catchError(this.handleError));
+  }
+
+  public getBloggerLocationDistribution(userId: string, locationType?: LocationType): Observable<ILocationDistribution> {
+    let params = new HttpParams();
+    if (locationType != null) {
+      params = params.set('locationType', locationType.toString());
+    }
+    return this.http
+      .get<ILocationDistribution>(`${BASE_URL}/analytics/audience/${userId}/location-distribution`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  public getBloggerReachDistribution(userId: string, period: StatisticsPeriod): Observable<IReachDistribution> {
+    const params = new HttpParams().set('period', period.toString());
+    return this.http
+      .get<IReachDistribution>(`${BASE_URL}/analytics/audience/${userId}/reach-distribution`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Public blogger statistics (by userId)
+  public getBloggerOverviewStatistics(userId: string, period: StatisticsPeriod): Observable<IOverviewStatisticsResponse> {
+    const params = new HttpParams().set('period', period.toString());
+    return this.http
+      .get<IOverviewStatisticsResponse>(`${BASE_URL}/analytics/statistics/${userId}/overview`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  public getBloggerEngagementStatistics(userId: string, period: StatisticsPeriod): Observable<IEngagementStatisticsResponse> {
+    const params = new HttpParams().set('period', period.toString());
+    return this.http
+      .get<IEngagementStatisticsResponse>(`${BASE_URL}/analytics/statistics/${userId}/engagement`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  public getBloggerInteractionStatistics(userId: string, period: StatisticsPeriod): Observable<IInteractionStatisticsResponse> {
+    const params = new HttpParams().set('period', period.toString());
+    return this.http
+      .get<IInteractionStatisticsResponse>(`${BASE_URL}/analytics/statistics/${userId}/interaction`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  // Public blogger posts (by userId)
+  public getBloggerPosts(userId: string, limit = 6): Observable<IPostsResponse> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http
+      .get<IPostsResponse>(`${BASE_URL}/analytics/posts/${userId}`, { params })
       .pipe(catchError(this.handleError));
   }
 
@@ -83,8 +139,7 @@ export class AnalyticsAgent {
 
   // Statistics Analytics
   public getOverviewStatistics(period: StatisticsPeriod): Observable<IOverviewStatisticsResponse> {
-    let params = new HttpParams();
-    if (period) params = params.set('period', period);
+    const params = new HttpParams().set('period', period.toString());
 
     return this.http
       .get<IOverviewStatisticsResponse>(`${BASE_URL}/analytics/overview-statistics`, { params })
@@ -92,8 +147,7 @@ export class AnalyticsAgent {
   }
 
   public getEngagementStatistics(period: StatisticsPeriod): Observable<IEngagementStatisticsResponse> {
-    let params = new HttpParams();
-    if (period) params = params.set('period', period);
+    const params = new HttpParams().set('period', period.toString());
 
     return this.http
       .get<IEngagementStatisticsResponse>(`${BASE_URL}/analytics/engagement-statistics`, { params })
@@ -101,8 +155,7 @@ export class AnalyticsAgent {
   }
 
   public getInteractionStatistics(period: StatisticsPeriod): Observable<IInteractionStatisticsResponse> {
-    let params = new HttpParams();
-    if (period) params = params.set('period', period);
+    const params = new HttpParams().set('period', period.toString());
 
     return this.http
       .get<IInteractionStatisticsResponse>(`${BASE_URL}/analytics/interaction-statistics`, { params })
@@ -110,8 +163,7 @@ export class AnalyticsAgent {
   }
 
   public getTableStatistics(period: StatisticsPeriod): Observable<IMetricsStatisticsResponse> {
-    let params = new HttpParams();
-    if (period) params = params.set('period', period);
+    const params = new HttpParams().set('period', period.toString());
 
     return this.http
       .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/table-statistics`, { params })

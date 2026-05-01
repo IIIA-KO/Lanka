@@ -1,182 +1,306 @@
-<div class="campaign-detail-container">
-    <!-- Loading State -->
-    <div *ngIf="loading" class="p-4 text-color-secondary">Loading campaign...</div>
+<div class="cd-container">
 
-    <!-- Error State -->
-    <div *ngIf="error && !loading" class="p-4">
-        <p-message severity="error" [text]="error"></p-message>
-        <p-button label="Go Back" icon="pi pi-arrow-left" styleClass="p-button-outlined mt-3"
-            (onClick)="goBack()"></p-button>
-    </div>
+    <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+    @if (loading) {
+        <div class="flex justify-content-center align-items-center" style="min-height: 300px">
+            <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+        </div>
+    }
 
-    <!-- Campaign Details -->
-    <div *ngIf="campaign && !loading" class="campaign-content">
-        <!-- Header -->
-        <div class="campaign-header mb-4">
-            <div class="flex justify-content-between align-items-start">
+    <!-- ── Error ───────────────────────────────────────────────────────────── -->
+    @if (error && !loading) {
+        <div class="p-4">
+            <p-message severity="error" [text]="error" />
+            <div class="mt-3">
+                <p-button [label]="'CAMPAIGNS.DETAIL.GO_BACK' | translate" icon="pi pi-arrow-left"
+                    [outlined]="true" (onClick)="goBack()" />
+            </div>
+        </div>
+    }
+
+    <!-- ── Content ─────────────────────────────────────────────────────────── -->
+    @if (campaign && !loading) {
+
+        <!-- Back breadcrumb -->
+        <div class="mb-4">
+            <p-button [label]="'CAMPAIGNS.DETAIL.BACK' | translate" icon="pi pi-arrow-left" [text]="true"
+                size="small" (onClick)="goBack()" />
+        </div>
+
+        <!-- ── Hero header ──────────────────────────────────────────────────── -->
+        <div class="cd-hero surface-card border-round-xl shadow-1 p-5 mb-4">
+            <div class="flex align-items-start justify-content-between gap-3 flex-wrap">
                 <div class="flex-1">
-                    <p-button icon="pi pi-arrow-left" label="Back" [text]="true" size="small" styleClass="mb-2"
-                        (onClick)="goBack()"></p-button>
-                    <h2 class="mt-0 mb-2">{{ campaign.name }}</h2>
-                    <p-tag [value]="campaign.status" [severity]="getStatusColor(campaign.status)"
-                        styleClass="text-lg"></p-tag>
+                    <div class="flex align-items-center gap-2 mb-2 flex-wrap">
+                        <p-tag [value]="campaign.status"
+                               [severity]="getStatusSeverity(campaign.status)"
+                               [icon]="getStatusIcon(campaign.status)" />
+                        @if (isCreator) {
+                            <p-tag [value]="'CAMPAIGNS.DETAIL.YOU_ARE_CREATOR' | translate"
+                                severity="info" icon="pi pi-user" />
+                        }
+                        @if (isClient) {
+                            <p-tag [value]="'CAMPAIGNS.DETAIL.YOU_ARE_CLIENT' | translate"
+                                severity="secondary" icon="pi pi-briefcase" />
+                        }
+                    </div>
+                    <h1 class="m-0 text-3xl font-bold">{{ campaign.name }}</h1>
+                    <p class="mt-2 mb-0 text-color-secondary text-base">{{ campaign.description }}</p>
                 </div>
+
+                <!-- Price badge -->
+                @if (campaign.price?.amount) {
+                    <div class="cd-price-badge text-center">
+                        <div class="text-2xl font-bold text-primary">
+                            {{ campaign.price.amount | number:'1.2-2' }}
+                        </div>
+                        <div class="text-sm text-color-secondary font-semibold">
+                            {{ campaign.price.currency }}
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
-        <!-- Campaign Info Card -->
-        <p-card styleClass="mb-4">
-            <ng-template pTemplate="header">
-                <div class="p-3">
-                    <h3 class="m-0">Campaign Details</h3>
-                </div>
-            </ng-template>
+        <!-- ── Two-column body ──────────────────────────────────────────────── -->
+        <div class="cd-body">
 
-            <ng-template pTemplate="content">
-                <div class="grid">
-                    <div class="col-12 md:col-6">
-                        <div class="field-display mb-3">
-                            <span class="font-semibold text-color-secondary">Description</span>
-                            <p class="mt-1 mb-0">{{ campaign.description }}</p>
-                        </div>
+            <!-- ── Left column ─────────────────────────────────────────────── -->
+            <div class="cd-left">
 
-                        <div class="field-display mb-3">
-                            <span class="font-semibold text-color-secondary">Expected Completion</span>
-                            <p class="mt-1 mb-0">{{ campaign.expectedCompletionDate | date:'longDate' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="col-12 md:col-6">
-                        <div class="field-display mb-3">
-                            <span class="font-semibold text-color-secondary">Price</span>
-                            <p class="mt-1 mb-0 text-xl font-bold text-primary">
-                                {{ campaign.price.amount | currency:campaign.price.currency }}
-                            </p>
-                        </div>
-
-                        <div class="field-display mb-3">
-                            <span class="font-semibold text-color-secondary">Created</span>
-                            <p class="mt-1 mb-0">{{ campaign.createdAt | date:'medium' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </ng-template>
-        </p-card>
-
-        <!-- Deliverables Card -->
-        <p-card styleClass="mb-4" *ngIf="campaign.deliverables && campaign.deliverables.length > 0">
-            <ng-template pTemplate="header">
-                <div class="p-3">
-                    <h3 class="m-0">Deliverables ({{ campaign.deliverables.length }})</h3>
-                </div>
-            </ng-template>
-
-            <ng-template pTemplate="content">
-                <div class="deliverables-list">
-                    <div *ngFor="let deliverable of campaign.deliverables; let i = index"
-                        class="deliverable-item p-3 mb-3 border-1 surface-border border-round">
-                        <div class="flex justify-content-between align-items-start mb-2">
-                            <h4 class="mt-0 mb-2">Deliverable {{ i + 1 }}</h4>
-                            <p-tag *ngIf="deliverable.format" [value]="deliverable.format"
-                                [styleClass]="getDeliverableFormatClass(deliverable.format)"></p-tag>
-                        </div>
-                        <p class="mb-2"><strong>Description:</strong> {{ deliverable.description }}</p>
-                        <p class="mb-2" *ngIf="deliverable.requirements"><strong>Requirements:</strong> {{
-                            deliverable.requirements }}</p>
-                        <p class="mb-0" *ngIf="deliverable.deadline"><strong>Deadline:</strong> {{ deliverable.deadline
-                            | date:'longDate' }}</p>
+                <!-- Participants -->
+                <div class="cd-card surface-card border-round-xl shadow-1 p-4 mb-4">
+                    <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.PARTICIPANTS' | translate }}</h3>
+                    <div class="flex flex-column gap-3">
+                        <a class="cd-participant" [routerLink]="participantRoute(campaign.creatorId)">
+                            <div class="cd-avatar cd-avatar--creator">
+                                @if (creatorProfile?.profilePhotoUri) {
+                                    <img [src]="creatorProfile!.profilePhotoUri" alt="Creator photo"
+                                         class="cd-avatar-img" />
+                                } @else {
+                                    <i class="pi pi-user"></i>
+                                }
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-color-secondary font-semibold uppercase mb-1">
+                                    {{ 'CAMPAIGNS.DETAIL.ROLE_CREATOR' | translate }}
+                                </div>
+                                <div class="font-semibold cd-participant-name">
+                                    {{ campaign.creatorFirstName }} {{ campaign.creatorLastName }}
+                                </div>
+                                @if (creatorProfile?.instagramUsername) {
+                                    <div class="text-xs text-color-secondary mt-1">
+                                        <i class="pi pi-instagram mr-1"></i>{{ creatorProfile!.instagramUsername }}
+                                    </div>
+                                }
+                            </div>
+                            <i class="pi pi-arrow-up-right text-color-secondary text-xs"></i>
+                        </a>
+                        <p-divider styleClass="my-1" />
+                        <a class="cd-participant" [routerLink]="participantRoute(campaign.clientId)">
+                            <div class="cd-avatar cd-avatar--client">
+                                @if (clientProfile?.profilePhotoUri) {
+                                    <img [src]="clientProfile!.profilePhotoUri" alt="Client photo"
+                                         class="cd-avatar-img" />
+                                } @else {
+                                    <i class="pi pi-briefcase"></i>
+                                }
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-color-secondary font-semibold uppercase mb-1">
+                                    {{ 'CAMPAIGNS.DETAIL.ROLE_CLIENT' | translate }}
+                                </div>
+                                <div class="font-semibold cd-participant-name">
+                                    {{ campaign.clientFirstName }} {{ campaign.clientLastName }}
+                                </div>
+                                @if (clientProfile?.instagramUsername) {
+                                    <div class="text-xs text-color-secondary mt-1">
+                                        <i class="pi pi-instagram mr-1"></i>{{ clientProfile!.instagramUsername }}
+                                    </div>
+                                }
+                            </div>
+                            <i class="pi pi-arrow-up-right text-color-secondary text-xs"></i>
+                        </a>
                     </div>
                 </div>
-            </ng-template>
-        </p-card>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons flex gap-2 justify-content-end">
-            <!-- Accept/Reject (Creator, Pending) -->
-            <p-button *ngIf="canAccept()" label="Accept Campaign" icon="pi pi-check" severity="success"
-                (onClick)="openAcceptDialog()"></p-button>
-            <p-button *ngIf="canReject()" label="Reject" icon="pi pi-times" severity="danger"
-                styleClass="p-button-outlined" (onClick)="openRejectDialog()"></p-button>
+                <!-- Key dates -->
+                <div class="cd-card surface-card border-round-xl shadow-1 p-4 mb-4">
+                    <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.KEY_DATES' | translate }}</h3>
+                    <div class="flex flex-column gap-2">
+                        <div class="cd-date-row">
+                            <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_PROPOSED' | translate }}</span>
+                            <span class="font-semibold text-sm">{{ campaign.pendedOnUtc | date:'d MMM yyyy, HH:mm' }}</span>
+                        </div>
+                        <div class="cd-date-row">
+                            <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_SCHEDULED' | translate }}</span>
+                            <span class="font-semibold text-sm">{{ campaign.scheduledOnUtc | date:'d MMM yyyy' }}</span>
+                        </div>
+                        @if (campaign.confirmedOnUtc) {
+                            <div class="cd-date-row">
+                                <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_CONFIRMED' | translate }}</span>
+                                <span class="font-semibold text-sm text-green-600">{{ campaign.confirmedOnUtc | date:'d MMM yyyy' }}</span>
+                            </div>
+                        }
+                        @if (campaign.doneOnUtc) {
+                            <div class="cd-date-row">
+                                <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_DONE' | translate }}</span>
+                                <span class="font-semibold text-sm text-blue-600">{{ campaign.doneOnUtc | date:'d MMM yyyy' }}</span>
+                            </div>
+                        }
+                        @if (campaign.completedOnUtc) {
+                            <div class="cd-date-row">
+                                <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_COMPLETED' | translate }}</span>
+                                <span class="font-semibold text-sm text-green-700">{{ campaign.completedOnUtc | date:'d MMM yyyy' }}</span>
+                            </div>
+                        }
+                        @if (campaign.rejectedOnUtc) {
+                            <div class="cd-date-row">
+                                <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_REJECTED' | translate }}</span>
+                                <span class="font-semibold text-sm text-red-600">{{ campaign.rejectedOnUtc | date:'d MMM yyyy' }}</span>
+                            </div>
+                        }
+                        @if (campaign.cancelledOnUtc) {
+                            <div class="cd-date-row">
+                                <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.DATE_CANCELLED' | translate }}</span>
+                                <span class="font-semibold text-sm text-red-600">{{ campaign.cancelledOnUtc | date:'d MMM yyyy' }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
 
-            <!-- Mark as Done (Creator, Confirmed) -->
-            <p-button *ngIf="canMarkAsDone()" label="Mark as Done" icon="pi pi-check-circle"
-                (onClick)="openDoneDialog()"></p-button>
+                <!-- IDs reference -->
+                <div class="cd-card surface-card border-round-xl shadow-1 p-4">
+                    <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.REFERENCE' | translate }}</h3>
+                    <div class="flex flex-column gap-2">
+                        <div class="cd-date-row">
+                            <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.CAMPAIGN_ID' | translate }}</span>
+                            <span class="text-xs font-mono text-color-secondary" style="word-break: break-all">{{ campaign.id }}</span>
+                        </div>
+                        <div class="cd-date-row">
+                            <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.DETAIL.OFFER_ID' | translate }}</span>
+                            <span class="text-xs font-mono text-color-secondary" style="word-break: break-all">{{ campaign.offerId }}</span>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Complete (Client, Done) -->
-            <p-button *ngIf="canComplete()" label="Complete Campaign" icon="pi pi-check-circle" severity="success"
-                (onClick)="openCompleteDialog()"></p-button>
+            </div>
 
-            <!-- Cancel (Either party, Confirmed) -->
-            <p-button *ngIf="canCancel()" label="Cancel Campaign" icon="pi pi-ban" severity="danger"
-                styleClass="p-button-outlined" (onClick)="openCancelDialog()"></p-button>
+            <!-- ── Right column: timeline ───────────────────────────────────── -->
+            <div class="cd-right">
+                <div class="cd-card surface-card border-round-xl shadow-1 p-4 mb-4">
+                    <h3 class="mt-0 mb-4 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.TIMELINE' | translate }}</h3>
+
+                    <div class="cd-timeline">
+                        @for (event of timelineEvents; track event.label; let last = $last) {
+                            <div class="cd-timeline-item" [class.cd-timeline-item--inactive]="!event.active">
+                                <div class="cd-timeline-dot" [class.cd-timeline-dot--active]="event.active"
+                                     [class.cd-timeline-dot--terminal]="event.terminal && event.active">
+                                    <i class="{{ event.icon }}"></i>
+                                </div>
+                                @if (!last) {
+                                    <div class="cd-timeline-line" [class.cd-timeline-line--active]="event.active"></div>
+                                }
+                                <div class="cd-timeline-content">
+                                    <div class="font-semibold text-sm">{{ event.label }}</div>
+                                    @if (event.date && event.active) {
+                                        <div class="text-xs text-color-secondary mt-1">
+                                            {{ event.date | date:'d MMM yyyy, HH:mm' }}
+                                        </div>
+                                    } @else if (!event.active) {
+                                        <div class="text-xs text-color-secondary mt-1">
+                                            {{ 'CAMPAIGNS.DETAIL.TIMELINE_PENDING' | translate }}
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- ── Action buttons ───────────────────────────────────────── -->
+                @if (canConfirm() || canReject() || canMarkDone() || canComplete() || canCancel() || canReview()) {
+                    <div class="cd-card surface-card border-round-xl shadow-1 p-4">
+                        <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.ACTIONS_TITLE' | translate }}</h3>
+                        <div class="flex flex-column gap-2">
+                            @if (canConfirm()) {
+                                <p-button [label]="'CAMPAIGNS.DETAIL.CONFIRM_CAMPAIGN' | translate"
+                                    icon="pi pi-check"
+                                    severity="success" styleClass="w-full"
+                                    [loading]="processingAction" (onClick)="onConfirm()" />
+                            }
+                            @if (canReject()) {
+                                <p-button [label]="'CAMPAIGNS.DETAIL.REJECT' | translate"
+                                    icon="pi pi-times"
+                                    severity="danger" [outlined]="true" styleClass="w-full"
+                                    [loading]="processingAction" (onClick)="onReject()" />
+                            }
+                            @if (canMarkDone()) {
+                                <p-button [label]="'CAMPAIGNS.DETAIL.MARK_DONE' | translate"
+                                    icon="pi pi-flag"
+                                    severity="info" styleClass="w-full"
+                                    [loading]="processingAction" (onClick)="onMarkDone()" />
+                            }
+                            @if (canComplete()) {
+                                <p-button [label]="'CAMPAIGNS.DETAIL.COMPLETE_CAMPAIGN' | translate"
+                                    icon="pi pi-check-circle"
+                                    severity="success" styleClass="w-full"
+                                    [loading]="processingAction" (onClick)="onComplete()" />
+                            }
+                            @if (canCancel()) {
+                                <p-button [label]="'CAMPAIGNS.DETAIL.CANCEL_CAMPAIGN' | translate"
+                                    icon="pi pi-ban"
+                                    severity="danger" [outlined]="true" styleClass="w-full"
+                                    [loading]="processingAction" (onClick)="onCancel()" />
+                            }
+                            @if (canReview()) {
+                                <p-button [label]="'CAMPAIGNS.DETAIL.LEAVE_REVIEW' | translate"
+                                    icon="pi pi-star"
+                                    severity="warn" styleClass="w-full"
+                                    (onClick)="showReviewDialog = true" />
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
+    }
 
-    <!-- Accept Dialog -->
-    <p-dialog header="Accept Campaign?" [(visible)]="showAcceptDialog" [modal]="true" [style]="{width: '450px'}">
-        <p class="mb-3">You're committing to deliver {{ campaign?.deliverables?.length || 0 }} deliverable(s) by {{
-            campaign?.expectedCompletionDate | date:'longDate' }}.</p>
-        <p class="text-color-secondary">Are you sure you want to accept this campaign?</p>
+    <!-- ── Confirmation dialogs ──────────────────────────────────────────── -->
+    <p-confirmDialog />
 
+    <!-- ── Review dialog ─────────────────────────────────────────────────── -->
+    <p-dialog [header]="'CAMPAIGNS.REVIEW.TITLE' | translate"
+              [(visible)]="showReviewDialog"
+              [modal]="true" [style]="{ width: '420px' }" [closable]="true">
+        <div class="flex flex-column gap-4 pt-2">
+            <div>
+                <label for="detailReviewRating" class="font-semibold mb-2 block">
+                    {{ 'CAMPAIGNS.REVIEW.RATING_LABEL' | translate }}
+                    <span class="text-red-500">*</span>
+                </label>
+                <p-rating inputId="detailReviewRating" [(ngModel)]="reviewRating" />
+            </div>
+            <div>
+                <label for="detailReviewComment" class="font-semibold mb-2 block">
+                    {{ 'CAMPAIGNS.REVIEW.COMMENT_LABEL' | translate }}
+                    <span class="text-color-secondary text-sm">{{ 'CAMPAIGNS.REVIEW.COMMENT_OPTIONAL' | translate }}</span>
+                </label>
+                <textarea id="detailReviewComment" rows="4" [(ngModel)]="reviewComment"
+                    class="w-full p-inputtext border-round"
+                    [placeholder]="'CAMPAIGNS.REVIEW.COMMENT_PLACEHOLDER' | translate"
+                    style="resize: vertical; font-family: inherit; font-size: 0.875rem;"></textarea>
+            </div>
+        </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showAcceptDialog = false"
-                [disabled]="processingAction"></p-button>
-            <p-button label="Accept" icon="pi pi-check" severity="success" (onClick)="confirmAccept()"
-                [loading]="processingAction"></p-button>
+            <div class="flex justify-content-end gap-2">
+                <p-button [label]="'CAMPAIGNS.REVIEW.CANCEL' | translate" [text]="true" severity="secondary"
+                    (onClick)="showReviewDialog = false" />
+                <p-button [label]="'CAMPAIGNS.REVIEW.SUBMIT' | translate" icon="pi pi-check"
+                    [disabled]="!reviewRating" [loading]="processingAction"
+                    (onClick)="submitReview()" />
+            </div>
         </ng-template>
     </p-dialog>
 
-    <!-- Reject Dialog -->
-    <p-dialog header="Reject Campaign?" [(visible)]="showRejectDialog" [modal]="true" [style]="{width: '450px'}">
-        <p class="mb-3">Are you sure you want to reject this campaign proposal?</p>
-        <label for="rejectReason" class="block mb-2 font-semibold">Reason (Optional)</label>
-        <textarea pTextarea id="rejectReason" [(ngModel)]="rejectReason" rows="3" class="w-full"
-            placeholder="Let them know why you're rejecting..."></textarea>
-
-        <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showRejectDialog = false"
-                [disabled]="processingAction"></p-button>
-            <p-button label="Reject" icon="pi pi-times" severity="danger" (onClick)="confirmReject()"
-                [loading]="processingAction"></p-button>
-        </ng-template>
-    </p-dialog>
-
-    <!-- Mark as Done Dialog -->
-    <p-dialog header="Mark as Done?" [(visible)]="showDoneDialog" [modal]="true" [style]="{width: '450px'}">
-        <p class="mb-3">This will notify the client that work is complete and ready for review.</p>
-        <p class="text-color-secondary">Are you sure you're ready to mark this campaign as done?</p>
-
-        <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showDoneDialog = false"
-                [disabled]="processingAction"></p-button>
-            <p-button label="Mark as Done" icon="pi pi-check-circle" (onClick)="confirmDone()"
-                [loading]="processingAction"></p-button>
-        </ng-template>
-    </p-dialog>
-
-    <!-- Complete Dialog -->
-    <p-dialog header="Complete Campaign?" [(visible)]="showCompleteDialog" [modal]="true" [style]="{width: '450px'}">
-        <p class="mb-3">This will mark the campaign as completed and release payment to the creator.</p>
-        <p class="text-color-secondary">Are you satisfied with the deliverables?</p>
-
-        <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showCompleteDialog = false"
-                [disabled]="processingAction"></p-button>
-            <p-button label="Complete" icon="pi pi-check-circle" severity="success" (onClick)="confirmComplete()"
-                [loading]="processingAction"></p-button>
-        </ng-template>
-    </p-dialog>
-
-    <!-- Cancel Dialog -->
-    <p-dialog header="Cancel Campaign?" [(visible)]="showCancelDialog" [modal]="true" [style]="{width: '450px'}">
-        <p class="mb-3 text-red-600 font-semibold">⚠️ This action cannot be undone.</p>
-        <p class="text-color-secondary">Are you sure you want to cancel this campaign?</p>
-
-        <ng-template pTemplate="footer">
-            <p-button label="No, Keep It" icon="pi pi-times" [text]="true" (onClick)="showCancelDialog = false"
-                [disabled]="processingAction"></p-button>
-            <p-button label="Yes, Cancel" icon="pi pi-ban" severity="danger" (onClick)="confirmCancel()"
-                [loading]="processingAction"></p-button>
-        </ng-template>
-    </p-dialog>
 </div>

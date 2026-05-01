@@ -91,26 +91,89 @@
   color: var(--p-text-color);
 }
 
-/* Analytics */
-.analytics-row {
+/* Section Title */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--p-text-color);
+}
+
+/* Metric Table */
+.metric-table {
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.metric-row {
+  display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--p-surface-border);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+/* Overview Metric Columns */
+.overview-metric-col {
+  border-right: 1px solid var(--p-surface-border);
+}
+
+.overview-metric-col:last-child {
+  border-right: none;
+}
+
+@media (max-width: 768px) {
+  .overview-metric-col:nth-child(2n) {
+    border-right: none;
+  }
+}
+
+/* Review Cards */
+.review-card {
+  background: var(--app-surface);
+  border: 1px solid var(--p-surface-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.review-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Analytics 2×2 Grid */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
 .analytics-card {
-  flex: 1 1 220px;
-  max-width: 280px;
-  min-width: 220px;
-  background: radial-gradient(circle at 20% 20%, rgba(45,157,157,0.08), rgba(45,157,157,0.02));
+  background: radial-gradient(circle at 20% 20%, rgba(45, 157, 157, 0.08), rgba(45, 157, 157, 0.02));
   border-radius: 14px;
-  padding: 1rem;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+  padding: 1.25rem;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
 }
 
 :host ::ng-deep .analytics-card canvas {
   border-radius: 14px;
+}
+
+/* Period Toggle */
+:host ::ng-deep .period-toggle .p-button {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+/* Location Toggle */
+:host ::ng-deep .location-toggle .p-button {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
 }
 
 /* Recent Posts */
@@ -189,16 +252,16 @@
   .dashboard-container {
     padding: 1rem;
   }
-  
-  .analytics-row {
-    flex-direction: column;
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
   }
-  
+
   .profile-avatar {
     width: 80px;
     height: 80px;
   }
-  
+
   .profile-info h1 {
     font-size: 1.5rem;
   }
@@ -208,4 +271,67 @@
     width: 150px;
     height: 150px;
   }
+
+  .kpi-value {
+    font-size: 1.15rem;
+  }
+}
+
+/* ── Audience summary stat pills ── */
+.audience-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.audience-stat {
+  flex: 1 1 160px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+}
+
+.audience-stat-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.audience-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--p-text-color-secondary);
+  margin-bottom: 0.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.audience-stat-value {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--p-text-color);
+}
+
+.audience-stat-pct {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--p-text-color-secondary);
+  background: var(--app-surface-alt);
+  border-radius: 20px;
+  padding: 0.1rem 0.4rem;
+}
+
+/* ── Audience empty state ── */
+.audience-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  color: var(--p-text-color-secondary);
 }

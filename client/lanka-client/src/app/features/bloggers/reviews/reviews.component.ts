@@ -1,8 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { catchError, of, Subject, takeUntil } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -16,14 +15,17 @@ import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 
 import { ReviewsAgent } from '../../../core/api/reviews.agent';
-import { IReview, ICreateReviewRequest, IEditReviewRequest } from '../../../core/models/campaigns';
+import { CampaignsAgent } from '../../../core/api/campaigns.agent';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { IReview, ICreateReviewRequest, IEditReviewRequest, CampaignStatus } from '../../../core/models/campaigns';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
 
 @Component({
   standalone: true,
   selector: 'app-reviews',
   imports: [
-    CommonModule,
+    DatePipe,
+    FormsModule,
     ReactiveFormsModule,
     ButtonModule,
     CardModule,
@@ -38,9 +40,10 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.css']
 })
-export class ReviewsComponent implements OnInit {
+export class ReviewsComponent implements OnInit, OnDestroy {
   public reviews: IReview[] = [];
   public loading = false;
+  public loadingCampaigns = false;
   public error: string | null = null;
 
   // Dialog state
@@ -52,25 +55,28 @@ export class ReviewsComponent implements OnInit {
   public editReviewForm!: FormGroup;
   public editingReview: IReview | null = null;
 
-  // Mock campaign data for demonstration
-  public availableCampaigns = [
-    { label: 'Summer Collection Campaign', value: 'campaign-1' },
-    { label: 'Tech Product Review', value: 'campaign-2' },
-    { label: 'Fitness Brand Partnership', value: 'campaign-3' }
-  ];
+  // Real completed campaigns for the create dialog
+  public availableCampaigns: { label: string; value: string }[] = [];
+
+  private currentUserId: string | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   private readonly fb = inject(FormBuilder);
   private readonly reviewsAgent = inject(ReviewsAgent);
-  private readonly router = inject(Router);
+  private readonly campaignsAgent = inject(CampaignsAgent);
+  private readonly authService = inject(AuthService);
   private readonly snackbarService = inject(SnackbarService);
 
-  constructor() {
-    // Empty constructor
-  }
-
   public ngOnInit(): void {
+    this.currentUserId = this.authService.getUserIdFromToken()?.toLowerCase() ?? null;
     this.initializeForms();
     this.loadReviews();
+    this.loadCompletedCampaigns();
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public openCreateDialog(): void {
@@ -105,6 +111,7 @@ export class ReviewsComponent implements OnInit {
       const request: ICreateReviewRequest = this.createReviewForm.value;
 
       this.reviewsAgent.createReview(request).pipe(
+        takeUntil(this.destroy$),
         catchError(error => {
           this.snackbarService.showError('Error creating review: ' + error.message);
           return of(null);
@@ -134,6 +141,7 @@ export class ReviewsComponent implements OnInit {
       };
 
       this.reviewsAgent.editReview(request).pipe(
+        takeUntil(this.destroy$),
         catchError(error => {
           this.snackbarService.showError('Error editing review: ' + error.message);
           return of(null);
@@ -157,6 +165,7 @@ export class ReviewsComponent implements OnInit {
     if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
       this.loading = true;
       this.reviewsAgent.deleteReview(review.id).pipe(
+        takeUntil(this.destroy$),
         catchError(error => {
           this.snackbarService.showError('Error deleting review: ' + error.message);
           return of(null);
@@ -224,8 +233,14 @@ export class ReviewsComponent implements OnInit {
   }
 
   private loadReviews(): void {
+    if (!this.currentUserId) {
+      this.error = 'Unable to identify current user.';
+      return;
+    }
+
     this.loading = true;
-    this.reviewsAgent.getBloggerReviews().pipe(
+    this.reviewsAgent.getBloggerReviews(this.currentUserId).pipe(
+      takeUntil(this.destroy$),
       catchError(error => {
         this.error = 'Error loading reviews: ' + error.message;
         return of([]);
@@ -236,6 +251,23 @@ export class ReviewsComponent implements OnInit {
       },
       complete: () => {
         this.loading = false;
+      }
+    });
+  }
+
+  private loadCompletedCampaigns(): void {
+    if (!this.currentUserId) return;
+
+    this.loadingCampaigns = true;
+    this.campaignsAgent.getBloggerCampaigns(this.currentUserId).pipe(
+      takeUntil(this.destroy$),
+      catchError(() => of([]))
+    ).subscribe({
+      next: (campaigns) => {
+        this.availableCampaigns = campaigns
+          .filter(c => c.status === CampaignStatus.Completed)
+          .map(c => ({ label: c.name, value: c.id }));
+        this.loadingCampaigns = false;
       }
     });
   }

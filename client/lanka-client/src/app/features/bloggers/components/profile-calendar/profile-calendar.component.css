@@ -1,0 +1,47 @@
+.profile-calendar-container {
+    padding-top: 1rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.day-cell {
+    aspect-ratio: 1;
+}
+
+.day-number {
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.day-cell.interactive .day-number:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.day-cell.other-month {
+    opacity: 0.3;
+}
+
+/* Custom Scrollbar for months wrapper */
+.months-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.months-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.months-wrapper::-webkit-scrollbar-thumb {
+    background: var(--surface-300);
+    border-radius: 4px;
+}
+
+.months-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-400);
+}

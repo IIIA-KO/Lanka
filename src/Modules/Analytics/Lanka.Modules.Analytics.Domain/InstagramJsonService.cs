@@ -6,13 +6,18 @@ internal static class InstagramJsonService
 {
     public static int ParseMetricTotalValue(JsonElement response, string metric)
     {
-        return response
-            .GetProperty("data")
-            .EnumerateArray()
-            .First(e => e.GetProperty("name").GetString() == metric)
-            .GetProperty("total_value")
-            .GetProperty("value")
-            .GetInt32();
+        foreach (JsonElement element in response.GetProperty("data").EnumerateArray())
+        {
+            if (element.TryGetProperty("name", out JsonElement nameProp)
+                && nameProp.GetString() == metric
+                && element.TryGetProperty("total_value", out JsonElement totalValue)
+                && totalValue.TryGetProperty("value", out JsonElement value))
+            {
+                return value.GetInt32();
+            }
+        }
+
+        return 0;
     }
 
     public static bool HasData(JsonElement response)

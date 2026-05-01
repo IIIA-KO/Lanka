@@ -3,14 +3,19 @@ import { RouterModule } from '@angular/router';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
+import { ThemeService } from '../../services/theme/theme.service';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [RouterModule, TranslateModule, LanguageSwitcherComponent],
+  imports: [RouterModule, TranslateModule, LanguageSwitcherComponent, ButtonModule, TooltipModule],
   templateUrl: './auth-layout.component.html',
   styleUrls: ['./auth-layout.component.css']
 })
 export class AuthLayoutComponent {
+  public readonly themeService = inject(ThemeService);
+
   private readonly translate = inject(TranslateService);
 }

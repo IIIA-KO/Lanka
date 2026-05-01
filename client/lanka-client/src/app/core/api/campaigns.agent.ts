@@ -1,10 +1,49 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { ICampaign, ICreateCampaignRequest, IPendCampaignRequest } from '../models/campaigns';
+import {
+  ICampaign,
+  ICreateCampaignRequest,
+  ICreateReviewRequest,
+  IPendCampaignRequest,
+} from '../models/campaigns';
 
 const BASE_URL = environment.apiUrl;
+
+interface ICampaignApiResponse {
+  id: string;
+  status: string;
+  name: string;
+  description: string;
+  offerId: string;
+  clientId: string;
+  creatorId: string;
+  priceAmount: number;
+  priceCurrency: string;
+  scheduledOnUtc: string;
+  pendedOnUtc: string;
+  confirmedOnUtc?: string;
+  rejectedOnUtc?: string;
+  cancelledOnUtc?: string;
+  doneOnUtc?: string;
+  completedOnUtc?: string;
+  creatorFirstName?: string;
+  creatorLastName?: string;
+  clientFirstName?: string;
+  clientLastName?: string;
+}
+
+function mapApiResponseToCampaign(r: ICampaignApiResponse): ICampaign {
+  return {
+    ...r,
+    price: { amount: r.priceAmount, currency: r.priceCurrency },
+    expectedCompletionDate: r.scheduledOnUtc,
+    deliverables: [],
+    createdAt: r.pendedOnUtc,
+    updatedAt: r.scheduledOnUtc,
+  } as ICampaign;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +59,11 @@ export class CampaignsAgent {
 
   public getCampaign(id: string): Observable<ICampaign> {
     return this.http
-      .get<ICampaign>(`${BASE_URL}/campaigns/${id}`)
-      .pipe(catchError(this.handleError));
+      .get<ICampaignApiResponse>(`${BASE_URL}/campaigns/${id}`)
+      .pipe(
+        map(mapApiResponseToCampaign),
+        catchError(this.handleError)
+      );
   }
 
   public confirmCampaign(id: string): Observable<void> {
@@ -72,9 +114,28 @@ export class CampaignsAgent {
       .pipe(catchError(this.handleError));
   }
 
+  public getBloggerCampaigns(bloggerId: string, startDate?: string, endDate?: string): Observable<ICampaign[]> {
+    let params = new HttpParams();
+    if (startDate) { params = params.set('startDate', startDate); }
+    if (endDate) { params = params.set('endDate', endDate); }
+
+    return this.http
+      .get<ICampaignApiResponse[]>(`${BASE_URL}/campaigns/bloggers/${bloggerId}`, { params })
+      .pipe(
+        map(items => items.map(mapApiResponseToCampaign)),
+        catchError(this.handleError)
+      );
+  }
+
   public getCampaignsByStatus(status: string): Observable<ICampaign[]> {
     return this.http
       .get<ICampaign[]>(`${BASE_URL}/campaigns?status=${status}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  public createReview(request: ICreateReviewRequest): Observable<string> {
+    return this.http
+      .post<string>(`${BASE_URL}/reviews`, request)
       .pipe(catchError(this.handleError));
   }
 

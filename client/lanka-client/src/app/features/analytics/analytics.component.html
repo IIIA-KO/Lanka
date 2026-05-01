@@ -1,17 +1,17 @@
 <div class="analytics-container">
   <div class="flex justify-content-between align-items-center mb-4">
-    <h2>Analytics Dashboard</h2>
+    <h2>{{ 'ANALYTICS.TITLE' | translate }}</h2>
     <div class="flex gap-2 align-items-center">
-      <p-select 
+      <p-select
         [(ngModel)]="selectedPeriod"
         [options]="periodOptions"
-        placeholder="Select Period"
+        [placeholder]="'ANALYTICS.PERIOD.PLACEHOLDER' | translate"
         (onChange)="onPeriodChange()"
         class="period-selector">
       </p-select>
-      <button pButton type="button" 
-              label="Refresh" 
-              icon="pi pi-refresh" 
+      <button pButton type="button"
+              [label]="'ANALYTICS.ACTIONS.REFRESH' | translate"
+              icon="pi pi-refresh"
               class="p-button-outlined"
               (click)="refreshData()"
               [loading]="loading">
@@ -30,7 +30,7 @@
   <div *ngIf="!loading && !error" class="analytics-content">
     <p-tabs>
       <!-- Overview Tab -->
-      <p-tabPanel header="Overview">
+      <p-tabPanel [header]="'ANALYTICS.TABS.OVERVIEW' | translate">
         <div class="overview-section">
           <!-- Engagement Stats Cards -->
           <div class="stats-grid" *ngIf="engagementStats">
@@ -38,7 +38,7 @@
               <ng-template pTemplate="content">
                 <div class="stat-item">
                   <div class="stat-value">{{ (engagementStats.reachRate * 100).toFixed(2) }}%</div>
-                  <div class="stat-label">Reach Rate</div>
+                  <div class="stat-label">{{ 'ANALYTICS.STATS.REACH_RATE' | translate }}</div>
                 </div>
               </ng-template>
             </p-card>
@@ -47,16 +47,16 @@
               <ng-template pTemplate="content">
                 <div class="stat-item">
                   <div class="stat-value">{{ (engagementStats.engagementRate * 100).toFixed(2) }}%</div>
-                  <div class="stat-label">Engagement Rate</div>
+                  <div class="stat-label">{{ 'ANALYTICS.STATS.ENGAGEMENT_RATE' | translate }}</div>
                 </div>
               </ng-template>
             </p-card>
-            
+
             <p-card styleClass="stats-card">
               <ng-template pTemplate="content">
                 <div class="stat-item">
                   <div class="stat-value">{{ (engagementStats.erReach * 100).toFixed(2) }}%</div>
-                  <div class="stat-label">ER Reach</div>
+                  <div class="stat-label">{{ 'ANALYTICS.STATS.ER_REACH' | translate }}</div>
                 </div>
               </ng-template>
             </p-card>
@@ -67,7 +67,7 @@
             <p-card>
               <ng-template pTemplate="header">
                 <div class="p-3">
-                  <h3>Overview Statistics</h3>
+                  <h3>{{ 'ANALYTICS.OVERVIEW.TITLE' | translate }}</h3>
                   <p class="text-color-secondary">{{ overviewStats.statisticsPeriod }}</p>
                 </div>
               </ng-template>
@@ -88,22 +88,22 @@
             <p-card>
               <ng-template pTemplate="header">
                 <div class="p-3">
-                  <h3>Engagement Metrics Summary</h3>
+                  <h3>{{ 'ANALYTICS.OVERVIEW.SUMMARY_TITLE' | translate }}</h3>
                 </div>
               </ng-template>
               
               <ng-template pTemplate="content">
                 <div class="engagement-metrics">
                   <div class="metric-bar">
-                    <span class="metric-label">Reach Rate:</span>
+                    <span class="metric-label">{{ 'ANALYTICS.OVERVIEW.REACH_RATE_LABEL' | translate }}</span>
                     <span class="metric-value">{{ (engagementStats.reachRate * 100).toFixed(2) }}%</span>
                   </div>
                   <div class="metric-bar">
-                    <span class="metric-label">Engagement Rate:</span>
+                    <span class="metric-label">{{ 'ANALYTICS.OVERVIEW.ENGAGEMENT_RATE_LABEL' | translate }}</span>
                     <span class="metric-value">{{ (engagementStats.engagementRate * 100).toFixed(2) }}%</span>
                   </div>
                   <div class="metric-bar">
-                    <span class="metric-label">ER Reach:</span>
+                    <span class="metric-label">{{ 'ANALYTICS.OVERVIEW.ER_REACH_LABEL' | translate }}</span>
                     <span class="metric-value">{{ (engagementStats.erReach * 100).toFixed(2) }}%</span>
                   </div>
                 </div>
@@ -114,13 +114,13 @@
       </p-tabPanel>
 
       <!-- Posts Tab -->
-      <p-tabPanel header="Posts">
+      <p-tabPanel [header]="'ANALYTICS.TABS.POSTS' | translate">
         <div class="posts-section">
           <div *ngIf="posts.length === 0" class="no-posts-message">
             <div class="text-center p-6">
               <i class="pi pi-images" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
-              <h3>No posts data available</h3>
-              <p class="text-color-secondary">Connect your Instagram account to see post analytics.</p>
+              <h3>{{ 'ANALYTICS.POSTS.EMPTY_TITLE' | translate }}</h3>
+              <p class="text-color-secondary">{{ 'ANALYTICS.POSTS.EMPTY_DESCRIPTION' | translate }}</p>
             </div>
           </div>
 
@@ -155,7 +155,7 @@
                     </div>
                     <div class="insight-item">
                       <i class="pi pi-chart-bar"></i>
-                      <span>{{ formatNumber(getPostInsightValue(post, 'impressions')) }}</span>
+                      <span>{{ formatNumber(getPostInsightValue(post, 'views')) }}</span>
                     </div>
                   </div>
                 </ng-template>
@@ -177,27 +177,34 @@
       </p-tabPanel>
 
       <!-- Interactions Tab -->
-      <p-tabPanel header="Interactions">
+      <p-tabPanel [header]="'ANALYTICS.TABS.INTERACTIONS' | translate">
         <div class="interactions-section">
           <div *ngIf="interactionStats" class="interaction-summary">
             <p-card>
               <ng-template pTemplate="header">
                 <div class="p-3">
-                  <h3>Interaction Statistics</h3>
+                  <h3>{{ 'ANALYTICS.INTERACTIONS.TITLE' | translate }}</h3>
                   <p class="text-color-secondary">{{ interactionStats.statisticsPeriod }}</p>
                 </div>
               </ng-template>
               
               <ng-template pTemplate="content">
-                <div class="interaction-metrics">
-                  <div *ngFor="let metric of interactionStats.metrics" class="interaction-metric">
-                    <h4>{{ metric.title || metric.name }}</h4>
-                    <div class="metric-timeline">
-                      <div *ngFor="let value of metric.values" class="timeline-item">
-                        <span class="timeline-date">{{ value.endTime | date:'short' }}</span>
-                        <span class="timeline-value">{{ formatNumber(value.value) }}</span>
-                      </div>
-                    </div>
+                <div class="interaction-metrics grid">
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>{{ 'ANALYTICS.INTERACTIONS.ENGAGEMENT_RATE' | translate }}</h4>
+                    <span class="text-xl font-bold">{{ interactionStats.engagementRate | number:'1.2-2' }}%</span>
+                  </div>
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>{{ 'ANALYTICS.INTERACTIONS.AVG_LIKES' | translate }}</h4>
+                    <span class="text-xl font-bold">{{ formatNumber(interactionStats.averageLikes) }}</span>
+                  </div>
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>{{ 'ANALYTICS.INTERACTIONS.AVG_COMMENTS' | translate }}</h4>
+                    <span class="text-xl font-bold">{{ formatNumber(interactionStats.averageComments) }}</span>
+                  </div>
+                  <div class="col-6 md:col-3 interaction-metric">
+                    <h4>{{ 'ANALYTICS.INTERACTIONS.CPE' | translate }}</h4>
+                    <span class="text-xl font-bold">{{ interactionStats.cpe | number:'1.2-2' }}</span>
                   </div>
                 </div>
               </ng-template>
@@ -208,7 +215,7 @@
             <p-card>
               <ng-template pTemplate="header">
                 <div class="p-3">
-                  <h3>Detailed Metrics</h3>
+                  <h3>{{ 'ANALYTICS.INTERACTIONS.DETAILED_TITLE' | translate }}</h3>
                   <p class="text-color-secondary">{{ tableStats.statisticsPeriod }}</p>
                 </div>
               </ng-template>

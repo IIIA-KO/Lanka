@@ -221,8 +221,12 @@ public static class CampaignSeeder
                 // Randomly assign status: Pending=0, Confirmed=1, Rejected=2, Done=3, Completed=4, Cancelled=5
                 int status = faker.PickRandom(0, 0, 0, 1, 1, 2, 3, 4, 5); // More pending and confirmed
 
-                DateTimeOffset scheduledOnUtc = faker.Date.FutureOffset(30).ToUniversalTime();
-                DateTimeOffset pendedOnUtc = DateTimeOffset.UtcNow.AddDays(-faker.Random.Int(5, 60));
+                int year = DateTimeOffset.UtcNow.Year;
+                int month = (i % 12) + 1;
+                var monthStart = new DateTimeOffset(year, month, 1, 0, 0, 0, TimeSpan.Zero);
+                DateTimeOffset monthEnd = monthStart.AddMonths(1).AddTicks(-1);
+                DateTimeOffset scheduledOnUtc = faker.Date.BetweenOffset(monthStart, monthEnd).ToUniversalTime();
+                DateTimeOffset pendedOnUtc = scheduledOnUtc.AddDays(-faker.Random.Int(5, 30));
 
                 (Guid Id, string FirstName, string LastName) creatorName = bloggerNameMap[creatorId];
                 (Guid Id, string FirstName, string LastName) clientName = bloggerNameMap[selectedOffer.BloggerId];

@@ -7,7 +7,9 @@ namespace Lanka.Modules.Analytics.Domain.Audience;
 
 public sealed class ReachDistribution : AnalyticsDataWithTtl
 {
-    [BsonId] public Guid InstagramAccountId { get; set; }
+    [BsonId] public string Id => $"{this.InstagramAccountId}-{this.StatisticsPeriod}";
+
+    public Guid InstagramAccountId { get; set; }
 
     public StatisticsPeriod StatisticsPeriod { get; set; }
 

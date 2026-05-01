@@ -32,7 +32,7 @@ internal sealed class AudienceSummaryProvider : IAudienceSummaryProvider
     )
     {
         Task<EngagementStatistics?> engagementTask = this._engagementRepository.GetValidAsync(
-            instagramAccountId, StatisticsPeriod.Day, cancellationToken
+            instagramAccountId, StatisticsPeriod.Day21, cancellationToken
         );
 
         Task<AgeDistribution?> ageTask = this._ageDistributionRepository.GetValidAsync(

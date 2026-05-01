@@ -1,20 +1,26 @@
 <div class="flex h-screen">
   <!-- Left -->
   <div class="w-full md:w-6 p-6 md:p-8 flex flex-column justify-content-center align-items-center gap-4 bg-auth-left">
-    <div class="w-full flex justify-content-end">
+    <div class="w-full flex justify-content-end gap-3 align-items-center">
       <app-language-switcher></app-language-switcher>
+      <p-button [icon]="themeService.isDark() ? 'pi pi-moon' : 'pi pi-sun'" [rounded]="true" [text]="true"
+        (onClick)="themeService.toggleTheme()"
+        [pTooltip]="themeService.isDark() ? ('COMMON.THEME_DARK' | translate) : ('COMMON.THEME_LIGHT' | translate)"
+        tooltipPosition="bottom">
+      </p-button>
     </div>
-    <img src="/logo/lanka-logo-green.svg" alt="Logo" class="w-7rem mb-2 align-items-center" />
-    <h3 class="text-center text-xl text-600">{{'AUTH_LAYOUT.SUBTITLE' | translate}}</h3>
+    <img src="/logo/lanka-logo-green.svg" alt="Logo" class="w-7rem mb-2 align-items-center"
+      [class.logo-dark]="themeService.isDark()" />
+    <h3 class="text-center text-xl text-color-secondary m-0">{{'AUTH_LAYOUT.SUBTITLE' | translate}}</h3>
 
     <!-- Tabs -->
-    <div class="flex justify-content-between w-full border-bottom-1 border-gray-300">
+    <div class="flex justify-content-between w-full tab-container">
       <a routerLink="/auth/login" routerLinkActive="active-tab"
-        class="flex-1 text-center text-sm text-600 pb-2 cursor-pointer">
+        class="flex-1 text-center text-sm tab-link pb-2 cursor-pointer">
         {{'AUTH_LAYOUT.LOGIN' | translate}}
       </a>
       <a routerLink="/auth/register" routerLinkActive="active-tab"
-        class="flex-1 text-center text-sm text-600 pb-2 cursor-pointer">
+        class="flex-1 text-center text-sm tab-link pb-2 cursor-pointer">
         {{'AUTH_LAYOUT.REGISTER' | translate}}
       </a>
     </div>
@@ -26,14 +32,15 @@
       </div>
     </div>
 
-    <small class="text-lg text-500 text-center mt-2">
+    <small class="text-lg text-color-secondary text-center mt-2">
       {{'AUTH_LAYOUT.PRIVACY_POLICY' | translate}}
       <a routerLink="/privacy-policy" class="text-primary">{{ 'COMMON.PRIVACY_POLICY' | translate }}</a>
     </small>
   </div>
 
   <!-- Right -->
-  <div class="hidden md:flex w-12 justify-content-center align-items-center bg-gray-100">
+  <div class="hidden md:flex w-12 justify-content-center align-items-center"
+    style="background-color: var(--app-surface-alt)">
     <img src="/images/auth-page.svg" alt="Illustration" class="w-9" />
   </div>
 </div>

@@ -14,6 +14,15 @@
   --app-header-bg: rgba(255, 255, 255, 0.82);
 }
 
+:root.lanka-dark {
+  --app-ground: var(--p-surface-900, #0f172a);
+  --app-surface: var(--p-surface-800, #1e293b);
+  --app-surface-alt: var(--p-surface-900, #0f172a);
+  --app-surface-hover: var(--p-surface-700, #334155);
+  --app-border: var(--p-surface-700, #334155);
+  --app-header-bg: rgba(15, 23, 42, 0.95);
+}
+
 /* Set Inter as the default font */
 body {
   margin: 0;
@@ -129,29 +138,113 @@ html, body {
 }
 
 /* Snackbar / Toast Styles */
-.snack-success {
-  background-color: #4caf50 !important;
-  color: white !important;
+.snack-success,
+.snack-error {
+  background-color: var(--surface-card, #ffffff) !important;
+  color: var(--text-color) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
 }
 
-.snack-success .mat-mdc-snack-bar-label {
-  color: white !important;
+.snack-success {
+  border-left: 8px solid var(--p-primary-500, #10b981) !important;
 }
 
 .snack-error {
-  background-color: #f44336 !important;
-  color: white !important;
+  border-left: 8px solid var(--p-red-500, #ef4444) !important;
 }
 
+.snack-success .mat-mdc-snack-bar-label,
 .snack-error .mat-mdc-snack-bar-label {
-  color: white !important;
+  color: var(--text-color) !important;
 }
 
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-color: transparent;
-  --mat-snack-bar-button-color: white;
+  --mdc-snackbar-supporting-text-color: var(--text-color);
+  --mat-snack-bar-button-color: var(--text-color-secondary);
 }
 
 .mat-mdc-button.mat-mdc-snack-bar-action {
-  color: white !important;
+  color: var(--text-color-secondary) !important;
+  background-color: transparent !important;
+}
+
+.mat-mdc-button.mat-mdc-snack-bar-action:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.mat-mdc-button.mat-mdc-snack-bar-action:active {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Force hide all internal Material overlays that cause opaque blocks */
+.mat-mdc-button.mat-mdc-snack-bar-action .mat-mdc-button-persistent-ripple::before,
+.mat-mdc-button.mat-mdc-snack-bar-action .mat-mdc-button-focus-overlay,
+.mat-mdc-button.mat-mdc-snack-bar-action .mat-ripple-element {
+  display: none !important;
+}
+
+/* Dark mode overrides for Snackbars */
+:root.lanka-dark .snack-success,
+:root.lanka-dark .snack-error {
+  background-color: var(--p-surface-800, #1e293b) !important;
+  color: var(--p-surface-0, #ffffff) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1) !important;
+}
+
+:root.lanka-dark .snack-success .mat-mdc-snack-bar-label,
+:root.lanka-dark .snack-error .mat-mdc-snack-bar-label {
+  color: var(--p-surface-0, #ffffff) !important;
+}
+
+:root.lanka-dark .mat-mdc-snack-bar-container {
+  --mdc-snackbar-supporting-text-color: var(--p-surface-0, #ffffff);
+  --mat-snack-bar-button-color: var(--p-surface-300, #cbd5e1);
+}
+
+:root.lanka-dark .mat-mdc-button.mat-mdc-snack-bar-action {
+  color: var(--p-surface-300, #cbd5e1) !important;
+  background-color: transparent !important;
+}
+
+:root.lanka-dark .mat-mdc-button.mat-mdc-snack-bar-action:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root.lanka-dark .mat-mdc-button.mat-mdc-snack-bar-action:active {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Danger Panel responsive styling */
+.danger-panel {
+  background-color: var(--p-red-50);
+  border-color: var(--p-red-200);
+}
+.danger-panel .danger-title {
+  color: var(--p-red-900);
+}
+.danger-panel .danger-desc {
+  color: var(--p-red-700);
+}
+
+:root.lanka-dark .danger-panel {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+:root.lanka-dark .danger-panel .danger-title {
+  color: var(--p-red-300);
+}
+:root.lanka-dark .danger-panel .danger-desc {
+  color: var(--p-red-400);
+}
+
+/* Chrome/Webkit Autofill Dark Mode Override */
+:root.lanka-dark input:-webkit-autofill,
+:root.lanka-dark input:-webkit-autofill:hover, 
+:root.lanka-dark input:-webkit-autofill:focus, 
+:root.lanka-dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--p-inputtext-background) inset !important;
+  -webkit-text-fill-color: var(--p-text-color) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

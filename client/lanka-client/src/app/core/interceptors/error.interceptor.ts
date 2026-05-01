@@ -58,6 +58,11 @@ export const errorInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
+      // Skip aborted/cancelled requests (e.g. component destroyed during navigation)
+      if (err.status === 0 && err.error instanceof ProgressEvent && err.error.type === 'abort') {
+        return throwError(() => err);
+      }
+
       // Only show snackbars for server errors (5xx) and network errors
       if (err.status >= 500) {
         const errorMessage = getUserFriendlyErrorMessage(err);

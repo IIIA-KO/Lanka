@@ -8,7 +8,9 @@ namespace Lanka.Modules.Analytics.Domain.Statistics;
 
 public sealed class MetricsStatistics : AnalyticsDataWithTtl
 {
-    [BsonId] public Guid InstagramAccountId { get; set; }
+    [BsonId] public string Id => $"{this.InstagramAccountId}-{this.StatisticsPeriod}";
+
+    public Guid InstagramAccountId { get; set; }
     public StatisticsPeriod StatisticsPeriod { get; set; }
     public List<TimeSeriesMetricData> Metrics { get; set; } = [];
 
@@ -39,7 +41,7 @@ public sealed class MetricsStatistics : AnalyticsDataWithTtl
                 || !metricElement.TryGetProperty("values", out JsonElement valuesProp)
                 || valuesProp.ValueKind != JsonValueKind.Array)
             {
-                return Result.Failure<MetricsStatistics>(InvalidData);
+                continue;
             }
 
             var metricData = new TimeSeriesMetricData
@@ -50,10 +52,9 @@ public sealed class MetricsStatistics : AnalyticsDataWithTtl
             foreach (JsonElement valueElement in valuesProp.EnumerateArray())
             {
                 if (!valueElement.TryGetProperty("value", out JsonElement valueProp)
-                    || !valueElement.TryGetProperty("end_time", out JsonElement endTimeProp)
-                   )
+                    || !valueElement.TryGetProperty("end_time", out JsonElement endTimeProp))
                 {
-                    return Result.Failure<MetricsStatistics>(InvalidData);
+                    continue;
                 }
 
                 int value = valueProp.GetInt32();

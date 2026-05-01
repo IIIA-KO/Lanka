@@ -1,179 +1,636 @@
-<div class="public-profile-container" *ngIf="!loading && blogger; else loadingState">
-    <!-- Public Header -->
+@if (!loading && blogger) {
+  <div class="public-profile-container">
+
+    <!-- ─── Profile Header ─── -->
     <div class="profile-header card-style mb-4">
-        <div class="flex flex-column md:flex-row align-items-center md:align-items-start gap-4">
-            <!-- Avatar -->
-            <div class="avatar-wrapper">
-                <img [src]="blogger.profilePhotoUri || '/icons/no-profile.svg'" alt="Profile Avatar"
-                    class="profile-avatar" />
-            </div>
-
-            <!-- Info -->
-            <div class="profile-info flex-grow-1">
-                <div class="flex justify-content-between align-items-start">
-                    <div>
-                        <h1 class="text-3xl font-bold m-0 mb-2">{{ blogger.firstName }} {{ blogger.lastName }}</h1>
-                        <p class="text-color-secondary m-0 mb-3 line-height-3">{{ blogger.bio | slice:0:150 }}{{
-                            (blogger.bio?.length || 0) > 150 ? '...' : '' }}</p>
-
-                        <div class="flex align-items-center gap-3 mb-3 text-sm text-color-secondary">
-                            <span class="flex align-items-center gap-1">
-                                <i class="pi pi-map-marker text-teal-600"></i>
-                                <span>Ukraine</span> <!-- Mock Location -->
-                            </span>
-                            <span class="flex align-items-center gap-1">
-                                <i class="pi pi-user text-teal-600"></i>
-                                <span>Influencer</span>
-                            </span>
-                            <span class="flex align-items-center gap-1">
-                                <i class="pi pi-star-fill text-yellow-500"></i>
-                                <span>5.0</span> <!-- Mock Rating -->
-                            </span>
-                        </div>
-
-                        <div class="social-links flex gap-2">
-                            <a *ngIf="blogger.instagramUsername"
-                                [href]="'https://instagram.com/' + blogger.instagramUsername" target="_blank"
-                                class="social-btn instagram">
-                                <i class="pi pi-instagram"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="actions flex flex-column gap-2">
-                        <p-button label="Write Message" icon="pi pi-envelope" styleClass="p-button-primary"></p-button>
-                        <p-button label="Start Cooperation" icon="pi pi-briefcase" styleClass="p-button-outlined"
-                            (onClick)="openProposeDialog()"></p-button>
-                        <p-button icon="pi pi-bookmark" styleClass="p-button-secondary p-button-outlined w-full"
-                            ariaLabel="Bookmark"></p-button>
-                    </div>
-                </div>
-            </div>
+      <div class="flex flex-column md:flex-row align-items-center md:align-items-start gap-4">
+        <div class="avatar-wrapper">
+          <img [src]="blogger.profilePhotoUri || '/icons/no-profile.svg'"
+               alt="Profile Avatar" class="profile-avatar" />
         </div>
+
+        <div class="profile-info flex-grow-1">
+          <div class="flex justify-content-between align-items-start">
+            <div>
+              <h1 class="text-3xl font-bold m-0 mb-1">
+                {{ blogger.firstName }} {{ blogger.lastName }}
+              </h1>
+
+              <div class="flex align-items-center gap-3 mb-2 text-sm text-color-secondary">
+                <span class="flex align-items-center gap-1">
+                  <i class="pi pi-tag text-teal-600"></i>
+                  <span>{{ blogger.category || ('COMMON.UNAVAILABLE' | translate) }}</span>
+                </span>
+                @if (blogger.audienceTopCountry) {
+                  <span class="flex align-items-center gap-1">
+                    <i class="pi pi-map-marker"></i> {{ blogger.audienceTopCountry }}
+                  </span>
+                }
+                @if (blogger.engagementRate !== null) {
+                  <span class="flex align-items-center gap-1">
+                    <i class="pi pi-chart-line text-teal-500"></i>
+                    <span>{{ formatPercent(blogger.engagementRate) }} {{ 'PROFILE.ER_SUFFIX' | translate }}</span>
+                  </span>
+                }
+              </div>
+
+              <div class="flex align-items-center gap-2 mb-2">
+                <div class="flex gap-1">
+                  @for (star of getRatingArray(5); track $index) {
+                    <i class="pi"
+                       [class.pi-star-fill]="$index < averageRating"
+                       [class.pi-star]="$index >= averageRating"
+                       [class.text-yellow-500]="$index < averageRating"
+                       [class.text-gray-300]="$index >= averageRating"
+                       style="font-size: 0.9rem"></i>
+                  }
+                </div>
+                @if (reviews.length > 0) {
+                  <span class="text-sm text-color-secondary">
+                    {{ averageRating }} ({{ reviews.length }} {{ reviews.length === 1 ? ('PROFILE.REVIEW_SINGULAR' | translate) : ('PROFILE.REVIEW_PLURAL' | translate) }})
+                  </span>
+                }
+              </div>
+
+              <p class="text-color-secondary m-0 mb-3 line-height-3 text-sm">
+                {{ blogger.bio | slice:0:120 }}{{ (blogger.bio?.length || 0) > 120 ? '...' : '' }}
+              </p>
+
+              <div class="social-links flex gap-2">
+                @if (blogger.instagramUsername) {
+                  <a [href]="'https://instagram.com/' + blogger.instagramUsername"
+                     target="_blank" class="social-btn instagram">
+                    <i class="pi pi-instagram"></i>
+                  </a>
+                }
+              </div>
+            </div>
+
+            <div class="actions flex flex-column gap-2">
+              <p-button [label]="'PUBLIC_PROFILE.ACTIONS.WORK_WITH_ME' | translate" icon="pi pi-briefcase"
+                styleClass="p-button-outlined w-full" (onClick)="handleWorkWithMe()"></p-button>
+              <p-button [label]="'PROFILE.ACTIONS.SHARE' | translate" icon="pi pi-share-alt"
+                styleClass="p-button-secondary p-button-outlined w-full" (onClick)="handleShareProfile()"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Tabbed Content -->
-    <div class="card-style">
-        <p-tabs value="0">
-            <p-tablist>
-                <p-tab value="0">Overview</p-tab>
-                <p-tab value="1">Reviews</p-tab>
-                <p-tab value="2">Statistics</p-tab>
-            </p-tablist>
-
-            <p-tabpanels>
-                <!-- Overview Tab -->
-                <p-tabpanel value="0">
-                    <div class="grid">
-                        <!-- KPI Cards -->
-                        <div class="col-12 mb-4">
-                            <div class="grid">
-                                <div class="col-12 md:col-4">
-                                    <div class="kpi-card surface-50 p-3 border-round">
-                                        <span class="text-color-secondary block mb-1">Followers</span>
-                                        <span class="text-2xl font-bold">{{
-                                            formatMetric(blogger.instagramFollowersCount) }}</span>
-                                    </div>
-                                </div>
-                                <div class="col-12 md:col-4">
-                                    <div class="kpi-card surface-50 p-3 border-round">
-                                        <span class="text-color-secondary block mb-1">Posts</span>
-                                        <span class="text-2xl font-bold">{{ formatMetric(blogger.instagramMediaCount)
-                                            }}</span>
-                                    </div>
-                                </div>
-                                <div class="col-12 md:col-4">
-                                    <div class="kpi-card surface-50 p-3 border-round">
-                                        <span class="text-color-secondary block mb-1">Engagement Rate</span>
-                                        <span class="text-2xl font-bold">4.5%</span> <!-- Mock -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bio -->
-                        <div class="col-12 lg:col-8">
-                            <h3 class="text-xl font-bold mb-3">About</h3>
-                            <p class="line-height-3 text-color-secondary">{{ blogger.bio || 'No bio provided.' }}</p>
-
-                            <h3 class="text-xl font-bold mt-5 mb-3">Recent Posts</h3>
-                            <div class="flex gap-3 overflow-x-auto pb-2">
-                                <div class="mock-post" *ngFor="let i of [1,2,3,4]">
-                                    <div class="bg-gray-100 border-round flex align-items-center justify-content-center"
-                                        style="width: 150px; height: 150px;">
-                                        <i class="pi pi-image text-3xl text-gray-400"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Offers (Sidebar) -->
-                        <div class="col-12 lg:col-4">
-                            <h3 class="text-xl font-bold mb-3">Offers</h3>
-                            <div class="offers-list flex flex-column gap-3">
-                                <div *ngFor="let offer of offers"
-                                    class="offer-card border-1 surface-border border-round p-3 hover:surface-hover cursor-pointer transition-colors"
-                                    (click)="openProposeDialog(offer.id, offer.name)"
-                                    (keydown.enter)="openProposeDialog(offer.id, offer.name)" tabindex="0">
-                                    <div class="flex justify-content-between align-items-start mb-2">
-                                        <span class="font-bold">{{ offer.name }}</span>
-                                        <p-tag [value]="offer.format || 'Custom'" severity="info"></p-tag>
-                                    </div>
-                                    <p class="text-sm text-color-secondary m-0 mb-3 line-clamp-2">{{ offer.description
-                                        }}</p>
-                                    <div class="flex justify-content-between align-items-center">
-                                        <span class="text-xl font-bold text-teal-600">{{ offer.priceCurrency }} {{
-                                            offer.priceAmount }}</span>
-                                        <p-button icon="pi pi-arrow-right"
-                                            styleClass="p-button-rounded p-button-text p-button-sm"
-                                            ariaLabel="View Offer"></p-button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </p-tabpanel>
-
-                <!-- Reviews Tab -->
-                <p-tabpanel value="1">
-                    <div class="text-center p-5">
-                        <i class="pi pi-star text-4xl text-gray-300 mb-3"></i>
-                        <p class="text-gray-500">No reviews yet.</p>
-                    </div>
-                </p-tabpanel>
-
-                <!-- Statistics Tab -->
-                <p-tabpanel value="2">
-                    <div class="grid">
-                        <div class="col-12 md:col-6">
-                            <app-analytics-chart title="Age Distribution" [labels]="age.labels"
-                                [values]="age.values"></app-analytics-chart>
-                        </div>
-                        <div class="col-12 md:col-6">
-                            <app-analytics-chart title="Gender Distribution" [labels]="gender.labels"
-                                [values]="gender.values"></app-analytics-chart>
-                        </div>
-                        <div class="col-12">
-                            <app-analytics-chart title="Location Distribution" [labels]="location.labels"
-                                [values]="location.values"></app-analytics-chart>
-                        </div>
-                    </div>
-                </p-tabpanel>
-            </p-tabpanels>
-        </p-tabs>
+    <!-- ─── KPI Cards Row ─── -->
+    <div class="grid mb-4">
+      <div class="col-12 md:col-6 lg:col-3">
+        <div class="kpi-card">
+          <div class="kpi-icon bg-blue-100 text-blue-600">
+            <i class="pi pi-users"></i>
+          </div>
+          <div>
+            <span class="kpi-label">{{ 'PUBLIC_PROFILE.KPI.FOLLOWERS' | translate }}</span>
+            <span class="kpi-value block">{{ formatMetric(blogger.instagramFollowersCount) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6 lg:col-3">
+        <div class="kpi-card">
+          <div class="kpi-icon bg-purple-100 text-purple-600">
+            <i class="pi pi-images"></i>
+          </div>
+          <div>
+            <span class="kpi-label">{{ 'PUBLIC_PROFILE.KPI.POSTS' | translate }}</span>
+            <span class="kpi-value block">{{ formatMetric(blogger.instagramMediaCount) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6 lg:col-3">
+        <div class="kpi-card">
+          <div class="kpi-icon bg-teal-100 text-teal-600">
+            <i class="pi pi-chart-line"></i>
+          </div>
+          <div>
+            <span class="kpi-label">{{ 'PUBLIC_PROFILE.KPI.ENGAGEMENT_RATE' | translate }}</span>
+            <span class="kpi-value block">{{ blogger.engagementRate !== null ? formatPercent(blogger.engagementRate) : ('COMMON.UNAVAILABLE' | translate) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6 lg:col-3">
+        <div class="kpi-card">
+          <div class="kpi-icon bg-green-100 text-green-600">
+            <i class="pi pi-money-bill"></i>
+          </div>
+          <div>
+            <span class="kpi-label align-items-center flex">
+              {{ 'PUBLIC_PROFILE.KPI.AD_PRICE' | translate }}
+              <i class="pi pi-info-circle text-gray-400 ml-1 text-sm cursor-pointer"
+                 [pTooltip]="'PUBLIC_PROFILE.KPI.AD_PRICE_HINT' | translate"
+                 tooltipPosition="top"></i>
+            </span>
+            @if (averagePrices.length > 0) {
+              <div class="flex flex-wrap gap-2 mt-2">
+                @for (price of averagePrices; track price.currency) {
+                  <p-tag [severity]="'success'" styleClass="text-sm px-2 py-1 font-bold border-round-xl">
+                    {{ price.amount | number:'1.0-0' }} {{ price.currency }}
+                  </p-tag>
+                }
+              </div>
+            } @else {
+              <span class="kpi-value block">{{ 'COMMON.UNAVAILABLE' | translate }}</span>
+            }
+          </div>
+        </div>
+      </div>
     </div>
-</div>
 
-<app-propose-campaign [(visible)]="showProposeDialog" [offerId]="selectedOfferId" [offerName]="selectedOfferName">
+    <!-- ─── Tabbed Content ─── -->
+    <div class="card-style" id="profile-content">
+      <p-tabs [(value)]="activeTab">
+        <p-tablist>
+          <p-tab value="0">{{ 'PUBLIC_PROFILE.TABS.OVERVIEW' | translate }}</p-tab>
+          <p-tab value="1">{{ 'PUBLIC_PROFILE.TABS.STATISTICS' | translate }}</p-tab>
+          <p-tab value="2">{{ 'PUBLIC_PROFILE.TABS.REVIEWS' | translate }} ({{ reviews.length }})</p-tab>
+          <p-tab value="3">{{ 'PUBLIC_PROFILE.TABS.CAMPAIGN' | translate }}</p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+          <!-- ═══════════ OVERVIEW ═══════════ -->
+          <p-tabpanel value="0">
+            <div class="mt-3">
+              <!-- Overview metrics -->
+              @if (overview && overview.metrics.length > 0) {
+                <div class="card-style mb-4" style="box-shadow: none; background: var(--surface-50);">
+                  <div class="flex align-items-center justify-content-between mb-3">
+                    <h3 class="section-title m-0">{{ 'PUBLIC_PROFILE.OVERVIEW.TITLE' | translate }}</h3>
+                    <p-selectButton [options]="statsPeriodOptions" [(ngModel)]="statsPeriod"
+                      optionLabel="label" optionValue="value"
+                      (ngModelChange)="onPeriodChange()"></p-selectButton>
+                  </div>
+                  <div class="grid">
+                    @for (metric of overview.metrics; track metric.name) {
+                      <div class="col-6 md:col-3 text-center py-2 overview-metric-col">
+                        <span class="text-xl font-bold block" style="color: var(--p-primary-color)">
+                          {{ formatMetric(metric.value) }}
+                        </span>
+                        <span class="text-sm text-color-secondary flex align-items-center justify-content-center gap-1">
+                          {{ 'PUBLIC_PROFILE.OVERVIEW.' + metric.name.toUpperCase() | translate }}
+                          <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.OVERVIEW.' + metric.name.toUpperCase() + '_HINT' | translate" tooltipPosition="top"></i>
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Recent Posts -->
+              @if (recentPosts.length > 0 || loadingPosts) {
+                <div class="mb-4">
+                  <h3 class="section-title">{{ 'PUBLIC_PROFILE.POSTS.TITLE' | translate }}</h3>
+                  @if (loadingPosts) {
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                      @for (i of [1,2,3,4,5,6]; track i) {
+                        <div class="post-skeleton">
+                          <div class="bg-gray-100 border-round" style="width: 180px; height: 180px;"></div>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                      @for (post of recentPosts; track post.id) {
+                        <a [href]="post.permalink" target="_blank" class="post-card no-underline">
+                          <div class="post-thumbnail">
+                            <img [src]="post.mediaType === 'VIDEO' ? post.thumbnailUrl : post.mediaUrl"
+                              [alt]="'Instagram post'" class="post-image">
+                            @if (post.mediaType === 'VIDEO') {
+                              <div class="video-indicator">
+                                <i class="pi pi-play-circle"></i>
+                              </div>
+                            }
+                          </div>
+                          <div class="post-insights">
+                            <div class="insight-item">
+                              <i class="pi pi-heart text-pink-500"></i>
+                              <span>{{ formatMetric(getInsightValue(post, 'likes')) }}</span>
+                            </div>
+                            <div class="insight-item">
+                              <i class="pi pi-comment text-blue-500"></i>
+                              <span>{{ formatMetric(getInsightValue(post, 'comments')) }}</span>
+                            </div>
+                            <div class="insight-item">
+                              <i class="pi pi-eye text-purple-500"></i>
+                              <span>{{ formatMetric(getInsightValue(post, 'reach')) }}</span>
+                            </div>
+                          </div>
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="mt-4 mb-4">
+                <app-profile-calendar [bloggerId]="blogger.id" [isOwnProfile]="false"></app-profile-calendar>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- ═══════════ STATISTICS ═══════════ -->
+          <p-tabpanel value="1">
+            <div class="flex align-items-center justify-content-between mt-3 mb-4">
+              <p-selectButton [options]="statsSubTabs" [(ngModel)]="statsSubTab"
+                optionLabel="label" optionValue="value"></p-selectButton>
+              <p-selectButton [options]="statsPeriodOptions" [(ngModel)]="statsPeriod"
+                optionLabel="label" optionValue="value"
+                (ngModelChange)="onPeriodChange()"></p-selectButton>
+            </div>
+
+            @if (loadingAnalytics || loadingStatistics) {
+              <div class="flex justify-content-center py-5">
+                <p-progressSpinner [style]="{ width: '2rem', height: '2rem' }"></p-progressSpinner>
+              </div>
+            } @else {
+
+            <!-- AUDIENCE: demographics only -->
+              @if (statsSubTab === 'audience') {
+
+                <!-- Summary callout row -->
+                @if (topAgeGroup || topGender || topCountry || blogger.audienceTopAgeGroup || blogger.audienceTopGender || blogger.audienceTopCountry) {
+                  <div class="audience-summary-row mb-4">
+                    @if (topCountry || blogger.audienceTopCountry) {
+                      <div class="audience-stat">
+                        <i class="pi pi-map-marker audience-stat-icon text-orange-500"></i>
+                        <div>
+                          <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_LOCATION' | translate }}</span>
+                          <span class="audience-stat-value">
+                            {{ topCountry || blogger.audienceTopCountry }}
+                            @if (topCountryPct || blogger.audienceTopCountryPercentage) {
+                              <span class="audience-stat-pct">{{ formatPercent(topCountryPct || blogger.audienceTopCountryPercentage) }}</span>
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    }
+                    @if (topAgeGroup || blogger.audienceTopAgeGroup) {
+                      <div class="audience-stat">
+                        <i class="pi pi-users audience-stat-icon text-blue-500"></i>
+                        <div>
+                          <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.TOP_AGE' | translate }}</span>
+                          <span class="audience-stat-value">{{ topAgeGroup || blogger.audienceTopAgeGroup }}</span>
+                        </div>
+                      </div>
+                    }
+                    @if (topGender || blogger.audienceTopGender) {
+                      <div class="audience-stat">
+                        <i class="pi pi-heart audience-stat-icon text-pink-500"></i>
+                        <div>
+                          <span class="audience-stat-label">{{ 'PROFILE.AUDIENCE_SUMMARY.DOMINANT_GENDER' | translate }}</span>
+                          <span class="audience-stat-value">
+                            {{ (topGender || blogger.audienceTopGender) | titlecase }}
+                            @if (topGenderPct || blogger.audienceTopGenderPercentage) {
+                              <span class="audience-stat-pct">{{ formatPercent(topGenderPct || blogger.audienceTopGenderPercentage) }}</span>
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Location -->
+                <div class="analytics-card mb-4">
+                  <div class="flex align-items-center justify-content-between mb-3">
+                    <span class="font-semibold flex align-items-center gap-2">
+                      <i class="pi pi-map-marker text-orange-500"></i>
+                      {{ 'PUBLIC_PROFILE.STATISTICS.TOP_LOCATIONS' | translate }}
+                    </span>
+                    <p-selectButton [options]="locationModes" [(ngModel)]="locationMode"
+                      optionLabel="label" optionValue="value"
+                      styleClass="location-toggle"></p-selectButton>
+                  </div>
+                  @if (location.labels.length > 0) {
+                    <app-analytics-chart
+                      title=""
+                      type="bar"
+                      [labels]="location.labels"
+                      [values]="location.values"
+                      colorMode="saturation"
+                      baseColor="#FFA726">
+                    </app-analytics-chart>
+                  } @else {
+                    <div class="audience-empty">
+                      <i class="pi pi-map text-3xl text-color-secondary mb-2"></i>
+                      <p class="text-color-secondary m-0">{{ 'PUBLIC_PROFILE.STATISTICS.NO_LOCATION_DATA' | translate }}</p>
+                    </div>
+                  }
+                </div>
+
+                <!-- Age & Gender side-by-side -->
+                <div class="grid">
+                  <div class="col-12 lg:col-7">
+                    <div class="analytics-card mb-4 h-full">
+                      <span class="font-semibold flex align-items-center gap-2 mb-3">
+                        <i class="pi pi-users text-blue-500"></i>
+                        {{ 'PROFILE.ANALYTICS.AGE' | translate }}
+                      </span>
+                      @if (age.labels.length > 0) {
+                        <app-analytics-chart
+                          title=""
+                          type="bar"
+                          [labels]="age.labels"
+                          [values]="age.values"
+                          colorMode="saturation"
+                          baseColor="#42A5F5">
+                        </app-analytics-chart>
+                      } @else {
+                        <div class="audience-empty">
+                          <i class="pi pi-chart-bar text-3xl text-color-secondary mb-2"></i>
+                          <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_AGE_DATA' | translate }}</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="col-12 lg:col-5">
+                    <div class="analytics-card mb-4 h-full">
+                      <span class="font-semibold flex align-items-center gap-2 mb-3">
+                        <i class="pi pi-heart text-pink-500"></i>
+                        {{ 'PROFILE.ANALYTICS.GENDER' | translate }}
+                      </span>
+                      @if (gender.labels.length > 0) {
+                        <app-analytics-chart
+                          title=""
+                          [labels]="gender.labels"
+                          [values]="gender.values"
+                          [colorMapping]="genderColorMapping"
+                          [maxPieSegments]="100">
+                        </app-analytics-chart>
+                      } @else {
+                        <div class="audience-empty">
+                          <i class="pi pi-chart-pie text-3xl text-color-secondary mb-2"></i>
+                          <p class="text-color-secondary m-0">{{ 'PROFILE.ANALYTICS.NO_GENDER_DATA' | translate }}</p>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+
+              <!-- ENGAGEMENT: performance metrics + interaction -->
+              @if (statsSubTab === 'engagement') {
+                <div class="grid">
+                <div class="col-12 lg:col-7">
+                  @if (engagement) {
+                    <div class="card-style mb-4" style="box-shadow: none; background: var(--surface-50);">
+                      <h3 class="section-title">{{ 'PUBLIC_PROFILE.STATISTICS.ENGAGEMENT_RATES' | translate }}</h3>
+                      <div class="metric-table">
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PUBLIC_PROFILE.PERFORMANCE.ENGAGEMENT_RATE' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.ENGAGEMENT_RATE_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="engagement.engagementRate !== null" [severity]="getMetricStatusColor(getErStatus(engagement.engagementRate))" [value]="getMetricStatusLabel(getErStatus(engagement.engagementRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            {{ formatPercent(engagement.engagementRate) }}
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PUBLIC_PROFILE.PERFORMANCE.REACH_RATE' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.REACH_RATE_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="engagement.reachRate !== null" [severity]="getMetricStatusColor(getRrStatus(engagement.reachRate))" [value]="getMetricStatusLabel(getRrStatus(engagement.reachRate)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            {{ formatPercent(engagement.reachRate) }}
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PUBLIC_PROFILE.PERFORMANCE.ER_REACH' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.ER_REACH_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="engagement.erReach !== null" [severity]="getMetricStatusColor(getErReachStatus(engagement.erReach))" [value]="getMetricStatusLabel(getErReachStatus(engagement.erReach)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            {{ formatPercent(engagement.erReach) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (interaction) {
+                    <div class="card-style mb-4" style="box-shadow: none; background: var(--surface-50);">
+                      <h3 class="section-title">{{ 'PUBLIC_PROFILE.STATISTICS.INTERACTIONS' | translate }}</h3>
+                      <div class="metric-table">
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PUBLIC_PROFILE.PERFORMANCE.AVG_LIKES' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.AVG_LIKES_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            {{ formatMetric(interaction.averageLikes) }}
+                            <i class="pi pi-heart text-pink-400" style="font-size: 0.8rem"></i>
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PUBLIC_PROFILE.PERFORMANCE.AVG_COMMENTS' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.AVG_COMMENTS_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            {{ formatMetric(interaction.averageComments) }}
+                            <i class="pi pi-comment text-blue-400" style="font-size: 0.8rem"></i>
+                          </span>
+                        </div>
+                        <div class="metric-row">
+                          <span class="text-color-secondary flex align-items-center gap-1">
+                            {{ 'PUBLIC_PROFILE.PERFORMANCE.CPE' | translate }}
+                            <i class="pi pi-info-circle text-xs cursor-help" [pTooltip]="'PUBLIC_PROFILE.PERFORMANCE.CPE_HINT' | translate" tooltipPosition="top"></i>
+                          </span>
+                          <span class="font-bold flex align-items-center gap-2">
+                            <p-tag *ngIf="interaction.cpe !== null" [severity]="getMetricStatusColor(getCpeStatus(interaction.cpe))" [value]="getMetricStatusLabel(getCpeStatus(interaction.cpe)) | translate" styleClass="text-xs px-2 py-0 border-round"></p-tag>
+                            ~{{ interaction.cpe | number:'1.2-2' }} $
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="col-12 lg:col-5">
+                  @if (reach.labels.length > 0) {
+                    <div class="analytics-card mb-4 h-full">
+                      <app-analytics-chart
+                        title="Reach Distribution"
+                        [labels]="reach.labels"
+                        [values]="reach.values"
+                        [colorMapping]="reachColorMapping"
+                        [maxPieSegments]="100">
+                      </app-analytics-chart>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @if (!engagement && !interaction && reach.labels.length === 0) {
+                <div class="text-center py-5">
+                  <i class="pi pi-chart-bar text-4xl text-gray-300 mb-2"></i>
+                  <p class="text-color-secondary m-0">{{ 'PUBLIC_PROFILE.ENGAGEMENT_EMPTY' | translate }}</p>
+                </div>
+              }
+              }
+            }
+          </p-tabpanel>
+
+          <!-- ═══════════ REVIEWS ═══════════ -->
+          <p-tabpanel value="2">
+            @if (loadingReviews) {
+              <div class="flex justify-content-center py-5">
+                <p-progressSpinner [style]="{ width: '2rem', height: '2rem' }"></p-progressSpinner>
+              </div>
+            } @else if (reviews.length === 0) {
+              <div class="text-center py-6">
+                <i class="pi pi-star text-4xl text-gray-300 mb-2"></i>
+                <p class="text-color-secondary m-0">{{ 'PUBLIC_PROFILE.REVIEWS.EMPTY' | translate }}</p>
+              </div>
+            } @else {
+              <div class="flex flex-column gap-3 mt-3">
+                @for (review of reviews; track review.id) {
+                  <div class="review-card">
+                    <div class="flex align-items-center gap-2 mb-2">
+                      <div class="flex gap-1">
+                        @for (star of getRatingArray(review.rating); track $index) {
+                          <i class="pi"
+                             [class.pi-star-fill]="star"
+                             [class.pi-star]="!star"
+                             [class.text-yellow-500]="star"
+                             [class.text-gray-300]="!star"
+                             style="font-size: 0.85rem"></i>
+                        }
+                      </div>
+                      <span class="font-semibold text-sm ml-1">{{ review.rating }}/5</span>
+                      <span class="text-sm text-color-secondary ml-auto">
+                        {{ review.createdOnUtc | date:'MMM d, yyyy' }}
+                      </span>
+                    </div>
+                    <p class="m-0 line-height-3 text-sm">{{ review.comment }}</p>
+                  </div>
+                }
+              </div>
+            }
+          </p-tabpanel>
+
+          <!-- ═══════════ COOPERATION ═══════════ -->
+          <p-tabpanel value="3">
+            <div class="mt-3">
+              <!-- Bio -->
+              @if (blogger.bio) {
+                <div class="mb-4">
+                  <h3 class="section-title">{{ 'PUBLIC_PROFILE.CAMPAIGN.ABOUT' | translate }}</h3>
+                  <p class="line-height-3 text-color-secondary m-0">{{ blogger.bio }}</p>
+                </div>
+              }
+
+              <!-- Pact -->
+              @if (pact?.content) {
+                <div class="mb-4">
+                  <p-accordion>
+                    <p-accordion-panel value="0">
+                      <p-accordion-header>
+                        <span class="flex align-items-center gap-2">
+                          <i class="pi pi-file-edit text-primary"></i>
+                          <span class="font-semibold">{{ 'PUBLIC_PROFILE.CAMPAIGN.PACT_LABEL' | translate }}</span>
+                        </span>
+                      </p-accordion-header>
+                      <p-accordion-content>
+                        <div class="pact-content" [innerHTML]="getPactContent()"></div>
+                      </p-accordion-content>
+                    </p-accordion-panel>
+                  </p-accordion>
+                </div>
+              }
+
+              <!-- Offers -->
+              @if (loadingOffers) {
+                <div class="flex justify-content-center py-4">
+                  <p-progressSpinner [style]="{ width: '2rem', height: '2rem' }"></p-progressSpinner>
+                </div>
+              } @else if (offers.length === 0) {
+                <div class="text-center py-5">
+                  <i class="pi pi-briefcase text-4xl text-gray-300 mb-2"></i>
+                  <p class="text-color-secondary m-0">{{ 'PUBLIC_PROFILE.CAMPAIGN.NO_OFFERS' | translate }}</p>
+                </div>
+              } @else {
+                <div>
+                  <h3 class="section-title">{{ 'PUBLIC_PROFILE.CAMPAIGN.SERVICES' | translate }}</h3>
+                  <div class="flex flex-column gap-3">
+                    @for (offer of offers; track offer.id) {
+                      <div class="offer-card">
+                        <div class="offer-card-header">
+                          <div class="flex align-items-center gap-2 flex-grow-1 min-w-0">
+                            <span class="offer-format-icon">
+                              <i [class]="getFormatIcon(offer.format)"></i>
+                            </span>
+                            <div class="min-w-0">
+                              <span class="font-semibold block offer-name">{{ offer.name }}</span>
+                              @if (offer.format) {
+                                <span class="text-xs text-color-secondary">{{ offer.format }}</span>
+                              }
+                            </div>
+                          </div>
+                          <div class="flex align-items-center gap-3 flex-shrink-0">
+                            <span class="offer-price">
+                              {{ formatPrice(offer.priceAmount) }} {{ offer.priceCurrency }}
+                            </span>
+                            <p-button
+                              label="Start"
+                              icon="pi pi-send"
+                              iconPos="right"
+                              size="small"
+                              styleClass="p-button-rounded"
+                              (onClick)="openProposeDialog(offer.id, offer.name)">
+                            </p-button>
+                          </div>
+                        </div>
+
+                        @if (offer.description) {
+                          <p class="offer-description">{{ offer.description }}</p>
+                        }
+
+                        @if (offer.deliverableTemplates && offer.deliverableTemplates.length > 0) {
+                          <div class="offer-deliverables">
+                            @for (tpl of offer.deliverableTemplates; track $index) {
+                              <div class="deliverable-item">
+                                <i class="pi pi-check-circle text-primary text-xs"></i>
+                                <span class="text-sm">{{ tpl.description || tpl.format }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </p-tabpanel>
+
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </div>
+} @else {
+  @if (loading) {
+    <div class="flex justify-content-center align-items-center h-20rem text-color-secondary">
+      {{ 'PUBLIC_PROFILE.LOADING' | translate }}
+    </div>
+  }
+  @if (error) {
+    <div class="text-center p-5">
+      <i class="pi pi-exclamation-circle text-4xl text-red-500 mb-3"></i>
+      <p class="text-xl font-bold text-gray-700">{{ error }}</p>
+      <p-button [label]="'PUBLIC_PROFILE.GO_BACK' | translate" routerLink="/"></p-button>
+    </div>
+  }
+}
+
+<app-propose-campaign [(visible)]="showProposeDialog"
+  [offerId]="selectedOfferId" [offerName]="selectedOfferName">
 </app-propose-campaign>
-
-<ng-template #loadingState>
-    <div *ngIf="loading" class="flex justify-content-center align-items-center h-20rem text-color-secondary">
-        Loading profile...
-    </div>
-    <div class="text-center p-5" *ngIf="error">
-        <i class="pi pi-exclamation-circle text-4xl text-red-500 mb-3"></i>
-        <p class="text-xl font-bold text-gray-700">{{ error }}</p>
-        <p-button label="Go Back" routerLink="/" styleClass="mt-3"></p-button>
-    </div>
-</ng-template>

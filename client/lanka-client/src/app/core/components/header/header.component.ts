@@ -15,6 +15,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ThemeService } from '../../services/theme/theme.service';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-header',
@@ -27,7 +30,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     InputTextModule,
     TranslateModule,
     LanguageSwitcherComponent,
-    RouterLink
+    RouterLink,
+    ButtonModule,
+    TooltipModule
 ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
@@ -37,6 +42,7 @@ export class HeaderComponent implements OnInit {
   public profile$: Observable<IBloggerProfile>;
   public userMenuItems: MenuItem[] = [];
   public headerSearchQuery = '';
+  public readonly theme = inject(ThemeService);
 
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);

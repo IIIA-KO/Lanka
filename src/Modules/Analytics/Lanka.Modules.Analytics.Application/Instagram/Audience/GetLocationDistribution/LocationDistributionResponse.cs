@@ -13,7 +13,7 @@ public sealed class LocationDistributionResponse
         return new LocationDistributionResponse
         {
             LocationType = locationDistribution.LocationType.ToString(),
-            LocationPercentages = locationDistribution.TopLocationPercentages,
+            LocationPercentages = locationDistribution.TopLocationPercentages.OrderByDescending(x => x.Percentage).Take(5).ToArray(),
         };
     }
 }

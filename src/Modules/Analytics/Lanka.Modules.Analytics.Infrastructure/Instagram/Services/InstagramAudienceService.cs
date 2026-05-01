@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using Lanka.Common.Domain;
 using Lanka.Modules.Analytics.Application.Abstractions.Instagram;
@@ -70,6 +69,7 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
                 period: "lifetime",
                 metricType: "total_value",
                 breakdown: "age",
+                timeframe: "this_month",
                 accessToken: accessToken,
                 cancellationToken
             );
@@ -135,6 +135,7 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
                 period: "lifetime",
                 metricType: "total_value",
                 breakdown: "gender",
+                timeframe: "this_month",
                 accessToken: accessToken,
                 cancellationToken
             );
@@ -161,7 +162,7 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
 
             await this._genderDistributionRepository.ReplaceAsync(genderDistribution, cancellationToken);
 
-            return validData;
+            return genderDistribution;
         }
         catch
         {
@@ -210,6 +211,7 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
                 period: "lifetime",
                 metricType: "total_value",
                 breakdown: locationType == LocationType.City ? "city" : "country",
+                timeframe: "this_month",
                 accessToken: accessToken,
                 cancellationToken
             );
@@ -289,8 +291,8 @@ internal sealed class InstagramAudienceService : IInstagramAudienceService
                 instagramAccount.Metadata.Id,
                 metric: "reach",
                 period: "day",
-                since: dateRange.Since.ToString(CultureInfo.InvariantCulture),
-                until: dateRange.Until.ToString(CultureInfo.InvariantCulture),
+                since: dateRange.SinceUnix,
+                until: dateRange.UntilUnix,
                 breakdown: "follow_type",
                 metricType: "total_value",
                 accessToken: accessToken,

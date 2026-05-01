@@ -3,6 +3,7 @@ using Lanka.Common.Application.Messaging;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.IntegrationEvents;
+using Lanka.Modules.Campaigns.Application.Abstractions.Campaigns;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Abstractions.Photos;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
@@ -94,6 +95,8 @@ public static class CampaignsModule
         services.AddScoped<IReviewRepository, ReviewRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CampaignsDbContext>());
+
+        services.AddScoped<ICampaignSeedingService, CampaignSeedingService>();
     }
 
     private static void AddOutbox(IServiceCollection services, IConfiguration configuration)

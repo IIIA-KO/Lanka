@@ -15,6 +15,7 @@ import { SearchService, ISearchState, IBloggerFilters } from '../../core/service
 import { ISearchResult } from '../../core/api/search.agent';
 import { BloggersAgent } from '../../core/api/bloggers.agent';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ThemeService } from '../../core/services/theme/theme.service';
 
 interface SelectOption {
   label: string;
@@ -22,16 +23,16 @@ interface SelectOption {
 }
 
 // Deterministic category color palette — pastel bg + dark text pairs
-const CATEGORY_COLORS: { bg: string; color: string }[] = [
-  { bg: '#dbeafe', color: '#1d4ed8' }, // blue
-  { bg: '#dcfce7', color: '#166534' }, // green
-  { bg: '#ede9fe', color: '#6d28d9' }, // purple
-  { bg: '#ffedd5', color: '#9a3412' }, // orange
-  { bg: '#fce7f3', color: '#9d174d' }, // pink
-  { bg: '#fef9c3', color: '#854d0e' }, // yellow
-  { bg: '#ccfbf1', color: '#0f766e' }, // teal
-  { bg: '#fee2e2', color: '#991b1b' }, // red
-  { bg: '#e0e7ff', color: '#3730a3' }, // indigo
+const CATEGORY_COLORS: { bg: string; color: string; darkBg: string; darkColor: string }[] = [
+  { bg: '#dbeafe', color: '#1d4ed8', darkBg: 'rgba(29, 78, 216, 0.2)', darkColor: '#93c5fd' }, // blue
+  { bg: '#dcfce7', color: '#166534', darkBg: 'rgba(22, 101, 52, 0.2)', darkColor: '#86efac' }, // green
+  { bg: '#ede9fe', color: '#6d28d9', darkBg: 'rgba(109, 40, 217, 0.2)', darkColor: '#c4b5fd' }, // purple
+  { bg: '#ffedd5', color: '#9a3412', darkBg: 'rgba(154, 52, 18, 0.2)', darkColor: '#fdba74' }, // orange
+  { bg: '#fce7f3', color: '#9d174d', darkBg: 'rgba(157, 23, 77, 0.2)', darkColor: '#f9a8d4' }, // pink
+  { bg: '#fef9c3', color: '#854d0e', darkBg: 'rgba(133, 77, 14, 0.2)', darkColor: '#fde047' }, // yellow
+  { bg: '#ccfbf1', color: '#0f766e', darkBg: 'rgba(15, 118, 110, 0.2)', darkColor: '#5eead4' }, // teal
+  { bg: '#fee2e2', color: '#991b1b', darkBg: 'rgba(153, 27, 27, 0.2)', darkColor: '#fca5a5' }, // red
+  { bg: '#e0e7ff', color: '#3730a3', darkBg: 'rgba(55, 48, 163, 0.2)', darkColor: '#a5b4fc' }, // indigo
 ];
 
 // Deterministic avatar color palette (teal-ish to match the theme)
@@ -110,6 +111,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
   private readonly translate = inject(TranslateService);
+  private readonly themeService = inject(ThemeService);
+  private lastSimilarSourceId: string | null = null;
 
   public get hasActiveSearch(): boolean {
     return this.searchQuery.trim().length > 0 || this.activeFilterCount > 0;
@@ -307,7 +310,11 @@ export class SearchComponent implements OnInit, OnDestroy {
     for (let i = 0; i < category.length; i++) {
       hash = category.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const { bg, color } = CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
+    const { bg, color, darkBg, darkColor } = CATEGORY_COLORS[Math.abs(hash) % CATEGORY_COLORS.length];
+    
+    if (this.themeService.isDark()) {
+      return { background: darkBg, color: darkColor };
+    }
     return { background: bg, color };
   }
 
@@ -367,7 +374,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (this.selectedCountry) filters.audienceCountry = this.selectedCountry;
     if (this.selectedGender) filters.audienceGender = this.selectedGender;
     if (this.selectedAgeGroup) filters.audienceAgeGroup = this.selectedAgeGroup;
-
     // Always sync the query text to the service state
     this.searchService.search(this.searchQuery.trim());
     this.searchService.setFilters(filters);
@@ -396,8 +402,6 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.loadSimilarResults(state);
       });
   }
-
-  private lastSimilarSourceId: string | null = null;
 
   private loadSimilarResults(state: ISearchState): void {
     const results = state.results?.results;

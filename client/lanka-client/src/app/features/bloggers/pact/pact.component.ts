@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { catchError, of, switchMap, map, Observable } from 'rxjs';
+import { catchError, of, switchMap, map, Observable, Subject, takeUntil } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 // PrimeNG Modules
@@ -45,7 +45,7 @@ import { MarkdownService } from '../../../core/services/markdown.service';
   templateUrl: './pact.component.html',
   styleUrls: ['./pact.component.css']
 })
-export class PactComponent implements OnInit {
+export class PactComponent implements OnInit, OnDestroy {
   public pact: IPact | null = null;
   public pactForm!: FormGroup;
   public loading = false;
@@ -65,10 +65,16 @@ export class PactComponent implements OnInit {
   private readonly snackbarService = inject(SnackbarService);
   private readonly markdownService = inject(MarkdownService);
   private bloggerId: string | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   public ngOnInit(): void {
     this.initializeForm();
     this.loadPact();
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   public loadPact(): void {
@@ -76,6 +82,7 @@ export class PactComponent implements OnInit {
     this.error = null; // Clear any previous errors
     
     this.ensureBloggerId().pipe(
+      takeUntil(this.destroy$),
       switchMap((bloggerId) => {
         if (!bloggerId) {
           return of(null);
@@ -140,8 +147,8 @@ export class PactComponent implements OnInit {
         };
         
         this.pactsAgent.editPact(request).pipe(
+          takeUntil(this.destroy$),
           catchError(() => {
-            // Let the error interceptor handle the user notification
             return of(null);
           })
         ).subscribe({
@@ -163,8 +170,8 @@ export class PactComponent implements OnInit {
         };
         
         this.pactsAgent.createPact(request).pipe(
+          takeUntil(this.destroy$),
           catchError(() => {
-            // Let the error interceptor handle the user notification
             return of(null);
           })
         ).subscribe({

@@ -19,11 +19,13 @@ internal sealed class GetBloggerCampaigns : CampaignsEndpointBase
         return app.MapGet(this.BuildRoute("bloggers/{bloggerId:guid}"),
                 async (
                     [FromRoute] Guid bloggerId,
+                    [FromQuery] DateTime? startDate,
+                    [FromQuery] DateTime? endDate,
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
                     Result<IReadOnlyList<CampaignResponse>> result = await sender.Send(
-                        new GetBloggerCampaignsQuery(bloggerId),
+                        new GetBloggerCampaignsQuery(bloggerId, startDate, endDate),
                         cancellationToken
                     );
 

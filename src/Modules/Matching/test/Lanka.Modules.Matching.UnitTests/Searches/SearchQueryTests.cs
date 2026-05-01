@@ -20,6 +20,7 @@ public class SearchQueryTests : BaseTest
             SearchQueryData.ItemTypes,
             SearchQueryData.NumericFilters,
             SearchQueryData.FacetFilters,
+            null,
             SearchQueryData.CreatedAfter,
             SearchQueryData.CreatedBefore,
             true,

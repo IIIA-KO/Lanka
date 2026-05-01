@@ -12,6 +12,7 @@ internal interface IInstagramAudienceApi
         [Query] string period,
         [AliasAs("metric_type")] string metricType,
         [Query] string breakdown,
+        [Query] string timeframe,
         [AliasAs("access_token")] string accessToken,
         CancellationToken cancellationToken = default
     );
