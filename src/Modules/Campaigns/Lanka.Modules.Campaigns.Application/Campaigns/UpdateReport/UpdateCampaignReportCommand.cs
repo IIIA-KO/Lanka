@@ -1,8 +1,8 @@
 using Lanka.Common.Application.Messaging;
 
-namespace Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;
+namespace Lanka.Modules.Campaigns.Application.Campaigns.UpdateReport;
 
-public sealed record MarkCampaignAsDoneCommand(
+public sealed record UpdateCampaignReportCommand(
     Guid CampaignId,
     string ContentDelivered,
     string Approach,

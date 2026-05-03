@@ -51,6 +51,8 @@ public class Campaign : Entity<CampaignId>, IChangeCaptured
 
     public DateTimeOffset? CompletedOnUtc { get; private set; }
 
+    public Report? Report { get; private set; }
+
     private Campaign() { }
 
     private Campaign(
@@ -166,7 +168,7 @@ public class Campaign : Entity<CampaignId>, IChangeCaptured
         return Result.Success();
     }
 
-    public Result MarkAsDone(DateTimeOffset utcNow)
+    public Result MarkAsDone(Report report, DateTimeOffset utcNow)
     {
         if (this.Status != CampaignStatus.Confirmed)
         {
@@ -175,8 +177,21 @@ public class Campaign : Entity<CampaignId>, IChangeCaptured
 
         this.Status = CampaignStatus.Done;
         this.DoneOnUtc = utcNow;
+        this.Report = report;
 
         this.RaiseDomainEvent(new CampaignMarkedAsDoneDomainEvent(this.Id));
+
+        return Result.Success();
+    }
+
+    public Result UpdateReport(Report report)
+    {
+        if (this.Status != CampaignStatus.Done)
+        {
+            return Result.Failure(CampaignErrors.NotDone);
+        }
+
+        this.Report = report;
 
         return Result.Success();
     }

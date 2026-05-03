@@ -5,17 +5,17 @@ using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 
-namespace Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;
+namespace Lanka.Modules.Campaigns.Application.Campaigns.UpdateReport;
 
-internal sealed class MarkCampaignAsDoneCommandHandler
-    : ICommandHandler<MarkCampaignAsDoneCommand>
+internal sealed class UpdateCampaignReportCommandHandler
+    : ICommandHandler<UpdateCampaignReportCommand>
 {
     private readonly ICampaignRepository _campaignRepository;
     private readonly IUserContext _userContext;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
-    public MarkCampaignAsDoneCommandHandler(
+    public UpdateCampaignReportCommandHandler(
         ICampaignRepository campaignRepository,
         IUserContext userContext,
         IDateTimeProvider dateTimeProvider,
@@ -28,7 +28,7 @@ internal sealed class MarkCampaignAsDoneCommandHandler
         this._unitOfWork = unitOfWork;
     }
 
-    public async Task<Result> Handle(MarkCampaignAsDoneCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateCampaignReportCommand request, CancellationToken cancellationToken)
     {
         Campaign? campaign = await this._campaignRepository.GetByIdAsync(
             new CampaignId(request.CampaignId),
@@ -53,15 +53,15 @@ internal sealed class MarkCampaignAsDoneCommandHandler
             this._dateTimeProvider.UtcNow
         );
 
-        Result result = campaign.MarkAsDone(report, this._dateTimeProvider.UtcNow);
+        Result result = campaign.UpdateReport(report);
 
         if (result.IsFailure)
         {
             return result;
         }
-            
+
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
-            
+
         return Result.Success();
     }
 }
