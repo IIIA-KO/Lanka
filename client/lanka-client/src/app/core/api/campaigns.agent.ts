@@ -13,6 +13,21 @@ import {
 
 const BASE_URL = environment.apiUrl;
 
+export interface ILiqPayCheckoutResponse {
+  data: string;
+  signature: string;
+}
+
+export interface IPaymentStatus {
+  id: string;
+  campaignId: string;
+  amount: number;
+  currency: string;
+  status: 'Pending' | 'Completed' | 'Failed';
+  createdAtUtc: string;
+  paidAtUtc?: string;
+}
+
 interface ICampaignApiResponse {
   id: string;
   status: string;
@@ -150,6 +165,18 @@ export class CampaignsAgent {
   public createReview(request: ICreateReviewRequest): Observable<string> {
     return this.http
       .post<string>(`${BASE_URL}/reviews`, request)
+      .pipe(catchError(this.handleError));
+  }
+
+  public initiatePayment(campaignId: string): Observable<ILiqPayCheckoutResponse> {
+    return this.http
+      .post<ILiqPayCheckoutResponse>(`${BASE_URL}/campaigns/${campaignId}/payment/initiate`, {})
+      .pipe(catchError(this.handleError));
+  }
+
+  public getPayment(campaignId: string): Observable<IPaymentStatus> {
+    return this.http
+      .get<IPaymentStatus>(`${BASE_URL}/campaigns/${campaignId}/payment`)
       .pipe(catchError(this.handleError));
   }
 

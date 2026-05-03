@@ -817,7 +817,17 @@
     "ERROR": "Не вдалося завантажити ваші кампанії. Спробуйте ще раз.",
     "ERROR_USER": "Не вдалося визначити поточний профіль користувача.",
     "ROLE_CREATOR": "Автор",
-    "ROLE_CLIENT": "Клієнт"
+    "ROLE_CLIENT": "Клієнт",
+    "PAYMENT": {
+      "TITLE": "Оплата",
+      "PAY_BTN": "Оплатити",
+      "STATUS_Pending": "Очікує",
+      "STATUS_Completed": "Оплачено",
+      "STATUS_Failed": "Помилка",
+      "PAID_AT": "Оплачено",
+      "SANDBOX_HINT": "Пісочниця — використовуйте тестові дані картки",
+      "ERROR_INITIATE": "Не вдалося ініціювати оплату"
+    }
   },
   "INSTAGRAM_STATUS": {
     "DEFAULT_TITLE": "Статус Instagram",

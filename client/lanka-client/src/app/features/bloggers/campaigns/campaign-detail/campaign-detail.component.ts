@@ -22,6 +22,7 @@ import { SnackbarService } from '../../../../core/services/snackbar/snackbar.ser
 import { ICampaign, ICampaignReport, IMarkCampaignAsDoneRequest, CampaignStatus } from '../../../../core/models/campaigns';
 import { ReportDialogComponent } from './report-dialog/report-dialog.component';
 import { CampaignReportComponent } from './campaign-report/campaign-report.component';
+import { PaymentComponent } from './payment/payment.component';
 
 @Component({
   standalone: true,
@@ -43,6 +44,7 @@ import { CampaignReportComponent } from './campaign-report/campaign-report.compo
     TooltipModule,
     ReportDialogComponent,
     CampaignReportComponent,
+    PaymentComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './campaign-detail.component.html',

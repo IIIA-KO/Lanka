@@ -817,7 +817,17 @@
     "ERROR": "We could not load your campaigns right now. Please try again shortly.",
     "ERROR_USER": "Unable to identify current user profile.",
     "ROLE_CREATOR": "Creator",
-    "ROLE_CLIENT": "Client"
+    "ROLE_CLIENT": "Client",
+    "PAYMENT": {
+      "TITLE": "Payment",
+      "PAY_BTN": "Pay Now",
+      "STATUS_Pending": "Pending",
+      "STATUS_Completed": "Paid",
+      "STATUS_Failed": "Failed",
+      "PAID_AT": "Paid at",
+      "SANDBOX_HINT": "Sandbox mode — use test card details",
+      "ERROR_INITIATE": "Failed to initiate payment"
+    }
   },
   "INSTAGRAM_STATUS": {
     "DEFAULT_TITLE": "Instagram status",
