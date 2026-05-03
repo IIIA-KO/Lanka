@@ -47,8 +47,8 @@ internal sealed class CampaignsChangeCaptureInterceptor : ChangeCaptureIntercept
                     { "PriceCurrency", c.Price.Currency.ToString() },
                     { "CreatorId", c.CreatorId.Value.ToString() },
                     { "ClientId", c.ClientId.Value.ToString() },
-                    { "ScheduledOnUtc", c.ScheduledOnUtc.ToString("o", System.Globalization.CultureInfo.InvariantCulture) },
-                    { "PendedOnUtc", c.PendedOnUtc.ToString("o", System.Globalization.CultureInfo.InvariantCulture) },
+                    { "ScheduledOnUtc", c.ScheduledOnUtc.ToString("o", CultureInfo.InvariantCulture) },
+                    { "PendedOnUtc", c.PendedOnUtc.ToString("o", CultureInfo.InvariantCulture) },
                 }),
 
             Offer o => new CapturedChangeData(

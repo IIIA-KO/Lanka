@@ -4,8 +4,10 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import {
   ICampaign,
+  ICampaignReport,
   ICreateCampaignRequest,
   ICreateReviewRequest,
+  IMarkCampaignAsDoneRequest,
   IPendCampaignRequest,
 } from '../models/campaigns';
 
@@ -78,9 +80,21 @@ export class CampaignsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  public markCampaignAsDone(id: string): Observable<void> {
+  public markCampaignAsDone(id: string, report: IMarkCampaignAsDoneRequest): Observable<void> {
     return this.http
-      .patch<void>(`${BASE_URL}/campaigns/${id}/done`, {})
+      .post<void>(`${BASE_URL}/campaigns/${id}/mark-as-done`, report)
+      .pipe(catchError(this.handleError));
+  }
+
+  public getCampaignReport(id: string): Observable<ICampaignReport> {
+    return this.http
+      .get<ICampaignReport>(`${BASE_URL}/campaigns/${id}/report`)
+      .pipe(catchError(this.handleError));
+  }
+
+  public updateCampaignReport(id: string, report: IMarkCampaignAsDoneRequest): Observable<void> {
+    return this.http
+      .put<void>(`${BASE_URL}/campaigns/${id}/report`, report)
       .pipe(catchError(this.handleError));
   }
 

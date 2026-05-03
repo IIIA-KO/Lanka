@@ -23,6 +23,16 @@
                 (onChange)="onViewModeChange()" />
             <p-selectbutton [options]="roleOptions" [(ngModel)]="roleFilter"
                 optionLabel="label" optionValue="value" />
+            @if (actionRequiredCampaigns.length > 0) {
+                <p-button
+                    icon="pi pi-bolt"
+                    [label]="actionRequiredCampaigns.length + ''"
+                    size="small"
+                    severity="warn"
+                    [outlined]="!actionRequiredOnly"
+                    [pTooltip]="'CAMPAIGNS.ACTION_REQUIRED.TITLE' | translate"
+                    (onClick)="actionRequiredOnly = !actionRequiredOnly" />
+            }
             <p-button icon="pi pi-refresh" [text]="true" severity="secondary" size="small"
                 (onClick)="loadCampaigns()" [loading]="loading"
                 [pTooltip]="'CAMPAIGNS.ACTIONS.REFRESH' | translate" />
@@ -33,49 +43,6 @@
     @if (error && !loading) {
         <div class="mb-4">
             <p-message severity="error" [text]="error"></p-message>
-        </div>
-    }
-
-    <!-- ── Action Required Banner ─────────────────────────────────────────── -->
-    @if (!loading && actionRequiredCampaigns.length > 0) {
-        <div class="action-banner">
-            <div class="action-banner-head">
-                <i class="pi pi-exclamation-circle" style="color:#f59e0b;font-size:0.9rem"></i>
-                <span class="font-semibold text-sm">{{ 'CAMPAIGNS.ACTION_REQUIRED.TITLE' | translate }}</span>
-                <span class="text-sm" style="color:var(--text-color-secondary)">
-                    {{ 'CAMPAIGNS.ACTION_REQUIRED.COUNT' | translate:{ count: actionRequiredCampaigns.length } }}
-                </span>
-            </div>
-            @for (item of actionRequiredCampaigns; track item.campaign.id) {
-                <div class="action-banner-item">
-                    <div style="flex:1;min-width:0">
-                        <div class="campaign-name-link font-semibold text-sm"
-                             role="button" tabindex="0"
-                             (click)="viewCampaign(item.campaign.id)"
-                             (keyup.enter)="viewCampaign(item.campaign.id)">{{ item.campaign.name }}</div>
-                        <div class="flex align-items-center gap-2 mt-1">
-                            <p-tag [value]="item.campaign.status"
-                                   [severity]="getStatusColor(item.campaign.status)"
-                                   [icon]="getStatusIcon(item.campaign.status)"
-                                   styleClass="text-xs" />
-                            <span class="text-xs" style="color:var(--text-color-secondary)">
-                                {{ item.campaign.scheduledOnUtc | date:'d MMM yyyy' }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        @for (action of item.actions; track action.value) {
-                            <p-button
-                                [label]="action.label"
-                                [icon]="action.icon"
-                                size="small"
-                                [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' ? 'success' : 'primary'"
-                                [outlined]="action.value === 'reject' || action.value === 'cancel'"
-                                (onClick)="onCampaignAction(action.value, item.campaign.id)" />
-                        }
-                    </div>
-                </div>
-            }
         </div>
     }
 
@@ -205,7 +172,7 @@
                                                 [label]="action.label"
                                                 [icon]="action.icon"
                                                 size="small"
-                                                [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' || action.value === 'review' ? 'success' : 'primary'"
+                                                [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : 'primary'"
                                                 [outlined]="action.value === 'reject' || action.value === 'cancel'"
                                                 (onClick)="onCampaignAction(action.value, campaign.id)" />
                                         }
@@ -273,122 +240,124 @@
     <!-- ── List View ──────────────────────────────────────────────────────── -->
     @if (!loading && !error && viewMode === 'list') {
         <div class="list-filter-bar">
-            <div class="p-inputgroup" style="max-width:280px">
-                <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
-                <input pInputText type="text"
-                    [placeholder]="'CAMPAIGNS.LIST.SEARCH_PLACEHOLDER' | translate"
-                    [(ngModel)]="nameFilter"
-                    (ngModelChange)="onNameFilterChange($event)" />
-            </div>
-            <p-multiselect [options]="statusOptions" [(ngModel)]="statusFilter"
-                optionLabel="label" optionValue="value"
-                [placeholder]="'CAMPAIGNS.LIST.STATUS_FILTER' | translate"
-                [style]="{'min-width':'200px'}"
-                (ngModelChange)="onStatusFilterChange($event)" />
-        </div>
+                    <div style="position:relative;max-width:280px">
+                        <i class="pi pi-search" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-color-secondary);pointer-events:none;z-index:1;font-size:0.85rem"></i>
+                        <input pInputText type="text"
+                            style="padding-left:2.25rem;width:100%"
+                            [placeholder]="'CAMPAIGNS.LIST.SEARCH_PLACEHOLDER' | translate"
+                            [(ngModel)]="nameFilter"
+                            (ngModelChange)="onNameFilterChange($event)" />
+                    </div>
+                    <p-multiselect [options]="statusOptions" [(ngModel)]="statusFilter"
+                        optionLabel="label" optionValue="value"
+                        [filter]="false"
+                        [placeholder]="'CAMPAIGNS.LIST.STATUS_FILTER' | translate"
+                        [style]="{'min-width':'200px'}"
+                        (ngModelChange)="onStatusFilterChange($event)" />
+                </div>
 
-        <p-table [value]="pagedListCampaigns"
-                 [sortField]="'scheduledOnUtc'" [sortOrder]="-1"
-                 styleClass="p-datatable-sm"
-                 [tableStyle]="{'min-width':'700px'}"
-                 [paginator]="false">
+                <p-table [value]="pagedListCampaigns"
+                         [sortField]="'scheduledOnUtc'" [sortOrder]="-1"
+                         styleClass="p-datatable-sm"
+                         [tableStyle]="{'min-width':'700px'}"
+                         [paginator]="false">
 
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="scheduledOnUtc" style="width:130px">
-                        {{ 'CAMPAIGNS.LIST.COL_DATE' | translate }} <p-sortIcon field="scheduledOnUtc" />
-                    </th>
-                    <th pSortableColumn="name">
-                        {{ 'CAMPAIGNS.LIST.COL_CAMPAIGN' | translate }} <p-sortIcon field="name" />
-                    </th>
-                    <th style="width:100px">{{ 'CAMPAIGNS.LIST.COL_ROLE' | translate }}</th>
-                    <th pSortableColumn="status" style="width:130px">
-                        {{ 'CAMPAIGNS.LIST.COL_STATUS' | translate }} <p-sortIcon field="status" />
-                    </th>
-                    <th style="width:120px">{{ 'CAMPAIGNS.LIST.COL_PRICE' | translate }}</th>
-                    <th style="width:160px"></th>
-                </tr>
-            </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th pSortableColumn="scheduledOnUtc" style="width:130px">
+                                {{ 'CAMPAIGNS.LIST.COL_DATE' | translate }} <p-sortIcon field="scheduledOnUtc" />
+                            </th>
+                            <th pSortableColumn="name">
+                                {{ 'CAMPAIGNS.LIST.COL_CAMPAIGN' | translate }} <p-sortIcon field="name" />
+                            </th>
+                            <th style="width:100px">{{ 'CAMPAIGNS.LIST.COL_ROLE' | translate }}</th>
+                            <th pSortableColumn="status" style="width:130px">
+                                {{ 'CAMPAIGNS.LIST.COL_STATUS' | translate }} <p-sortIcon field="status" />
+                            </th>
+                            <th style="width:120px">{{ 'CAMPAIGNS.LIST.COL_PRICE' | translate }}</th>
+                            <th style="width:1px;white-space:nowrap"></th>
+                        </tr>
+                    </ng-template>
 
-            <ng-template pTemplate="body" let-campaign>
-                <tr (click)="viewCampaign(campaign.id)" style="cursor:pointer">
-                    <td class="text-sm" style="color:var(--text-color-secondary)">
-                        {{ campaign.scheduledOnUtc | date:'d MMM yyyy' }}
-                    </td>
-                    <td>
-                        <div class="font-semibold">{{ campaign.name }}</div>
-                        <div class="text-xs mt-1" style="color:var(--text-color-secondary);
-                            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">
-                            {{ campaign.description }}
-                        </div>
-                    </td>
-                    <td>
-                        @if (getRoleBadge(campaign); as role) {
-                            <p-tag [value]="role"
-                                [severity]="campaign.creatorId?.toLowerCase() === currentUserId ? 'info' : 'secondary'"
-                                styleClass="text-xs" />
-                        }
-                    </td>
-                    <td>
-                        <span class="status-dot s-{{ campaign.status.toLowerCase() }}">
-                            {{ 'CAMPAIGNS.STATUS.' + campaign.status.toUpperCase() | translate }}
-                        </span>
-                    </td>
-                    <td class="text-sm font-semibold">
-                        @if (campaign.price?.amount) {
-                            {{ campaign.price.amount }} {{ campaign.price.currency }}
-                        } @else {
-                            <span style="color:var(--text-color-secondary)">—</span>
-                        }
-                    </td>
-                    <td (click)="$event.stopPropagation()">
-                        <div class="flex gap-1 flex-wrap">
-                            @for (action of getAvailableActions(campaign); track action.value) {
-                                <p-button
-                                    [label]="action.label"
-                                    [icon]="action.icon"
-                                    size="small"
-                                    [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : action.value === 'complete' || action.value === 'review' ? 'success' : 'primary'"
-                                    [outlined]="action.value === 'reject' || action.value === 'cancel'"
-                                    (onClick)="rowAction($event, action.value, campaign.id)" />
+                    <ng-template pTemplate="body" let-campaign>
+                        <tr (click)="viewCampaign(campaign.id)" style="cursor:pointer">
+                            <td class="text-sm" style="color:var(--text-color-secondary)">
+                                {{ campaign.scheduledOnUtc | date:'d MMM yyyy' }}
+                            </td>
+                            <td>
+                                <div class="font-semibold">{{ campaign.name }}</div>
+                                <div class="text-xs mt-1" style="color:var(--text-color-secondary);
+                                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">
+                                    {{ campaign.description }}
+                                </div>
+                            </td>
+                            <td>
+                                @if (getRoleBadge(campaign); as role) {
+                                    <p-tag [value]="role"
+                                        [severity]="campaign.creatorId?.toLowerCase() === currentUserId ? 'info' : 'secondary'"
+                                        styleClass="text-xs" />
+                                }
+                            </td>
+                            <td>
+                                <span class="status-dot s-{{ campaign.status.toLowerCase() }}">
+                                    {{ 'CAMPAIGNS.STATUS.' + campaign.status.toUpperCase() | translate }}
+                                </span>
+                            </td>
+                            <td class="text-sm font-semibold">
+                                @if (campaign.price?.amount) {
+                                    {{ campaign.price.amount }} {{ campaign.price.currency }}
+                                } @else {
+                                    <span style="color:var(--text-color-secondary)">—</span>
+                                }
+                            </td>
+                            <td (click)="$event.stopPropagation()" style="white-space:nowrap">
+                                <div class="row-actions">
+                                    @for (action of getAvailableActions(campaign); track action.value) {
+                                        <p-button
+                                            [label]="action.label"
+                                            [icon]="action.icon"
+                                            size="small"
+                                            [severity]="action.value === 'reject' || action.value === 'cancel' ? 'danger' : 'primary'"
+                                            [outlined]="action.value === 'reject' || action.value === 'cancel'"
+                                            (onClick)="rowAction($event, action.value, campaign.id)" />
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="6" class="text-center py-5" style="color:var(--text-color-secondary)">
+                                <i class="pi pi-inbox text-4xl mb-3 block"></i>
+                                {{ 'CAMPAIGNS.EMPTY.LIST' | translate }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                @if (filteredListCampaigns.length > 0) {
+                    <div class="list-pagination">
+                        <button class="lpag-nav" [disabled]="listPage === 1" (click)="goToListPage(listPage - 1)">
+                            <i class="pi pi-chevron-left"></i>
+                            <span>{{ 'SEARCH.RESULTS.PREV' | translate }}</span>
+                        </button>
+                        <div class="lpag-numbers">
+                            @for (p of listPageNumbers; track $index) {
+                                @if (p === null) {
+                                    <span class="lpag-ellipsis">&hellip;</span>
+                                } @else {
+                                    <button class="lpag-num" [class.active]="p === listPage"
+                                        (click)="goToListPage(p)">{{ p }}</button>
+                                }
                             }
                         </div>
-                    </td>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="6" class="text-center py-5" style="color:var(--text-color-secondary)">
-                        <i class="pi pi-inbox text-4xl mb-3 block"></i>
-                        {{ 'CAMPAIGNS.EMPTY.LIST' | translate }}
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-
-        @if (filteredListCampaigns.length > 0) {
-            <div class="list-pagination">
-                <button class="lpag-nav" [disabled]="listPage === 1" (click)="goToListPage(listPage - 1)">
-                    <i class="pi pi-chevron-left"></i>
-                    <span>{{ 'SEARCH.RESULTS.PREV' | translate }}</span>
-                </button>
-                <div class="lpag-numbers">
-                    @for (p of listPageNumbers; track $index) {
-                        @if (p === null) {
-                            <span class="lpag-ellipsis">&hellip;</span>
-                        } @else {
-                            <button class="lpag-num" [class.active]="p === listPage"
-                                (click)="goToListPage(p)">{{ p }}</button>
-                        }
-                    }
-                </div>
-                <button class="lpag-nav" [disabled]="listPage === totalListPages" (click)="goToListPage(listPage + 1)">
-                    <span>{{ 'SEARCH.RESULTS.NEXT' | translate }}</span>
-                    <i class="pi pi-chevron-right"></i>
-                </button>
-            </div>
-        }
+                        <button class="lpag-nav" [disabled]="listPage === totalListPages" (click)="goToListPage(listPage + 1)">
+                            <span>{{ 'SEARCH.RESULTS.NEXT' | translate }}</span>
+                            <i class="pi pi-chevron-right"></i>
+                        </button>
+                    </div>
+                }
     }
 
     <!-- ── Confirmation Dialog ────────────────────────────────────────────── -->

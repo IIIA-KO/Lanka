@@ -20,5 +20,6 @@ public sealed record CampaignResponse(
     string CreatorFirstName,
     string CreatorLastName,
     string ClientFirstName,
-    string ClientLastName
+    string ClientLastName,
+    bool HasReview
 );

@@ -44,6 +44,7 @@ export interface ICampaign {
   creatorLastName?: string;
   clientFirstName?: string;
   clientLastName?: string;
+  hasReview?: boolean;
 }
 
 // Deliverable Model
@@ -176,6 +177,21 @@ export enum CampaignStatus {
   Done = 'Done',
   Completed = 'Completed',
   Cancelled = 'Cancelled'
+}
+
+export interface IMarkCampaignAsDoneRequest {
+  contentDelivered: string;
+  approach: string;
+  notes?: string;
+  postPermalinks?: string[];
+}
+
+export interface ICampaignReport {
+  contentDelivered: string;
+  approach: string;
+  notes?: string;
+  postPermalinks: string[];
+  submittedOnUtc: string;
 }
 
 // Currency codes

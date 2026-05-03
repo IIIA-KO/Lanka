@@ -1,0 +1,124 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '560px' }"
+  [header]="(isEditMode ? 'CAMPAIGNS.REPORT.EDIT_DIALOG_TITLE' : 'CAMPAIGNS.REPORT.DIALOG_TITLE') | translate"
+  (onHide)="close()"
+>
+  <div class="report-dialog-body flex flex-column gap-4">
+
+    <!-- Content delivered -->
+    <div class="flex flex-column gap-2">
+      <label class="font-semibold text-sm" for="content-delivered">
+        {{ 'CAMPAIGNS.REPORT.CONTENT_DELIVERED_LABEL' | translate }}
+        <span class="text-red-500 ml-1">*</span>
+      </label>
+      <p class="text-xs text-color-secondary m-0">{{ 'CAMPAIGNS.REPORT.CONTENT_DELIVERED_HINT' | translate }}</p>
+      <textarea
+        pTextarea
+        id="content-delivered"
+        [(ngModel)]="contentDelivered"
+        [placeholder]="'CAMPAIGNS.REPORT.CONTENT_DELIVERED_PLACEHOLDER' | translate"
+        [autoResize]="true"
+        rows="3"
+        class="w-full"
+      ></textarea>
+      <small class="text-color-secondary">{{ contentDelivered.trim().length }}/2000</small>
+    </div>
+
+    <!-- Approach -->
+    <div class="flex flex-column gap-2">
+      <label class="font-semibold text-sm" for="approach">
+        {{ 'CAMPAIGNS.REPORT.APPROACH_LABEL' | translate }}
+        <span class="text-red-500 ml-1">*</span>
+      </label>
+      <p class="text-xs text-color-secondary m-0">{{ 'CAMPAIGNS.REPORT.APPROACH_HINT' | translate }}</p>
+      <textarea
+        pTextarea
+        id="approach"
+        [(ngModel)]="approach"
+        [placeholder]="'CAMPAIGNS.REPORT.APPROACH_PLACEHOLDER' | translate"
+        [autoResize]="true"
+        rows="3"
+        class="w-full"
+      ></textarea>
+      <small class="text-color-secondary">{{ approach.trim().length }}/2000</small>
+    </div>
+
+    <!-- Notes (optional) -->
+    <div class="flex flex-column gap-2">
+      <label class="font-semibold text-sm" for="notes">
+        {{ 'CAMPAIGNS.REPORT.NOTES_LABEL' | translate }}
+      </label>
+      <textarea
+        pTextarea
+        id="notes"
+        [(ngModel)]="notes"
+        [placeholder]="'CAMPAIGNS.REPORT.NOTES_PLACEHOLDER' | translate"
+        [autoResize]="true"
+        rows="2"
+        class="w-full"
+      ></textarea>
+    </div>
+
+    <!-- Content links (optional) -->
+    <div class="flex flex-column gap-2">
+      <label class="font-semibold text-sm">{{ 'CAMPAIGNS.REPORT.LINKS_LABEL' | translate }}</label>
+      <p class="text-xs text-color-secondary m-0">{{ 'CAMPAIGNS.REPORT.LINKS_HINT' | translate }}</p>
+
+      <div class="flex gap-2">
+        <input
+          pInputText
+          [(ngModel)]="newLink"
+          [placeholder]="'CAMPAIGNS.REPORT.LINKS_PLACEHOLDER' | translate"
+          (keydown)="onLinkKeydown($event)"
+          class="flex-1"
+        />
+        <p-button
+          icon="pi pi-plus"
+          [outlined]="true"
+          size="small"
+          (onClick)="addLink()"
+        />
+      </div>
+
+      @if (postPermalinks.length > 0) {
+        <div class="flex flex-wrap gap-2 mt-1">
+          @for (link of postPermalinks; track link) {
+            <div class="report-link-chip flex align-items-center gap-2 border-round px-3 py-1 surface-100">
+              <a [href]="link" target="_blank" class="text-xs text-primary no-underline overflow-hidden text-overflow-ellipsis" style="max-width: 320px">{{ link }}</a>
+              <button class="link-remove-btn" (click)="removeLink(link)" type="button">
+                <i class="pi pi-times text-xs text-color-secondary"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Validation hint -->
+    @if (!isValid && (contentDelivered.length > 0 || approach.length > 0)) {
+      <small class="text-orange-500">{{ 'CAMPAIGNS.REPORT.MIN_LENGTH_HINT' | translate }}</small>
+    }
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button
+        [label]="'COMMON.CANCEL' | translate"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="close()"
+      />
+      <p-button
+        [label]="(isEditMode ? 'CAMPAIGNS.REPORT.UPDATE_BTN' : 'CAMPAIGNS.REPORT.SUBMIT_BTN') | translate"
+        icon="pi pi-flag"
+        [loading]="submitting"
+        [disabled]="!isValid"
+        (onClick)="submit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

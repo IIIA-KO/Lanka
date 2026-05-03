@@ -32,10 +32,13 @@ internal static class CampaignData
         return campaign;
     }
 
+    public static Report CreateReport() =>
+        Report.Create("Test content delivered for campaign", "Test creative approach used", null, [], DateTimeOffset.UtcNow);
+
     public static Campaign CreateDoneCampaign()
     {
         Campaign campaign = CreateConfirmedCampaign();
-        campaign.MarkAsDone(DateTimeOffset.UtcNow);
+        campaign.MarkAsDone(CreateReport(), DateTimeOffset.UtcNow);
         return campaign;
     }
 

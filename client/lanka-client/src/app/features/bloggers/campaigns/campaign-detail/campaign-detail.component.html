@@ -219,7 +219,7 @@
                 </div>
 
                 <!-- ── Action buttons ───────────────────────────────────────── -->
-                @if (canConfirm() || canReject() || canMarkDone() || canComplete() || canCancel() || canReview()) {
+                @if (canConfirm() || canReject() || canMarkDone() || canEditReport() || canComplete() || canCancel() || canReview()) {
                     <div class="cd-card surface-card border-round-xl shadow-1 p-4">
                         <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.ACTIONS_TITLE' | translate }}</h3>
                         <div class="flex flex-column gap-2">
@@ -240,6 +240,12 @@
                                     icon="pi pi-flag"
                                     severity="info" styleClass="w-full"
                                     [loading]="processingAction" (onClick)="onMarkDone()" />
+                            }
+                            @if (canEditReport()) {
+                                <p-button [label]="'CAMPAIGNS.REPORT.EDIT_BTN' | translate"
+                                    icon="pi pi-pencil"
+                                    severity="secondary" [outlined]="true" styleClass="w-full"
+                                    [loading]="processingAction" (onClick)="onEditReport()" />
                             }
                             @if (canComplete()) {
                                 <p-button [label]="'CAMPAIGNS.DETAIL.COMPLETE_CAMPAIGN' | translate"
@@ -264,7 +270,18 @@
                 }
             </div>
         </div>
+
+        <!-- ── Report card ─────────────────────────────────────────────────── -->
+        @if (report) {
+            <div class="mt-4">
+                <app-campaign-report [report]="report" />
+            </div>
+        }
+
     }
+
+    <!-- ── Report dialog ────────────────────────────────────────────────── -->
+    <app-report-dialog (submitted)="onReportSubmitted($event)" />
 
     <!-- ── Confirmation dialogs ──────────────────────────────────────────── -->
     <p-confirmDialog />

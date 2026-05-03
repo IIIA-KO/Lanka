@@ -1,6 +1,6 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Campaigns.Application.Campaigns.MarkAsDone;
+using Lanka.Modules.Campaigns.Application.Campaigns.UpdateReport;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -9,21 +9,21 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Lanka.Modules.Campaigns.Presentation.Campaigns;
 
-internal sealed class MarkCampaignAsDone : CampaignsEndpointBase
+internal sealed class UpdateCampaignReport : CampaignsEndpointBase
 {
     protected override string[] RequiredPermissions => [Permissions.UpdateCampaign];
 
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapPost(this.BuildRoute("{id:guid}/mark-as-done"),
+        return app.MapPut(this.BuildRoute("{id:guid}/report"),
                 async (
                     [FromRoute] Guid id,
-                    [FromBody] MarkCampaignAsDoneRequest req,
+                    [FromBody] UpdateCampaignReportRequest req,
                     ISender sender,
                     CancellationToken cancellationToken) =>
                 {
                     Result result = await sender.Send(
-                        new MarkCampaignAsDoneCommand(
+                        new UpdateCampaignReportCommand(
                             id,
                             req.ContentDelivered,
                             req.Approach,
@@ -36,13 +36,13 @@ internal sealed class MarkCampaignAsDone : CampaignsEndpointBase
                     return result.Match(Results.NoContent, ApiResult.Problem);
                 })
             .WithTags(Tags.Campaigns)
-            .WithName("MarkCampaignAsDone")
-            .WithSummary("Mark campaign as done")
-            .WithDescription("Marks a campaign as done by the blogger and submits a work report");
+            .WithName("UpdateCampaignReport")
+            .WithSummary("Update campaign report")
+            .WithDescription("Updates the work report for a Done campaign (creator only, before client completes)");
     }
 }
 
-internal sealed record MarkCampaignAsDoneRequest(
+internal sealed record UpdateCampaignReportRequest(
     string ContentDelivered,
     string Approach,
     string? Notes,

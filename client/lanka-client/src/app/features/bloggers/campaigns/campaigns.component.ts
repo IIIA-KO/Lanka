@@ -17,6 +17,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { DividerModule } from 'primeng/divider';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 
@@ -86,8 +87,8 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   public reviewCampaignId: string | null = null;
   public reviewRating = 0;
   public reviewComment = '';
-  public readonly reviewedCampaignIds = new Set<string>();
   public currentUserId: string | null = null;
+  public actionRequiredOnly = false;
 
   // ── Private fields ─────────────────────────────────────────────────────────
   private readonly destroy$ = new Subject<void>();
@@ -209,14 +210,21 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   }
 
   public get filteredCampaigns(): ICampaign[] {
-    if (this.roleFilter === 'all' || !this.currentUserId) {
-      return this.allCampaigns;
+    let campaigns = this.allCampaigns;
+
+    if (this.roleFilter !== 'all' && this.currentUserId) {
+      campaigns = campaigns.filter(c =>
+        this.roleFilter === 'creator'
+          ? c.creatorId?.toLowerCase() === this.currentUserId
+          : c.clientId?.toLowerCase() === this.currentUserId
+      );
     }
-    return this.allCampaigns.filter(c =>
-      this.roleFilter === 'creator'
-        ? c.creatorId?.toLowerCase() === this.currentUserId
-        : c.clientId?.toLowerCase() === this.currentUserId
-    );
+
+    if (this.actionRequiredOnly) {
+      campaigns = campaigns.filter(c => this.getAvailableActions(c).length > 0);
+    }
+
+    return campaigns;
   }
 
   public get campaigns(): ICampaign[] {
@@ -447,6 +455,11 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (action === 'done') {
+      this.router.navigate(['/campaigns', campaignId]);
+      return;
+    }
+
     if (action === 'cancel' || action === 'reject') {
       const isCancel = action === 'cancel';
       this.confirmationService.confirm({
@@ -509,7 +522,7 @@ export class CampaignsComponent implements OnInit, OnDestroy {
         }
         break;
       case CampaignStatus.Completed:
-        if (isClient && !this.reviewedCampaignIds.has(campaign.id)) {
+        if (isClient && !campaign.hasReview) {
           actions.push({ label: this.translate.instant('CAMPAIGNS.ACTIONS.LEAVE_REVIEW'), value: 'review', icon: 'pi pi-star' });
         }
         break;
@@ -547,9 +560,9 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       comment: this.reviewComment,
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.reviewedCampaignIds.add(this.reviewCampaignId!);
         this.showReviewDialog = false;
         this.snackbarService.showSuccess(this.translate.instant('CAMPAIGNS.REVIEW.SUCCESS'));
+        this.loadCampaigns();
       },
       error: () => {
         this.snackbarService.showError(this.translate.instant('CAMPAIGNS.REVIEW.ERROR'));
@@ -608,7 +621,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     const actionMap: Record<string, () => import('rxjs').Observable<unknown>> = {
       confirm: () => this.campaignsAgent.confirmCampaign(campaignId),
       reject:  () => this.campaignsAgent.rejectCampaign(campaignId),
-      done:    () => this.campaignsAgent.markCampaignAsDone(campaignId),
       complete: () => this.campaignsAgent.completeCampaign(campaignId),
       cancel:  () => this.campaignsAgent.cancelCampaign(campaignId),
       pend:    () => this.campaignsAgent.pendCampaign(campaignId),

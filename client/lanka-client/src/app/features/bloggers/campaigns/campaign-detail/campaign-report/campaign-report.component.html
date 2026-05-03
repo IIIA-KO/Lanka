@@ -1,0 +1,45 @@
+<div class="campaign-report-card surface-card border-round-xl shadow-1 p-4">
+  <div class="flex align-items-center gap-2 mb-3">
+    <i class="pi pi-file-check text-primary" style="font-size: 1.1rem"></i>
+    <span class="font-bold">{{ 'CAMPAIGNS.REPORT.CARD_TITLE' | translate }}</span>
+    <span class="ml-auto text-xs text-color-secondary">{{ report.submittedOnUtc | date:'mediumDate' }}</span>
+  </div>
+
+  <div class="flex flex-column gap-3">
+
+    <div class="report-section">
+      <p class="report-section-label">{{ 'CAMPAIGNS.REPORT.CONTENT_DELIVERED_LABEL' | translate }}</p>
+      <p class="report-section-body">{{ report.contentDelivered }}</p>
+    </div>
+
+    <p-divider />
+
+    <div class="report-section">
+      <p class="report-section-label">{{ 'CAMPAIGNS.REPORT.APPROACH_LABEL' | translate }}</p>
+      <p class="report-section-body">{{ report.approach }}</p>
+    </div>
+
+    @if (report.notes) {
+      <p-divider />
+      <div class="report-section">
+        <p class="report-section-label">{{ 'CAMPAIGNS.REPORT.NOTES_LABEL' | translate }}</p>
+        <p class="report-section-body">{{ report.notes }}</p>
+      </div>
+    }
+
+    @if ((report.postPermalinks?.length ?? 0) > 0) {
+      <p-divider />
+      <div class="report-section">
+        <p class="report-section-label">{{ 'CAMPAIGNS.REPORT.LINKS_LABEL' | translate }}</p>
+        <div class="flex flex-column gap-1 mt-1">
+          @for (link of report.postPermalinks; track link) {
+            <a [href]="link" target="_blank" rel="noopener noreferrer" class="report-link text-sm text-primary">
+              <i class="pi pi-external-link mr-1"></i>{{ link }}
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

@@ -4,6 +4,7 @@ using Lanka.Modules.Campaigns.Domain.Campaigns.Descriptions;
 using Lanka.Modules.Campaigns.Domain.Campaigns.Names;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lanka.Modules.Campaigns.Infrastructure.Campaigns;
 
@@ -67,5 +68,36 @@ public class CampaignConfiguration : IEntityTypeConfiguration<Campaign>
             .HasForeignKey(campaign => campaign.CreatorId)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
+
+        builder.OwnsOne(campaign => campaign.Report, reportBuilder =>
+        {
+            reportBuilder
+                .Property(r => r.ContentDelivered)
+                .HasColumnName("report_content_delivered")
+                .HasMaxLength(2000);
+
+            reportBuilder
+                .Property(r => r.Approach)
+                .HasColumnName("report_approach")
+                .HasMaxLength(2000);
+
+            reportBuilder
+                .Property(r => r.Notes)
+                .HasColumnName("report_notes")
+                .HasMaxLength(1000);
+
+            reportBuilder
+                .Property(r => r.PostPermalinks)
+                .HasColumnName("report_post_permalinks")
+                .HasColumnType("text[]")
+                .HasConversion(
+                    v => v.ToArray(),
+                    v => v.ToList().AsReadOnly()
+                );
+
+            reportBuilder
+                .Property(r => r.SubmittedOnUtc)
+                .HasColumnName("report_submitted_on_utc");
+        });
     }
 }

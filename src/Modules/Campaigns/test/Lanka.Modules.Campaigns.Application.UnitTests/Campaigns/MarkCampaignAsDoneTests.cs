@@ -13,7 +13,12 @@ namespace Lanka.Modules.Campaigns.Application.UnitTests.Campaigns;
 public class MarkCampaignAsDoneTests
 #pragma warning restore CA1515
 {
-    private static MarkCampaignAsDoneCommand Command => new(Guid.NewGuid());
+    private static MarkCampaignAsDoneCommand Command => new(
+        Guid.NewGuid(),
+        "Test content delivered for campaign",
+        "Test creative approach used",
+        null,
+        []);
     
     private readonly ICampaignRepository _campaignRepositoryMock;
     private readonly IUserContext _userContextMock;
