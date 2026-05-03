@@ -1,0 +1,21 @@
+.report-dialog-body {
+  padding: 0.5rem 0;
+}
+
+.report-link-chip {
+  border: 1px solid var(--surface-border);
+}
+
+.link-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.link-remove-btn:hover i {
+  color: var(--red-500) !important;
+}

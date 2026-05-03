@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil, catchError, of, forkJoin } from 'rxjs';
@@ -19,7 +19,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CampaignsAgent } from '../../../../core/api/campaigns.agent';
 import { BloggersAgent } from '../../../../core/api/bloggers.agent';
 import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service';
-import { ICampaign, CampaignStatus } from '../../../../core/models/campaigns';
+import { ICampaign, ICampaignReport, IMarkCampaignAsDoneRequest, CampaignStatus } from '../../../../core/models/campaigns';
+import { ReportDialogComponent } from './report-dialog/report-dialog.component';
+import { CampaignReportComponent } from './campaign-report/campaign-report.component';
 
 @Component({
   standalone: true,
@@ -39,6 +41,8 @@ import { ICampaign, CampaignStatus } from '../../../../core/models/campaigns';
     RatingModule,
     DialogModule,
     TooltipModule,
+    ReportDialogComponent,
+    CampaignReportComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './campaign-detail.component.html',
@@ -54,12 +58,14 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   public isClient = false;
   public processingAction = false;
 
+  // Report
+  @ViewChild(ReportDialogComponent) private reportDialog!: ReportDialogComponent;
+  public report: ICampaignReport | null = null;
+
   // Review dialog
   public showReviewDialog = false;
   public reviewRating = 0;
   public reviewComment = '';
-  public reviewSubmitted = false;
-
   public readonly CampaignStatus = CampaignStatus;
 
   private currentUserId: string | null = null;
@@ -163,6 +169,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         this.isCreator = !!this.currentUserId && campaign.creatorId?.toLowerCase() === this.currentUserId;
         this.isClient  = !!this.currentUserId && campaign.clientId?.toLowerCase()  === this.currentUserId;
 
+        this.loadReport(campaignId);
+
         // Fetch participant profiles for photos
         forkJoin({
           creator: this.bloggersAgent.getBlogger(campaign.creatorId).pipe(catchError(() => of(null))),
@@ -208,12 +216,13 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   }
 
   // ── Actions ──────────────────────────────────────────────────────────────
-  public canConfirm():   boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
-  public canReject():    boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
-  public canMarkDone():  boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Confirmed; }
-  public canCancel():    boolean { return (this.isCreator || this.isClient) && this.campaign?.status === CampaignStatus.Confirmed; }
-  public canComplete():  boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Done; }
-  public canReview():    boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Completed && !this.reviewSubmitted; }
+  public canConfirm():     boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
+  public canReject():      boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
+  public canMarkDone():    boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Confirmed; }
+  public canEditReport():  boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Done; }
+  public canCancel():      boolean { return (this.isCreator || this.isClient) && this.campaign?.status === CampaignStatus.Confirmed; }
+  public canComplete():    boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Done; }
+  public canReview():      boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Completed && !this.campaign?.hasReview; }
 
   public onConfirm(): void {
     this.confirmationService.confirm({
@@ -236,7 +245,40 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   }
 
   public onMarkDone(): void {
-    this.execute(() => this.campaignsAgent.markCampaignAsDone(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_DONE');
+    this.reportDialog.open();
+  }
+
+  public onEditReport(): void {
+    if (this.report) {
+      this.reportDialog.openForEdit(this.report);
+    }
+  }
+
+  public onReportSubmitted(req: IMarkCampaignAsDoneRequest): void {
+    if (!this.campaign) { return; }
+    const id = this.campaign.id;
+    const isEdit = this.reportDialog.isEditMode;
+    const call = isEdit
+      ? this.campaignsAgent.updateCampaignReport(id, req)
+      : this.campaignsAgent.markCampaignAsDone(id, req);
+    const successKey = isEdit ? 'CAMPAIGNS.DETAIL.SUCCESS_REPORT_UPDATED' : 'CAMPAIGNS.DETAIL.SUCCESS_DONE';
+
+    this.processingAction = true;
+    call.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.processingAction = false;
+        this.reportDialog.resetSubmitting();
+        this.reportDialog.close();
+        this.snackbarService.showSuccess(this.translate.instant(successKey));
+        if (!isEdit) { this.reload(id); }
+        this.loadReport(id);
+      },
+      error: () => {
+        this.processingAction = false;
+        this.reportDialog.resetSubmitting();
+        this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION'));
+      },
+    });
   }
 
   public onCancel(): void {
@@ -264,10 +306,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.reviewSubmitted = true;
           this.showReviewDialog = false;
           this.processingAction = false;
           this.snackbarService.showSuccess(this.translate.instant('CAMPAIGNS.DETAIL.REVIEW_SUBMITTED'));
+          this.reload(this.campaign!.id);
         },
         error: () => {
           this.processingAction = false;
@@ -282,6 +324,14 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
 
   public goBack(): void {
     this.router.navigate(['/campaigns']);
+  }
+
+  public loadReport(id: string): void {
+    const status = this.campaign?.status as CampaignStatus | undefined;
+    if (status !== CampaignStatus.Done && status !== CampaignStatus.Completed) { return; }
+    this.campaignsAgent.getCampaignReport(id)
+      .pipe(takeUntil(this.destroy$), catchError(() => of(null)))
+      .subscribe(r => { this.report = r; });
   }
 
   private execute(action: () => import('rxjs').Observable<unknown>, successMsgKey: string): void {

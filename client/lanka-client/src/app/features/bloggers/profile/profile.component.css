@@ -146,6 +146,17 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
+.review-card--link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.review-card--link:hover {
+  border-color: var(--p-primary-color);
+}
+
 /* Analytics 2×2 Grid */
 .analytics-grid {
   display: grid;

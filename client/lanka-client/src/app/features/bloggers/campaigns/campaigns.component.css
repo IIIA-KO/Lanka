@@ -64,56 +64,17 @@
 /* ─────────────────────────────────────────────────────────────────────
    Action-required banner
 ───────────────────────────────────────────────────────────────────── */
-.action-banner {
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, #f59e0b 35%, var(--surface-border));
-  background: var(--surface-card);
-  margin-bottom: 1rem;
-  overflow: hidden;
-}
-
-.action-banner-head {
+/* Inline action buttons in table rows */
+.row-actions {
   display: flex;
+  gap: 0.375rem;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: color-mix(in srgb, #f59e0b 9%, var(--surface-card));
-  border-bottom: 1px solid color-mix(in srgb, #f59e0b 25%, var(--surface-border));
+  flex-wrap: nowrap;
 }
 
-:host-context(.dark-mode) .action-banner {
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
-:host-context(.dark-mode) .action-banner-head {
-  background: rgba(245, 158, 11, 0.08);
-  border-bottom-color: rgba(245, 158, 11, 0.2);
-}
-
-.action-banner-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
-  transition: background 0.12s;
-}
-
-.action-banner-item:hover {
-  background: var(--surface-50);
-}
-
-.action-banner-item + .action-banner-item {
-  border-top: 1px solid var(--surface-border);
-}
-
-.campaign-name-link {
-  cursor: pointer;
-  transition: color 0.12s;
-  display: inline-block;
-}
-
-.campaign-name-link:hover {
-  color: var(--p-primary-color);
+.row-actions ::ng-deep button.p-button {
+  min-width: 10rem;
+  justify-content: center;
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -383,6 +344,10 @@
   padding: 3rem 1rem;
   text-align: center;
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   List view two-column layout
+───────────────────────────────────────────────────────────────────── */
 
 /* ─────────────────────────────────────────────────────────────────────
    List view

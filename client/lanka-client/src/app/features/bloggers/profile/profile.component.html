@@ -497,7 +497,8 @@
           } @else {
             <div class="flex flex-column gap-3 mt-3">
               @for (review of reviews; track review.id) {
-                <div class="review-card">
+                <a class="review-card review-card--link"
+                   [routerLink]="['/campaigns', review.campaignId]">
                   <div class="flex align-items-center gap-2 mb-2">
                     <div class="flex gap-1">
                       @for (star of getRatingArray(review.rating); track $index) {
@@ -513,9 +514,10 @@
                     <span class="text-sm text-color-secondary ml-auto">
                       {{ review.createdOnUtc | date:'MMM d, yyyy' }}
                     </span>
+                    <i class="pi pi-arrow-right text-xs text-color-secondary"></i>
                   </div>
                   <p class="m-0 line-height-3 text-sm">{{ review.comment }}</p>
-                </div>
+                </a>
               }
             </div>
           }
