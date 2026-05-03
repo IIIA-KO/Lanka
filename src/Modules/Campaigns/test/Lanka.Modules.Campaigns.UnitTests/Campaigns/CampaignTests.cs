@@ -237,7 +237,7 @@ public class CampaignTests : BaseTest
         Campaign campaign = CampaignData.CreateConfirmedCampaign();
 
         // Act
-        Result result = campaign.MarkAsDone(utcNow);
+        Result result = campaign.MarkAsDone(CampaignData.CreateReport(), utcNow);
 
         // Assert
         result.Should().NotBeNull();
@@ -253,7 +253,7 @@ public class CampaignTests : BaseTest
         Campaign campaign = CampaignData.CreateDoneCampaign();
 
         // Act
-        Result result = campaign.MarkAsDone(DateTimeOffset.UtcNow);
+        Result result = campaign.MarkAsDone(CampaignData.CreateReport(), DateTimeOffset.UtcNow);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -268,7 +268,7 @@ public class CampaignTests : BaseTest
         Campaign campaign = CampaignData.CreateConfirmedCampaign();
 
         // Act
-        campaign.MarkAsDone(utcNow);
+        campaign.MarkAsDone(CampaignData.CreateReport(), utcNow);
 
         // Assert
         CampaignMarkedAsDoneDomainEvent domainEvent
