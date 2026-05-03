@@ -283,8 +283,8 @@
             <div class="mt-4">
                 <app-payment
                     [campaignId]="campaign.id"
-                    [amount]="campaign.priceAmount"
-                    [currency]="campaign.priceCurrency"
+                    [amount]="campaign.price.amount"
+                    [currency]="campaign.price.currency"
                     [isClient]="isClient"
                 />
             </div>
