@@ -5,6 +5,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Notifications;
 using Lanka.Modules.Campaigns.Domain.Offers;
+using Lanka.Modules.Campaigns.Domain.Payments;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Lanka.Modules.Campaigns.Domain.Reviews;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,8 @@ public class CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : 
     internal DbSet<Review> Reviews { get; set; }
 
     internal DbSet<Notification> Notifications { get; set; }
+
+    internal DbSet<Payment> Payments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -32,6 +32,9 @@ public sealed class Permission
 
     public static readonly Permission ReadNotifications = new("notifications:read");
     public static readonly Permission UpdateNotifications = new("notifications:update");
+
+    public static readonly Permission ReadPayments = new("payments:read");
+    public static readonly Permission CreatePayment = new("payments:create");
     
     public Permission(string code)
     {

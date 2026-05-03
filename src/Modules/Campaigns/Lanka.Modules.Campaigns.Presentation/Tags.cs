@@ -8,4 +8,5 @@ internal static class Tags
     internal const string Offers = "Offers";
     internal const string Reviews = "Reviews";
     internal const string Notifications = "Notifications";
+    internal const string Payments = "Payments";
 }

@@ -233,6 +233,14 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         new
                         {
                             Code = "notifications:update"
+                        },
+                        new
+                        {
+                            Code = "payments:read"
+                        },
+                        new
+                        {
+                            Code = "payments:create"
                         });
                 });
 
@@ -422,6 +430,16 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         new
                         {
                             PermissionCode = "notifications:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:create",
                             RoleName = "Member"
                         },
                         new

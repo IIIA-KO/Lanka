@@ -37,7 +37,9 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
             Permission.UpdateReview,
             Permission.DeleteReview,
             Permission.ReadNotifications,
-            Permission.UpdateNotifications
+            Permission.UpdateNotifications,
+            Permission.ReadPayments,
+            Permission.CreatePayment
         );
 
         builder
@@ -73,6 +75,9 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
 
                     CreateRolePermission(Role.Member, Permission.ReadNotifications),
                     CreateRolePermission(Role.Member, Permission.UpdateNotifications),
+
+                    CreateRolePermission(Role.Member, Permission.ReadPayments),
+                    CreateRolePermission(Role.Member, Permission.CreatePayment),
 
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.ReadProfile),

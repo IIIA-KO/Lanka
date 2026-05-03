@@ -11,7 +11,9 @@ using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Lanka.Modules.Campaigns.Domain.Reviews;
+using Lanka.Modules.Campaigns.Application.Abstractions.Payments;
 using Lanka.Modules.Campaigns.Domain.Notifications;
+using Lanka.Modules.Campaigns.Domain.Payments;
 using Lanka.Modules.Campaigns.Infrastructure.Bloggers;
 using Lanka.Modules.Campaigns.Infrastructure.Campaigns;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
@@ -20,6 +22,7 @@ using Lanka.Modules.Campaigns.Infrastructure.Notifications;
 using Lanka.Modules.Campaigns.Infrastructure.Offers;
 using Lanka.Modules.Campaigns.Infrastructure.Outbox;
 using Lanka.Modules.Campaigns.Infrastructure.Pacts;
+using Lanka.Modules.Campaigns.Infrastructure.Payments;
 using Lanka.Modules.Campaigns.Infrastructure.Photos;
 using Lanka.Modules.Campaigns.Infrastructure.Reviews;
 using Lanka.Modules.Users.IntegrationEvents;
@@ -73,6 +76,8 @@ public static class CampaignsModule
         AddPersistence(services, configuration);
 
         AddOutbox(services, configuration);
+
+        services.AddLiqPay(configuration);
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
@@ -96,6 +101,7 @@ public static class CampaignsModule
         services.AddScoped<IOfferRepository, OfferRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CampaignsDbContext>());
 
@@ -163,5 +169,12 @@ public static class CampaignsModule
         services.Configure<CloudinaryOptions>(configuration.GetSection("Campaigns:Cloudinary"));
 
         services.AddSingleton<IPhotoAccessor, PhotoAccessor>();
+    }
+
+    private static void AddLiqPay(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<LiqPayOptions>(configuration.GetSection("Campaigns:LiqPay"));
+
+        services.AddScoped<ILiqPayService, LiqPayService>();
     }
 }

@@ -24,4 +24,7 @@ internal static class Permissions
 
     internal const string ReadNotifications = "notifications:read";
     internal const string UpdateNotifications = "notifications:update";
+
+    internal const string ReadPayments = "payments:read";
+    internal const string CreatePayment = "payments:create";
 }
