@@ -18,6 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../../services/theme/theme.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-header',
@@ -32,7 +33,8 @@ import { TooltipModule } from 'primeng/tooltip';
     LanguageSwitcherComponent,
     RouterLink,
     ButtonModule,
-    TooltipModule
+    TooltipModule,
+    NotificationBellComponent,
 ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'

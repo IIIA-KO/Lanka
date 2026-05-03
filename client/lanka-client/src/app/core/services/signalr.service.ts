@@ -10,6 +10,13 @@ export interface InstagramStatusNotification {
   timestamp: string;
 }
 
+export interface CampaignNotification {
+  campaignId: string;
+  campaignName: string;
+  newStatus: string;
+  timestamp: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -17,6 +24,7 @@ export class SignalRService {
   // Observables for different notification types
   public instagramLinking$ = new Subject<InstagramStatusNotification>();
   public instagramRenewal$ = new Subject<InstagramStatusNotification>();
+  public campaignNotification$ = new Subject<CampaignNotification>();
   public readonly connectionState$;
 
   private hubConnection: HubConnection | null = null;
@@ -62,6 +70,10 @@ export class SignalRService {
     this.hubConnection.on('InstagramRenewalStatus', (notification: InstagramStatusNotification) => {
       console.warn('[SignalRService] Received InstagramRenewalStatus:', notification);
       this.instagramRenewal$.next(notification);
+    });
+
+    this.hubConnection.on('CampaignNotification', (notification: CampaignNotification) => {
+      this.campaignNotification$.next(notification);
     });
 
     this.hubConnection.onclose(() => {

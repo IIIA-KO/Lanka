@@ -873,5 +873,11 @@
     "ERRORS": {
       "LOAD_FAILED": "Failed to load analytics data"
     }
+  },
+  "NOTIFICATIONS": {
+    "TOOLTIP": "Notifications",
+    "TITLE": "Notifications",
+    "MARK_ALL_READ": "Mark all read",
+    "EMPTY": "No notifications"
   }
 }
