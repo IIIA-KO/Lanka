@@ -22,4 +22,9 @@ public sealed record CampaignSeedData
     public required string CreatorLastName { get; init; }
     public required string ClientFirstName { get; init; }
     public required string ClientLastName { get; init; }
+    public string? ReportContentDelivered { get; init; }
+    public string? ReportApproach { get; init; }
+    public string? ReportNotes { get; init; }
+    public string[]? ReportPostPermalinks { get; init; }
+    public DateTimeOffset? ReportSubmittedOnUtc { get; init; }
 }

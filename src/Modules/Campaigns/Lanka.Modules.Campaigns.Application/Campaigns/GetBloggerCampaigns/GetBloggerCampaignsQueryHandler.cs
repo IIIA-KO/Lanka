@@ -52,10 +52,12 @@ internal sealed class GetBloggerCampaignsQueryHandler
                  bc.first_name AS {nameof(CampaignResponse.CreatorFirstName)},
                  bc.last_name AS {nameof(CampaignResponse.CreatorLastName)},
                  bl.first_name AS {nameof(CampaignResponse.ClientFirstName)},
-                 bl.last_name AS {nameof(CampaignResponse.ClientLastName)}
+                 bl.last_name AS {nameof(CampaignResponse.ClientLastName)},
+                 (r.id IS NOT NULL) AS {nameof(CampaignResponse.HasReview)}
              FROM campaigns.campaigns c
              INNER JOIN campaigns.bloggers bc ON c.creator_id = bc.id
              INNER JOIN campaigns.bloggers bl ON c.client_id = bl.id
+             LEFT JOIN campaigns.reviews r ON r.campaign_id = c.id
              WHERE (c.client_id = @BloggerId OR c.creator_id = @BloggerId)
                AND (@StartDate::timestamptz IS NULL OR c.scheduled_on_utc >= @StartDate::timestamptz)
                AND (@EndDate::timestamptz IS NULL OR c.scheduled_on_utc <= @EndDate::timestamptz)

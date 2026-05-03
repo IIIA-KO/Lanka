@@ -115,9 +115,10 @@ internal sealed class CampaignSeedingService : ICampaignSeedingService
 
             for (int i = 0; i < campaignsPerMonth; i++)
             {
+                bool forceCreator = (m * campaignsPerMonth + i) % 2 == 0;
                 CampaignSeedData? campaign = GenerateSingleCampaign(
                     faker, targetBlogger, allBloggers, ownOffers, othersOffers, bloggerNameMap,
-                    monthStart, monthEnd);
+                    monthStart, monthEnd, forceCreator);
 
                 if (campaign is not null)
                 {
@@ -137,38 +138,55 @@ internal sealed class CampaignSeedingService : ICampaignSeedingService
         List<OfferSeedInfo> othersOffers,
         Dictionary<Guid, BloggerSeedInfo> bloggerNameMap,
         DateTimeOffset monthStart,
-        DateTimeOffset monthEnd
+        DateTimeOffset monthEnd,
+        bool forceCreator = true
     )
     {
-        bool asCreator = faker.Random.Double() < 0.7 && ownOffers.Count > 0;
+        var otherBloggers = allBloggers.Where(b => b.Id != targetBlogger.Id).ToList();
+        if (otherBloggers.Count == 0) { return null; }
 
         Guid creatorId;
         Guid clientId;
         OfferSeedInfo selectedOffer;
 
-        if (asCreator)
+        if (forceCreator)
         {
-            selectedOffer = faker.PickRandom(ownOffers);
+            if (ownOffers.Count > 0)
+            {
+                selectedOffer = faker.PickRandom(ownOffers);
+            }
+            else if (othersOffers.Count > 0)
+            {
+                selectedOffer = faker.PickRandom(othersOffers);
+            }
+            else
+            {
+                return null;
+            }
             creatorId = targetBlogger.Id;
-            clientId = faker.PickRandom(allBloggers.Where(b => b.Id != targetBlogger.Id).ToList()).Id;
+            clientId = faker.PickRandom(otherBloggers).Id;
         }
-        else if (othersOffers.Count > 0)
+        else
         {
+            if (othersOffers.Count == 0) { return null; }
             selectedOffer = faker.PickRandom(othersOffers);
             creatorId = selectedOffer.BloggerId;
             clientId = targetBlogger.Id;
         }
-        else
-        {
-            return null;
-        }
 
-        int status = faker.PickRandom(0, 0, 0, 1, 1, 1, 2, 3, 4, 5);
+        // 0=Pending 1=Confirmed 2=Rejected 3=Cancelled 4=Done 5=Completed
+        int status = faker.PickRandom(0, 0, 1, 1, 2, 3, 4, 4, 5, 5);
         DateTimeOffset scheduledOnUtc = faker.Date.BetweenOffset(monthStart, monthEnd).ToUniversalTime();
         DateTimeOffset pendedOnUtc = scheduledOnUtc.AddDays(-faker.Random.Int(5, 30));
+        DateTimeOffset? doneOnUtc = (status == 4 || status == 5)
+            ? scheduledOnUtc.AddDays(faker.Random.Int(1, 5))
+            : null;
 
         BloggerSeedInfo creator = bloggerNameMap[creatorId];
         BloggerSeedInfo client = bloggerNameMap[clientId];
+
+        (string? reportContent, string? reportApproach, string? reportNotes, string[]? reportLinks, DateTimeOffset? reportSubmitted)
+            = GenerateReport(faker, status, doneOnUtc, faker.Commerce.ProductName());
 
         return new CampaignSeedData
         {
@@ -187,13 +205,11 @@ internal sealed class CampaignSeedingService : ICampaignSeedingService
             RejectedOnUtc = status == 2
                 ? pendedOnUtc.AddDays(faker.Random.Int(1, 3))
                 : null,
-            DoneOnUtc = status >= 3 && status != 5
-                ? scheduledOnUtc.AddDays(faker.Random.Int(1, 5))
-                : null,
-            CompletedOnUtc = status == 4
+            DoneOnUtc = doneOnUtc,
+            CompletedOnUtc = status == 5
                 ? scheduledOnUtc.AddDays(faker.Random.Int(6, 10))
                 : null,
-            CancelledOnUtc = status == 5
+            CancelledOnUtc = status == 3
                 ? pendedOnUtc.AddDays(faker.Random.Int(1, 3))
                 : null,
             PriceAmount = selectedOffer.PriceAmount,
@@ -201,8 +217,65 @@ internal sealed class CampaignSeedingService : ICampaignSeedingService
             CreatorFirstName = creator.FirstName,
             CreatorLastName = creator.LastName,
             ClientFirstName = client.FirstName,
-            ClientLastName = client.LastName
+            ClientLastName = client.LastName,
+            ReportContentDelivered = reportContent,
+            ReportApproach = reportApproach,
+            ReportNotes = reportNotes,
+            ReportPostPermalinks = reportLinks,
+            ReportSubmittedOnUtc = reportSubmitted
         };
+    }
+
+    private static (string? Content, string? Approach, string? Notes, string[]? Links, DateTimeOffset? SubmittedOnUtc)
+        GenerateReport(Faker faker, int status, DateTimeOffset? doneOnUtc, string productName)
+    {
+        if (status != 4 && status != 5) { return (null, null, null, null, null); }
+
+        string[] contentTemplates =
+        [
+            $"Published an Instagram Reel showcasing {productName} in a lifestyle setting with voiceover explanation.",
+            $"Created a series of 3 Instagram Stories featuring {productName} with interactive poll stickers.",
+            $"Produced a carousel post with 6 slides demonstrating the key benefits of {productName}.",
+            $"Filmed a short-form video review of {productName} highlighting real daily usage scenarios.",
+            $"Wrote an Instagram feed post featuring {productName} integrated naturally into morning routine content.",
+        ];
+
+        string[] approachTemplates =
+        [
+            "Used a lifestyle storytelling angle to make the product feel natural rather than promotional. Engagement was above average.",
+            "Focused on authentic user experience — showed real usage scenarios instead of staged photos. Audience responded positively.",
+            "Kept the tone conversational and relatable. Avoided overly salesy language. Comments were mostly curiosity and questions about the product.",
+            "Leveraged trending audio to boost organic reach on the Reel. Reached approximately 2x the usual impressions.",
+            "Used close-up product shots with natural lighting for a premium feel. The post performed well with the fashion-oriented audience segment.",
+        ];
+
+        string[] notesTemplates =
+        [
+            "Delivery was slightly delayed due to product shipment — client was informed in advance.",
+            "Would recommend a follow-up story series in 2 weeks to reinforce the message.",
+            "The audience asked several questions about pricing — a link in bio would help conversion.",
+            null!,
+            null!,
+        ];
+
+        string[]? links = null;
+        if (faker.Random.Bool())
+        {
+            var raw = new List<string> { $"https://www.instagram.com/p/{faker.Random.AlphaNumeric(11)}/" };
+            if (faker.Random.Bool())
+            {
+                raw.Add($"https://www.instagram.com/reel/{faker.Random.AlphaNumeric(11)}/");
+            }
+            links = raw.ToArray();
+        }
+
+        return (
+            faker.PickRandom(contentTemplates),
+            faker.PickRandom(approachTemplates),
+            faker.PickRandom(notesTemplates),
+            links,
+            doneOnUtc?.AddHours(faker.Random.Int(1, 6))
+        );
     }
 
     private static async Task InsertCampaignsAsync(
@@ -214,11 +287,15 @@ internal sealed class CampaignSeedingService : ICampaignSeedingService
                            INSERT INTO campaigns.campaigns
                                (id, creator_id, client_id, offer_id, name, description, scheduled_on_utc, status,
                                 pended_on_utc, confirmed_on_utc, rejected_on_utc, done_on_utc, completed_on_utc, cancelled_on_utc,
-                                price_amount, price_currency)
+                                price_amount, price_currency,
+                                report_content_delivered, report_approach, report_notes,
+                                report_post_permalinks, report_submitted_on_utc)
                            VALUES
                                (@Id, @CreatorId, @ClientId, @OfferId, @Name, @Description, @ScheduledOnUtc, @Status,
                                 @PendedOnUtc, @ConfirmedOnUtc, @RejectedOnUtc, @DoneOnUtc, @CompletedOnUtc, @CancelledOnUtc,
-                                @PriceAmount, @PriceCurrency)
+                                @PriceAmount, @PriceCurrency,
+                                @ReportContentDelivered, @ReportApproach, @ReportNotes,
+                                @ReportPostPermalinks, @ReportSubmittedOnUtc)
                            """;
 
         await connection.ExecuteAsync(sql, campaigns);
