@@ -2,9 +2,12 @@ using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Application.Messaging;
 using Lanka.Common.Domain;
+using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Campaigns.GetCampaign;
+using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Campaigns.DomainEvents;
+using Lanka.Modules.Campaigns.Domain.Notifications;
 using Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 using MediatR;
 
@@ -15,11 +18,20 @@ internal sealed class CampaignMarkedAsDoneDomainEventHandler
 {
     private readonly ISender _sender;
     private readonly IEventBus _eventBus;
+    private readonly INotificationRepository _notificationRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CampaignMarkedAsDoneDomainEventHandler(ISender sender, IEventBus eventBus)
+    public CampaignMarkedAsDoneDomainEventHandler(
+        ISender sender,
+        IEventBus eventBus,
+        INotificationRepository notificationRepository,
+        IUnitOfWork unitOfWork
+    )
     {
         this._sender = sender;
         this._eventBus = eventBus;
+        this._notificationRepository = notificationRepository;
+        this._unitOfWork = unitOfWork;
     }
 
     public override async Task Handle(
@@ -34,6 +46,27 @@ internal sealed class CampaignMarkedAsDoneDomainEventHandler
         {
             throw new LankaException(nameof(GetCampaignQuery), CampaignErrors.NotFound);
         }
+
+        this._notificationRepository.Add(Notification.Create(
+            new BloggerId(result.Value.ClientId),
+            result.Value.Id,
+            "Campaign work submitted",
+            $"The creator has submitted work for '{result.Value.Name}'. Please review and complete.",
+            new DateTimeOffset(notification.OccurredOnUtc, TimeSpan.Zero)
+        ));
+        await this._unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await this._eventBus.PublishAsync(
+            new CampaignNotificationIntegrationEvent(
+                Guid.CreateVersion7(),
+                notification.OccurredOnUtc,
+                result.Value.ClientId,
+                result.Value.Id,
+                result.Value.Name,
+                "Done"
+            ),
+            cancellationToken
+        );
 
         await this._eventBus.PublishAsync(
             new CampaignMarkedAsDoneIntegrationEvent(

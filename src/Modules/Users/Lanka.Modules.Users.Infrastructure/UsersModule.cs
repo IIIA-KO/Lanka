@@ -5,6 +5,7 @@ using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.IntegrationEvents;
 using Lanka.Modules.Campaigns.IntegrationEvents.Bloggers;
+using Lanka.Modules.Campaigns.IntegrationEvents.Campaigns;
 using Lanka.Modules.Users.Application.Abstractions.Data;
 using Lanka.Modules.Users.Application.Abstractions.Identity;
 using Lanka.Modules.Users.Domain.Users;
@@ -59,6 +60,10 @@ public static class UsersModule
         {
             registration
                 .AddConsumer<IntegrationEventConsumer<BloggerUpdatedIntegrationEvent>>()
+                .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
+
+            registration
+                .AddConsumer<IntegrationEventConsumer<CampaignNotificationIntegrationEvent>>()
                 .Endpoint(endpointRegistrationConfigurator => endpointRegistrationConfigurator.InstanceId = instanceId);
 
             registration

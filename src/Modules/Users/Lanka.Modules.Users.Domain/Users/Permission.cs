@@ -29,6 +29,9 @@ public sealed class Permission
     public static readonly Permission CreateReview = new("reviews:create");
     public static readonly Permission UpdateReview = new("reviews:update");
     public static readonly Permission DeleteReview = new("reviews:delete");
+
+    public static readonly Permission ReadNotifications = new("notifications:read");
+    public static readonly Permission UpdateNotifications = new("notifications:update");
     
     public Permission(string code)
     {

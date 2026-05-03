@@ -11,10 +11,12 @@ using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Lanka.Modules.Campaigns.Domain.Reviews;
+using Lanka.Modules.Campaigns.Domain.Notifications;
 using Lanka.Modules.Campaigns.Infrastructure.Bloggers;
 using Lanka.Modules.Campaigns.Infrastructure.Campaigns;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
 using Lanka.Modules.Campaigns.Infrastructure.Inbox;
+using Lanka.Modules.Campaigns.Infrastructure.Notifications;
 using Lanka.Modules.Campaigns.Infrastructure.Offers;
 using Lanka.Modules.Campaigns.Infrastructure.Outbox;
 using Lanka.Modules.Campaigns.Infrastructure.Pacts;
@@ -93,6 +95,7 @@ public static class CampaignsModule
         services.AddScoped<IPactRepository, PactRepository>();
         services.AddScoped<IOfferRepository, OfferRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CampaignsDbContext>());
 

@@ -31,14 +31,28 @@ public sealed class SignalRNotificationService : INotificationService
     {
         var notification = new
         {
-            type = "instagram_renewal", 
+            type = "instagram_renewal",
             status,
             message,
             timestamp = DateTime.UtcNow
         };
-        
+
         await this._hubContext.Clients.Group($"user_{userId}")
             .SendAsync("InstagramRenewalStatus", notification, cancellationToken);
+    }
+
+    public async Task SendCampaignNotificationAsync(string identityId, Guid campaignId, string campaignName, string newStatus, CancellationToken cancellationToken = default)
+    {
+        var notification = new
+        {
+            campaignId,
+            campaignName,
+            newStatus,
+            timestamp = DateTime.UtcNow
+        };
+
+        await this._hubContext.Clients.Group($"user_{identityId}")
+            .SendAsync("CampaignNotification", notification, cancellationToken);
     }
 }
 
