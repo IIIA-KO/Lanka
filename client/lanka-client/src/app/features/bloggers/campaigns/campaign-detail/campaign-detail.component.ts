@@ -51,6 +51,8 @@ import { PaymentComponent } from './payment/payment.component';
   styleUrls: ['./campaign-detail.component.css'],
 })
 export class CampaignDetailComponent implements OnInit, OnDestroy {
+  @ViewChild(ReportDialogComponent) private reportDialog!: ReportDialogComponent;
+
   public campaign: ICampaign | null = null;
   public creatorProfile: import('../../../../core/models/blogger').IBloggerProfile | null = null;
   public clientProfile:  import('../../../../core/models/blogger').IBloggerProfile | null = null;
@@ -61,7 +63,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   public processingAction = false;
 
   // Report
-  @ViewChild(ReportDialogComponent) private reportDialog!: ReportDialogComponent;
   public report: ICampaignReport | null = null;
 
   // Review dialog
@@ -147,6 +148,23 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     return null;
   }
 
+  public get hasSidebarActions(): boolean {
+    return this.canConfirm()
+      || this.canReject()
+      || this.canMarkDone()
+      || this.canEditReport()
+      || this.canCancel()
+      || this.canReview();
+  }
+
+  public get showSidebarPayment(): boolean {
+    return this.canPay() || this.campaign?.status === CampaignStatus.Completed;
+  }
+
+  public get showHeroPrice(): boolean {
+    return !!this.campaign?.price?.amount && !this.showSidebarPayment;
+  }
+
   public ngOnInit(): void {
     const campaignId = this.route.snapshot.paramMap.get('id');
     if (!campaignId) {
@@ -223,8 +241,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   public canMarkDone():    boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Confirmed; }
   public canEditReport():  boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Done; }
   public canCancel():      boolean { return (this.isCreator || this.isClient) && this.campaign?.status === CampaignStatus.Confirmed; }
-  public canComplete():    boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Done; }
   public canReview():      boolean { return this.isClient  && this.campaign?.status === CampaignStatus.Completed && !this.campaign?.hasReview; }
+  public canPay():         boolean { return this.isClient && this.campaign?.status === CampaignStatus.Done; }
 
   public onConfirm(): void {
     this.confirmationService.confirm({
@@ -291,10 +309,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.execute(() => this.campaignsAgent.cancelCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_CANCELLED'),
     });
-  }
-
-  public onComplete(): void {
-    this.execute(() => this.campaignsAgent.completeCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_COMPLETED');
   }
 
   public submitReview(): void {

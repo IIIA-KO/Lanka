@@ -50,7 +50,8 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .IsRequired();
 
         builder
-            .Property(p => p.LiqPayOrderId)
+            .Property(p => p.ProviderOrderId)
+            .HasColumnName("liq_pay_order_id")
             .HasMaxLength(200)
             .IsRequired();
 
@@ -69,7 +70,7 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .IsUnique();
 
         builder
-            .HasIndex(p => p.LiqPayOrderId)
+            .HasIndex(p => p.ProviderOrderId)
             .IsUnique();
     }
 }

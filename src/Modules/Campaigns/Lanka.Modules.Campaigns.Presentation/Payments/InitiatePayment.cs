@@ -10,14 +10,14 @@ namespace Lanka.Modules.Campaigns.Presentation.Payments;
 
 internal sealed class InitiatePayment : PaymentsEndpointBase
 {
-    protected override string[] RequiredPermissions => [Permissions.CreatePayment];
+    protected override string[] RequiredPermissions => [Permissions.UpdateCampaign];
 
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
         return app.MapPost(this.BuildRoute("{campaignId:guid}/payment/initiate"),
                 async (Guid campaignId, ISender sender, CancellationToken cancellationToken) =>
                 {
-                    Result<LiqPayCheckoutResponse> result =
+                    Result<PaymentCheckoutResponse> result =
                         await sender.Send(new InitiatePaymentCommand(campaignId), cancellationToken);
 
                     return result.Match(Results.Ok, ApiResult.Problem);
@@ -25,6 +25,6 @@ internal sealed class InitiatePayment : PaymentsEndpointBase
             .WithTags(Tags.Payments)
             .WithName("InitiatePayment")
             .WithSummary("Initiate payment")
-            .WithDescription("Creates a pending payment and returns LiqPay checkout params");
+            .WithDescription("Creates a pending payment and returns checkout form params");
     }
 }

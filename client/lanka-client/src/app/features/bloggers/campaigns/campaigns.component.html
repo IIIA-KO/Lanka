@@ -23,7 +23,7 @@
                 (onChange)="onViewModeChange()" />
             <p-selectbutton [options]="roleOptions" [(ngModel)]="roleFilter"
                 optionLabel="label" optionValue="value" />
-            @if (actionRequiredCampaigns.length > 0) {
+            @if (actionRequiredCampaigns.length > 0 || actionRequiredOnly) {
                 <p-button
                     icon="pi pi-bolt"
                     [label]="actionRequiredCampaigns.length + ''"

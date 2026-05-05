@@ -557,7 +557,7 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
 
-                    b.Property<string>("LiqPayOrderId")
+                    b.Property<string>("ProviderOrderId")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
@@ -578,7 +578,7 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_payments_campaign_id");
 
-                    b.HasIndex("LiqPayOrderId")
+                    b.HasIndex("ProviderOrderId")
                         .IsUnique()
                         .HasDatabaseName("ix_payments_liq_pay_order_id");
 
@@ -701,6 +701,29 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                                 .HasConstraintName("fk_bloggers_bloggers_id");
                         });
 
+                    b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.PayoutAccounts.PayoutAccount", "PayoutAccount", b1 =>
+                        {
+                            b1.Property<Guid>("BloggerId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Currency")
+                                .HasColumnType("text")
+                                .HasColumnName("payout_currency");
+
+                            b1.Property<string>("Iban")
+                                .HasColumnType("text")
+                                .HasColumnName("payout_iban");
+
+                            b1.HasKey("BloggerId");
+
+                            b1.ToTable("bloggers", "campaigns");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BloggerId")
+                                .HasConstraintName("fk_bloggers_bloggers_id");
+                        });
+
                     b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.Photos.Photo", "ProfilePhoto", b1 =>
                         {
                             b1.Property<Guid>("BloggerId")
@@ -729,6 +752,8 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
 
                     b.Navigation("InstagramMetadata")
                         .IsRequired();
+
+                    b.Navigation("PayoutAccount");
 
                     b.Navigation("ProfilePhoto");
                 });

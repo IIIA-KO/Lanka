@@ -4,6 +4,7 @@
   </div>
 } @else if (payment) {
   <div class="payment-card">
+    <h3 class="payment-title">{{ 'CAMPAIGNS.DETAIL.NEXT_STEP_TITLE' | translate }}</h3>
     <div class="payment-header">
       <i class="pi pi-credit-card payment-icon"></i>
       <span class="payment-label">{{ 'CAMPAIGNS.PAYMENT.TITLE' | translate }}</span>
@@ -21,21 +22,38 @@
         {{ 'CAMPAIGNS.PAYMENT.PAID_AT' | translate }}: {{ payment.paidAtUtc | date:'MMM d, yyyy HH:mm' }}
       </div>
     }
+    @if (canContinuePayment) {
+      <p-button
+        [label]="'CAMPAIGNS.PAYMENT.PAY_BTN' | translate"
+        icon="pi pi-credit-card"
+        [loading]="paying"
+        (onClick)="onPay()"
+        styleClass="payment-btn"
+      />
+      <p class="payment-hint">{{ 'CAMPAIGNS.PAYMENT.SANDBOX_HINT' | translate }}</p>
+    }
   </div>
-} @else if (isClient) {
+} @else if (isClient && allowCta) {
   <div class="payment-card payment-card--cta">
-    <div class="payment-header">
-      <i class="pi pi-credit-card payment-icon"></i>
-      <span class="payment-label">{{ 'CAMPAIGNS.PAYMENT.TITLE' | translate }}</span>
+    <h3 class="payment-title">{{ 'CAMPAIGNS.DETAIL.NEXT_STEP_TITLE' | translate }}</h3>
+    <div class="payment-step">
+      <i class="pi pi-credit-card payment-step-icon"></i>
+      <div>
+        <div class="payment-step-title">{{ 'CAMPAIGNS.PAYMENT.REQUIRED_TITLE' | translate }}</div>
+        <div class="payment-step-body">{{ 'CAMPAIGNS.PAYMENT.REQUIRED_BODY' | translate }}</div>
+      </div>
     </div>
-    <div class="payment-amount">{{ amount | number:'1.2-2' }} {{ currency }}</div>
+    <div class="payment-summary">
+      <span class="payment-summary-label">{{ 'CAMPAIGNS.PAYMENT.AMOUNT_DUE' | translate }}</span>
+      <span class="payment-amount">{{ amount | number:'1.2-2' }} {{ currency }}</span>
+    </div>
     <p-button
       [label]="'CAMPAIGNS.PAYMENT.PAY_BTN' | translate"
       icon="pi pi-credit-card"
-      [loading]="paying"
-      (onClick)="onPay()"
-      styleClass="payment-btn"
-    />
-    <p class="payment-hint">{{ 'CAMPAIGNS.PAYMENT.SANDBOX_HINT' | translate }}</p>
+    [loading]="paying"
+    (onClick)="onPay()"
+    styleClass="payment-btn"
+  />
+  <p class="payment-hint">{{ 'CAMPAIGNS.PAYMENT.SANDBOX_HINT' | translate }}</p>
   </div>
 }

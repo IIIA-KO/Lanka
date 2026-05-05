@@ -38,11 +38,37 @@ internal sealed class GetPaymentQueryHandler : IQueryHandler<GetPaymentQuery, Pa
              WHERE p.campaign_id = @CampaignId
              """;
 
-        PaymentResponse? payment = await connection.QuerySingleOrDefaultAsync<PaymentResponse>(
+        PaymentRow? payment = await connection.QuerySingleOrDefaultAsync<PaymentRow>(
             sql,
             new { request.CampaignId }
         );
 
-        return payment ?? Result.Failure<PaymentResponse>(PaymentErrors.NotFound);
+        if (payment is null)
+        {
+            return Result.Failure<PaymentResponse>(PaymentErrors.NotFound);
+        }
+
+        return new PaymentResponse(
+            payment.Id,
+            payment.CampaignId,
+            payment.Amount,
+            payment.Currency,
+            payment.Status,
+            ToDateTimeOffset(payment.CreatedAtUtc),
+            payment.PaidAtUtc is null ? null : ToDateTimeOffset(payment.PaidAtUtc.Value));
     }
+
+    private static DateTimeOffset ToDateTimeOffset(DateTime value)
+    {
+        return new DateTimeOffset(DateTime.SpecifyKind(value, DateTimeKind.Utc), TimeSpan.Zero);
+    }
+
+    private sealed record PaymentRow(
+        Guid Id,
+        Guid CampaignId,
+        decimal Amount,
+        string Currency,
+        string Status,
+        DateTime CreatedAtUtc,
+        DateTime? PaidAtUtc);
 }

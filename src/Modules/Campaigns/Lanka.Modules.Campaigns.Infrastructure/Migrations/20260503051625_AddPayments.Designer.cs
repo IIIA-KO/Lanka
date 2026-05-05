@@ -560,7 +560,7 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
 
-                    b.Property<string>("LiqPayOrderId")
+                    b.Property<string>("ProviderOrderId")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
@@ -581,7 +581,7 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_payments_campaign_id");
 
-                    b.HasIndex("LiqPayOrderId")
+                    b.HasIndex("ProviderOrderId")
                         .IsUnique()
                         .HasDatabaseName("ix_payments_liq_pay_order_id");
 

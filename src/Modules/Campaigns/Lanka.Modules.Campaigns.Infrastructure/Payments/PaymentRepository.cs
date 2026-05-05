@@ -20,10 +20,10 @@ internal sealed class PaymentRepository : IPaymentRepository
             .SingleOrDefaultAsync(p => p.CampaignId == campaignId, cancellationToken);
     }
 
-    public Task<Payment?> GetByOrderIdAsync(string liqPayOrderId, CancellationToken cancellationToken = default)
+    public Task<Payment?> GetByOrderIdAsync(string providerOrderId, CancellationToken cancellationToken = default)
     {
         return this._context.Payments
-            .SingleOrDefaultAsync(p => p.LiqPayOrderId == liqPayOrderId, cancellationToken);
+            .SingleOrDefaultAsync(p => p.ProviderOrderId == providerOrderId, cancellationToken);
     }
 
     public void Add(Payment payment)

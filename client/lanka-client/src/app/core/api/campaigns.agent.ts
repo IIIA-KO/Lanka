@@ -13,9 +13,10 @@ import {
 
 const BASE_URL = environment.apiUrl;
 
-export interface ILiqPayCheckoutResponse {
-  data: string;
-  signature: string;
+export interface IPaymentCheckoutResponse {
+  actionUrl: string;
+  method: string;
+  fields: Record<string, string>;
 }
 
 export interface IPaymentStatus {
@@ -168,15 +169,15 @@ export class CampaignsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  public initiatePayment(campaignId: string): Observable<ILiqPayCheckoutResponse> {
+  public initiatePayment(campaignId: string): Observable<IPaymentCheckoutResponse> {
     return this.http
-      .post<ILiqPayCheckoutResponse>(`${BASE_URL}/campaigns/${campaignId}/payment/initiate`, {})
+      .post<IPaymentCheckoutResponse>(`${BASE_URL}/campaigns/${campaignId}/payment/initiate`, {})
       .pipe(catchError(this.handleError));
   }
 
-  public getPayment(campaignId: string): Observable<IPaymentStatus> {
+  public getPayment(campaignId: string): Observable<IPaymentStatus | null> {
     return this.http
-      .get<IPaymentStatus>(`${BASE_URL}/campaigns/${campaignId}/payment`)
+      .get<IPaymentStatus | null>(`${BASE_URL}/campaigns/${campaignId}/payment`)
       .pipe(catchError(this.handleError));
   }
 

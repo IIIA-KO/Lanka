@@ -1,6 +1,7 @@
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Campaigns.Application.Payments.GetPayment;
+using Lanka.Modules.Campaigns.Domain.Payments;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +11,7 @@ namespace Lanka.Modules.Campaigns.Presentation.Payments;
 
 internal sealed class GetPayment : PaymentsEndpointBase
 {
-    protected override string[] RequiredPermissions => [Permissions.ReadPayments];
+    protected override string[] RequiredPermissions => [Permissions.ReadCampaigns];
 
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
@@ -20,7 +21,14 @@ internal sealed class GetPayment : PaymentsEndpointBase
                     Result<PaymentResponse> result =
                         await sender.Send(new GetPaymentQuery(campaignId), cancellationToken);
 
-                    return result.Match(Results.Ok, ApiResult.Problem);
+                    if (result.IsSuccess)
+                    {
+                        return Results.Ok(result.Value);
+                    }
+
+                    return result.Error == PaymentErrors.NotFound
+                        ? Results.NoContent()
+                        : ApiResult.Problem(result);
                 })
             .WithTags(Tags.Payments)
             .WithName("GetPayment")

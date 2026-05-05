@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CampaignsAgent, ILiqPayCheckoutResponse, IPaymentStatus } from '../../../../../core/api/campaigns.agent';
+import { CampaignsAgent, IPaymentCheckoutResponse, IPaymentStatus } from '../../../../../core/api/campaigns.agent';
 import { SnackbarService } from '../../../../../core/services/snackbar/snackbar.service';
 
 @Component({
@@ -16,10 +16,11 @@ import { SnackbarService } from '../../../../../core/services/snackbar/snackbar.
   styleUrl: './payment.component.css',
 })
 export class PaymentComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) campaignId!: string;
-  @Input({ required: true }) amount!: number;
-  @Input({ required: true }) currency!: string;
-  @Input({ required: true }) isClient!: boolean;
+  @Input({ required: true }) public campaignId!: string;
+  @Input({ required: true }) public amount!: number;
+  @Input({ required: true }) public currency!: string;
+  @Input({ required: true }) public isClient!: boolean;
+  @Input() public allowCta = true;
 
   public payment: IPaymentStatus | null = null;
   public loading = true;
@@ -30,15 +31,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   private readonly snackbar = inject(SnackbarService);
   private readonly translate = inject(TranslateService);
 
-  public ngOnInit(): void {
-    this.loadPayment();
-  }
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   public get statusSeverity(): 'success' | 'warning' | 'danger' | 'secondary' {
     switch (this.payment?.status) {
       case 'Completed': return 'success';
@@ -48,14 +40,34 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }
   }
 
+  public get canContinuePayment(): boolean {
+    return this.isClient
+      && this.allowCta
+      && (this.payment?.status === 'Pending' || this.payment?.status === 'Failed');
+  }
+
+  public ngOnInit(): void {
+    if (this.isClient && this.allowCta) {
+      this.loading = false;
+      return;
+    }
+
+    this.loadPayment();
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   public onPay(): void {
     this.paying = true;
     this.agent.initiatePayment(this.campaignId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res: ILiqPayCheckoutResponse) => {
+        next: (res: IPaymentCheckoutResponse) => {
           this.paying = false;
-          this.submitLiqPayForm(res.data, res.signature);
+          this.submitCheckoutForm(res);
         },
         error: () => {
           this.paying = false;
@@ -73,24 +85,20 @@ export class PaymentComponent implements OnInit, OnDestroy {
       });
   }
 
-  private submitLiqPayForm(data: string, signature: string): void {
+  private submitCheckoutForm(checkout: IPaymentCheckoutResponse): void {
     const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'https://www.liqpay.ua/api/3/checkout';
+    form.method = checkout.method;
+    form.action = checkout.actionUrl;
     form.target = '_blank';
 
-    const dataInput = document.createElement('input');
-    dataInput.type = 'hidden';
-    dataInput.name = 'data';
-    dataInput.value = data;
+    for (const [name, value] of Object.entries(checkout.fields)) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
 
-    const sigInput = document.createElement('input');
-    sigInput.type = 'hidden';
-    sigInput.name = 'signature';
-    sigInput.value = signature;
-
-    form.appendChild(dataInput);
-    form.appendChild(sigInput);
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);

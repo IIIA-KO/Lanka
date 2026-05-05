@@ -17,11 +17,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { DividerModule } from 'primeng/divider';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 
-import { CampaignsAgent } from '../../../core/api/campaigns.agent';
+import { CampaignsAgent, IPaymentCheckoutResponse } from '../../../core/api/campaigns.agent';
 import { BloggersAgent } from '../../../core/api/bloggers.agent';
 import { ICampaign, CampaignStatus } from '../../../core/models/campaigns';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
@@ -204,21 +203,18 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   }
 
   public get actionRequiredCampaigns(): { campaign: ICampaign; actions: { label: string; value: string; icon: string }[] }[] {
-    return this.allCampaigns
+    const roleFilteredCampaigns = this.getRoleFilteredCampaigns();
+    const campaigns = this.viewMode === 'list'
+      ? this.applyListFilters(roleFilteredCampaigns)
+      : roleFilteredCampaigns;
+
+    return campaigns
       .map(c => ({ campaign: c, actions: this.getAvailableActions(c) }))
       .filter(x => x.actions.length > 0);
   }
 
   public get filteredCampaigns(): ICampaign[] {
-    let campaigns = this.allCampaigns;
-
-    if (this.roleFilter !== 'all' && this.currentUserId) {
-      campaigns = campaigns.filter(c =>
-        this.roleFilter === 'creator'
-          ? c.creatorId?.toLowerCase() === this.currentUserId
-          : c.clientId?.toLowerCase() === this.currentUserId
-      );
-    }
+    let campaigns = this.getRoleFilteredCampaigns();
 
     if (this.actionRequiredOnly) {
       campaigns = campaigns.filter(c => this.getAvailableActions(c).length > 0);
@@ -232,18 +228,7 @@ export class CampaignsComponent implements OnInit, OnDestroy {
   }
 
   public get filteredListCampaigns(): ICampaign[] {
-    let campaigns = this.filteredCampaigns;
-
-    if (this.nameFilter.trim()) {
-      const query = this.nameFilter.toLowerCase();
-      campaigns = campaigns.filter(c => c.name.toLowerCase().includes(query));
-    }
-
-    if (this.statusFilter.length > 0) {
-      campaigns = campaigns.filter(c => this.statusFilter.includes(c.status));
-    }
-
-    return campaigns;
+    return this.applyListFilters(this.filteredCampaigns);
   }
 
   public get monthRows(): MonthRow[] {
@@ -460,6 +445,11 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (action === 'pay') {
+      this.initiatePayment(campaignId);
+      return;
+    }
+
     if (action === 'cancel' || action === 'reject') {
       const isCancel = action === 'cancel';
       this.confirmationService.confirm({
@@ -518,7 +508,7 @@ export class CampaignsComponent implements OnInit, OnDestroy {
         break;
       case CampaignStatus.Done:
         if (isClient) {
-          actions.push({ label: this.translate.instant('CAMPAIGNS.ACTIONS.COMPLETE'), value: 'complete', icon: 'pi pi-check-circle' });
+          actions.push({ label: this.translate.instant('CAMPAIGNS.PAYMENT.PAY_BTN'), value: 'pay', icon: 'pi pi-credit-card' });
         }
         break;
       case CampaignStatus.Completed:
@@ -615,13 +605,39 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     });
   }
 
+  private getRoleFilteredCampaigns(): ICampaign[] {
+    if (this.roleFilter === 'all' || !this.currentUserId) {
+      return this.allCampaigns;
+    }
+
+    return this.allCampaigns.filter(c =>
+      this.roleFilter === 'creator'
+        ? c.creatorId?.toLowerCase() === this.currentUserId
+        : c.clientId?.toLowerCase() === this.currentUserId
+    );
+  }
+
+  private applyListFilters(campaigns: ICampaign[]): ICampaign[] {
+    let filtered = campaigns;
+
+    if (this.nameFilter.trim()) {
+      const query = this.nameFilter.toLowerCase();
+      filtered = filtered.filter(c => c.name.toLowerCase().includes(query));
+    }
+
+    if (this.statusFilter.length > 0) {
+      filtered = filtered.filter(c => this.statusFilter.includes(c.status));
+    }
+
+    return filtered;
+  }
+
   private executeAction(action: string, campaignId: string): void {
     this.loading = true;
 
     const actionMap: Record<string, () => import('rxjs').Observable<unknown>> = {
       confirm: () => this.campaignsAgent.confirmCampaign(campaignId),
       reject:  () => this.campaignsAgent.rejectCampaign(campaignId),
-      complete: () => this.campaignsAgent.completeCampaign(campaignId),
       cancel:  () => this.campaignsAgent.cancelCampaign(campaignId),
       pend:    () => this.campaignsAgent.pendCampaign(campaignId),
     };
@@ -643,5 +659,41 @@ export class CampaignsComponent implements OnInit, OnDestroy {
         this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION') + ': ' + err.message);
       }
     });
+  }
+
+  private initiatePayment(campaignId: string): void {
+    this.loading = true;
+
+    this.campaignsAgent.initiatePayment(campaignId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: IPaymentCheckoutResponse) => {
+          this.loading = false;
+          this.submitCheckoutForm(res);
+        },
+        error: () => {
+          this.loading = false;
+          this.snackbarService.showError(this.translate.instant('CAMPAIGNS.PAYMENT.ERROR_INITIATE'));
+        },
+      });
+  }
+
+  private submitCheckoutForm(checkout: IPaymentCheckoutResponse): void {
+    const form = document.createElement('form');
+    form.method = checkout.method;
+    form.action = checkout.actionUrl;
+    form.target = '_blank';
+
+    for (const [name, value] of Object.entries(checkout.fields)) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
   }
 }

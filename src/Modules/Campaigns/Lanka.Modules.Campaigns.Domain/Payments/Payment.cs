@@ -15,7 +15,7 @@ public sealed class Payment : Entity<PaymentId>
 
     public PaymentStatus Status { get; private set; }
 
-    public string LiqPayOrderId { get; private set; }
+    public string ProviderOrderId { get; private set; }
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
@@ -27,7 +27,7 @@ public sealed class Payment : Entity<PaymentId>
         CampaignId campaignId,
         BloggerId clientId,
         Money amount,
-        string liqPayOrderId,
+        string providerOrderId,
         DateTimeOffset utcNow
     )
     {
@@ -38,7 +38,7 @@ public sealed class Payment : Entity<PaymentId>
             ClientId = clientId,
             Amount = amount,
             Status = PaymentStatus.Pending,
-            LiqPayOrderId = liqPayOrderId,
+            ProviderOrderId = providerOrderId,
             CreatedAtUtc = utcNow
         };
     }
@@ -64,6 +64,32 @@ public sealed class Payment : Entity<PaymentId>
         }
 
         this.Status = PaymentStatus.Failed;
+
+        return Result.Success();
+    }
+
+    public Result RefreshProviderOrderId(string providerOrderId)
+    {
+        if (this.Status != PaymentStatus.Pending)
+        {
+            return Result.Failure(PaymentErrors.NotPending);
+        }
+
+        this.ProviderOrderId = providerOrderId;
+
+        return Result.Success();
+    }
+
+    public Result Retry(string providerOrderId)
+    {
+        if (this.Status != PaymentStatus.Failed)
+        {
+            return Result.Failure(PaymentErrors.NotFailed);
+        }
+
+        this.Status = PaymentStatus.Pending;
+        this.ProviderOrderId = providerOrderId;
+        this.PaidAtUtc = null;
 
         return Result.Success();
     }

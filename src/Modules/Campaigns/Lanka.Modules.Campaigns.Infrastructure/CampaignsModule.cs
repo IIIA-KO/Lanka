@@ -77,7 +77,7 @@ public static class CampaignsModule
 
         AddOutbox(services, configuration);
 
-        services.AddLiqPay(configuration);
+        services.AddPayments(configuration);
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
@@ -171,10 +171,10 @@ public static class CampaignsModule
         services.AddSingleton<IPhotoAccessor, PhotoAccessor>();
     }
 
-    private static void AddLiqPay(this IServiceCollection services, IConfiguration configuration)
+    private static void AddPayments(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<LiqPayOptions>(configuration.GetSection("Campaigns:LiqPay"));
+        services.Configure<WayForPayOptions>(configuration.GetSection("Campaigns:WayForPay"));
 
-        services.AddScoped<ILiqPayService, LiqPayService>();
+        services.AddScoped<IPaymentGateway, WayForPayService>();
     }
 }
