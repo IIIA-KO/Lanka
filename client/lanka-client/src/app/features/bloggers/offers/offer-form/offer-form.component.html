@@ -57,8 +57,11 @@
                         </div>
                         <div class="field col-12 md:col-6 mb-4">
                             <label for="priceCurrency" class="font-semibold block mb-2">{{ 'OFFERS.FORM.CURRENCY_LABEL' | translate }}</label>
-                            <p-select [options]="currencyOptions" formControlName="priceCurrency" optionLabel="label"
-                                optionValue="value" styleClass="w-full"></p-select>
+                            <input *ngIf="payoutCurrency" pInputText [value]="payoutCurrency" disabled class="w-full" />
+                            <input *ngIf="!payoutCurrency" pInputText [placeholder]="'OFFERS.MESSAGES.NO_PAYOUT_ACCOUNT' | translate" disabled class="w-full" />
+                            <small class="text-color-secondary text-xs mt-1 block" *ngIf="payoutCurrency">
+                                {{ 'OFFERS.MESSAGES.PAYOUT_CURRENCY_LOCKED' | translate : { currency: payoutCurrency } }}
+                            </small>
                         </div>
                     </div>
 

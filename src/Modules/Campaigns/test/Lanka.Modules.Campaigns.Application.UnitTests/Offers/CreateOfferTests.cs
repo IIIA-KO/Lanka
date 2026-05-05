@@ -3,9 +3,12 @@ using FluentAssertions;
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
+using Lanka.Modules.Campaigns.Application.UnitTests.Bloggers;
 using Lanka.Modules.Campaigns.Application.Offers.Create;
 using Lanka.Modules.Campaigns.Application.UnitTests.Pacts;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Ibans;
+using Lanka.Modules.Campaigns.Domain.Bloggers.PayoutAccounts;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using NSubstitute;
@@ -26,6 +29,7 @@ public class CreateOfferTests
 
     private readonly IOfferRepository _offerRepositoryMock;
     private readonly IPactRepository _pactRepositoryMock;
+    private readonly IBloggerRepository _bloggerRepositoryMock;
     private readonly IUserContext _userContextMock;
     private readonly IUnitOfWork _unitOfWorkMock;
 
@@ -35,12 +39,14 @@ public class CreateOfferTests
     {
         this._offerRepositoryMock = Substitute.For<IOfferRepository>();
         this._pactRepositoryMock = Substitute.For<IPactRepository>();
+        this._bloggerRepositoryMock = Substitute.For<IBloggerRepository>();
         this._userContextMock = Substitute.For<IUserContext>();
         this._unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
         this._handler = new CreateOfferCommandHandler(
             this._offerRepositoryMock,
             this._pactRepositoryMock,
+            this._bloggerRepositoryMock,
             this._userContextMock,
             this._unitOfWorkMock
         );
@@ -50,9 +56,8 @@ public class CreateOfferTests
     public async Task Handle_ShouldReturnOfferId()
     {
         // Arrange
-        this._userContextMock.GetUserId()
-            .Returns(Guid.NewGuid());
-        
+        this.SetupBloggerWithPayoutAccount();
+
         this._pactRepositoryMock.GetByBloggerIdWithOffersAsync(
                 Arg.Any<BloggerId>(),
                 Arg.Any<CancellationToken>()
@@ -71,9 +76,8 @@ public class CreateOfferTests
     public async Task Handle_ShouldReturnPactNotFoundError_WhenPactIsNotFound()
     {
         // Arrange
-        this._userContextMock.GetUserId()
-            .Returns(Guid.NewGuid());
-        
+        this.SetupBloggerWithPayoutAccount();
+
         this._pactRepositoryMock.GetByBloggerIdWithOffersAsync(
                 Arg.Any<BloggerId>(),
                 Arg.Any<CancellationToken>()
@@ -92,9 +96,8 @@ public class CreateOfferTests
     public async Task Handle_ShouldReturnFailure_WhenOfferIsInvalid()
     {
         // Arrange
-        this._userContextMock.GetUserId()
-            .Returns(Guid.NewGuid());
-        
+        this.SetupBloggerWithPayoutAccount();
+
         this._pactRepositoryMock.GetByBloggerIdWithOffersAsync(
                 Arg.Any<BloggerId>(),
                 Arg.Any<CancellationToken>()
@@ -107,7 +110,7 @@ public class CreateOfferTests
             OfferData.Price.Currency.ToString(),
             string.Empty
         );
-        
+
         // Act
         Result<Guid> result = await this._handler.Handle(command, CancellationToken.None);
 
@@ -115,16 +118,15 @@ public class CreateOfferTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().NotBeNull();
     }
-    
+
     [Fact]
     public async Task Handle_ShouldReturnDuplicateError_WhenOfferWithSameNameAlreadyExists()
     {
         // Arrange
-        this._userContextMock.GetUserId()
-            .Returns(Guid.NewGuid());
-        
+        this.SetupBloggerWithPayoutAccount();
+
         Pact pact = PactData.CreatePact();
-        
+
         this._pactRepositoryMock.GetByBloggerIdWithOffersAsync(
                 Arg.Any<BloggerId>(),
                 Arg.Any<CancellationToken>()
@@ -144,17 +146,34 @@ public class CreateOfferTests
             "_offers",
             BindingFlags.NonPublic | BindingFlags.Instance
         );
+
         if (offersField is not null)
         {
             var offers = (List<Offer>)offersField.GetValue(pact);
             offers!.Add(offer);
         }
-        
+
         // Act
         Result<Guid> result = await this._handler.Handle(Command, CancellationToken.None);
 
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(OfferErrors.Duplicate);
+    }
+
+    private void SetupBloggerWithPayoutAccount()
+    {
+        Guid bloggerId = Guid.NewGuid();
+        Blogger blogger = BloggerData.CreateBlogger();
+        blogger.SetPayoutAccount(
+            new PayoutAccount(
+                Iban.Create("GB82WEST12345698765432").Value,
+                OfferData.Price.Currency.ToString()));
+
+        this._userContextMock.GetUserId().Returns(bloggerId);
+        this._bloggerRepositoryMock.GetByIdAsync(
+                Arg.Any<BloggerId>(),
+                Arg.Any<CancellationToken>())
+            .Returns(blogger);
     }
 }

@@ -102,7 +102,9 @@
       "NO_ID": "No offer id provided",
       "LOAD_ERROR": "Error loading offer: {{message}}",
       "DELETE_ERROR": "Error deleting offer: {{message}}",
-      "DELETE_CONFIRM_PROMPT": "Are you sure you want to delete this offer?"
+      "DELETE_CONFIRM_PROMPT": "Are you sure you want to delete this offer?",
+      "NO_PAYOUT_ACCOUNT": "You must configure a payout account in Settings before creating offers.",
+      "PAYOUT_CURRENCY_LOCKED": "Currency is locked to your payout account currency ({{currency}}). Change it in Settings."
     }
   },
   "FOOTER": {
@@ -350,7 +352,24 @@
     "PHOTO_REMOVED": "Photo removed",
     "REMOVE_FAILED": "Failed to remove photo",
     "REFRESH_FAILED": "Failed to refresh profile",
-    "CONFIRM_REMOVE_PHOTO": "Remove profile photo?"
+    "CONFIRM_REMOVE_PHOTO": "Remove profile photo?",
+    "PAYOUT": {
+      "TITLE": "Payout Account",
+      "DESCRIPTION": "Your IBAN is used to receive payments for completed campaigns. It is never shared with clients.",
+      "IBAN_LABEL": "IBAN",
+      "IBAN_PLACEHOLDER": "e.g. UA213996220000026001234567890",
+      "CURRENCY_LABEL": "Payout Currency",
+      "CURRENCY_PLACEHOLDER": "Select currency",
+      "SAVE": "Save Payout Account",
+      "SAVED": "Payout account saved",
+      "SAVE_FAILED": "Failed to save payout account",
+      "CURRENCY_CHANGE_WARNING": "Changing currency while you have active campaigns (Pending/Confirmed/Done as creator) is not allowed.",
+      "NO_ACCOUNT": "No payout account configured",
+      "CURRENT_IBAN": "Current IBAN (masked)",
+      "CURRENCY_MISMATCH": "Offer currency must match your payout account currency.",
+      "REQUIRED_FOR_OFFERS": "You must configure a payout account before creating offers.",
+      "ACTIVE_CAMPAIGNS_BLOCK": "Cannot change payout currency while you have active campaigns as creator."
+    }
   },
   "AUTH_LAYOUT": {
     "SUBTITLE": "A network for successful cooperation with bloggers",
@@ -766,6 +785,7 @@
       "OFFER_ID": "Offer ID",
       "TIMELINE": "Status Timeline",
       "TIMELINE_PENDING": "Pending",
+      "NEXT_STEP_TITLE": "Next step",
       "ACTIONS_TITLE": "Actions",
       "CONFIRM_CAMPAIGN": "Confirm Campaign",
       "REJECT": "Reject",
@@ -820,6 +840,9 @@
     "ROLE_CLIENT": "Client",
     "PAYMENT": {
       "TITLE": "Payment",
+      "REQUIRED_TITLE": "Payment required",
+      "REQUIRED_BODY": "The creator has submitted the work report. Review it below and pay to close the campaign.",
+      "AMOUNT_DUE": "Amount due",
       "PAY_BTN": "Pay Now",
       "STATUS_Pending": "Pending",
       "STATUS_Completed": "Paid",
