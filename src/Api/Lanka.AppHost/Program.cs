@@ -8,6 +8,16 @@ IResourceBuilder<ParameterResource> pgPassword = builder.AddParameter("pg-passwo
 IResourceBuilder<ParameterResource> rabbitPassword = builder.AddParameter("rabbitmq-password", secret: true);
 IResourceBuilder<ParameterResource> keycloakPassword = builder.AddParameter("keycloak-password", secret: true);
 IResourceBuilder<ParameterResource> mongoPassword = builder.AddParameter("mongo-password", secret: true);
+IResourceBuilder<ParameterResource> ngrokAuthToken = builder.AddParameter("ngrok-auth-token", secret: true);
+IResourceBuilder<ParameterResource> wayForPayPublicBaseUrl = builder.AddParameter("wayforpay-public-base-url", secret: true);
+
+string? configuredNgrokAuthToken = builder.Configuration["Parameters:ngrok-auth-token"];
+string? configuredWayForPayPublicBaseUrl = builder.Configuration["Parameters:wayforpay-public-base-url"];
+bool shouldStartWayForPayTunnel =
+    !string.IsNullOrWhiteSpace(configuredNgrokAuthToken)
+    && configuredNgrokAuthToken != "replace-with-ngrok-auth-token"
+    && !string.IsNullOrWhiteSpace(configuredWayForPayPublicBaseUrl)
+    && configuredWayForPayPublicBaseUrl != "https://replace-with-static-ngrok-domain.ngrok-free.app";
 
 // --- Infrastructure ---
 
@@ -38,6 +48,11 @@ IResourceBuilder<ProjectResource> api = builder
     .WaitFor(elasticsearch)
     .WaitFor(keycloak);
 
+if (shouldStartWayForPayTunnel)
+{
+    api.WithEnvironment("Campaigns__WayForPay__PublicBaseUrl", wayForPayPublicBaseUrl);
+}
+
 IResourceBuilder<ProjectResource> gateway = builder
     .AddProject<Projects.Lanka_Gateway>("lanka-gateway")
     .WithEndpoint("https", endpoint => endpoint.Port = 4308)
@@ -45,6 +60,23 @@ IResourceBuilder<ProjectResource> gateway = builder
     .WithReference(keycloak)
     .WaitFor(api)
     .WaitFor(keycloak);
+
+if (shouldStartWayForPayTunnel)
+{
+    builder
+        .AddContainer(
+            "wayforpay-tunnel",
+            "ngrok/ngrok",
+            "latest")
+        .WithEnvironment("NGROK_AUTHTOKEN", ngrokAuthToken)
+        .WithArgs(
+            "http",
+            "https://host.docker.internal:4308",
+            "--url",
+            wayForPayPublicBaseUrl,
+            "--upstream-tls-verify=false")
+        .WaitFor(gateway);
+}
 
 // --- Frontend ---
 
