@@ -1,7 +1,21 @@
 .chats-page {
+  --chat-shell-bg: #eef4f8;
+  --chat-surface: #ffffff;
+  --chat-surface-soft: #f9fcff;
+  --chat-border: color-mix(in srgb, var(--app-border, #e2e8f0) 78%, var(--p-primary-color));
+  --chat-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+
   width: min(1280px, calc(100vw - 2rem));
   margin: 0 auto;
   padding: 2rem 0 3rem;
+}
+
+:host-context(:root.lanka-dark) .chats-page {
+  --chat-shell-bg: color-mix(in srgb, var(--app-surface, #1e293b) 64%, var(--app-ground, #0f172a));
+  --chat-surface: color-mix(in srgb, var(--app-surface, #1e293b) 92%, #ffffff);
+  --chat-surface-soft: color-mix(in srgb, var(--app-surface, #1e293b) 78%, var(--app-ground, #0f172a));
+  --chat-border: color-mix(in srgb, var(--app-border, #334155) 76%, var(--p-primary-color));
+  --chat-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }
 
 .chats-title {
@@ -65,18 +79,18 @@
   gap: 1rem;
   align-items: start;
   padding: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--surface-border) 70%, var(--p-primary-color));
+  border: 1px solid var(--chat-border);
   border-radius: 10px;
-  background: color-mix(in srgb, var(--surface-card) 76%, var(--surface-ground));
-  box-shadow: var(--card-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+  background: var(--chat-shell-bg);
+  box-shadow: var(--chat-shadow);
 }
 
 .thread-list,
 .thread-panel {
   border: 1px solid var(--surface-border);
   border-radius: 8px;
-  background: var(--surface-card);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  background: var(--chat-surface);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 .thread-list {
@@ -190,7 +204,7 @@
 .thread-panel {
   min-width: 0;
   overflow: hidden;
-  background: color-mix(in srgb, var(--surface-card) 88%, var(--surface-ground));
+  background: var(--chat-surface);
 }
 
 :host ::ng-deep .thread-panel .chat-card {
