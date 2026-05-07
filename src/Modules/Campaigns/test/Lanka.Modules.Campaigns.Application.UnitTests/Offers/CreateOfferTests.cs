@@ -163,12 +163,13 @@ public class CreateOfferTests
 
     private void SetupBloggerWithPayoutAccount()
     {
-        Guid bloggerId = Guid.NewGuid();
+        var bloggerId = Guid.NewGuid();
         Blogger blogger = BloggerData.CreateBlogger();
         blogger.SetPayoutAccount(
             new PayoutAccount(
                 Iban.Create("GB82WEST12345698765432").Value,
-                OfferData.Price.Currency.ToString()));
+                OfferData.Price.Currency.ToString())
+        );
 
         this._userContextMock.GetUserId().Returns(bloggerId);
         this._bloggerRepositoryMock.GetByIdAsync(
