@@ -133,10 +133,14 @@
                 <h3 class="text-xl font-semibold mb-1">{{ 'SETTINGS.PAYOUT.TITLE' | translate }}</h3>
                 <p class="text-color-secondary text-sm mb-4">{{ 'SETTINGS.PAYOUT.DESCRIPTION' | translate }}</p>
 
-                <div *ngIf="payoutAccount" class="mb-3 p-3 border-1 border-round surface-ground">
-                    <span class="font-medium text-sm">{{ 'SETTINGS.PAYOUT.CURRENT_IBAN' | translate }}: </span>
-                    <span class="font-mono">{{ payoutAccount.maskedIban }}</span>
-                    <span class="ml-3 text-color-secondary text-sm">({{ payoutAccount.currency }})</span>
+                <div *ngIf="payoutAccount" class="mb-3 p-3 border-1 border-round surface-ground payout-summary">
+                    <div>
+                        <span class="font-medium text-sm">{{ 'SETTINGS.PAYOUT.CURRENT_IBAN' | translate }}: </span>
+                        <span class="font-mono">{{ payoutAccount.maskedIban }}</span>
+                    </div>
+                    <div class="text-color-secondary text-sm">
+                        {{ 'SETTINGS.PAYOUT.CURRENT_CURRENCY' | translate:{ currency: payoutAccount.currency } }}
+                    </div>
                 </div>
 
                 <form [formGroup]="payoutForm" (ngSubmit)="savePayout()" class="flex flex-column gap-3">
@@ -144,6 +148,7 @@
                         <label class="font-medium text-sm">{{ 'SETTINGS.PAYOUT.IBAN_LABEL' | translate }}</label>
                         <input pInputText formControlName="iban"
                             [placeholder]="'SETTINGS.PAYOUT.IBAN_PLACEHOLDER' | translate" class="font-mono" />
+                        <small class="text-color-secondary">{{ 'SETTINGS.PAYOUT.IBAN_HELP' | translate }}</small>
                         <small class="text-red-500"
                             *ngIf="payoutForm.get('iban')?.invalid && payoutForm.get('iban')?.touched">
                             {{ 'SETTINGS.ERRORS.FIRST_NAME_REQUIRED' | translate }}
@@ -155,6 +160,7 @@
                             optionValue="value"
                             [placeholder]="'SETTINGS.PAYOUT.CURRENCY_PLACEHOLDER' | translate"
                             styleClass="w-full md:w-20rem"></p-select>
+                        <small class="text-color-secondary">{{ 'SETTINGS.PAYOUT.CURRENCY_HELP' | translate }}</small>
                         <small class="text-orange-500">{{ 'SETTINGS.PAYOUT.CURRENCY_CHANGE_WARNING' | translate }}</small>
                     </div>
                     <div>

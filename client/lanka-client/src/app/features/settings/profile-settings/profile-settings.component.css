@@ -36,3 +36,9 @@
   padding: 1.5rem;
   background-color: color-mix(in srgb, #ef4444 10%, var(--app-surface));
 }
+
+.payout-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
