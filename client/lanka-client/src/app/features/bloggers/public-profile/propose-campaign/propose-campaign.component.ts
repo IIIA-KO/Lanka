@@ -4,11 +4,11 @@ import { CampaignsAgent } from '../../../../core/api/campaigns.agent';
 import { IPendCampaignRequest } from '../../../../core/models/campaigns';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+const CAMPAIGN_NAME_MAX_LENGTH = 50;
 
 @Component({
   selector: 'app-propose-campaign',
@@ -17,8 +17,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
-    InputTextModule,
-    TextareaModule,
     DatePickerModule,
     TranslateModule
   ],
@@ -29,6 +27,7 @@ export class ProposeCampaignComponent {
   @Input() public visible = false;
   @Input() public offerId: string | null = null;
   @Input() public offerName: string | null = null;
+  @Input() public offerDescription: string | null = null;
   @Output() public visibleChange = new EventEmitter<boolean>();
   @Output() public campaignCreated = new EventEmitter<void>();
 
@@ -43,8 +42,6 @@ export class ProposeCampaignComponent {
 
   constructor() {
     this.form = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
       scheduledDate: [null, [Validators.required]]
     });
   }
@@ -59,12 +56,19 @@ export class ProposeCampaignComponent {
     if (this.form.invalid || !this.offerId) return;
 
     this.loading = true;
-    const formValue = this.form.value;
+    const offerName = (this.offerName ?? '').trim();
+    const offerDescription = (this.offerDescription ?? '').trim();
+    const fallback = offerName.length > 0
+      ? this.translate.instant('PUBLIC_PROFILE.PROPOSE.DEFAULT_NAME', { name: offerName })
+      : this.translate.instant('PUBLIC_PROFILE.PROPOSE.NEW_CAMPAIGN');
+
+    const name = fallback.slice(0, CAMPAIGN_NAME_MAX_LENGTH);
+    const description = offerDescription.length > 0 ? offerDescription : fallback;
 
     const request: IPendCampaignRequest = {
-      name: formValue.name,
-      description: formValue.description,
-      scheduledOnUtc: formValue.scheduledDate.toISOString(),
+      name,
+      description,
+      scheduledOnUtc: (this.form.value.scheduledDate as Date).toISOString(),
       offerId: this.offerId
     };
 

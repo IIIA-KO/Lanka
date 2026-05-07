@@ -580,12 +580,22 @@
                               {{ formatPrice(offer.priceAmount) }} {{ offer.priceCurrency }}
                             </span>
                             <p-button
-                              label="Start"
+                              icon="pi pi-comments"
+                              size="small"
+                              severity="secondary"
+                              [rounded]="true"
+                              [text]="true"
+                              [loading]="startingChatOfferId === offer.id"
+                              [pTooltip]="'CHAT.START_OFFER_CHAT' | translate"
+                              (onClick)="startOfferChat(offer)">
+                            </p-button>
+                            <p-button
+                              [label]="'PUBLIC_PROFILE.CAMPAIGN.START' | translate"
                               icon="pi pi-send"
                               iconPos="right"
                               size="small"
                               styleClass="p-button-rounded"
-                              (onClick)="openProposeDialog(offer.id, offer.name)">
+                              (onClick)="openProposeDialog(offer)">
                             </p-button>
                           </div>
                         </div>
@@ -632,5 +642,5 @@
 }
 
 <app-propose-campaign [(visible)]="showProposeDialog"
-  [offerId]="selectedOfferId" [offerName]="selectedOfferName">
+  [offerId]="selectedOfferId" [offerName]="selectedOfferName" [offerDescription]="selectedOfferDescription">
 </app-propose-campaign>

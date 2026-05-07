@@ -14,6 +14,16 @@ export interface UpdateBloggerProfileRequest {
   category: string;
 }
 
+export interface IPayoutAccount {
+  maskedIban: string;
+  currency: string;
+}
+
+export interface UpdatePayoutAccountRequest {
+  iban: string;
+  currency: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -51,6 +61,18 @@ export class BloggersAgent {
         .delete(`${BASE_URL}/bloggers/photos`)
         .pipe(catchError(this.handleError));
     }
+
+  public getPayoutAccount(): Observable<IPayoutAccount> {
+    return this.http
+      .get<IPayoutAccount>(`${BASE_URL}/bloggers/me/payout-account`)
+      .pipe(catchError(this.handleError));
+  }
+
+  public updatePayoutAccount(request: UpdatePayoutAccountRequest): Observable<void> {
+    return this.http
+      .put<void>(`${BASE_URL}/bloggers/me/payout-account`, request)
+      .pipe(catchError(this.handleError));
+  }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     return throwError(() => error);

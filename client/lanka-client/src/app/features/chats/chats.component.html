@@ -1,0 +1,84 @@
+<main class="chats-page">
+  <header class="chats-title">
+    <div>
+      <h1>{{ 'CHAT.INBOX_TITLE' | translate }}</h1>
+      <p>{{ 'CHAT.INBOX_SUBTITLE' | translate }}</p>
+    </div>
+    <p-button
+      icon="pi pi-refresh"
+      [rounded]="true"
+      [text]="true"
+      [pTooltip]="'CHAT.REFRESH' | translate"
+      (onClick)="refresh()" />
+  </header>
+
+  @if (loading) {
+    <div class="chats-loading">
+      <p-progressSpinner [style]="{ width: '2rem', height: '2rem' }" />
+    </div>
+  } @else if (threads.length === 0) {
+    <section class="chats-empty">
+      <i class="pi pi-comments"></i>
+      <h2>{{ 'CHAT.EMPTY_THREADS' | translate }}</h2>
+      <p>{{ 'CHAT.EMPTY_THREADS_HINT' | translate }}</p>
+    </section>
+  } @else {
+    <section class="chats-shell">
+      <aside class="thread-list">
+        @for (thread of threads; track thread.id) {
+          <article
+            role="button"
+            tabindex="0"
+            class="thread-item"
+            [class.thread-item--active]="thread.id === selectedThreadId"
+            (click)="selectThread(thread)"
+            (keydown.enter)="selectThread(thread)"
+            (keydown.space)="$event.preventDefault(); selectThread(thread)">
+            <div class="thread-avatar">
+              @if (thread.otherParticipantProfilePhoto) {
+                <img [src]="thread.otherParticipantProfilePhoto" [alt]="participantName(thread)" />
+              } @else {
+                <i class="pi pi-user"></i>
+              }
+            </div>
+            <div class="thread-main">
+              <div class="thread-topline">
+                <span class="thread-name">{{ participantName(thread) }}</span>
+                <span class="thread-time">
+                  {{ (thread.lastMessageCreatedAtUtc || thread.updatedAtUtc) | date:'d MMM' }}
+                </span>
+              </div>
+              <span class="thread-context">{{ threadContext(thread) }}</span>
+              <p class="thread-preview">{{ preview(thread) }}</p>
+            </div>
+            <a
+              class="thread-profile-link"
+              [routerLink]="profileRoute(thread)"
+              [pTooltip]="'CHAT.VIEW_PROFILE' | translate"
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="$event.stopPropagation()">
+              <i class="pi pi-external-link"></i>
+            </a>
+            @if (thread.unreadCount > 0) {
+              <p-tag [value]="thread.unreadCount.toString()" severity="info" />
+            }
+          </article>
+        }
+      </aside>
+
+      <section class="thread-panel">
+        @if (selectedThread() && currentBloggerId) {
+          <app-chat-thread
+            [threadId]="selectedThreadId!"
+            [currentBloggerId]="currentBloggerId"
+            [thread]="selectedThread()!" />
+        } @else {
+          <div class="thread-placeholder">
+            <i class="pi pi-comments"></i>
+            <span>{{ 'CHAT.SELECT_THREAD' | translate }}</span>
+          </div>
+        }
+      </section>
+    </section>
+  }
+</main>

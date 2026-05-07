@@ -22,7 +22,7 @@
       <i class="pi pi-file-edit text-primary text-6xl mb-4"></i>
       <h3>Create Your Partnership Agreement</h3>
       <p>Define your standard terms and expectations for brand collaborations.</p>
-      <button pButton icon="pi pi-plus" (click)="startEditing()" class="mt-4">Create Pact</button>
+      <button pButton type="button" icon="pi pi-plus" (click)="startEditing()" class="mt-4">Create Pact</button>
         </div>
       </div>
 
@@ -66,7 +66,11 @@
             </div>
 
             <textarea pTextarea id="content" formControlName="content" rows="20" class="editor-textarea"
-              placeholder="Start typing your terms..."></textarea>
+              maxlength="4000" placeholder="Start typing your terms..."></textarea>
+
+            <small *ngIf="getFieldError('content') as errorMessage" class="field-error">
+              {{ errorMessage }}
+            </small>
 
             <div class="form-footer">
               <span class="char-count">{{ pactForm.get('content')?.value?.length || 0 }} chars</span>

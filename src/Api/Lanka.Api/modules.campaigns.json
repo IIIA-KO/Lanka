@@ -12,6 +12,16 @@
       "CloudName": "<your-cloudinary-cloud-name>",
       "ApiKey": "<your-cloudinary-api-key>",
       "ApiSecret": "<your-cloudinary-api-secret>"
+    },
+    "WayForPay": {
+      "MerchantAccount": "test_merch_n1",
+      "MerchantSecretKey": "flk3409refn54t54t*FNJRET",
+      "MerchantDomainName": "localhost",
+      "PaymentUrl": "https://secure.wayforpay.com/pay",
+      "PublicBaseUrl": "",
+      "ServiceUrl": "https://localhost:4308/payments/wayforpay/callback",
+      "ReturnUrl": "https://localhost:4308/payments/wayforpay/return",
+      "ClientReturnUrl": "https://localhost:4200/campaigns"
     }
   }
 }

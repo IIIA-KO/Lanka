@@ -13,6 +13,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.03));
 }
 
 .search-icon {
@@ -36,12 +37,15 @@
   border-radius: 12px;
   border: 1px solid var(--app-border, #e2e8f0);
   background: var(--app-surface, #ffffff);
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 :host ::ng-deep .search-input:focus {
-  box-shadow: 0 0 0 2px var(--p-primary-200);
-  border-color: var(--p-primary-400);
+  box-shadow:
+    0 0 0 3px var(--app-focus-ring),
+    0 12px 28px rgba(15, 23, 42, 0.08);
+  border-color: var(--app-focus-border);
+  background: var(--app-surface, #ffffff);
 }
 
 .clear-button {
@@ -81,12 +85,14 @@
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
 }
 
 .search-submit-btn:hover {
   background: var(--p-primary-600);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--p-primary-color) 28%, transparent);
+  transform: translateY(calc(-50% - 1px));
 }
 
 /* ── Filter Bar ── */
@@ -96,10 +102,20 @@
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   flex-wrap: wrap;
+  padding: 0.625rem;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--app-surface) 84%, var(--app-ground));
 }
 
 :host ::ng-deep .filter-select {
   min-width: 9.5rem;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+:host ::ng-deep .filter-select:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
 :host ::ng-deep .filter-select .p-select-label {
@@ -197,8 +213,9 @@ th:hover .col-hint {
 .results-table-wrapper {
   background: var(--app-surface, #ffffff);
   border: 1px solid var(--app-border, #e2e8f0);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 :host ::ng-deep .search-table .p-datatable-thead > tr > th {
@@ -249,11 +266,15 @@ th:hover .col-hint {
 
 :host ::ng-deep .result-row {
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
 :host ::ng-deep .result-row:hover td {
-  background: var(--app-surface-hover, #f1f5f9) !important;
+  background: color-mix(in srgb, var(--p-primary-color) 6%, var(--app-surface)) !important;
+}
+
+:host ::ng-deep .result-row:hover .account-name {
+  color: var(--p-primary-color);
 }
 
 :host ::ng-deep .result-row:last-child td {
@@ -392,13 +413,16 @@ th:hover .col-hint {
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
+  border: 1px dashed color-mix(in srgb, var(--app-border) 74%, var(--p-primary-color));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-surface) 82%, var(--app-ground));
 }
 
 .empty-state-icon {
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: var(--app-surface-hover, #f1f5f9);
+  background: color-mix(in srgb, var(--p-primary-color) 10%, var(--app-surface));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -407,7 +431,7 @@ th:hover .col-hint {
 
 .empty-state-icon .pi {
   font-size: 1.5rem;
-  color: var(--text-color-secondary);
+  color: var(--p-primary-color);
 }
 
 .empty-state-icon.error {
@@ -556,13 +580,15 @@ th:hover .col-hint {
   border: 1px solid var(--app-border, #e2e8f0);
   border-radius: 10px;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
   text-align: center;
 }
 
 .similar-card:hover {
   border-color: var(--p-primary-300);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--app-hover-shadow);
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--app-surface) 92%, var(--p-primary-color));
 }
 
 .similar-card-skeleton {

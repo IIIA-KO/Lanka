@@ -1,0 +1,62 @@
+<div class="bell-wrapper">
+  <p-button
+    icon="pi pi-bell"
+    [text]="true"
+    [rounded]="true"
+    (onClick)="op.toggle($event, $event.currentTarget)"
+    [pTooltip]="'NOTIFICATIONS.TOOLTIP' | translate"
+    tooltipPosition="bottom"
+    styleClass="bell-btn"
+  >
+    @if ((unreadCount$ | async) ?? 0; as count) {
+      @if (count > 0) {
+        <p-badge [value]="count > 9 ? '9+' : count.toString()" severity="danger" styleClass="bell-badge" />
+      }
+    }
+  </p-button>
+
+  <p-popover #op styleClass="notification-panel">
+    <div class="panel-header">
+      <span class="panel-title">{{ 'NOTIFICATIONS.TITLE' | translate }}</span>
+      @if ((unreadCount$ | async) ?? 0; as count) {
+        @if (count > 0) {
+          <p-button
+            [label]="'NOTIFICATIONS.MARK_ALL_READ' | translate"
+            [text]="true"
+            size="small"
+            (onClick)="markAllRead()"
+          />
+        }
+      }
+    </div>
+
+    @let items = notifications$ | async;
+    @if (!items || items.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-bell-slash empty-icon"></i>
+        <span>{{ 'NOTIFICATIONS.EMPTY' | translate }}</span>
+      </div>
+    } @else {
+      <ul class="notification-list">
+        @for (n of items; track trackById($index, n)) {
+          <li
+            class="notification-item"
+            [class.unread]="!n.isRead"
+            role="link"
+            tabindex="0"
+            (click)="markRead(n, $event)"
+            (keydown.enter)="markRead(n, $event)"
+            [routerLink]="['/campaigns', n.campaignId]"
+          >
+            <div class="notif-dot" [class.visible]="!n.isRead"></div>
+            <div class="notif-content">
+              <span class="notif-title">{{ n.title }}</span>
+              <span class="notif-body">{{ n.body }}</span>
+              <span class="notif-time">{{ n.createdAtUtc | date: 'MMM d, HH:mm' }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </p-popover>
+</div>

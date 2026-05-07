@@ -9,7 +9,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { IBloggerProfile } from '../../../core/models/blogger';
 import { AgentService } from '../../../core/api/agent';
-import { UpdateBloggerProfileRequest } from '../../../core/api/bloggers.agent';
+import { IPayoutAccount, UpdateBloggerProfileRequest } from '../../../core/api/bloggers.agent';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
@@ -41,8 +41,20 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 })
 export class ProfileSettingsComponent implements OnInit {
   public profileForm!: FormGroup;
+  public payoutForm!: FormGroup;
   public profile!: IBloggerProfile;
   public loading = false;
+  public payoutLoading = false;
+  public payoutAccount: IPayoutAccount | null = null;
+  public payoutLoadError = false;
+
+  public readonly currencyOptions = [
+    { label: 'USD ($)', value: 'USD' },
+    { label: 'EUR (€)', value: 'EUR' },
+    { label: 'GBP (£)', value: 'GBP' },
+    { label: 'UAH (₴)', value: 'UAH' }
+  ];
+
   // Account deletion properties
   public isDeletingAccount = false;
   public showDeleteConfirmation = false;
@@ -111,6 +123,32 @@ export class ProfileSettingsComponent implements OnInit {
   public ngOnInit(): void {
     this.profile = this.route.snapshot.data['profile'];
     this.initForm();
+    this.initPayoutForm();
+    this.loadPayoutAccount();
+  }
+
+  public savePayout(): void {
+    if (this.payoutForm.invalid) return;
+    this.payoutLoading = true;
+    const { iban, currency } = this.payoutForm.getRawValue();
+    this.api.Bloggers.updatePayoutAccount({ iban, currency }).subscribe({
+      next: () => {
+        this.payoutLoading = false;
+        this.snackbar.showSuccess('SETTINGS.PAYOUT.SAVED');
+        this.loadPayoutAccount();
+        this.payoutForm.patchValue({ iban: '' });
+        this.payoutForm.markAsPristine();
+      },
+      error: (err) => {
+        this.payoutLoading = false;
+        const code = err?.error?.errors?.[0]?.code ?? '';
+        if (code === 'Blogger.ActiveCampaignsExist') {
+          this.snackbar.showError('SETTINGS.PAYOUT.ACTIVE_CAMPAIGNS_BLOCK');
+        } else {
+          this.snackbar.showError('SETTINGS.PAYOUT.SAVE_FAILED');
+        }
+      }
+    });
   }
 
   public onSubmit(): void {
@@ -295,6 +333,32 @@ export class ProfileSettingsComponent implements OnInit {
           next: (profile) => this.profile = profile,
           error: () => this.snackbar.showError('SETTINGS.REFRESH_FAILED')
       });
+  }
+
+  private loadPayoutAccount(): void {
+    this.api.Bloggers.getPayoutAccount().subscribe({
+      next: (account) => {
+        this.payoutAccount = account;
+        this.payoutLoadError = false;
+        if (account) {
+          this.payoutForm.patchValue({ currency: account.currency });
+        }
+      },
+      error: (err) => {
+        if (err?.status === 404) {
+          this.payoutAccount = null;
+        } else {
+          this.payoutLoadError = true;
+        }
+      }
+    });
+  }
+
+  private initPayoutForm(): void {
+    this.payoutForm = this.fb.group({
+      iban: ['', [Validators.required, Validators.minLength(15), Validators.maxLength(34)]],
+      currency: ['', [Validators.required]]
+    });
   }
 
   private initForm(): void {

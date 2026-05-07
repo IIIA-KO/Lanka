@@ -18,7 +18,7 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("users")
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -225,6 +225,30 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         new
                         {
                             Code = "reviews:delete"
+                        },
+                        new
+                        {
+                            Code = "notifications:read"
+                        },
+                        new
+                        {
+                            Code = "notifications:update"
+                        },
+                        new
+                        {
+                            Code = "payments:read"
+                        },
+                        new
+                        {
+                            Code = "payments:create"
+                        },
+                        new
+                        {
+                            Code = "chat:read"
+                        },
+                        new
+                        {
+                            Code = "chat:write"
                         });
                 });
 
@@ -408,6 +432,36 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         },
                         new
                         {
+                            PermissionCode = "notifications:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "notifications:update",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "payments:create",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "chat:read",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
+                            PermissionCode = "chat:write",
+                            RoleName = "Member"
+                        },
+                        new
+                        {
                             PermissionCode = "profile:read",
                             RoleName = "Administrator"
                         },
@@ -454,6 +508,16 @@ namespace Lanka.Modules.Users.Infrastructure.Migrations
                         new
                         {
                             PermissionCode = "campaigns:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "chat:read",
+                            RoleName = "Administrator"
+                        },
+                        new
+                        {
+                            PermissionCode = "chat:write",
                             RoleName = "Administrator"
                         },
                         new

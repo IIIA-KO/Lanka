@@ -93,6 +93,18 @@ export const routes: Routes = [
         data: { titleKey: 'PAGE_TITLES.CREATE_CAMPAIGN' }
       },
       {
+        path: 'chats',
+        loadComponent: () => import('./features/chats/chats.component').then(m => m.ChatsComponent),
+        canActivate: [authGuard, instagramLinkedGuard],
+        data: { titleKey: 'PAGE_TITLES.CHATS' }
+      },
+      {
+        path: 'chats/:threadId',
+        loadComponent: () => import('./features/chats/chats.component').then(m => m.ChatsComponent),
+        canActivate: [authGuard, instagramLinkedGuard],
+        data: { titleKey: 'PAGE_TITLES.CHATS' }
+      },
+      {
         path: 'search',
         component: SearchComponent,
         canActivate: [authGuard, instagramLinkedGuard],

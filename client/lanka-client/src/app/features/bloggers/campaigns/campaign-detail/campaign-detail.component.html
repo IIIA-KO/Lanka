@@ -49,7 +49,7 @@
                 </div>
 
                 <!-- Price badge -->
-                @if (campaign.price?.amount) {
+                @if (showHeroPrice) {
                     <div class="cd-price-badge text-center">
                         <div class="text-2xl font-bold text-primary">
                             {{ campaign.price.amount | number:'1.2-2' }}
@@ -188,6 +188,72 @@
 
             <!-- ── Right column: timeline ───────────────────────────────────── -->
             <div class="cd-right">
+                <!-- ── Next step ───────────────────────────────────────────── -->
+                @if (showSidebarPayment) {
+                    <app-payment
+                        [campaignId]="campaign.id"
+                        [amount]="campaign.price.amount"
+                        [currency]="campaign.price.currency"
+                        [isClient]="isClient"
+                        [allowCta]="canPay()"
+                    />
+                } @else if (stepContext) {
+                    <div class="cd-card surface-card border-round-xl shadow-1 p-4 mb-4">
+                        <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.NEXT_STEP_TITLE' | translate }}</h3>
+                        <div
+                            class="cd-step-banner mb-3"
+                            [class.cd-step-banner--active]="stepContext.myTurn"
+                            [class.cd-step-banner--waiting]="!stepContext.myTurn">
+                            <i class="cd-step-icon {{ stepContext.icon }}"></i>
+                            <div class="min-w-0">
+                                <div class="font-bold text-sm mb-1">{{ stepContext.headlineKey | translate }}</div>
+                                <div class="text-sm text-color-secondary line-height-3">{{ stepContext.bodyKey | translate }}</div>
+                            </div>
+                        </div>
+
+                        @if (hasSidebarActions) {
+                            <div class="flex flex-column gap-2">
+                                @if (canConfirm()) {
+                                    <p-button [label]="'CAMPAIGNS.DETAIL.CONFIRM_CAMPAIGN' | translate"
+                                        icon="pi pi-check"
+                                        severity="success" styleClass="w-full"
+                                        [loading]="processingAction" (onClick)="onConfirm()" />
+                                }
+                                @if (canReject()) {
+                                    <p-button [label]="'CAMPAIGNS.DETAIL.REJECT' | translate"
+                                        icon="pi pi-times"
+                                        severity="danger" [outlined]="true" styleClass="w-full"
+                                        [loading]="processingAction" (onClick)="onReject()" />
+                                }
+                                @if (canMarkDone()) {
+                                    <p-button [label]="'CAMPAIGNS.DETAIL.MARK_DONE' | translate"
+                                        icon="pi pi-flag"
+                                        severity="info" styleClass="w-full"
+                                        [loading]="processingAction" (onClick)="onMarkDone()" />
+                                }
+                                @if (canEditReport()) {
+                                    <p-button [label]="'CAMPAIGNS.REPORT.EDIT_BTN' | translate"
+                                        icon="pi pi-pencil"
+                                        severity="secondary" [outlined]="true" styleClass="w-full"
+                                        [loading]="processingAction" (onClick)="onEditReport()" />
+                                }
+                                @if (canCancel()) {
+                                    <p-button [label]="'CAMPAIGNS.DETAIL.CANCEL_CAMPAIGN' | translate"
+                                        icon="pi pi-ban"
+                                        severity="danger" [outlined]="true" styleClass="w-full"
+                                        [loading]="processingAction" (onClick)="onCancel()" />
+                                }
+                                @if (canReview()) {
+                                    <p-button [label]="'CAMPAIGNS.DETAIL.LEAVE_REVIEW' | translate"
+                                        icon="pi pi-star"
+                                        severity="warn" styleClass="w-full"
+                                        (onClick)="showReviewDialog = true" />
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
                 <div class="cd-card surface-card border-round-xl shadow-1 p-4 mb-4">
                     <h3 class="mt-0 mb-4 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.TIMELINE' | translate }}</h3>
 
@@ -217,57 +283,6 @@
                         }
                     </div>
                 </div>
-
-                <!-- ── Action buttons ───────────────────────────────────────── -->
-                @if (canConfirm() || canReject() || canMarkDone() || canEditReport() || canComplete() || canCancel() || canReview()) {
-                    <div class="cd-card surface-card border-round-xl shadow-1 p-4">
-                        <h3 class="mt-0 mb-3 text-base font-bold">{{ 'CAMPAIGNS.DETAIL.ACTIONS_TITLE' | translate }}</h3>
-                        <div class="flex flex-column gap-2">
-                            @if (canConfirm()) {
-                                <p-button [label]="'CAMPAIGNS.DETAIL.CONFIRM_CAMPAIGN' | translate"
-                                    icon="pi pi-check"
-                                    severity="success" styleClass="w-full"
-                                    [loading]="processingAction" (onClick)="onConfirm()" />
-                            }
-                            @if (canReject()) {
-                                <p-button [label]="'CAMPAIGNS.DETAIL.REJECT' | translate"
-                                    icon="pi pi-times"
-                                    severity="danger" [outlined]="true" styleClass="w-full"
-                                    [loading]="processingAction" (onClick)="onReject()" />
-                            }
-                            @if (canMarkDone()) {
-                                <p-button [label]="'CAMPAIGNS.DETAIL.MARK_DONE' | translate"
-                                    icon="pi pi-flag"
-                                    severity="info" styleClass="w-full"
-                                    [loading]="processingAction" (onClick)="onMarkDone()" />
-                            }
-                            @if (canEditReport()) {
-                                <p-button [label]="'CAMPAIGNS.REPORT.EDIT_BTN' | translate"
-                                    icon="pi pi-pencil"
-                                    severity="secondary" [outlined]="true" styleClass="w-full"
-                                    [loading]="processingAction" (onClick)="onEditReport()" />
-                            }
-                            @if (canComplete()) {
-                                <p-button [label]="'CAMPAIGNS.DETAIL.COMPLETE_CAMPAIGN' | translate"
-                                    icon="pi pi-check-circle"
-                                    severity="success" styleClass="w-full"
-                                    [loading]="processingAction" (onClick)="onComplete()" />
-                            }
-                            @if (canCancel()) {
-                                <p-button [label]="'CAMPAIGNS.DETAIL.CANCEL_CAMPAIGN' | translate"
-                                    icon="pi pi-ban"
-                                    severity="danger" [outlined]="true" styleClass="w-full"
-                                    [loading]="processingAction" (onClick)="onCancel()" />
-                            }
-                            @if (canReview()) {
-                                <p-button [label]="'CAMPAIGNS.DETAIL.LEAVE_REVIEW' | translate"
-                                    icon="pi pi-star"
-                                    severity="warn" styleClass="w-full"
-                                    (onClick)="showReviewDialog = true" />
-                            }
-                        </div>
-                    </div>
-                }
             </div>
         </div>
 

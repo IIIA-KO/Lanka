@@ -1,1 +1,19 @@
-/* No specific styles needed yet, using PrimeFlex utility classes */
+:host ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
+:host ::ng-deep .p-datepicker-input {
+  width: 100%;
+}
+
+:host ::ng-deep .p-dialog-content {
+  overflow: visible;
+}
+
+:host ::ng-deep .p-dialog {
+  overflow: visible;
+}
+
+:host ::ng-deep .p-dialog-mask {
+  overflow-y: auto;
+}

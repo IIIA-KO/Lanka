@@ -41,6 +41,7 @@ export class NavbarComponent {
     this.menu = [
       { title: this.translate.instant('NAV.PROFILE'), icon: '/icons/profile-icon.svg', path: '/profile' },
       { title: this.translate.instant('NAV.SEARCH'), icon: '/icons/search-icon.svg', path: '/search' },
+      { title: this.translate.instant('NAV.CHATS'), icon: 'pi pi-comments', path: '/chats' },
       { title: this.translate.instant('NAV.CAMPAIGNS'), icon: '/icons/calendar-icon.svg', path: '/campaigns' },
       { title: this.translate.instant('NAV.PACT'), icon: '/icons/pact-icon.svg', path: '/pact' },
       { title: this.translate.instant('NAV.SETTINGS'), icon: '/icons/settings-icon.svg', path: '/settings/profile' },

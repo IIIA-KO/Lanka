@@ -1,5 +1,6 @@
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Messaging;
+using Lanka.Common.Application.Notifications;
 using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Common.Presentation.Endpoints;
 using Lanka.Modules.Analytics.IntegrationEvents;
@@ -8,16 +9,23 @@ using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Abstractions.Photos;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
+using Lanka.Modules.Campaigns.Domain.Chat;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Lanka.Modules.Campaigns.Domain.Reviews;
+using Lanka.Modules.Campaigns.Application.Abstractions.Payments;
+using Lanka.Modules.Campaigns.Domain.Notifications;
+using Lanka.Modules.Campaigns.Domain.Payments;
 using Lanka.Modules.Campaigns.Infrastructure.Bloggers;
 using Lanka.Modules.Campaigns.Infrastructure.Campaigns;
+using Lanka.Modules.Campaigns.Infrastructure.Chat;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
 using Lanka.Modules.Campaigns.Infrastructure.Inbox;
+using Lanka.Modules.Campaigns.Infrastructure.Notifications;
 using Lanka.Modules.Campaigns.Infrastructure.Offers;
 using Lanka.Modules.Campaigns.Infrastructure.Outbox;
 using Lanka.Modules.Campaigns.Infrastructure.Pacts;
+using Lanka.Modules.Campaigns.Infrastructure.Payments;
 using Lanka.Modules.Campaigns.Infrastructure.Photos;
 using Lanka.Modules.Campaigns.Infrastructure.Reviews;
 using Lanka.Modules.Users.IntegrationEvents;
@@ -71,6 +79,8 @@ public static class CampaignsModule
         AddPersistence(services, configuration);
 
         AddOutbox(services, configuration);
+
+        services.AddPayments(configuration);
     }
 
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
@@ -93,6 +103,11 @@ public static class CampaignsModule
         services.AddScoped<IPactRepository, PactRepository>();
         services.AddScoped<IOfferRepository, OfferRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IChatThreadRepository, ChatThreadRepository>();
+        services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+        services.AddScoped<IChatMembershipService, ChatMembershipService>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<CampaignsDbContext>());
 
@@ -160,5 +175,12 @@ public static class CampaignsModule
         services.Configure<CloudinaryOptions>(configuration.GetSection("Campaigns:Cloudinary"));
 
         services.AddSingleton<IPhotoAccessor, PhotoAccessor>();
+    }
+
+    private static void AddPayments(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<WayForPayOptions>(configuration.GetSection("Campaigns:WayForPay"));
+
+        services.AddScoped<IPaymentGateway, WayForPayService>();
     }
 }

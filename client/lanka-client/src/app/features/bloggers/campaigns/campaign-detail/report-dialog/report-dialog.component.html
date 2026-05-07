@@ -64,12 +64,13 @@
 
     <!-- Content links (optional) -->
     <div class="flex flex-column gap-2">
-      <label class="font-semibold text-sm">{{ 'CAMPAIGNS.REPORT.LINKS_LABEL' | translate }}</label>
+      <label class="font-semibold text-sm" for="content-link">{{ 'CAMPAIGNS.REPORT.LINKS_LABEL' | translate }}</label>
       <p class="text-xs text-color-secondary m-0">{{ 'CAMPAIGNS.REPORT.LINKS_HINT' | translate }}</p>
 
       <div class="flex gap-2">
         <input
           pInputText
+          id="content-link"
           [(ngModel)]="newLink"
           [placeholder]="'CAMPAIGNS.REPORT.LINKS_PLACEHOLDER' | translate"
           (keydown)="onLinkKeydown($event)"

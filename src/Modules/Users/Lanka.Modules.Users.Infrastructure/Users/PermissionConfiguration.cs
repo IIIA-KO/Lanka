@@ -35,7 +35,13 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
             Permission.ReadReviews,
             Permission.CreateReview,
             Permission.UpdateReview,
-            Permission.DeleteReview
+            Permission.DeleteReview,
+            Permission.ReadNotifications,
+            Permission.UpdateNotifications,
+            Permission.ReadPayments,
+            Permission.CreatePayment,
+            Permission.ReadChat,
+            Permission.WriteChat
         );
 
         builder
@@ -68,7 +74,15 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Member, Permission.ReadReviews),
                     CreateRolePermission(Role.Member, Permission.UpdateReview),
                     CreateRolePermission(Role.Member, Permission.DeleteReview),
-                    
+
+                    CreateRolePermission(Role.Member, Permission.ReadNotifications),
+                    CreateRolePermission(Role.Member, Permission.UpdateNotifications),
+
+                    CreateRolePermission(Role.Member, Permission.ReadPayments),
+                    CreateRolePermission(Role.Member, Permission.CreatePayment),
+
+                    CreateRolePermission(Role.Member, Permission.ReadChat),
+                    CreateRolePermission(Role.Member, Permission.WriteChat),
 
                     // Admin permissions
                     CreateRolePermission(Role.Administrator, Permission.ReadProfile),
@@ -81,6 +95,8 @@ internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permiss
                     CreateRolePermission(Role.Administrator, Permission.ReadPacts),
                     CreateRolePermission(Role.Administrator, Permission.UpdatePact),
                     CreateRolePermission(Role.Administrator, Permission.ReadCampaigns),
+                    CreateRolePermission(Role.Administrator, Permission.ReadChat),
+                    CreateRolePermission(Role.Administrator, Permission.WriteChat),
                     CreateRolePermission(Role.Administrator, Permission.ReadReviews),
                     CreateRolePermission(Role.Administrator, Permission.UpdateReview),
                     CreateRolePermission(Role.Administrator, Permission.DeleteReview)

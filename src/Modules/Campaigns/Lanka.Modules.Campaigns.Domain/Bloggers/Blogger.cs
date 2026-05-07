@@ -6,6 +6,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers.DomainEvents;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Emails;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
 using Lanka.Modules.Campaigns.Domain.Bloggers.LastNames;
+using Lanka.Modules.Campaigns.Domain.Bloggers.PayoutAccounts;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Photos;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 
@@ -30,6 +31,8 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
     public InstagramMetadata InstagramMetadata { get; private set; }
 
     public Category Category { get; private set; }
+
+    public PayoutAccount? PayoutAccount { get; private set; }
 
     private Blogger() { }
 
@@ -171,5 +174,15 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
     public void RemoveProfilePhoto()
     {
         this.ProfilePhoto = null;
+    }
+
+    public void SetPayoutAccount(PayoutAccount payoutAccount)
+    {
+        this.PayoutAccount = payoutAccount;
+    }
+
+    public void ClearPayoutAccount()
+    {
+        this.PayoutAccount = null;
     }
 }

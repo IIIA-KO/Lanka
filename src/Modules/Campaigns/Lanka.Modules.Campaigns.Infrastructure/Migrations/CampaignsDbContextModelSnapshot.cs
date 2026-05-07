@@ -429,6 +429,144 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                     b.ToTable("campaigns", "campaigns");
                 });
 
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Chat.ChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateTimeOffset?>("EditedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("edited_at_utc");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_system");
+
+                    b.Property<DateTimeOffset?>("ReadAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("read_at_utc");
+
+                    b.Property<Guid?>("SenderBloggerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sender_blogger_id");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_messages");
+
+                    b.HasIndex("ThreadId", "CreatedAtUtc")
+                        .IsDescending(false, true)
+                        .HasDatabaseName("ix_chat_messages_thread_id_created_at_utc");
+
+                    b.ToTable("chat_messages", "campaigns");
+                });
+
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Chat.ChatThread", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid?>("OfferId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("offer_id");
+
+                    b.Property<Guid>("ParticipantAId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("participant_a_id");
+
+                    b.Property<Guid>("ParticipantBId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("participant_b_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_threads");
+
+                    b.HasIndex("CampaignId")
+                        .HasDatabaseName("ix_chat_threads_campaign_id");
+
+                    b.HasIndex("OfferId")
+                        .HasDatabaseName("ix_chat_threads_offer_id");
+
+                    b.HasIndex("ParticipantAId")
+                        .HasDatabaseName("ix_chat_threads_participant_a_id");
+
+                    b.HasIndex("ParticipantBId")
+                        .HasDatabaseName("ix_chat_threads_participant_b_id");
+
+                    b.ToTable("chat_threads", "campaigns");
+                });
+
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("body");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_read");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recipient_blogger_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.ToTable("notifications", "campaigns");
+                });
+
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Offers.Offer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -497,6 +635,52 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .HasDatabaseName("ix_pacts_blogger_id");
 
                     b.ToTable("pacts", "campaigns");
+                });
+
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Payments.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campaign_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateTimeOffset?>("PaidAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("paid_at_utc");
+
+                    b.Property<string>("ProviderOrderId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("liq_pay_order_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payments");
+
+                    b.HasIndex("CampaignId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_campaign_id");
+
+                    b.HasIndex("ProviderOrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_liq_pay_order_id");
+
+                    b.ToTable("payments", "campaigns");
                 });
 
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Reviews.Review", b =>
@@ -615,6 +799,29 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                                 .HasConstraintName("fk_bloggers_bloggers_id");
                         });
 
+                    b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.PayoutAccounts.PayoutAccount", "PayoutAccount", b1 =>
+                        {
+                            b1.Property<Guid>("BloggerId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Currency")
+                                .HasColumnType("text")
+                                .HasColumnName("payout_currency");
+
+                            b1.Property<string>("Iban")
+                                .HasColumnType("text")
+                                .HasColumnName("payout_iban");
+
+                            b1.HasKey("BloggerId");
+
+                            b1.ToTable("bloggers", "campaigns");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BloggerId")
+                                .HasConstraintName("fk_bloggers_bloggers_id");
+                        });
+
                     b.OwnsOne("Lanka.Modules.Campaigns.Domain.Bloggers.Photos.Photo", "ProfilePhoto", b1 =>
                         {
                             b1.Property<Guid>("BloggerId")
@@ -643,6 +850,8 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
 
                     b.Navigation("InstagramMetadata")
                         .IsRequired();
+
+                    b.Navigation("PayoutAccount");
 
                     b.Navigation("ProfilePhoto");
                 });
@@ -747,6 +956,16 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                     b.Navigation("Report");
                 });
 
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Chat.ChatMessage", b =>
+                {
+                    b.HasOne("Lanka.Modules.Campaigns.Domain.Chat.ChatThread", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_messages_chat_threads_thread_id");
+                });
+
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Offers.Offer", b =>
                 {
                     b.HasOne("Lanka.Modules.Campaigns.Domain.Pacts.Pact", "Pact")
@@ -795,6 +1014,43 @@ namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
                         .HasConstraintName("fk_pacts_bloggers_blogger_id");
 
                     b.Navigation("Blogger");
+                });
+
+            modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Payments.Payment", b =>
+                {
+                    b.HasOne("Lanka.Modules.Campaigns.Domain.Campaigns.Campaign", null)
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_campaigns_campaign_id");
+
+                    b.OwnsOne("Lanka.Common.Contracts.Monies.Money", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("PaymentId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric")
+                                .HasColumnName("amount_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("amount_currency");
+
+                            b1.HasKey("PaymentId");
+
+                            b1.ToTable("payments", "campaigns");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PaymentId")
+                                .HasConstraintName("fk_payments_payments_id");
+                        });
+
+                    b.Navigation("Amount")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Lanka.Modules.Campaigns.Domain.Reviews.Review", b =>

@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { catchError, finalize, of, switchMap, take } from 'rxjs'; // Removed unused Observable
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { catchError, finalize, of, switchMap, take } from 'rxjs';
 
 // PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
@@ -16,9 +16,10 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { OffersAgent } from '../../../../core/api/offers.agent'; // Fixed path
-import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service'; // Fixed path
-import { IOffer, ICreateOfferRequest, IEditOfferRequest } from '../../../../core/models/campaigns'; // Fixed path
+import { OffersAgent } from '../../../../core/api/offers.agent';
+import { BloggersAgent } from '../../../../core/api/bloggers.agent';
+import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service';
+import { IOffer, ICreateOfferRequest, IEditOfferRequest } from '../../../../core/models/campaigns';
 
 @Component({
   standalone: true,
@@ -26,6 +27,7 @@ import { IOffer, ICreateOfferRequest, IEditOfferRequest } from '../../../../core
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     ButtonModule,
     CardModule,
     InputTextModule,
@@ -47,15 +49,12 @@ export class OfferFormComponent implements OnInit {
   public error: string | null = null;
   public isEditMode = false;
   public currentOfferId: string | null = null;
-
-  public currencyOptions = [
-    { label: 'USD ($)', value: 'USD' },
-    { label: 'EUR (€)', value: 'EUR' },
-    { label: 'GBP (£)', value: 'GBP' }
-  ];
+  public payoutCurrency: string | null = null;
+  public payoutMissing = false;
 
   private readonly fb = inject(FormBuilder);
   private readonly offersAgent = inject(OffersAgent);
+  private readonly bloggersAgent = inject(BloggersAgent);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly snackbar = inject(SnackbarService);
@@ -63,11 +62,11 @@ export class OfferFormComponent implements OnInit {
 
   public ngOnInit(): void {
     this.initializeForm();
-    this.checkRouteForEditMode();
+    this.loadPayoutAccount();
   }
 
   public onSubmit(): void {
-    if (this.offerForm.invalid) {
+    if (this.offerForm.invalid || this.payoutMissing) {
       return;
     }
 
@@ -87,7 +86,6 @@ export class OfferFormComponent implements OnInit {
 
   public onDelete(): void {
     if (this.isEditMode && this.currentOfferId) {
-       // Ideally show confirmation dialog
        if (confirm(this.translate.instant('OFFERS.MESSAGES.DELETE_CONFIRM_PROMPT'))) {
           this.submitLoading = true;
           this.offersAgent.deleteOffer(this.currentOfferId).subscribe({
@@ -104,19 +102,40 @@ export class OfferFormComponent implements OnInit {
     }
   }
 
+  private loadPayoutAccount(): void {
+    this.loading = true;
+    this.bloggersAgent.getPayoutAccount().subscribe({
+      next: (account) => {
+        this.payoutCurrency = account.currency;
+        this.payoutMissing = false;
+        this.offerForm.patchValue({ priceCurrency: account.currency });
+        this.offerForm.get('priceCurrency')?.disable();
+        this.loading = false;
+        this.checkRouteForEditMode();
+      },
+      error: (err) => {
+        if (err?.status === 404) {
+          this.payoutMissing = true;
+          this.error = this.translate.instant('OFFERS.MESSAGES.NO_PAYOUT_ACCOUNT');
+        }
+        this.loading = false;
+        this.checkRouteForEditMode();
+      }
+    });
+  }
+
   private initializeForm(): void {
     this.offerForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
       priceAmount: [null, [Validators.required, Validators.min(0)]],
-      priceCurrency: ['USD', [Validators.required]],
-      // Future: Duration, Content Type, etc. can be added here
+      priceCurrency: [{ value: '', disabled: false }, [Validators.required]]
     });
   }
 
   private checkRouteForEditMode(): void {
     this.route.params.pipe(
-      take(1), // Only need the initial route parameters
+      take(1),
       switchMap(params => {
         if (params['id']) {
           this.isEditMode = true;
@@ -126,7 +145,7 @@ export class OfferFormComponent implements OnInit {
         }
         return of(null);
       }),
-      catchError(() => { // Removed unused error param
+      catchError(() => {
         this.error = this.translate.instant('OFFERS.MESSAGES.LOAD_FAIL');
         return of(null);
       }),
@@ -148,7 +167,8 @@ export class OfferFormComponent implements OnInit {
   }
 
   private createOffer(): void {
-    const request: ICreateOfferRequest = this.offerForm.value;
+    const raw = this.offerForm.getRawValue();
+    const request: ICreateOfferRequest = raw;
 
     this.offersAgent.createOffer(request).subscribe({
       next: () => {
@@ -157,16 +177,16 @@ export class OfferFormComponent implements OnInit {
       },
       error: () => {
         this.submitLoading = false;
-        // Global error interceptor might handle this, but we can set local error too
         this.error = this.translate.instant('OFFERS.MESSAGES.CREATE_FAIL');
       }
     });
   }
 
   private updateOffer(): void {
+    const raw = this.offerForm.getRawValue();
     const request: IEditOfferRequest = {
       offerId: this.currentOfferId!,
-      ...this.offerForm.value
+      ...raw
     };
 
     this.offersAgent.editOffer(request).subscribe({

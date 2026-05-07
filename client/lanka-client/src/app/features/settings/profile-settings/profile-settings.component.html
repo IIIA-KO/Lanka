@@ -128,6 +128,49 @@
                 </div>
             </form>
 
+            <!-- Payout Account Section -->
+            <div class="mt-8 border-top-1 border-gray-200 pt-6">
+                <h3 class="text-xl font-semibold mb-1">{{ 'SETTINGS.PAYOUT.TITLE' | translate }}</h3>
+                <p class="text-color-secondary text-sm mb-4">{{ 'SETTINGS.PAYOUT.DESCRIPTION' | translate }}</p>
+
+                <div *ngIf="payoutAccount" class="mb-3 p-3 border-1 border-round surface-ground payout-summary">
+                    <div>
+                        <span class="font-medium text-sm">{{ 'SETTINGS.PAYOUT.CURRENT_IBAN' | translate }}: </span>
+                        <span class="font-mono">{{ payoutAccount.maskedIban }}</span>
+                    </div>
+                    <div class="text-color-secondary text-sm">
+                        {{ 'SETTINGS.PAYOUT.CURRENT_CURRENCY' | translate:{ currency: payoutAccount.currency } }}
+                    </div>
+                </div>
+
+                <form [formGroup]="payoutForm" (ngSubmit)="savePayout()" class="flex flex-column gap-3">
+                    <div class="flex flex-column gap-2">
+                        <label class="font-medium text-sm" for="payout-iban">{{ 'SETTINGS.PAYOUT.IBAN_LABEL' | translate }}</label>
+                        <input pInputText id="payout-iban" formControlName="iban"
+                            [placeholder]="'SETTINGS.PAYOUT.IBAN_PLACEHOLDER' | translate" class="font-mono" />
+                        <small class="text-color-secondary">{{ 'SETTINGS.PAYOUT.IBAN_HELP' | translate }}</small>
+                        <small class="text-red-500"
+                            *ngIf="payoutForm.get('iban')?.invalid && payoutForm.get('iban')?.touched">
+                            {{ 'SETTINGS.ERRORS.FIRST_NAME_REQUIRED' | translate }}
+                        </small>
+                    </div>
+                    <div class="flex flex-column gap-2">
+                        <label class="font-medium text-sm" for="payout-currency">{{ 'SETTINGS.PAYOUT.CURRENCY_LABEL' | translate }}</label>
+                        <p-select inputId="payout-currency" formControlName="currency" [options]="currencyOptions" optionLabel="label"
+                            optionValue="value"
+                            [placeholder]="'SETTINGS.PAYOUT.CURRENCY_PLACEHOLDER' | translate"
+                            styleClass="w-full md:w-20rem"></p-select>
+                        <small class="text-color-secondary">{{ 'SETTINGS.PAYOUT.CURRENCY_HELP' | translate }}</small>
+                        <small class="text-orange-500">{{ 'SETTINGS.PAYOUT.CURRENCY_CHANGE_WARNING' | translate }}</small>
+                    </div>
+                    <div>
+                        <p-button [label]="'SETTINGS.PAYOUT.SAVE' | translate" type="submit"
+                            [loading]="payoutLoading"
+                            [disabled]="payoutForm.invalid || payoutLoading"></p-button>
+                    </div>
+                </form>
+            </div>
+
             <div class="mt-8 border-top-1 border-gray-200 pt-6">
                 <h3 class="text-xl font-semibold text-red-600 mb-2">{{ 'SETTINGS.DANGER.TITLE' | translate }}</h3>
                 <div class="danger-panel border-1 border-round p-4 flex justify-content-between align-items-center">

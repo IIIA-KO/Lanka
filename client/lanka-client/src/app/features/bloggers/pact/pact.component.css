@@ -126,6 +126,13 @@
   color: var(--p-text-secondary-color);
 }
 
+.field-error {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--p-red-500);
+  font-size: 0.85rem;
+}
+
 .reset-link {
   background: none;
   border: none;

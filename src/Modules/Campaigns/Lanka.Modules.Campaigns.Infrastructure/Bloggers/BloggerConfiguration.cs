@@ -3,6 +3,7 @@ using Lanka.Modules.Campaigns.Domain.Bloggers.Bios;
 using Lanka.Modules.Campaigns.Domain.Bloggers.BirthDates;
 using Lanka.Modules.Campaigns.Domain.Bloggers.Emails;
 using Lanka.Modules.Campaigns.Domain.Bloggers.FirstNames;
+using Lanka.Modules.Campaigns.Domain.Bloggers.Ibans;
 using Lanka.Modules.Campaigns.Domain.Bloggers.LastNames;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Microsoft.EntityFrameworkCore;
@@ -73,5 +74,20 @@ public class BloggerConfiguration : IEntityTypeConfiguration<Blogger>
             );
 
         builder.OwnsOne(blogger => blogger.InstagramMetadata);
+
+        builder.OwnsOne(blogger => blogger.PayoutAccount, pa =>
+        {
+            pa.Property(p => p.Iban)
+                .HasConversion(
+                    iban => iban.Value,
+                    value => Iban.Create(value).Value
+                )
+                .HasColumnName("payout_iban")
+                .IsRequired(false);
+
+            pa.Property(p => p.Currency)
+                .HasColumnName("payout_currency")
+                .IsRequired(false);
+        });
     }
 }

@@ -35,6 +35,7 @@
     "CAMPAIGNS": "Campaigns",
     "CAMPAIGN_DETAILS": "Campaign Details",
     "CREATE_CAMPAIGN": "Create Campaign",
+    "CHATS": "Chats",
     "SEARCH": "Search",
     "PROFILE": "Profile",
     "SETTINGS": "Settings",
@@ -47,6 +48,7 @@
   "NAV": {
     "PROFILE": "Profile",
     "SEARCH": "Search",
+    "CHATS": "Chats",
     "CAMPAIGNS": "Campaigns",
     "PACT": "Pact",
     "SETTINGS": "Settings",
@@ -102,7 +104,9 @@
       "NO_ID": "No offer id provided",
       "LOAD_ERROR": "Error loading offer: {{message}}",
       "DELETE_ERROR": "Error deleting offer: {{message}}",
-      "DELETE_CONFIRM_PROMPT": "Are you sure you want to delete this offer?"
+      "DELETE_CONFIRM_PROMPT": "Are you sure you want to delete this offer?",
+      "NO_PAYOUT_ACCOUNT": "You must configure a payout account in Settings before creating offers.",
+      "PAYOUT_CURRENCY_LOCKED": "Currency is locked to your payout account currency ({{currency}}). Change it in Settings."
     }
   },
   "FOOTER": {
@@ -350,7 +354,27 @@
     "PHOTO_REMOVED": "Photo removed",
     "REMOVE_FAILED": "Failed to remove photo",
     "REFRESH_FAILED": "Failed to refresh profile",
-    "CONFIRM_REMOVE_PHOTO": "Remove profile photo?"
+    "CONFIRM_REMOVE_PHOTO": "Remove profile photo?",
+    "PAYOUT": {
+      "TITLE": "Payout Account",
+      "DESCRIPTION": "Your IBAN is used to receive payments for completed campaigns. It is never shared with clients.",
+      "IBAN_LABEL": "IBAN",
+      "IBAN_PLACEHOLDER": "e.g. UA213996220000026001234567890",
+      "IBAN_HELP": "The first two IBAN letters identify the bank account country. They do not have to match the payout currency.",
+      "CURRENCY_LABEL": "Payout and offer currency",
+      "CURRENCY_PLACEHOLDER": "Select currency",
+      "CURRENCY_HELP": "Offers you create must use this currency. Make sure the bank account can receive it.",
+      "SAVE": "Save Payout Account",
+      "SAVED": "Payout account saved",
+      "SAVE_FAILED": "Failed to save payout account",
+      "CURRENCY_CHANGE_WARNING": "Changing currency while you have active campaigns (Pending/Confirmed/Done as creator) is not allowed.",
+      "NO_ACCOUNT": "No payout account configured",
+      "CURRENT_IBAN": "Current IBAN (masked)",
+      "CURRENT_CURRENCY": "Payout and offer currency: {{currency}}",
+      "CURRENCY_MISMATCH": "Offer currency must match your payout account currency.",
+      "REQUIRED_FOR_OFFERS": "You must configure a payout account before creating offers.",
+      "ACTIVE_CAMPAIGNS_BLOCK": "Cannot change payout currency while you have active campaigns as creator."
+    }
   },
   "AUTH_LAYOUT": {
     "SUBTITLE": "A network for successful cooperation with bloggers",
@@ -636,21 +660,17 @@
       "WORK_WITH_ME": "Work with me"
     },
     "PROPOSE": {
-      "HEADER": "Propose Campaign: {{name}}",
+      "HEADER": "Start Campaign: {{name}}",
       "NEW_CAMPAIGN": "New Campaign",
-      "NAME_LABEL": "Campaign Name",
-      "NAME_PLACEHOLDER": "E.g., Summer Collection Launch",
-      "NAME_REQUIRED": "Name is required (min 3 chars)",
-      "DESC_LABEL": "Description & Requirements",
-      "DESC_PLACEHOLDER": "Describe your campaign goals, requirements, and any specific details...",
-      "DESC_REQUIRED": "Description is required (min 10 chars)",
+      "DEFAULT_NAME": "Campaign for {{name}}",
+      "HINT": "Pick a date to start a pending campaign on this offer. The creator will confirm or reject it.",
       "DATE_LABEL": "Proposed Date",
       "DATE_PLACEHOLDER": "Select a date",
       "DATE_REQUIRED": "Date is required",
       "CANCEL": "Cancel",
-      "SUBMIT": "Send Proposal",
-      "SUCCESS": "Campaign proposal sent successfully!",
-      "ERROR": "Failed to send proposal. Please try again."
+      "SUBMIT": "Start Campaign",
+      "SUCCESS": "Campaign started successfully!",
+      "ERROR": "Failed to start campaign. Please try again."
     }
   },
   "CAMPAIGNS": {
@@ -766,6 +786,7 @@
       "OFFER_ID": "Offer ID",
       "TIMELINE": "Status Timeline",
       "TIMELINE_PENDING": "Pending",
+      "NEXT_STEP_TITLE": "Next step",
       "ACTIONS_TITLE": "Actions",
       "CONFIRM_CAMPAIGN": "Confirm Campaign",
       "REJECT": "Reject",
@@ -817,7 +838,62 @@
     "ERROR": "We could not load your campaigns right now. Please try again shortly.",
     "ERROR_USER": "Unable to identify current user profile.",
     "ROLE_CREATOR": "Creator",
-    "ROLE_CLIENT": "Client"
+    "ROLE_CLIENT": "Client",
+    "PAYMENT": {
+      "TITLE": "Payment",
+      "REQUIRED_TITLE": "Payment required",
+      "REQUIRED_BODY": "The creator has submitted the work report. Review it below and pay to close the campaign.",
+      "AMOUNT_DUE": "Amount due",
+      "PAY_BTN": "Pay Now",
+      "STATUS_Pending": "Pending",
+      "STATUS_Completed": "Paid",
+      "STATUS_Failed": "Failed",
+      "PAID_AT": "Paid at",
+      "SANDBOX_HINT": "Sandbox mode — use test card details",
+      "ERROR_INITIATE": "Failed to initiate payment"
+    }
+  },
+  "CHAT": {
+    "INBOX_TITLE": "Chats",
+    "INBOX_SUBTITLE": "Talk with creators and clients before or during a campaign.",
+    "TITLE": "Conversation",
+    "SUBTITLE": "Messages stay available from your chat inbox.",
+    "EMPTY": "No messages yet",
+    "EMPTY_THREADS": "No chats yet",
+    "EMPTY_THREADS_HINT": "Start from a blogger offer or wait for a campaign conversation.",
+    "SELECT_THREAD": "Select a conversation",
+    "REFRESH": "Refresh",
+    "OFFER_CONTEXT": "Offer: {{name}}",
+    "CAMPAIGN_CONTEXT": "Campaign: {{name}}",
+    "DIRECT_CONTEXT": "Direct chat",
+    "NO_MESSAGES": "No messages yet",
+    "START_OFFER_CHAT": "Chat about this offer",
+    "VIEW_PROFILE": "View profile",
+    "PLACEHOLDER": "Write a message...",
+    "SEND": "Send",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "SAVE_EDIT": "Save edit",
+    "CANCEL_EDIT": "Cancel edit",
+    "DELETE_CONFIRM": "Delete this message?",
+    "DELETED": "Message deleted",
+    "EDITED": "Edited",
+    "SENT": "Sent",
+    "READ": "Read",
+    "UNKNOWN_USER": "Participant",
+    "ERROR_LOAD": "Failed to load chat messages",
+    "ERROR_LOAD_THREADS": "Failed to load chats",
+    "ERROR_START": "Failed to start chat",
+    "ERROR_SEND": "Failed to send message",
+    "ERROR_EDIT": "Failed to edit message",
+    "ERROR_DELETE": "Failed to delete message",
+    "SYSTEM": {
+      "CAMPAIGN_CONFIRMED": "Campaign confirmed",
+      "CAMPAIGN_DONE": "Work submitted",
+      "PAYMENT_COMPLETED": "Payment completed",
+      "CAMPAIGN_CANCELLED": "Campaign cancelled",
+      "CAMPAIGN_REJECTED": "Campaign rejected"
+    }
   },
   "INSTAGRAM_STATUS": {
     "DEFAULT_TITLE": "Instagram status",
@@ -873,5 +949,11 @@
     "ERRORS": {
       "LOAD_FAILED": "Failed to load analytics data"
     }
+  },
+  "NOTIFICATIONS": {
+    "TOOLTIP": "Notifications",
+    "TITLE": "Notifications",
+    "MARK_ALL_READ": "Mark all read",
+    "EMPTY": "No notifications"
   }
 }

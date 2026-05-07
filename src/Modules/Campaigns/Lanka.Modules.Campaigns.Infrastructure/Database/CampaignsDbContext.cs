@@ -3,7 +3,10 @@ using Lanka.Common.Infrastructure.Outbox;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
+using Lanka.Modules.Campaigns.Domain.Chat;
+using Lanka.Modules.Campaigns.Domain.Notifications;
 using Lanka.Modules.Campaigns.Domain.Offers;
+using Lanka.Modules.Campaigns.Domain.Payments;
 using Lanka.Modules.Campaigns.Domain.Pacts;
 using Lanka.Modules.Campaigns.Domain.Reviews;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +24,14 @@ public class CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : 
     internal DbSet<Pact> Pacts { get; set; }
     
     internal DbSet<Review> Reviews { get; set; }
+
+    internal DbSet<Notification> Notifications { get; set; }
+
+    internal DbSet<Payment> Payments { get; set; }
+
+    internal DbSet<ChatThread> ChatThreads { get; set; }
+
+    internal DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

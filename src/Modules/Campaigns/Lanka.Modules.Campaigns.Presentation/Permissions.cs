@@ -21,4 +21,13 @@ internal static class Permissions
     internal const string CreateReview = "reviews:create";
     internal const string UpdateReview = "reviews:update";
     internal const string DeleteReview = "reviews:delete";
+
+    internal const string ReadNotifications = "notifications:read";
+    internal const string UpdateNotifications = "notifications:update";
+
+    internal const string ReadPayments = "payments:read";
+    internal const string CreatePayment = "payments:create";
+
+    internal const string ReadChat = "chat:read";
+    internal const string WriteChat = "chat:write";
 }

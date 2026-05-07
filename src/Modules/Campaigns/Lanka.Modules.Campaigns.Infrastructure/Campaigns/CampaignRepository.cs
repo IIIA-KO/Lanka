@@ -1,3 +1,4 @@
+using Lanka.Modules.Campaigns.Domain.Bloggers;
 using Lanka.Modules.Campaigns.Domain.Campaigns;
 using Lanka.Modules.Campaigns.Domain.Offers;
 using Lanka.Modules.Campaigns.Infrastructure.Database;
@@ -38,6 +39,19 @@ internal sealed class CampaignRepository : ICampaignRepository
                             && campaign.ScheduledOnUtc >= startTime
                             && campaign.ScheduledOnUtc <= endTime
                             && Campaign.ActiveCampaignStatuses.Contains(campaign.Status),
+                cancellationToken
+            );
+    }
+
+    public async Task<bool> HasActiveCreatorCampaignsAsync(
+        BloggerId bloggerId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await this._dbContext.Campaigns
+            .AsNoTracking()
+            .AnyAsync(
+                c => c.CreatorId == bloggerId && Campaign.ActiveCampaignStatuses.Contains(c.Status),
                 cancellationToken
             );
     }
