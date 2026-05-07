@@ -7,8 +7,10 @@
   --nav-shadow: 0 12px 34px rgba(0, 0, 0, 0.14);
   display: block;
   position: fixed;
+  top: 4.5rem;
+  bottom: 0;
+  left: 0;
   z-index: 1000;
-  height: 93vh;
 }
 
 .sidebar-container {
