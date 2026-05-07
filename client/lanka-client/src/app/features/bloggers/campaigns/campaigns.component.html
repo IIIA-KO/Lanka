@@ -84,6 +84,7 @@
                             <div class="cal-mini-cell"
                                  [class.cal-mini-cell--other-month]="!day.isCurrentMonth"
                                  [class.cal-mini-cell--clickable]="day.isCurrentMonth && day.campaigns.length > 0"
+                                 [class.cal-mini-cell--selected]="isSelectedDay(day)"
                                  role="button" tabindex="0"
                                  (click)="onDayClick(day)"
                                  (keyup.enter)="onDayClick(day)">
@@ -114,7 +115,7 @@
                         @if (detailCampaigns.length === 1) {
                             <!-- Single campaign detail -->
                             @let campaign = detailCampaigns[0];
-                            <div class="cam-detail-card">
+                            <div class="cam-detail-card detail-animate">
                                 <div class="cam-detail-header">
                                     <div class="cam-detail-date">
                                         {{ campaign.scheduledOnUtc | date:'d MMMM yyyy' }}
@@ -198,7 +199,7 @@
                             </div>
                         } @else {
                             <!-- Multiple campaigns on selected day -->
-                            <div class="cam-detail-card">
+                            <div class="cam-detail-card detail-animate">
                                 @for (campaign of detailCampaigns; track campaign.id) {
                                     <div class="cam-detail-list-item"
                                          role="button" tabindex="0"
@@ -280,7 +281,7 @@
                     </ng-template>
 
                     <ng-template pTemplate="body" let-campaign>
-                        <tr (click)="viewCampaign(campaign.id)" style="cursor:pointer">
+                        <tr class="campaign-list-row" (click)="viewCampaign(campaign.id)" style="cursor:pointer">
                             <td class="text-sm" style="color:var(--text-color-secondary)">
                                 {{ campaign.scheduledOnUtc | date:'d MMM yyyy' }}
                             </td>
