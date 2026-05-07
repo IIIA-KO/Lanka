@@ -46,6 +46,8 @@ import { MarkdownService } from '../../../core/services/markdown.service';
   styleUrls: ['./pact.component.css']
 })
 export class PactComponent implements OnInit, OnDestroy {
+  private static readonly MaxContentLength = 4000;
+
   public pact: IPact | null = null;
   public pactForm!: FormGroup;
   public loading = false;
@@ -136,6 +138,11 @@ export class PactComponent implements OnInit, OnDestroy {
   }
 
   public onSubmit(): void {
+    if (this.pactForm.invalid) {
+      this.pactForm.markAllAsTouched();
+      return;
+    }
+
     if (this.pactForm.valid) {
       this.loading = true;
       
@@ -230,35 +237,49 @@ export class PactComponent implements OnInit, OnDestroy {
    * Provides sample pact content for first-time users
    */
   public getSamplePactContent(): string {
-    return `# Partnership Terms & Collaboration Guidelines
+    return `# Partnership Agreement
 
-## 🤝 About Me
-I am a passionate content creator specializing in **[your niche - fashion/tech/lifestyle/etc.]**. I believe in authentic partnerships that provide genuine value to my audience while supporting brand growth.
+This pact describes how I usually work with brands on sponsored Instagram content. Specific campaign details, dates, deliverables, and price are confirmed separately in each offer or campaign.
 
-## 📋 Collaboration Scope
-* **Content Types**: Instagram posts, Stories, Reels, YouTube videos
-* **Posting Schedule**: Flexible timeline with 3-5 business days notice
-* **Content Approval**: Draft review process before final publication
-* **Usage Rights**: Limited to agreed campaign duration unless otherwise specified
+## Collaboration Fit
 
-## 💰 Investment & Deliverables
-* Pricing varies based on content type, reach, and campaign complexity
-* Package deals available for multi-platform campaigns
-* Additional revisions beyond initial scope may incur extra charges
-* Payment terms: 50% upfront, 50% upon content delivery
+I accept campaigns that match my audience, content style, and personal standards. I may decline products or briefs that feel misleading, low quality, unsafe, or unrelated to my community.
 
-## 📈 Performance & Analytics
-* Detailed performance reports provided within 7 days of campaign completion
-* Engagement metrics, reach, and audience insights included
-* Long-term partnership discounts available for returning clients
+## Campaign Workflow
 
-## 🎯 Brand Alignment
-I only partner with brands that align with my values and audience interests. This ensures authentic content that resonates with my community and drives meaningful results for your business.
+1. The client shares the campaign goal, product details, key message, required mentions, and deadline.
+2. I confirm the scope, publication date, and deliverables before work begins.
+3. If a draft review is included, I send the concept or preview before publishing.
+4. After publishing, I provide the final content link and a short work report.
 
-## 📞 Let's Connect
-Ready to create something amazing together? I'm excited to discuss how we can bring your brand vision to life through engaging, authentic content.
+## Deliverables
 
-> **Note**: These are general guidelines. Specific terms will be customized for each partnership based on campaign requirements and objectives.`;
+Each offer defines the exact deliverable, such as a Reel, Story set, feed post, mention, or highlight. Unless agreed otherwise:
+
+* one deliverable includes one publication on my Instagram profile;
+* minor edits are included before publication;
+* major brief changes after approval may require a new campaign or extra fee;
+* publication timing may shift slightly because of platform issues or product delivery delays.
+
+## Content Review
+
+The client may request changes that keep the content accurate and aligned with the approved brief. I keep final editorial control over tone, wording, visuals, and presentation so the content stays natural for my audience.
+
+## Usage Rights
+
+The client may repost the published content organically with credit to my profile. Paid advertising, whitelisting, editing the content, or using it outside social media requires written approval and separate terms.
+
+## Payment
+
+Payment is made through Lanka according to the campaign price and currency. The campaign is considered ready for payment after the agreed content is delivered and the work report is submitted.
+
+## Cancellation
+
+Either side can cancel before work starts. If the campaign is cancelled after content planning, filming, or editing has begun, we should agree on fair compensation for completed work.
+
+## Communication
+
+Please keep campaign requirements, deadlines, and feedback in Lanka chat so both sides have a clear record of the agreement.`;
   }
 
   public getParsedContent(content: string): string {
@@ -323,7 +344,11 @@ Ready to create something amazing together? I'm excited to discuss how we can br
 
   private initializeForm(): void {
     this.pactForm = this.fb.group({
-      content: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(2000)]]
+      content: ['', [
+        Validators.required,
+        Validators.minLength(50),
+        Validators.maxLength(PactComponent.MaxContentLength),
+      ]]
     });
   }
 }
