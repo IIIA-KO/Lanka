@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
+import { IChatMessage, IChatMessageDeletedEvent, IChatMessagesReadEvent } from '../api/chat.agent';
 
 export interface InstagramStatusNotification {
   type: 'instagram_linking' | 'instagram_renewal';
@@ -25,6 +26,10 @@ export class SignalRService {
   public instagramLinking$ = new Subject<InstagramStatusNotification>();
   public instagramRenewal$ = new Subject<InstagramStatusNotification>();
   public campaignNotification$ = new Subject<CampaignNotification>();
+  public chatMessageSent$ = new Subject<IChatMessage>();
+  public chatMessageEdited$ = new Subject<IChatMessage>();
+  public chatMessageDeleted$ = new Subject<IChatMessageDeletedEvent>();
+  public chatMessagesRead$ = new Subject<IChatMessagesReadEvent>();
   public readonly connectionState$;
 
   private hubConnection: HubConnection | null = null;
@@ -76,6 +81,22 @@ export class SignalRService {
       this.campaignNotification$.next(notification);
     });
 
+    this.hubConnection.on('ChatMessageSent', (message: IChatMessage) => {
+      this.chatMessageSent$.next(message);
+    });
+
+    this.hubConnection.on('ChatMessageEdited', (message: IChatMessage) => {
+      this.chatMessageEdited$.next(message);
+    });
+
+    this.hubConnection.on('ChatMessageDeleted', (event: IChatMessageDeletedEvent) => {
+      this.chatMessageDeleted$.next(event);
+    });
+
+    this.hubConnection.on('ChatMessagesRead', (event: IChatMessagesReadEvent) => {
+      this.chatMessagesRead$.next(event);
+    });
+
     this.hubConnection.onclose(() => {
       console.warn('[SignalRService] Connection closed');
       this.connectionStateSubject.next('disconnected');
@@ -110,5 +131,21 @@ export class SignalRService {
       this.hubConnection = null;
       this.connectionStateSubject.next('disconnected');
     }
+  }
+
+  public async joinChat(threadId: string): Promise<void> {
+    if (this.hubConnection?.state !== 'Connected') {
+      return;
+    }
+
+    await this.hubConnection.invoke('JoinChat', threadId);
+  }
+
+  public async leaveChat(threadId: string): Promise<void> {
+    if (this.hubConnection?.state !== 'Connected') {
+      return;
+    }
+
+    await this.hubConnection.invoke('LeaveChat', threadId);
   }
 }

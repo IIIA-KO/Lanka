@@ -71,7 +71,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   public reviewComment = '';
   public readonly CampaignStatus = CampaignStatus;
 
-  private currentUserId: string | null = null;
+  public currentUserId: string | null = null;
   private readonly destroy$ = new Subject<void>();
 
   private readonly route = inject(ActivatedRoute);
