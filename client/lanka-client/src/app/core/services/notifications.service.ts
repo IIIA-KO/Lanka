@@ -1,23 +1,26 @@
 import { Injectable, DestroyRef, inject, OnDestroy } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { INotification, NotificationsAgent } from '../api/notifications.agent';
 import { SignalRService } from './signalr.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService implements OnDestroy {
+  public readonly unreadCount$ = new BehaviorSubject<number>(0);
+
   private readonly notificationsSubject = new BehaviorSubject<INotification[]>([]);
   private readonly agent = inject(NotificationsAgent);
   private readonly signalR = inject(SignalRService);
   private readonly destroyRef = inject(DestroyRef);
 
-  public readonly notifications$ = this.notificationsSubject.asObservable();
-  public readonly unreadCount$ = new BehaviorSubject<number>(0);
-
   constructor() {
     this.signalR.campaignNotification$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.load());
+  }
+
+  public get notifications$(): Observable<INotification[]> {
+    return this.notificationsSubject.asObservable();
   }
 
   public load(): void {

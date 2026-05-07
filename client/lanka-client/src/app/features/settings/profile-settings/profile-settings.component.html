@@ -145,8 +145,8 @@
 
                 <form [formGroup]="payoutForm" (ngSubmit)="savePayout()" class="flex flex-column gap-3">
                     <div class="flex flex-column gap-2">
-                        <label class="font-medium text-sm">{{ 'SETTINGS.PAYOUT.IBAN_LABEL' | translate }}</label>
-                        <input pInputText formControlName="iban"
+                        <label class="font-medium text-sm" for="payout-iban">{{ 'SETTINGS.PAYOUT.IBAN_LABEL' | translate }}</label>
+                        <input pInputText id="payout-iban" formControlName="iban"
                             [placeholder]="'SETTINGS.PAYOUT.IBAN_PLACEHOLDER' | translate" class="font-mono" />
                         <small class="text-color-secondary">{{ 'SETTINGS.PAYOUT.IBAN_HELP' | translate }}</small>
                         <small class="text-red-500"
@@ -155,8 +155,8 @@
                         </small>
                     </div>
                     <div class="flex flex-column gap-2">
-                        <label class="font-medium text-sm">{{ 'SETTINGS.PAYOUT.CURRENCY_LABEL' | translate }}</label>
-                        <p-select formControlName="currency" [options]="currencyOptions" optionLabel="label"
+                        <label class="font-medium text-sm" for="payout-currency">{{ 'SETTINGS.PAYOUT.CURRENCY_LABEL' | translate }}</label>
+                        <p-select inputId="payout-currency" formControlName="currency" [options]="currencyOptions" optionLabel="label"
                             optionValue="value"
                             [placeholder]="'SETTINGS.PAYOUT.CURRENCY_PLACEHOLDER' | translate"
                             styleClass="w-full md:w-20rem"></p-select>

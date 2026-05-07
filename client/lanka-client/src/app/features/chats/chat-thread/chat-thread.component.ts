@@ -22,9 +22,9 @@ import { SnackbarService } from '../../../core/services/snackbar/snackbar.servic
   styleUrl: './chat-thread.component.css',
 })
 export class ChatThreadComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
-  @Input({ required: true }) threadId!: string;
-  @Input({ required: true }) currentBloggerId!: string;
-  @Input() thread: IChatThread | null = null;
+  @Input({ required: true }) public threadId!: string;
+  @Input({ required: true }) public currentBloggerId!: string;
+  @Input() public thread: IChatThread | null = null;
 
   @ViewChild('messageList') private messageList?: ElementRef<HTMLDivElement>;
 

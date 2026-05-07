@@ -42,7 +42,10 @@
           <li
             class="notification-item"
             [class.unread]="!n.isRead"
+            role="link"
+            tabindex="0"
             (click)="markRead(n, $event)"
+            (keydown.enter)="markRead(n, $event)"
             [routerLink]="['/campaigns', n.campaignId]"
           >
             <div class="notif-dot" [class.visible]="!n.isRead"></div>
