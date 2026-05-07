@@ -1,10 +1,11 @@
 using Lanka.Common.Application.Notifications;
+using Lanka.Common.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Lanka.Common.Infrastructure.Notifications;
 
-public sealed class SignalRNotificationService : INotificationService
+public sealed class SignalRNotificationService : INotificationService, IChatNotificationService
 {
     private readonly IHubContext<InstagramHub> _hubContext;
 
@@ -54,11 +55,44 @@ public sealed class SignalRNotificationService : INotificationService
         await this._hubContext.Clients.Group($"user_{identityId}")
             .SendAsync("CampaignNotification", notification, cancellationToken);
     }
+
+    public async Task SendMessageAsync(ChatMessageNotification message, CancellationToken cancellationToken = default)
+    {
+        await this._hubContext.Clients.Group(GetChatGroupName(message.ThreadId))
+            .SendAsync("ChatMessageSent", message, cancellationToken);
+    }
+
+    public async Task EditMessageAsync(ChatMessageNotification message, CancellationToken cancellationToken = default)
+    {
+        await this._hubContext.Clients.Group(GetChatGroupName(message.ThreadId))
+            .SendAsync("ChatMessageEdited", message, cancellationToken);
+    }
+
+    public async Task DeleteMessageAsync(ChatMessageDeletedNotification notification, CancellationToken cancellationToken = default)
+    {
+        await this._hubContext.Clients.Group(GetChatGroupName(notification.ThreadId))
+            .SendAsync("ChatMessageDeleted", notification, cancellationToken);
+    }
+
+    public async Task MarkReadAsync(ChatMessagesReadNotification notification, CancellationToken cancellationToken = default)
+    {
+        await this._hubContext.Clients.Group(GetChatGroupName(notification.ThreadId))
+            .SendAsync("ChatMessagesRead", notification, cancellationToken);
+    }
+
+    private static string GetChatGroupName(Guid threadId) => $"chat_{threadId}";
 }
 
 [Authorize]
 public sealed class InstagramHub : Hub
 {
+    private readonly IChatMembershipService _chatMembershipService;
+
+    public InstagramHub(IChatMembershipService chatMembershipService)
+    {
+        this._chatMembershipService = chatMembershipService;
+    }
+
     public override async Task OnConnectedAsync()
     {
         string? userId = this.Context.User?.FindFirst("sub")?.Value;
@@ -80,6 +114,31 @@ public sealed class InstagramHub : Hub
 
         await base.OnDisconnectedAsync(exception);
     }
+
+    public async Task JoinChat(Guid threadId)
+    {
+        Guid userId = this.Context.User.GetUserId();
+        bool canJoin = await this._chatMembershipService.CanJoinChatAsync(
+            threadId,
+            userId,
+            this.Context.ConnectionAborted);
+
+        if (!canJoin)
+        {
+            throw new HubException("You are not a participant in this chat.");
+        }
+
+        await this.Groups.AddToGroupAsync(
+            this.Context.ConnectionId,
+            $"chat_{threadId}",
+            this.Context.ConnectionAborted);
+    }
+
+    public async Task LeaveChat(Guid threadId)
+    {
+        await this.Groups.RemoveFromGroupAsync(
+            this.Context.ConnectionId,
+            $"chat_{threadId}",
+            this.Context.ConnectionAborted);
+    }
 }
-
-

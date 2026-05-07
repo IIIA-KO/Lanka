@@ -35,6 +35,9 @@ public sealed class Permission
 
     public static readonly Permission ReadPayments = new("payments:read");
     public static readonly Permission CreatePayment = new("payments:create");
+
+    public static readonly Permission ReadChat = new("chat:read");
+    public static readonly Permission WriteChat = new("chat:write");
     
     public Permission(string code)
     {

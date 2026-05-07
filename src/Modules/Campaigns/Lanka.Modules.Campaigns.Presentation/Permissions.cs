@@ -27,4 +27,7 @@ internal static class Permissions
 
     internal const string ReadPayments = "payments:read";
     internal const string CreatePayment = "payments:create";
+
+    internal const string ReadChat = "chat:read";
+    internal const string WriteChat = "chat:write";
 }

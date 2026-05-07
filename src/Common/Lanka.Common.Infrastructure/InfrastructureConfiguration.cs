@@ -145,5 +145,6 @@ public static class InfrastructureConfiguration
     private static void AddNotifications(IServiceCollection services)
     {
         services.TryAddScoped<INotificationService, SignalRNotificationService>();
+        services.TryAddScoped<IChatNotificationService, SignalRNotificationService>();
     }
 }
