@@ -7,6 +7,7 @@ using Lanka.Modules.Users.Infrastructure.Identity.Apis;
 using Lanka.Modules.Users.Infrastructure.Identity.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Refit;
 
 namespace Lanka.Modules.Users.Infrastructure.Identity.Services;
 
@@ -97,7 +98,16 @@ internal sealed class KeycloakTokenService : IKeycloakTokenService
             }
         );
 
-        AuthorizationToken token = await this.RequestTokenInternalAsync(parameters);
+        AuthorizationToken token;
+        try
+        {
+            token = await this.RequestTokenInternalAsync(parameters);
+        }
+        catch (ApiException ex) when ((int)ex.StatusCode is >= 400 and < 500)
+        {
+            this._logger.LogWarning(ex, "Refresh token rejected by Keycloak: {Status}", ex.StatusCode);
+            return Result.Failure<AccessTokenResponse>(IdentityProviderErrors.InvalidCredentials);
+        }
 
         if (string.IsNullOrEmpty(token.AccessToken))
         {

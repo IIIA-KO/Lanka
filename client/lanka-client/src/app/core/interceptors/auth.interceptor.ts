@@ -2,10 +2,9 @@ import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpReq
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth/auth.service';
 import {
-  BehaviorSubject,
   Observable,
+  Subject,
   catchError,
-  filter,
   switchMap,
   take,
   throwError,
@@ -44,7 +43,7 @@ export const authInterceptor: HttpInterceptorFn = (
 };
 
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+let refreshResult$ = new Subject<string>();
 
 function handle401Error(
   request: HttpRequest<unknown>,
@@ -53,38 +52,36 @@ function handle401Error(
 ): Observable<HttpEvent<unknown>> {
   if (!isRefreshing) {
     isRefreshing = true;
-    refreshTokenSubject.next(null);
+    refreshResult$ = new Subject<string>();
 
     console.warn('[AuthInterceptor] Starting token refresh process');
     return authService.refreshToken().pipe(
       switchMap((tokenResponse: { accessToken: string }) => {
         isRefreshing = false;
-        refreshTokenSubject.next(tokenResponse.accessToken);
+        refreshResult$.next(tokenResponse.accessToken);
+        refreshResult$.complete();
         console.warn('[AuthInterceptor] Token refreshed successfully, retrying request');
 
-        // Retry the original request with the new token
         return next(addAuthHeader(request, tokenResponse.accessToken));
       }),
       catchError((error) => {
         console.error('[AuthInterceptor] Token refresh failed:', error);
         isRefreshing = false;
-        refreshTokenSubject.next(null);
+        refreshResult$.error(error);
         authService.logout();
         return throwError(() => error);
       })
     );
-  } else {
-    // Wait for the refresh to complete, then retry with the new token
-    console.warn('[AuthInterceptor] Waiting for ongoing token refresh');
-    return refreshTokenSubject.pipe(
-      filter((token) => token !== null),
-      take(1),
-      switchMap((token) => {
-        console.warn('[AuthInterceptor] Using refreshed token for queued request');
-        return next(addAuthHeader(request, token));
-      })
-    );
   }
+
+  console.warn('[AuthInterceptor] Waiting for ongoing token refresh');
+  return refreshResult$.pipe(
+    take(1),
+    switchMap((token) => {
+      console.warn('[AuthInterceptor] Using refreshed token for queued request');
+      return next(addAuthHeader(request, token));
+    })
+  );
 }
 
 function addAuthHeader(

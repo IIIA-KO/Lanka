@@ -1,6 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { ITokenResponse, IRefreshTokenRequest } from '../../models/auth';
-import { BehaviorSubject, Observable, Subscription, throwError, timer } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  catchError,
+  finalize,
+  shareReplay,
+  tap,
+  throwError,
+  timer,
+} from 'rxjs';
 import { UsersAgent } from '../../api/users.agent';
 import { Router } from '@angular/router';
 import { SignalRService } from '../signalr.service';
@@ -26,6 +36,7 @@ export class AuthService {
   );
 
   private refreshTimer: Subscription | null = null;
+  private refreshTokenRequest$: Observable<ITokenResponse> | null = null;
 
   private readonly usersAgent = inject(UsersAgent);
   private readonly router = inject(Router);
@@ -67,10 +78,9 @@ export class AuthService {
       return null;
     }
 
-    // Check both our stored expiry and the actual JWT expiry
     if (this.isTokenExpired() || this.isJwtTokenExpired(token)) {
-      console.warn('[AuthService] Token expired, clearing tokens');
-      this.clearTokens();
+      console.warn('[AuthService] Access token expired');
+      this.clearAccessToken();
       return null;
     }
 
@@ -129,6 +139,10 @@ export class AuthService {
   }
 
   public refreshToken(): Observable<ITokenResponse> {
+    if (this.refreshTokenRequest$) {
+      return this.refreshTokenRequest$;
+    }
+
     const refreshToken = this.getRefreshToken();
 
     if (!refreshToken) {
@@ -140,27 +154,34 @@ export class AuthService {
       refreshToken: refreshToken,
     };
 
-    return new Observable((observer) => {
-      this.usersAgent.refreshToken(refreshRequest).subscribe({
-        next: (tokenResponse: ITokenResponse) => {
-          this.storeTokens(tokenResponse);
-          this.isAuthenticatedSubject.next(true);
-          this.startTokenRefreshTimer();
-          observer.next(tokenResponse);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('[AuthService] Token refresh failed:', error);
-          this.logout();
-          observer.error(error);
-        },
-      });
-    });
+    this.refreshTokenRequest$ = this.usersAgent.refreshToken(refreshRequest).pipe(
+      tap((tokenResponse: ITokenResponse) => {
+        this.storeTokens(tokenResponse);
+        this.isAuthenticatedSubject.next(true);
+        this.startTokenRefreshTimer();
+      }),
+      catchError((error) => {
+        console.error('[AuthService] Token refresh failed:', error);
+        this.logout();
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.refreshTokenRequest$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    return this.refreshTokenRequest$;
   }
 
   public clearTokens(): void {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
+  }
+
+  private clearAccessToken(): void {
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
   }
 
@@ -201,7 +222,7 @@ export class AuthService {
 
   private hasValidToken(): boolean {
     const token = localStorage.getItem(this.ACCESS_TOKEN_KEY);
-    return token !== null && !this.isTokenExpired();
+    return token !== null && !this.isTokenExpired() && !this.isJwtTokenExpired(token);
   }
 
   private storeTokens(tokenResponse: ITokenResponse): void {
@@ -234,7 +255,12 @@ export class AuthService {
 
     if (remainingTime <= 0) {
       console.warn('[AuthService] Token has already expired, refreshing immediately');
-      this.refreshToken().subscribe();
+      this.refreshToken().subscribe({
+        error: (error) => {
+          console.error('[AuthService] Immediate token refresh failed:', error);
+          this.logout();
+        },
+      });
       return;
     }
 
@@ -261,7 +287,12 @@ export class AuthService {
       });
     } else {
       console.warn('[AuthService] Token is about to expire, refreshing now...');
-      this.refreshToken().subscribe();
+      this.refreshToken().subscribe({
+        error: (error) => {
+          console.error('[AuthService] Immediate token refresh failed:', error);
+          this.logout();
+        },
+      });
     }
   }
 
