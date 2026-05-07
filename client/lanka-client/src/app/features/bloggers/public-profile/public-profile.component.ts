@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { DatePipe, SlicePipe, TitleCasePipe, DecimalPipe, CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, forkJoin, takeUntil, catchError, of, finalize } from 'rxjs';
 import { BloggersAgent } from '../../../core/api/bloggers.agent';
 import { PactsAgent } from '../../../core/api/pacts.agent';
@@ -40,6 +40,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
 import { ProfileCalendarComponent } from '../components/profile-calendar/profile-calendar.component';
+import { ChatAgent } from '../../../core/api/chat.agent';
 
 @Component({
   selector: 'app-public-profile',
@@ -83,6 +84,8 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
   public showProposeDialog = false;
   public selectedOfferId: string | null = null;
   public selectedOfferName: string | null = null;
+  public selectedOfferDescription: string | null = null;
+  public startingChatOfferId: string | null = null;
 
   // Tabs state
   public activeTab = '0';
@@ -126,7 +129,9 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
   public averagePrices: IAveragePrice[] = [];
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly bloggersApi = inject(BloggersAgent);
+  private readonly chatApi = inject(ChatAgent);
   private readonly pactsApi = inject(PactsAgent);
   private readonly reviewsApi = inject(ReviewsAgent);
   private readonly offersApi = inject(OffersAgent);
@@ -263,10 +268,28 @@ export class PublicProfileComponent implements OnInit, OnDestroy {
     return insight?.values?.[0]?.value || 0;
   }
 
-  public openProposeDialog(offerId?: string, offerName?: string): void {
-    this.selectedOfferId = offerId || null;
-    this.selectedOfferName = offerName || null;
+  public openProposeDialog(offer: IOffer): void {
+    this.selectedOfferId = offer.id;
+    this.selectedOfferName = offer.name;
+    this.selectedOfferDescription = offer.description ?? null;
     this.showProposeDialog = true;
+  }
+
+  public startOfferChat(offer: IOffer): void {
+    if (!this.blogger?.id || this.startingChatOfferId) {
+      return;
+    }
+
+    this.startingChatOfferId = offer.id;
+    this.chatApi.startThread(this.blogger.id, offer.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.startingChatOfferId = null; })
+      )
+      .subscribe({
+        next: thread => void this.router.navigate(['/chats', thread.id]),
+        error: () => this.snackbar.showError(this.translate.instant('CHAT.ERROR_START')),
+      });
   }
 
   public getErStatus(er: number | null | undefined): MetricStatus { return evaluateEngagementRate(er); }
