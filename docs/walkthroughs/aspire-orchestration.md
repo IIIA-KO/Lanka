@@ -424,7 +424,7 @@ public RabbitMqSettings(string connectionString)
 dotnet run --project src/Api/Lanka.AppHost
 ```
 
-This single command starts 7 infrastructure containers and 2 application projects with health-checked startup ordering.
+This single command starts the infrastructure containers, the API, the Gateway, and the Angular client with health-checked startup ordering. When WayForPay development callback settings are configured, it also starts an ngrok container that exposes the local Gateway through a public HTTPS URL.
 
 **Lanka.ServiceDefaults** (`src/Api/Lanka.ServiceDefaults/Extensions.cs`) — A shared project that configures all cross-cutting concerns. Both Lanka.Api and Lanka.Gateway call `builder.AddServiceDefaults()`, which sets up OTel instrumentation, health checks, HTTP resilience, and service discovery.
 
@@ -488,7 +488,9 @@ Parameters marked `secret: true` resolve from `appsettings.Development.json` (un
     "pg-password": "lanka-dev",
     "rabbitmq-password": "lanka-dev",
     "keycloak-password": "admin",
-    "mongo-password": "lanka-dev"
+    "mongo-password": "lanka-dev",
+    "ngrok-auth-token": "replace-with-ngrok-auth-token",
+    "wayforpay-public-base-url": "https://replace-with-static-ngrok-domain.ngrok-free.app"
   }
 }
 ```
@@ -499,6 +501,8 @@ For sensitive environments, use user secrets instead:
 cd src/Api/Lanka.AppHost
 dotnet user-secrets set "Parameters:pg-password" "your-password"
 ```
+
+The WayForPay tunnel parameters are optional. If either value is missing or still set to its placeholder, the AppHost skips the tunnel resource. If both are real values, it starts the `wayforpay-tunnel` container and injects `Campaigns__WayForPay__PublicBaseUrl` into `Lanka.Api`.
 
 #### Infrastructure Resources
 
@@ -553,6 +557,34 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.Lanka_Api>("
 
 Kibana has no Aspire package, so it's added as a generic container with `isProxied: false` to prevent Aspire's port proxy from breaking its websocket connections.
 
+#### Frontend and Payment Callback Tunnel
+
+The Angular client is managed by AppHost as a JavaScript app:
+
+```csharp
+builder.AddJavaScriptApp("lanka-client", "../../../client/lanka-client", "start")
+    .WithReference(gateway)
+    .WithHttpsEndpoint(port: 4200, targetPort: 4200, isProxied: false)
+    .WaitFor(gateway);
+```
+
+The frontend talks to the HTTPS Gateway at `https://localhost:4308`. For WayForPay callbacks, localhost is not enough because the payment provider must call back into the application from the public internet. AppHost handles this as code:
+
+```csharp
+builder
+    .AddContainer("wayforpay-tunnel", "ngrok/ngrok", "latest")
+    .WithEnvironment("NGROK_AUTHTOKEN", ngrokAuthToken)
+    .WithArgs(
+        "http",
+        "https://host.docker.internal:4308",
+        "--url",
+        wayForPayPublicBaseUrl,
+        "--upstream-tls-verify=false")
+    .WaitFor(gateway);
+```
+
+This exposes the local HTTPS Gateway through a configured static ngrok domain, and the API uses that public base URL when building WayForPay `serviceUrl` and `returnUrl` fields.
+
 ### Data Persistence
 
 Every stateful resource uses `WithDataVolume()` — Docker named volumes that survive container restarts. To reset all data:
@@ -598,6 +630,14 @@ dotnet run --project src/Api/Lanka.AppHost
 
 **Fix**: Remove `Kestrel` section from Gateway's `appsettings.json`. Aspire uses the standard dev certificate (`dotnet dev-certs https --trust`).
 
+### WayForPay Callback Does Not Reach Local API
+
+**Symptom**: WayForPay checkout opens, but the app never receives the payment result or the browser return hangs/fails.
+
+**Cause**: WayForPay cannot call `localhost` on your machine. The callback and return URLs must use a public HTTPS base URL.
+
+**Fix**: Configure `Parameters:ngrok-auth-token` and `Parameters:wayforpay-public-base-url` for `Lanka.AppHost`, restart AppHost, and confirm the `wayforpay-tunnel` resource is running in the Aspire Dashboard.
+
 ### Connection String Returns Null
 
 **Symptom**: `GetConnectionString("X")` returns null at runtime.
@@ -616,6 +656,7 @@ dotnet run --project src/Api/Lanka.AppHost
 | ServiceDefaults (OTel + health checks)  | `src/Api/Lanka.ServiceDefaults/Extensions.cs`                         |
 | API startup                             | `src/Api/Lanka.Api/Program.cs`                                        |
 | Gateway startup                         | `src/Api/Lanka.Gateway/Program.cs`                                    |
+| WayForPay module settings               | `src/Api/Lanka.Api/modules.campaigns.json`                            |
 | RabbitMQ URI parser                     | `src/Common/Lanka.Common.Infrastructure/EventBus/RabbitMqSettings.cs` |
 
 ---

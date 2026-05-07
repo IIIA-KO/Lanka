@@ -184,6 +184,8 @@ The AppHost (`src/Api/Lanka.AppHost/Program.cs`) defines all resources:
 | Kibana | `lanka-kibana` | 5601 |
 | Lanka.Api | *(project)* | *(dynamic)* |
 | Lanka.Gateway | *(project)* | 4308 |
+| Lanka Client | *(JavaScript app)* | 4200 |
+| WayForPay tunnel | `ngrok/ngrok` | *(enabled only when configured)* |
 
 Aspire handles container lifecycle, health checks, connection string injection, and startup ordering (`WaitFor()`).
 
@@ -250,25 +252,53 @@ Other settings:
 
 Passwords for infrastructure containers are configured in `src/Api/Lanka.AppHost/appsettings.Development.json` under the `Parameters` key.
 
-### **2. Gateway appsettings.json**
+### **2. WayForPay Development Checkout**
+
+Lanka uses WayForPay hosted checkout for the demo payment flow. The checkout page can open from localhost, but WayForPay server callbacks must reach the local Gateway. For that, the AppHost can start an ngrok container automatically and route the public HTTPS URL to the local HTTPS Gateway at `https://localhost:4308`.
+
+The AppHost reads two Aspire parameters:
+
+| Parameter | Purpose |
+|-----------|---------|
+| `ngrok-auth-token` | Auth token for the ngrok container |
+| `wayforpay-public-base-url` | Static public ngrok domain, for example `https://your-domain.ngrok-free.app` |
+
+When both values are real values, AppHost:
+- starts the `wayforpay-tunnel` container;
+- forwards the public ngrok domain to `https://host.docker.internal:4308`;
+- injects `Campaigns__WayForPay__PublicBaseUrl` into `Lanka.Api`;
+- makes WayForPay `serviceUrl` and `returnUrl` use the public base URL instead of localhost.
+
+For local development, set the values in `src/Api/Lanka.AppHost/appsettings.Development.json` or with user secrets:
+
+```bash
+dotnet user-secrets set "Parameters:ngrok-auth-token" "<your-ngrok-token>" --project src/Api/Lanka.AppHost
+dotnet user-secrets set "Parameters:wayforpay-public-base-url" "https://your-domain.ngrok-free.app" --project src/Api/Lanka.AppHost
+```
+
+If either value is missing or still set to the placeholder, AppHost does not start the tunnel and the API falls back to the URLs from `src/Api/Lanka.Api/modules.campaigns*.json`.
+
+The checked-in development WayForPay merchant is a test merchant. It is useful for a diploma/demo checkout page and provider callback testing, but it is not a marketplace payout implementation: money collection and creator payout reconciliation are not automated beyond the app's campaign/payment state.
+
+### **3. Gateway appsettings.json**
 Location: `src/Api/Lanka.Gateway/appsettings.json`
 
 - `Authentication`: same as API
 - `Serilog`: same approach as API
 - `ReverseProxy`: routes/clusters configuration (to be filled per deployment; YARP is integrated).
 
-### **3. Module configuration**
+### **4. Module configuration**
 Each module configures its EF Core schema and applies migrations automatically. No per-module appsettings files are required for dev beyond the API/Gateway.
 
-### **4. Keycloak Realm Import**
+### **5. Keycloak Realm Import**
 Keycloak starts with `--import-realm` and mounts `.files` into the container. Import the realm from `test/Lanka.IntegrationTests/lanka-realm-export.json`.
 
 Access Keycloak Admin at `http://localhost:18080/admin` (admin/admin) and verify realm `lanka` exists.
 
-### **5. Instagram Integration (Development Policy)**
+### **6. Instagram Integration (Development Policy)**
 Use the repository owner's Meta app settings for development, or create your own Meta Business app and configure Instagram Graph API permissions if necessary. This process is complex; external contributors are expected to focus on feature development and reuse provided development configuration.
 
-### **2. Launch Profiles**
+### **7. Launch Profiles**
 ```json
 {
   "profiles": {

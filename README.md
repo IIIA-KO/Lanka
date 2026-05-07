@@ -104,13 +104,14 @@ cd Lanka
 # Install the Aspire workload (one-time)
 dotnet workload install aspire
 
-# Start everything (infrastructure + API + Gateway)
+# Start everything (infrastructure + API + Gateway + frontend)
 dotnet run --project src/Api/Lanka.AppHost
 
 # Access points:
 # Aspire Dashboard: (URL shown in console output)
 # API: http://localhost:4307
 # Gateway: https://localhost:4308
+# Frontend: https://localhost:4200
 # Health: http://localhost:4307/healthz
 # Keycloak: http://localhost:18080
 ```

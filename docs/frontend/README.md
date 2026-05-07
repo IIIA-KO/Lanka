@@ -6,7 +6,7 @@ Angular SPA client for Lanka.
 
 ## Current State
 
-The frontend is functional but still evolving. Core features work, but test coverage is minimal and some areas need polish.
+The frontend is functional but still evolving. Core collaboration workflows now work end-to-end, but test coverage is minimal and some areas still need polish.
 
 | Area | Status | Notes |
 |------|--------|-------|
@@ -15,8 +15,11 @@ The frontend is functional but still evolving. Core features work, but test cove
 | User Profile | Working | View and edit profile, avatar upload |
 | Analytics Dashboard | Basic | Charts display data, but limited interactivity |
 | Blogger Discovery | Working | Advanced search with filters, similar bloggers, sorting |
-| Campaign Management | In Progress | Brand side partially implemented |
-| Blogger Features | In Progress | Offers, reviews partially done |
+| Campaign Management | Working | Calendar/list views, role filters, reports, hosted payment initiation |
+| Chats | Working | Global inbox plus offer/campaign-scoped conversations |
+| Notifications | Working | Notification bell with read state and campaign navigation |
+| Blogger Features | Working | Pacts, offers, reviews, public profile collaboration actions |
+| Payout Settings | Working | Creator IBAN/currency capture with validation |
 | Test Coverage | Minimal | Infrastructure exists, few actual tests |
 | i18n | Working | English and Ukrainian translations |
 
@@ -55,6 +58,7 @@ client/lanka-client/
 │   │   │   ├── analytics/     # Instagram analytics dashboards
 │   │   │   ├── bloggers/      # Blogger-specific features
 │   │   │   ├── brands/        # Brand/campaign creation
+│   │   │   ├── chats/         # Chat inbox and message thread
 │   │   │   ├── link-instagram/# OAuth callback handling
 │   │   │   ├── search/        # Blogger discovery & search
 │   │   │   └── settings/      # Profile settings
@@ -104,7 +108,10 @@ API clients are in `core/api/`. Each agent handles requests to a specific backen
 - `users-agent.ts` — Authentication, profile
 - `analytics-agent.ts` — Instagram statistics
 - `campaigns-agent.ts` — Campaign operations
+- `chat-agent.ts` — Chat threads and messages
+- `notifications-agent.ts` — Notification inbox/read state
 - `search-agent.ts` — Search, suggestions, similar bloggers
+- `bloggers-agent.ts` — Profiles and payout account settings
 
 Base URL comes from environment files. Development points to `https://localhost:4308` (the gateway).
 
@@ -150,11 +157,49 @@ The search page (`features/search/`) provides a full-featured blogger discovery 
 
 **State Management** — `SearchService` (singleton) manages search state via `BehaviorSubject`. State includes query, filters, page, results, loading, and error. Each search cancels any in-flight request.
 
+### Campaigns
+
+The campaigns page supports two views:
+
+**Calendar view** — Three-month rolling calendar, upcoming campaign detail panel, role filtering, status filtering, and status-specific actions.
+
+**List view** — Dense table view with search/status filters, role filters, action-required filtering, pagination, and inline campaign actions.
+
+Campaign details include participants, status timeline, key dates, reference IDs, work report, payment state, and contextual actions. A client sees `Pay Now` for a campaign in `Done` state; payment opens a hosted WayForPay checkout by posting the signed fields returned by the API.
+
+### Chats
+
+The chat experience is available from the main nav and from public blogger offer rows. A chat thread can be:
+- offer-scoped before a campaign exists;
+- campaign-scoped after collaboration starts;
+- populated with system messages from campaign lifecycle events.
+
+The thread UI supports paged message history, sending, editing, deleting, read state, profile navigation, and SignalR-driven live updates.
+
+### Notifications
+
+The notification bell loads the current user's notification inbox, displays unread count, and links notifications back to the related campaign. Users can mark one notification or all notifications as read. Campaign lifecycle events create notification records on the backend.
+
+### Public Blogger Profile
+
+Public profiles expose:
+- analytics overview and recent Instagram posts;
+- average offer prices;
+- pact content and offers;
+- offer chat action for pre-campaign negotiation;
+- campaign proposal action for starting a formal campaign;
+- public calendar that shows the blogger's occupied campaign dates without exposing private campaign details.
+
+### Settings
+
+Profile settings now include creator payout account fields. The payout account stores IBAN and payout currency and is used by the campaign/payment workflow as creator payout metadata. Currency changes are blocked while active creator campaigns exist.
+
 ### Real-time Updates
 
 SignalR connection established on app init. Used for:
 - Instagram linking status
-- (Future) Notifications, campaign updates
+- Campaign notifications
+- Chat messages, edits, deletes, and read state
 
 ### Internationalization
 
@@ -198,7 +243,7 @@ Routes use guards for access control and resolvers for data preloading:
 2. **Error handling varies** — Some areas show friendly errors, others don't
 3. **Bundle size** — Using two UI libraries increases initial load
 4. **No offline support** — Requires network connection
-5. **Some features incomplete** — Campaign management, reviews need more work
+5. **Payment provider scope** — WayForPay checkout is sufficient for local demo/development, but marketplace-style creator payouts are not automated by the current implementation
 
 ---
 

@@ -16,7 +16,7 @@
 
 ## 🎯 **Module Overview**
 
-The Campaigns Module handles **campaign lifecycle management**, **influencer collaboration**, **offer management**, and **review systems** for the Lanka platform. It provides the core business logic for connecting brands with influencers through campaigns, offers, and pacts.
+The Campaigns Module handles **campaign lifecycle management**, **influencer collaboration**, **offer management**, **payments**, **chat**, **notifications**, and **review systems** for the Lanka platform. It provides the core business logic for connecting brands with influencers through campaigns, offers, pacts, and direct collaboration workflows.
 
 ### **🏗️ Current Architecture**
 
@@ -33,6 +33,9 @@ graph TB
             OCH[Offer Handlers<br/>💼 Offer Processing]
             PCH[Pact Handlers<br/>📋 Contract Management]
             RCH[Review Handlers<br/>⭐ Review Processing]
+            PAY[Payment Handlers<br/>💳 WayForPay Checkout]
+            CHAT[Chat Handlers<br/>💬 Collaboration Messaging]
+            NOTIF[Notification Handlers<br/>🔔 Campaign Alerts]
         end
         
         subgraph "💎 Domain Layer"
@@ -41,6 +44,9 @@ graph TB
             OFFER[Offer Entity<br/>💰 Proposal Management]
             PACT[Pact Entity<br/>📋 Contract Agreement]
             REV[Review Entity<br/>⭐ Performance Review]
+            PAYMENT[Payment Entity<br/>💳 Payment State]
+            THREAD[Chat Thread<br/>💬 Messages and Context]
+            NOTIFICATION[Notification<br/>🔔 User Alerts]
         end
         
         subgraph "🔧 Infrastructure Layer"
@@ -62,6 +68,7 @@ graph TB
 - ✅ **Campaign Completion**: `MarkCampaignAsDoneCommand` → `CompleteCampaignCommand`
 - ✅ **Campaign Cancellation**: `CancelCampaignCommand` - Cancel confirmed campaigns
 - ✅ **Campaign Retrieval**: `GetCampaignQuery` - Get campaign details
+- ✅ **Work Reports**: `GetCampaignReportQuery`, `UpdateCampaignReportCommand` - Creator delivery report and content links
 
 ### **👤 Blogger Management**
 - ✅ **Blogger Registration**: `CreateBloggerCommand` - Register new influencers
@@ -70,6 +77,7 @@ graph TB
 - ✅ **Account Deletion**: `DeleteBloggerCommand` - Remove blogger accounts
 - ✅ **Instagram Integration**: Automatic metadata sync from Users module
 - ✅ **Blogger Retrieval**: `GetBloggerQuery` - Get blogger profiles
+- ✅ **Payout Account**: `GetPayoutAccountQuery`, `UpdatePayoutAccountCommand` - Store creator IBAN and payout currency
 
 ### **💼 Offer Management**
 - ✅ **Offer Creation**: `CreateOfferCommand` - Create new offers
@@ -88,6 +96,24 @@ graph TB
 - ✅ **Review Updates**: `EditReviewCommand` - Modify reviews
 - ✅ **Review Deletion**: `DeleteReviewCommand` - Remove reviews
 - ✅ **Review Retrieval**: `GetReviewQuery`, `GetBloggerReviewQuery`
+
+### **💳 Payments**
+- ✅ **WayForPay Checkout**: `InitiatePaymentCommand` - Creates a hosted checkout form for client payment
+- ✅ **Payment Status**: `GetPaymentQuery` - Reads the campaign payment state
+- ✅ **Provider Callback**: WayForPay service callback records success/failure from the payment provider
+- ✅ **Browser Return**: WayForPay return endpoint sends the user back to the Angular client after checkout
+
+### **💬 Chat**
+- ✅ **Thread Inbox**: `GetChatThreadsQuery` - Lists conversations for the current blogger
+- ✅ **Thread Creation**: `StartChatThreadCommand` - Starts a chat from a public offer or campaign context
+- ✅ **Message History**: `GetChatMessagesQuery` - Paged message loading
+- ✅ **Message Actions**: Send, edit, delete, and mark messages as read
+- ✅ **System Messages**: Campaign status transitions add system messages to the relevant thread
+
+### **🔔 Notifications**
+- ✅ **Notification Inbox**: `GetNotificationsQuery` - Lists campaign notifications
+- ✅ **Read State**: Mark one or all notifications as read
+- ✅ **Campaign Alerts**: Campaign lifecycle events create notifications for affected users
 
 ---
 
@@ -129,6 +155,7 @@ public class Blogger : Entity<BloggerId>
     public Bio Bio { get; private set; }
     public Photo? ProfilePhoto { get; private set; }
     public InstagramMetadata InstagramMetadata { get; private set; }
+    public PayoutAccount? PayoutAccount { get; private set; }
     public Pact? Pact { get; init; }
 }
 ```
@@ -170,6 +197,33 @@ public sealed class Review : Entity<ReviewId>
 }
 ```
 
+#### **Payment**
+```csharp
+public sealed class Payment : Entity<PaymentId>
+{
+    public CampaignId CampaignId { get; private set; }
+    public BloggerId ClientId { get; private set; }
+    public Money Amount { get; private set; }
+    public string ProviderOrderId { get; private set; }
+    public PaymentStatus Status { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset? PaidAtUtc { get; private set; }
+}
+```
+
+#### **ChatThread**
+```csharp
+public sealed class ChatThread : Entity<ChatThreadId>
+{
+    public BloggerId ParticipantAId { get; private set; }
+    public BloggerId ParticipantBId { get; private set; }
+    public CampaignId? CampaignId { get; private set; }
+    public OfferId? OfferId { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset UpdatedAtUtc { get; private set; }
+}
+```
+
 ---
 
 ## 📨 **Domain Events**
@@ -201,6 +255,7 @@ public sealed class Review : Entity<ReviewId>
 - ✅ `MarkCampaignAsDoneCommand` - Mark work as completed
 - ✅ `CompleteCampaignCommand` - Finalize campaign
 - ✅ `CancelCampaignCommand` - Cancel confirmed campaign
+- ✅ `UpdateCampaignReportCommand` - Update creator work report
 
 ### **📋 Blogger Commands**
 - ✅ `CreateBloggerCommand` - Register new blogger
@@ -209,6 +264,7 @@ public sealed class Review : Entity<ReviewId>
 - ✅ `SetProfilePhotoCommand` - Upload profile photo
 - ✅ `DeleteProfilePhotoCommand` - Remove profile photo
 - ✅ `UpdateInstagramDataCommand` - Sync Instagram metadata
+- ✅ `UpdatePayoutAccountCommand` - Update creator payout account
 
 ### **📋 Offer Commands**
 - ✅ `CreateOfferCommand` - Create new offer
@@ -224,6 +280,20 @@ public sealed class Review : Entity<ReviewId>
 - ✅ `EditReviewCommand` - Update review
 - ✅ `DeleteReviewCommand` - Remove review
 
+### **📋 Payment Commands**
+- ✅ `InitiatePaymentCommand` - Start hosted WayForPay checkout
+
+### **📋 Chat Commands**
+- ✅ `StartChatThreadCommand` - Start or reuse a chat thread
+- ✅ `SendChatMessageCommand` - Send a message
+- ✅ `EditChatMessageCommand` - Edit a sent message
+- ✅ `DeleteChatMessageCommand` - Soft-delete a message
+- ✅ `MarkChatMessagesReadCommand` - Mark thread messages as read
+
+### **📋 Notification Commands**
+- ✅ `MarkNotificationReadCommand` - Mark one notification as read
+- ✅ `MarkAllNotificationsReadCommand` - Mark all notifications as read
+
 ### **🔍 Queries**
 - ✅ `GetCampaignQuery` - Retrieve campaign details
 - ✅ `GetBloggerQuery` - Retrieve blogger profile
@@ -232,6 +302,10 @@ public sealed class Review : Entity<ReviewId>
 - ✅ `GetReviewQuery` - Retrieve review details
 - ✅ `GetBloggerReviewQuery` - Retrieve blogger reviews
 - ✅ `GetBloggerAverageOfferPricesQuery` - Get pricing analytics
+- ✅ `GetCampaignReportQuery` - Retrieve submitted work report
+- ✅ `GetPaymentQuery` - Retrieve campaign payment state
+- ✅ `GetChatThreadsQuery`, `GetChatMessagesQuery` - Retrieve chat inbox and message history
+- ✅ `GetNotificationsQuery` - Retrieve notification inbox
 
 ---
 
@@ -269,9 +343,17 @@ public sealed class Review : Entity<ReviewId>
 - `offers` - Pricing and service offerings
 - `pacts` - Contract agreements
 - `reviews` - Rating and feedback system
+- `payments` - Provider checkout and payment status
+- `chat_threads`, `chat_messages` - Conversation threads and messages
+- `notifications` - Campaign notification inbox
 - Standard outbox/inbox tables for event processing
 
 ### **🔗 External Integrations**
+
+#### **WayForPay (Hosted Checkout)**
+- **Checkout form generation**: Server signs hosted checkout fields and the frontend posts them to WayForPay.
+- **Provider callback**: WayForPay posts payment results to the Gateway callback URL.
+- **Development tunnel support**: AppHost can start an ngrok container so WayForPay can reach the local HTTPS Gateway.
 
 #### **Cloudinary (Photo Management)**
 - **Profile Photo Upload**: Secure image storage
@@ -307,6 +389,19 @@ public sealed class Review : Entity<ReviewId>
 4. `ReviewCreatedDomainEvent` raised
 5. Analytics tracks review metrics
 
+### **💳 Client Payment Flow**
+1. Client clicks Pay Now on a campaign in `Done` state.
+2. `InitiatePaymentCommand` creates or reuses a pending payment and builds WayForPay checkout fields.
+3. Frontend submits a temporary form to WayForPay hosted checkout.
+4. WayForPay sends the provider callback to `POST /payments/wayforpay/callback`.
+5. Successful callback marks the payment completed and completes the campaign.
+
+### **💬 Offer Chat Flow**
+1. Client opens another blogger's public profile and clicks the chat action on an offer.
+2. `StartChatThreadCommand` creates or reuses a thread tied to the offer.
+3. Both users can continue the conversation from the global Chats page before a campaign exists.
+4. If a campaign is created, campaign lifecycle events add system messages to the campaign thread.
+
 ---
 
 ## 🛡️ **Security & Authorization**
@@ -315,6 +410,8 @@ public sealed class Review : Entity<ReviewId>
 - **Campaign Access**: Only clients and creators can modify their campaigns
 - **Blogger Profiles**: Users can only modify their own profiles
 - **Review System**: Only campaign participants can create reviews
+- **Chat Access**: Only thread participants can read or mutate messages
+- **Payment Access**: Only the campaign client can initiate payment, and only campaign participants can read campaign payment state
 
 ### **🔑 Data Validation**
 - **Input Validation**: Comprehensive validation for all commands
@@ -328,38 +425,61 @@ public sealed class Review : Entity<ReviewId>
 ### **Campaign Management**
 - `POST /campaigns` - Create new campaign (pend)
 - `GET /campaigns/{id}` - Get campaign details
-- `PUT /campaigns/{id}/confirm` - Confirm campaign
-- `PUT /campaigns/{id}/reject` - Reject campaign
-- `PUT /campaigns/{id}/mark-done` - Mark as done
-- `PUT /campaigns/{id}/complete` - Complete campaign
-- `PUT /campaigns/{id}/cancel` - Cancel campaign
+- `GET /campaigns/bloggers/{bloggerId}` - Get campaigns for a blogger, optionally filtered by date range
+- `POST /campaigns/{id}/confirm` - Confirm campaign
+- `POST /campaigns/{id}/reject` - Reject campaign
+- `POST /campaigns/{id}/mark-as-done` - Mark as done and submit work report
+- `POST /campaigns/{id}/complete` - Complete campaign
+- `POST /campaigns/{id}/cancel` - Cancel campaign
+- `GET /campaigns/{id}/report` - Get campaign work report
+- `PUT /campaigns/{id}/report` - Update campaign work report
 
 ### **Blogger Management**
-- `POST /bloggers` - Create blogger profile
+- `GET /bloggers/profile` - Get current blogger profile
 - `GET /bloggers/{id}` - Get blogger profile
-- `PUT /bloggers/{id}` - Update blogger profile
-- `DELETE /bloggers/{id}` - Delete blogger account
-- `POST /bloggers/{id}/photos` - Upload profile photo
-- `DELETE /bloggers/{id}/photos` - Delete profile photo
+- `PUT /bloggers` - Update current blogger profile
+- `POST /bloggers/photos` - Upload profile photo
+- `DELETE /bloggers/photos` - Delete profile photo
+- `GET /bloggers/me/payout-account` - Get current blogger payout account
+- `PUT /bloggers/me/payout-account` - Update current blogger payout account
 
 ### **Offer Management**
 - `POST /offers` - Create new offer
 - `GET /offers/{id}` - Get offer details
 - `PUT /offers/{id}` - Update offer
 - `DELETE /offers/{id}` - Delete offer
-- `GET /bloggers/{id}/offers/average-prices` - Get pricing analytics
+- `GET /offers/average-price/{bloggerId}` - Get pricing analytics
 
 ### **Pact Management**
 - `POST /pacts` - Create new pact
-- `GET /bloggers/{id}/pact` - Get blogger pact
-- `PUT /pacts/{id}` - Update pact
+- `GET /pacts/{bloggerId}` - Get blogger pact
+- `PUT /pacts/{id}/edit` - Update pact
 
 ### **Review Management**
 - `POST /reviews` - Create review
-- `GET /reviews/{id}` - Get review details
 - `PUT /reviews/{id}` - Update review
 - `DELETE /reviews/{id}` - Delete review
-- `GET /bloggers/{id}/reviews` - Get blogger reviews
+- `GET /reviews/{bloggerId}` - Get blogger reviews
+
+### **Payments**
+- `POST /campaigns/{campaignId}/payment/initiate` - Start WayForPay checkout
+- `GET /campaigns/{campaignId}/payment` - Get payment status
+- `POST /payments/wayforpay/callback` - WayForPay server callback
+- `GET|POST /payments/wayforpay/return` - Browser return from WayForPay
+
+### **Chat**
+- `GET /chats` - Get chat threads for the current user
+- `POST /chats/start` - Start or reuse a thread for participant plus optional offer/campaign
+- `GET /chats/{threadId}/messages` - Get paged messages
+- `POST /chats/{threadId}/messages` - Send message
+- `PATCH /chats/{threadId}/messages/{messageId}` - Edit message
+- `DELETE /chats/{threadId}/messages/{messageId}` - Delete message
+- `PUT /chats/{threadId}/messages/read` - Mark messages as read
+
+### **Notifications**
+- `GET /notifications` - Get current user notifications
+- `PUT /notifications/{id}/read` - Mark notification as read
+- `PUT /notifications/read-all` - Mark all notifications as read
 
 ---
 
@@ -379,7 +499,7 @@ public sealed class Review : Entity<ReviewId>
 
 ### **👥 Social Features**
 - **Blogger Discovery**: Advanced search and matching
-- **Collaboration Tools**: Enhanced communication features
+- **Collaboration Tools**: Richer chat context, attachments, and unread indicators
 - **Portfolio Management**: Showcase past campaigns
 
 ### **📈 Analytics Integration**
@@ -415,3 +535,22 @@ public sealed class Review : Entity<ReviewId>
 }
 ```
 
+### **WayForPay Settings**
+```json
+{
+  "Campaigns": {
+    "WayForPay": {
+      "MerchantAccount": "test_merch_n1",
+      "MerchantSecretKey": "test-secret",
+      "MerchantDomainName": "localhost",
+      "PaymentUrl": "https://secure.wayforpay.com/pay",
+      "PublicBaseUrl": "",
+      "ServiceUrl": "https://localhost:4308/payments/wayforpay/callback",
+      "ReturnUrl": "https://localhost:4308/payments/wayforpay/return",
+      "ClientReturnUrl": "https://localhost:4200/campaigns"
+    }
+  }
+}
+```
+
+`PublicBaseUrl` is normally injected by the Aspire AppHost in development when the WayForPay tunnel is enabled. See [Development Setup](../../development/development-setup.md#wayforpay-development-checkout).

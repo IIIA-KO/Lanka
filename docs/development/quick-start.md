@@ -62,7 +62,7 @@ dotnet workload install aspire
 ### Start
 
 ```bash
-# Start all infrastructure + API + Gateway
+# Start all infrastructure + API + Gateway + Angular client
 dotnet run --project src/Api/Lanka.AppHost
 ```
 
@@ -76,6 +76,8 @@ Aspire starts these services automatically:
 - **Kibana** (5601) — Elasticsearch UI
 - **Lanka.Api** — Main application
 - **Lanka.Gateway** (4308) — YARP reverse proxy
+- **Lanka Client** (4200) — Angular frontend
+- **WayForPay tunnel** — Optional ngrok container, only when configured
 
 The console output includes a link to the **Aspire Dashboard** — a unified UI for logs, traces, and metrics.
 
@@ -115,6 +117,7 @@ The API and Gateway are started automatically by Aspire (Step 2). No separate `d
 | API | http://localhost:4307 | Main API |
 | Health Check | http://localhost:4307/healthz | System status |
 | Gateway | https://localhost:4308 | YARP reverse proxy |
+| Frontend | https://localhost:4200 | Angular client |
 | Kibana | http://localhost:5601 | Elasticsearch UI |
 | Keycloak | http://localhost:18080/admin | Identity management (admin/admin) |
 | RabbitMQ | http://localhost:15672 | Message queue admin |
