@@ -29,6 +29,7 @@ public static class ApiResult
                 ErrorType.Problem => error.Code,
                 ErrorType.NotFound => error.Code,
                 ErrorType.Conflict => error.Code,
+                ErrorType.Unauthorized => error.Code,
                 _ => "Server failure",
             };
 
