@@ -12,10 +12,9 @@ export const instagramLinkedGuard: CanActivateFn = (route, state) => {
   const instagramStatusService = inject(InstagramStatusService);
 
   if (!authService.isAuthenticated()) {
-    router.navigate(['/auth/login'], {
+    return router.createUrlTree(['/auth/login'], {
       queryParams: { returnUrl: state.url },
     });
-    return false;
   }
 
   // Check in-memory cache first to avoid redundant HTTP calls
@@ -36,10 +35,9 @@ export const instagramLinkedGuard: CanActivateFn = (route, state) => {
         return true;
       }
 
-      router.navigate(['/link-instagram'], {
+      return router.createUrlTree(['/link-instagram'], {
         queryParams: { returnUrl: state.url },
       });
-      return false;
     }),
     catchError(() => {
       // On transient errors (429, 5xx), allow navigation rather than blocking.

@@ -92,7 +92,7 @@ export class RegisterComponent {
 
     this.agent.Users.register(this.form.value).subscribe({
       next: () => {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       },
       error: (error: HttpErrorResponse | FriendlyHttpError) => {
         console.error('[Register Component] Registration failed:', error);

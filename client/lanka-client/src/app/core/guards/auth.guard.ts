@@ -17,16 +17,16 @@ export const authGuard: CanActivateFn = (route, state) => {
         return true;
       }),
       catchError(() => {
-        router.navigate(['/auth/login'], {
-          queryParams: { returnUrl: state.url },
-        });
-        return of(false);
+        return of(
+          router.createUrlTree(['/auth/login'], {
+            queryParams: { returnUrl: state.url },
+          })
+        );
       })
     );
   }
 
-  router.navigate(['/auth/login'], {
+  return router.createUrlTree(['/auth/login'], {
     queryParams: { returnUrl: state.url },
   });
-  return false;
 };
