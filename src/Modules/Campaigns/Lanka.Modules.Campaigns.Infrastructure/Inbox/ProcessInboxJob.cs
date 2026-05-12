@@ -133,7 +133,7 @@ internal sealed class ProcessInboxJob : IJob
             new
             {
                 inboxMessage.Id,
-                ProcessedOnUtc = this._dateTimeProvider.UtcNow,
+                ProcessedOnUtc = exception is null ? this._dateTimeProvider.UtcNow : (DateTimeOffset?)null,
                 Error = exception?.ToString()
             },
             transaction: transaction
