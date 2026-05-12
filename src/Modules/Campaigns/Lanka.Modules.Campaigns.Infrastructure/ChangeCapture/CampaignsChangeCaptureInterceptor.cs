@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using Lanka.Common.Domain;
 using Lanka.Common.Infrastructure.ChangeCapture;
 using Lanka.Modules.Campaigns.Domain.Bloggers;
@@ -18,8 +19,8 @@ internal sealed class CampaignsChangeCaptureInterceptor : ChangeCaptureIntercept
             Blogger b => new CapturedChangeData(
                 nameof(Blogger),
                 $"{b.FirstName.Value} {b.LastName.Value}",
-                b.Bio.Value,
-                ["blogger", "profile", b.Category.Name],
+                CreateBloggerSearchContent(b),
+                CreateBloggerSearchTags(b),
                 new Dictionary<string, object>
                 {
                     { "BirthDate", b.BirthDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) },
@@ -80,6 +81,41 @@ internal sealed class CampaignsChangeCaptureInterceptor : ChangeCaptureIntercept
 
             _ => null,
         };
+    }
+
+    private static string CreateBloggerSearchContent(Blogger blogger)
+    {
+        var content = new StringBuilder(blogger.Bio.Value);
+
+        if (!string.IsNullOrWhiteSpace(blogger.Category.Name))
+        {
+            content.Append(" | Category: ").Append(blogger.Category.Name);
+        }
+
+        if (!string.IsNullOrWhiteSpace(blogger.InstagramMetadata.Username))
+        {
+            content.Append(" | Instagram: @").Append(blogger.InstagramMetadata.Username);
+        }
+
+        if (blogger.InstagramMetadata.FollowersCount.HasValue)
+        {
+            content.Append(" | Followers: ").Append(blogger.InstagramMetadata.FollowersCount.Value);
+        }
+
+        return content.ToString();
+    }
+
+    private static string[] CreateBloggerSearchTags(Blogger blogger)
+    {
+        var tags = new List<string> { "blogger", "profile", blogger.Category.Name };
+
+        if (!string.IsNullOrWhiteSpace(blogger.InstagramMetadata.Username))
+        {
+            tags.Add("Instagram");
+            tags.Add(blogger.InstagramMetadata.Username);
+        }
+
+        return tags.ToArray();
     }
 
     protected override string? GetItemType(IChangeCaptured entity)
