@@ -18,6 +18,10 @@
       "BatchSize": 100,
       "RenewalThresholdInDays": 7,
       "Development": {
+        "UseRealApiForNonSeededUsers": false,
+        "SeededUserEmailDomains": [
+          "@fake.lanka.test"
+        ],
         "AllowedUserEmails": []
       }
     },

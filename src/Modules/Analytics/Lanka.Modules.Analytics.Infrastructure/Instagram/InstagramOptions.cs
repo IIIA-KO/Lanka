@@ -22,4 +22,8 @@ public sealed class InstagramOptions
 public sealed class InstagramDevelopmentOptions
 {
     public IReadOnlyList<string> AllowedUserEmails { get; init; } = [];
+
+    public bool UseRealApiForNonSeededUsers { get; init; }
+
+    public IReadOnlyList<string> SeededUserEmailDomains { get; init; } = ["@fake.lanka.test"];
 }

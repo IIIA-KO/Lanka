@@ -46,6 +46,17 @@ internal sealed class InstagramServiceFactory<TService> : IInstagramServiceFacto
             return this._realService;
         }
 
+        if (effectiveEmail is not null &&
+            this._developmentOptions?.UseRealApiForNonSeededUsers == true &&
+            !this.IsSeededUserEmail(effectiveEmail))
+        {
+            return this._realService;
+        }
+
         return this._mockService;
     }
+
+    private bool IsSeededUserEmail(string email) =>
+        this._developmentOptions?.SeededUserEmailDomains
+            .Any(domain => email.EndsWith(domain, StringComparison.OrdinalIgnoreCase)) == true;
 }
