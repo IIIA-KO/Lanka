@@ -189,7 +189,11 @@ internal sealed class ElasticSearchService : ISearchService
                 Should =
                 [
                     new PrefixQuery { Field = "title", Value = normalizedQuery },
-                    new WildcardQuery { Field = "title", Value = $"*{normalizedQuery}*" }
+                    new PrefixQuery { Field = "title.autocomplete", Value = normalizedQuery },
+                    new PrefixQuery { Field = "metadata.InstagramUsername", Value = normalizedQuery },
+                    new PrefixQuery { Field = "tags", Value = normalizedQuery },
+                    new WildcardQuery { Field = "title", Value = $"*{normalizedQuery}*" },
+                    new WildcardQuery { Field = "metadata.InstagramUsername", Value = $"*{normalizedQuery}*" }
                 ],
                 MinimumShouldMatch = 1
             };
@@ -243,7 +247,14 @@ internal sealed class ElasticSearchService : ISearchService
             var multiMatchQuery = new MultiMatchQuery
             {
                 Query = query.Text,
-                Fields = new Field[] { new("title^2"), new("content"), new("tags") },
+                Fields = new Field[]
+                {
+                    new("title^2"),
+                    new("title.autocomplete"),
+                    new("content"),
+                    new("tags"),
+                    new("metadata.InstagramUsername^3")
+                },
                 Type = TextQueryType.BestFields
             };
 

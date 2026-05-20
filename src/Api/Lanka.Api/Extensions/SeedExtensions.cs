@@ -72,7 +72,7 @@ internal static class SeedExtensions
             Log.Information("Seeding Campaigns module");
 
             // All users become bloggers (must be done AFTER Instagram accounts to populate metadata)
-            (List<Guid> bloggerIds, List<BloggerSeedData> bloggerData) =
+            (List<Guid> bloggerIds, _) =
                 await BloggerSeeder.SeedAsync(connection, transaction, userIds, igAccountData);
             Log.Information("Created {BloggerCount} bloggers from {UserCount} users", bloggerIds.Count, userIds.Count);
 
@@ -100,6 +100,9 @@ internal static class SeedExtensions
             (List<Guid> reviewIds, List<ReviewSeedData> reviewData) =
                 await ReviewSeeder.SeedAsync(connection, transaction, campaignIds);
             Log.Information("Total {ReviewCount} reviews", reviewIds.Count);
+
+            List<BloggerSeedData> searchBloggerData =
+                await BloggerSeeder.GetAllExistingBloggerDataAsync(connection, transaction);
 
             // Commit all database changes
             await transaction.CommitAsync();
@@ -135,7 +138,7 @@ internal static class SeedExtensions
 
                     await ElasticsearchSeeder.SeedAsync(
                         searchIndexService,
-                        bloggerData,
+                        searchBloggerData,
                         igAccountData,
                         pactData,
                         offerData,

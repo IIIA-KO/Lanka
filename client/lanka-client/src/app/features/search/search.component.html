@@ -6,7 +6,8 @@
             <p-autoComplete [(ngModel)]="searchQuery" [suggestions]="filteredSuggestions"
                 (completeMethod)="onSearchQueryChange($event)" (onSelect)="onSuggestionSelect($event)"
                 (onKeyUp)="onSearchKeyDown($event)" [placeholder]="'SEARCH.PLACEHOLDER' | translate"
-                class="w-full" inputStyleClass="w-full search-input" [minLength]="2" [delay]="300">
+                class="w-full" inputStyleClass="w-full search-input" [minLength]="2" [delay]="300"
+                appendTo="body">
             </p-autoComplete>
             @if (searchQuery) {
                 <button class="clear-button p-link" (click)="clearSearch()" aria-label="Clear search">

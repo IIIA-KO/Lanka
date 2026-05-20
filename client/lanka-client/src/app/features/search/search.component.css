@@ -7,6 +7,8 @@
 /* ── Search Bar ── */
 .search-bar {
   margin-bottom: 0.625rem;
+  position: relative;
+  z-index: 20;
 }
 
 .search-input-group {
@@ -106,6 +108,8 @@
   border: 1px solid var(--app-border);
   border-radius: 12px;
   background: color-mix(in srgb, var(--app-surface) 84%, var(--app-ground));
+  position: relative;
+  z-index: 10;
 }
 
 :host ::ng-deep .filter-select {

@@ -113,6 +113,7 @@ export class SearchService {
   public getSearchSuggestions(query: string, limit = 10): Observable<string[]> {
     const request: ISearchSuggestionsRequest = {
       query,
+      itemType: 1,
       limit,
     };
 

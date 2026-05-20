@@ -121,6 +121,46 @@ public static class BloggerSeeder
         return (allBloggerIds, allData);
     }
 
+    public static async Task<List<BloggerSeedData>> GetAllExistingBloggerDataAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken cancellationToken = default
+    )
+    {
+        const string sql = """
+                           SELECT
+                               id AS Id,
+                               first_name AS FirstName,
+                               last_name AS LastName,
+                               email AS Email,
+                               birth_date AS BirthDate,
+                               bio AS Bio,
+                               category_name AS CategoryName,
+                               instagram_metadata_username AS InstagramMetadataUsername,
+                               instagram_metadata_followers_count AS InstagramMetadataFollowersCount,
+                               instagram_metadata_media_count AS InstagramMetadataMediaCount,
+                               instagram_metadata_engagement_rate AS InstagramMetadataEngagementRate,
+                               instagram_metadata_audience_top_age_group AS InstagramMetadataAudienceTopAgeGroup,
+                               instagram_metadata_audience_top_gender AS InstagramMetadataAudienceTopGender,
+                               instagram_metadata_audience_top_gender_percentage AS InstagramMetadataAudienceTopGenderPercentage,
+                               instagram_metadata_audience_top_country AS InstagramMetadataAudienceTopCountry,
+                               instagram_metadata_audience_top_country_percentage AS InstagramMetadataAudienceTopCountryPercentage,
+                               profile_photo_id AS ProfilePhotoId,
+                               profile_photo_uri AS ProfilePhotoUri
+                           FROM campaigns.bloggers
+                           ORDER BY id
+                           """;
+
+        var commandDefinition = new CommandDefinition(
+            sql,
+            transaction: transaction,
+            cancellationToken: cancellationToken
+        );
+
+        IEnumerable<BloggerSeedData> bloggers = await connection.QueryAsync<BloggerSeedData>(commandDefinition);
+        return bloggers.AsList();
+    }
+
     private static async Task<List<Guid>> GetExistingBloggerIdsForUsersAsync(
         IDbConnection connection,
         IDbTransaction transaction,
