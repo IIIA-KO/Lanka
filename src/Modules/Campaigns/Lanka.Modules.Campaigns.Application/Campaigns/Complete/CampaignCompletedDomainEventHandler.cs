@@ -1,6 +1,7 @@
 using Lanka.Common.Application.EventBus;
 using Lanka.Common.Application.Exceptions;
 using Lanka.Common.Application.Messaging;
+using Lanka.Common.Application.Notifications;
 using Lanka.Common.Domain;
 using Lanka.Modules.Campaigns.Application.Abstractions.Data;
 using Lanka.Modules.Campaigns.Application.Chat;
@@ -24,6 +25,7 @@ internal sealed class CampaignCompletedDomainEventHandler
     private readonly IChatThreadRepository _chatThreadRepository;
     private readonly IChatMessageRepository _chatMessageRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IChatNotificationService _chatNotificationService;
 
     public CampaignCompletedDomainEventHandler(
         ISender sender,
@@ -31,7 +33,8 @@ internal sealed class CampaignCompletedDomainEventHandler
         INotificationRepository notificationRepository,
         IChatThreadRepository chatThreadRepository,
         IChatMessageRepository chatMessageRepository,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        IChatNotificationService chatNotificationService
     )
     {
         this._sender = sender;
@@ -40,6 +43,7 @@ internal sealed class CampaignCompletedDomainEventHandler
         this._chatThreadRepository = chatThreadRepository;
         this._chatMessageRepository = chatMessageRepository;
         this._unitOfWork = unitOfWork;
+        this._chatNotificationService = chatNotificationService;
     }
 
     public override async Task Handle(
@@ -75,12 +79,19 @@ internal sealed class CampaignCompletedDomainEventHandler
             throw new LankaException(nameof(CampaignChatThreadResolver), threadResult.Error);
         }
 
-        this._chatMessageRepository.Add(ChatMessage.CreateSystemMessage(
+        var systemMessage = ChatMessage.CreateSystemMessage(
             threadResult.Value.Id,
-            "PAYMENT_COMPLETED",
-            occurredAt));
+            "CAMPAIGN_COMPLETED",
+            occurredAt
+        );
+
+        this._chatMessageRepository.Add(systemMessage);
 
         await this._unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await this._chatNotificationService.SendMessageAsync(
+            SystemChatNotificationFactory.Create(systemMessage),
+            cancellationToken);
 
         await this._eventBus.PublishAsync(
             new CampaignNotificationIntegrationEvent(

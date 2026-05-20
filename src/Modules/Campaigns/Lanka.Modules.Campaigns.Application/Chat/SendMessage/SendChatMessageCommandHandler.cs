@@ -65,6 +65,8 @@ internal sealed class SendChatMessageCommandHandler
             return Result.Failure<ChatMessageResponse>(Error.NotAuthorized);
         }
 
+        BloggerId recipientId = thread.GetOtherParticipant(sender.Id);
+
         Result<ChatMessage> messageResult = ChatMessage.CreateUserMessage(
             thread.Id,
             sender.Id,
@@ -96,13 +98,13 @@ internal sealed class SendChatMessageCommandHandler
             message.CreatedAtUtc.UtcDateTime);
 
         await this._chatNotificationService.SendMessageAsync(
-            ToNotification(response),
+            ToNotification(response, recipientId.Value),
             cancellationToken);
 
         return response;
     }
 
-    private static ChatMessageNotification ToNotification(ChatMessageResponse response)
+    private static ChatMessageNotification ToNotification(ChatMessageResponse response, Guid recipientBloggerId)
     {
         return new ChatMessageNotification(
             response.Id,
@@ -115,6 +117,7 @@ internal sealed class SendChatMessageCommandHandler
             response.IsDeleted,
             response.EditedAtUtc,
             response.ReadAtUtc,
-            response.CreatedAtUtc);
+            response.CreatedAtUtc,
+            recipientBloggerId);
     }
 }
