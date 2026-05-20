@@ -166,7 +166,7 @@ export class AnalyticsAgent {
     const params = new HttpParams().set('period', period.toString());
 
     return this.http
-      .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/table-statistics`, { params })
+      .get<IMetricsStatisticsResponse>(`${BASE_URL}/analytics/metrics-statistics`, { params })
       .pipe(catchError(this.handleError));
   }
 

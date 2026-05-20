@@ -21,6 +21,11 @@
   color: var(--p-text-secondary-color);
 }
 
+.offer-field-message {
+  line-height: 1.35;
+  white-space: normal;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-container {

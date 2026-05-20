@@ -216,7 +216,7 @@
                                 @if (canConfirm()) {
                                     <p-button [label]="'CAMPAIGNS.DETAIL.CONFIRM_CAMPAIGN' | translate"
                                         icon="pi pi-check"
-                                        severity="success" styleClass="w-full"
+                                        styleClass="w-full"
                                         [loading]="processingAction" (onClick)="onConfirm()" />
                                 }
                                 @if (canReject()) {

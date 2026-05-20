@@ -70,8 +70,15 @@ export class CampaignsAgent {
   private readonly http = inject(HttpClient);
 
   public createCampaign(request: ICreateCampaignRequest): Observable<string> {
+    const payload: IPendCampaignRequest = {
+      offerId: request.offerId,
+      name: request.name,
+      description: request.description,
+      scheduledOnUtc: request.expectedCompletionDate,
+    };
+
     return this.http
-      .post<string>(`${BASE_URL}/campaigns`, request)
+      .post<string>(`${BASE_URL}/campaigns`, payload)
       .pipe(catchError(this.handleError));
   }
 
@@ -86,13 +93,13 @@ export class CampaignsAgent {
 
   public confirmCampaign(id: string): Observable<void> {
     return this.http
-      .patch<void>(`${BASE_URL}/campaigns/${id}/confirm`, {})
+      .post<void>(`${BASE_URL}/campaigns/${id}/confirm`, {})
       .pipe(catchError(this.handleError));
   }
 
   public rejectCampaign(id: string): Observable<void> {
     return this.http
-      .patch<void>(`${BASE_URL}/campaigns/${id}/reject`, {})
+      .post<void>(`${BASE_URL}/campaigns/${id}/reject`, {})
       .pipe(catchError(this.handleError));
   }
 
@@ -116,31 +123,19 @@ export class CampaignsAgent {
 
   public completeCampaign(id: string): Observable<void> {
     return this.http
-      .patch<void>(`${BASE_URL}/campaigns/${id}/complete`, {})
+      .post<void>(`${BASE_URL}/campaigns/${id}/complete`, {})
       .pipe(catchError(this.handleError));
   }
 
   public cancelCampaign(id: string): Observable<void> {
     return this.http
-      .patch<void>(`${BASE_URL}/campaigns/${id}/cancel`, {})
-      .pipe(catchError(this.handleError));
-  }
-
-  public pendCampaign(id: string): Observable<void> {
-    return this.http
-      .patch<void>(`${BASE_URL}/campaigns/${id}/pend`, {})
+      .post<void>(`${BASE_URL}/campaigns/${id}/cancel`, {})
       .pipe(catchError(this.handleError));
   }
 
   public proposeCampaign(request: IPendCampaignRequest): Observable<string> {
     return this.http
       .post<string>(`${BASE_URL}/campaigns`, request)
-      .pipe(catchError(this.handleError));
-  }
-
-  public getCampaigns(): Observable<ICampaign[]> {
-    return this.http
-      .get<ICampaign[]>(`${BASE_URL}/campaigns`)
       .pipe(catchError(this.handleError));
   }
 
@@ -155,12 +150,6 @@ export class CampaignsAgent {
         map(items => items.map(mapApiResponseToCampaign)),
         catchError(this.handleError)
       );
-  }
-
-  public getCampaignsByStatus(status: string): Observable<ICampaign[]> {
-    return this.http
-      .get<ICampaign[]>(`${BASE_URL}/campaigns?status=${status}`)
-      .pipe(catchError(this.handleError));
   }
 
   public createReview(request: ICreateReviewRequest): Observable<string> {
@@ -181,8 +170,8 @@ export class CampaignsAgent {
       .pipe(catchError(this.handleError));
   }
 
-  private handleError(error: { error?: { message?: string }; message?: string }): Observable<never> {
-    const message = error.error?.message || error.message || 'Unknown error';
+  private handleError(error: { error?: { detail?: string; message?: string; title?: string }; message?: string }): Observable<never> {
+    const message = error.error?.detail || error.error?.message || error.error?.title || error.message || 'Unknown error';
     return throwError(() => new Error(message));
   }
 }

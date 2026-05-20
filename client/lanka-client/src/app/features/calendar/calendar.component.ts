@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CampaignsAgent } from '../../core/api/campaigns.agent';
+import { BloggersAgent } from '../../core/api/bloggers.agent';
 import { ICampaign, CampaignStatus } from '../../core/models/campaigns';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -63,6 +64,7 @@ export class CalendarComponent implements OnInit {
   ];
 
   private readonly campaignsApi = inject(CampaignsAgent);
+  private readonly bloggersApi = inject(BloggersAgent);
 
   public ngOnInit(): void {
     this.loadCampaigns();
@@ -70,15 +72,23 @@ export class CalendarComponent implements OnInit {
 
   public loadCampaigns(): void {
     this.loading = true;
-    this.campaignsApi.getCampaigns().subscribe({
-      next: (data) => {
-        this.campaigns = data;
-        this.applyFilters();
-        this.generateCalendar();
-        this.loading = false;
+    this.bloggersApi.getProfile().subscribe({
+      next: profile => {
+        this.campaignsApi.getBloggerCampaigns(profile.id).subscribe({
+          next: (data) => {
+            this.campaigns = data;
+            this.applyFilters();
+            this.generateCalendar();
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Failed to load campaigns', err);
+            this.loading = false;
+          }
+        });
       },
       error: (err) => {
-        console.error('Failed to load campaigns', err);
+        console.error('Failed to load profile for campaigns calendar', err);
         this.loading = false;
       }
     });
