@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace Lanka.Common.Infrastructure.Authorization;
 
 internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizationPolicyProvider
 {
-    private readonly AuthorizationOptions _authorizationOptions;
+    private readonly ConcurrentDictionary<string, AuthorizationPolicy> _permissionPolicies = new();
 
     public PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
         : base(options)
     {
-        this._authorizationOptions = options.Value;
     }
 
     public override async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
@@ -22,12 +22,10 @@ internal sealed class PermissionAuthorizationPolicyProvider : DefaultAuthorizati
             return policy;
         }
 
-        AuthorizationPolicy permissionPolicy = new AuthorizationPolicyBuilder()
-            .AddRequirements(new PermissionRequirement(policyName))
-            .Build();
-
-        this._authorizationOptions.AddPolicy(policyName, permissionPolicy);
-
-        return permissionPolicy;
+        return this._permissionPolicies.GetOrAdd(
+            policyName,
+            static name => new AuthorizationPolicyBuilder()
+                .AddRequirements(new PermissionRequirement(name))
+                .Build());
     }
 }

@@ -17,6 +17,7 @@ export interface IChatMessage {
   editedAtUtc?: string | null;
   readAtUtc?: string | null;
   createdAtUtc: string;
+  recipientBloggerId?: string | null;
 }
 
 export interface IChatMessageDeletedEvent {

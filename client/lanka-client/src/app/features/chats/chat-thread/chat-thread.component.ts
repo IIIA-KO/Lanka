@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { ChatAgent, IChatMessage, IChatThread } from '../../../core/api/chat.agent';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { NotificationsService } from '../../../core/services/notifications.service';
 import { SignalRService } from '../../../core/services/signalr.service';
 import { SnackbarService } from '../../../core/services/snackbar/snackbar.service';
 
@@ -42,12 +43,14 @@ export class ChatThreadComponent implements OnInit, OnChanges, AfterViewInit, On
   private readonly destroy$ = new Subject<void>();
   private readonly chatAgent = inject(ChatAgent);
   private readonly authService = inject(AuthService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly signalRService = inject(SignalRService);
   private readonly snackbarService = inject(SnackbarService);
   private readonly translate = inject(TranslateService);
 
   public ngOnInit(): void {
     this.initialized = true;
+    this.notificationsService.setActiveChatThread(this.threadId);
     this.loadInitialMessages();
     this.connectRealtime();
   }
@@ -67,6 +70,7 @@ export class ChatThreadComponent implements OnInit, OnChanges, AfterViewInit, On
     this.editingMessageId = null;
     this.editDraft = '';
     this.hasMore = true;
+    this.notificationsService.setActiveChatThread(this.threadId);
     this.loadInitialMessages();
     void this.signalRService.joinChat(this.threadId);
   }
@@ -77,6 +81,7 @@ export class ChatThreadComponent implements OnInit, OnChanges, AfterViewInit, On
 
   public ngOnDestroy(): void {
     void this.signalRService.leaveChat(this.threadId);
+    this.notificationsService.setActiveChatThread(null);
     this.destroy$.next();
     this.destroy$.complete();
   }

@@ -5,11 +5,13 @@ import { environment } from '../../../environments/environment.development';
 
 export interface INotification {
   id: string;
-  campaignId: string;
+  campaignId?: string | null;
+  threadId?: string | null;
   title: string;
   body: string;
   isRead: boolean;
   createdAtUtc: string;
+  type?: 'campaign' | 'chat';
 }
 
 const BASE_URL = environment.apiUrl;

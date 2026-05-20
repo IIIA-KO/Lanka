@@ -2,17 +2,28 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: visible;
 }
 
 .bell-btn {
   position: relative;
+  overflow: visible;
 }
 
 .bell-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 0.15rem;
+  right: 0.1rem;
+  min-width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  font-size: 0.55rem;
+  line-height: 0.75rem;
   pointer-events: none;
+  z-index: 2;
 }
 
 .panel-header {

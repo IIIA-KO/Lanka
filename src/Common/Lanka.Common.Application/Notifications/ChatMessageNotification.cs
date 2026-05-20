@@ -11,4 +11,5 @@ public sealed record ChatMessageNotification(
     bool IsDeleted,
     DateTime? EditedAtUtc,
     DateTime? ReadAtUtc,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    Guid? RecipientBloggerId = null);

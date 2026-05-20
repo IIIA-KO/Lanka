@@ -304,8 +304,6 @@ export class AuthService {
   }
 
   private async startSignalRConnection(): Promise<void> {
-    // SignalR disabled as per user request
-    /*
     try {
       const token = this.getToken();
       if (token) {
@@ -315,18 +313,14 @@ export class AuthService {
     } catch (error) {
       console.error('[AuthService] Failed to start SignalR connection:', error);
     }
-    */
   }
 
   private async stopSignalRConnection(): Promise<void> {
-    // SignalR disabled as per user request
-    /*
     try {
       await this.signalRService.stopConnection();
       console.warn('[AuthService] SignalR connection stopped');
     } catch (error) {
       console.error('[AuthService] Failed to stop SignalR connection:', error);
     }
-    */
   }
 }

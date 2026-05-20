@@ -60,6 +60,12 @@ public sealed class SignalRNotificationService : INotificationService, IChatNoti
     {
         await this._hubContext.Clients.Group(GetChatGroupName(message.ThreadId))
             .SendAsync("ChatMessageSent", message, cancellationToken);
+
+        if (message.RecipientBloggerId.HasValue)
+        {
+            await this._hubContext.Clients.Group(GetUserGroupName(message.RecipientBloggerId.Value))
+                .SendAsync("ChatMessageSent", message, cancellationToken);
+        }
     }
 
     public async Task EditMessageAsync(ChatMessageNotification message, CancellationToken cancellationToken = default)
@@ -81,6 +87,8 @@ public sealed class SignalRNotificationService : INotificationService, IChatNoti
     }
 
     private static string GetChatGroupName(Guid threadId) => $"chat_{threadId}";
+
+    private static string GetUserGroupName(Guid userId) => $"user_{userId}";
 }
 
 [Authorize]

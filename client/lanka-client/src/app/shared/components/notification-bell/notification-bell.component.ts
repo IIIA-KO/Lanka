@@ -47,4 +47,12 @@ export class NotificationBellComponent implements OnInit {
   public trackById(_index: number, notification: INotification): string {
     return notification.id;
   }
+
+  public notificationLink(notification: INotification): unknown[] {
+    if (notification.threadId) {
+      return ['/chats', notification.threadId];
+    }
+
+    return ['/campaigns', notification.campaignId];
+  }
 }

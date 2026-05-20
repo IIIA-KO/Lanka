@@ -7,13 +7,13 @@
     [pTooltip]="'NOTIFICATIONS.TOOLTIP' | translate"
     tooltipPosition="bottom"
     styleClass="bell-btn"
-  >
-    @if ((unreadCount$ | async) ?? 0; as count) {
-      @if (count > 0) {
-        <p-badge [value]="count > 9 ? '9+' : count.toString()" severity="danger" styleClass="bell-badge" />
-      }
+  />
+
+  @if ((unreadCount$ | async) ?? 0; as count) {
+    @if (count > 0) {
+      <p-badge [value]="count > 9 ? '9+' : count.toString()" severity="danger" styleClass="bell-badge" />
     }
-  </p-button>
+  }
 
   <p-popover #op styleClass="notification-panel">
     <div class="panel-header">
@@ -46,7 +46,7 @@
             tabindex="0"
             (click)="markRead(n, $event)"
             (keydown.enter)="markRead(n, $event)"
-            [routerLink]="['/campaigns', n.campaignId]"
+            [routerLink]="notificationLink(n)"
           >
             <div class="notif-dot" [class.visible]="!n.isRead"></div>
             <div class="notif-content">
