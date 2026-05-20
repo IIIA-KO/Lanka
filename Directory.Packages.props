@@ -4,6 +4,10 @@
         <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     </PropertyGroup>
     <ItemGroup>
+        <!-- SharpCompress is pulled transitively by MongoDB.Driver 3.6.0. The advisory has no patched version yet. -->
+        <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6c8g-7p36-r338" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.19.0.132793" />
         <!-- General -->
         <PackageVersion Include="MediatR" Version="13.0.0" />
