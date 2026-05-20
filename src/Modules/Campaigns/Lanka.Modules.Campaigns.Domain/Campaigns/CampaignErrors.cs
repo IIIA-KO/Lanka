@@ -14,17 +14,20 @@ public static class CampaignErrors
         Error.Conflict("Campaign.SameUser", "The buyer and seller cannot be the same person");
 
     public static readonly Error InvalidTime =
-        Error.Failure("Campaign.InvalidTime", "Scheduled time cannot be in the past");
+        Error.Validation("Campaign.InvalidTime", "Scheduled time cannot be in the past");
 
     public static readonly Error NotPending =
-        Error.Failure("Campaign.NotPending", "The campaign is not pending");
+        Error.Problem("Campaign.NotPending", "The campaign is not pending");
 
     public static readonly Error NotConfirmed =
-        Error.Failure("Campaign.NotConfirmed", "The campaign is not confirmed");
+        Error.Problem("Campaign.NotConfirmed", "The campaign is not confirmed");
 
     public static readonly Error NotDone =
-        Error.Failure("Campaign.NotDone", "The campaign is not done");
+        Error.Problem("Campaign.NotDone", "The campaign is not done");
 
     public static readonly Error AlreadyStarted =
-        Error.Failure("Campaign.AlreadyStarted", "The campaign has already started");
+        Error.Validation("Campaign.AlreadyStarted", "The campaign has already started");
+
+    public static readonly Error Expired =
+        Error.Validation("Campaign.Expired", "The campaign proposal expired because its scheduled time is in the past");
 }

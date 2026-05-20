@@ -17,6 +17,11 @@ public class CampaignConfiguration : IEntityTypeConfiguration<Campaign>
         builder.HasKey(campaign => campaign.Id);
 
         builder
+            .HasIndex(campaign => campaign.ScheduledOnUtc)
+            .HasDatabaseName("ix_campaigns_pending_scheduled_on_utc")
+            .HasFilter("status = 0");
+
+        builder
             .Property(campaign => campaign.Id)
             .HasConversion(id => id.Value, value => new CampaignId(value))
             .IsRequired();

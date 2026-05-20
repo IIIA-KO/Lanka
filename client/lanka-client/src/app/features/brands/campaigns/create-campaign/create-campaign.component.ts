@@ -22,6 +22,13 @@ import { OffersAgent } from '../../../../core/api/offers.agent';
 import { ICreateCampaignRequest, IOffer, Currency } from '../../../../core/models/campaigns';
 import { SnackbarService } from '../../../../core/services/snackbar/snackbar.service';
 
+function nextSelectableCampaignDate(): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
 @Component({
   standalone: true,
   selector: 'app-create-campaign',
@@ -50,7 +57,7 @@ export class CreateCampaignComponent implements OnInit {
   public offer: IOffer | null = null;
   public offerId: string | null = null;
   public activeStepIndex = 0;
-  public minDate = new Date();
+  public minDate = nextSelectableCampaignDate();
   
   public currencies = [
     { label: 'US Dollar (USD)', value: Currency.USD },
@@ -128,6 +135,12 @@ export class CreateCampaignComponent implements OnInit {
       this.loading = true;
 
       const formValue = this.campaignForm.value;
+      if (formValue.expectedCompletionDate < this.minDate) {
+        this.campaignForm.get('expectedCompletionDate')?.setErrors({ minDate: true });
+        this.loading = false;
+        return;
+      }
+
       const request: ICreateCampaignRequest = {
         offerId: this.offerId,
         name: formValue.name,

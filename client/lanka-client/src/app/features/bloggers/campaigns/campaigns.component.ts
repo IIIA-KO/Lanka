@@ -492,10 +492,11 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     switch (campaign.status) {
       case CampaignStatus.Pending:
         if (isCreator) {
-          actions.push(
-            { label: this.translate.instant('CAMPAIGNS.ACTIONS.CONFIRM'), value: 'confirm', icon: 'pi pi-check' },
-            { label: this.translate.instant('CAMPAIGNS.ACTIONS.REJECT'),  value: 'reject',  icon: 'pi pi-times' }
-          );
+          if (!this.isScheduledInPast(campaign)) {
+            actions.push({ label: this.translate.instant('CAMPAIGNS.ACTIONS.CONFIRM'), value: 'confirm', icon: 'pi pi-check' });
+          }
+
+          actions.push({ label: this.translate.instant('CAMPAIGNS.ACTIONS.REJECT'), value: 'reject', icon: 'pi pi-times' });
         }
         break;
       case CampaignStatus.Confirmed:
@@ -632,6 +633,10 @@ export class CampaignsComponent implements OnInit, OnDestroy {
     return filtered;
   }
 
+  private isScheduledInPast(campaign: ICampaign): boolean {
+    return !!campaign.scheduledOnUtc && new Date(campaign.scheduledOnUtc).getTime() <= Date.now();
+  }
+
   private executeAction(action: string, campaignId: string): void {
     this.loading = true;
 
@@ -639,7 +644,6 @@ export class CampaignsComponent implements OnInit, OnDestroy {
       confirm: () => this.campaignsAgent.confirmCampaign(campaignId),
       reject:  () => this.campaignsAgent.rejectCampaign(campaignId),
       cancel:  () => this.campaignsAgent.cancelCampaign(campaignId),
-      pend:    () => this.campaignsAgent.pendCampaign(campaignId),
     };
 
     const factory = actionMap[action];

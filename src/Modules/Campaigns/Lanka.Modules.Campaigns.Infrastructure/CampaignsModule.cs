@@ -121,6 +121,9 @@ public static class CampaignsModule
 
         services.Configure<InboxOptions>(configuration.GetSection("Campaigns:Inbox"));
         services.ConfigureOptions<ConfigureProcessInboxJob>();
+
+        services.Configure<ExpiredCampaignsOptions>(configuration.GetSection("Campaigns:ExpiredCampaigns"));
+        services.ConfigureOptions<ConfigureExpirePendingCampaignsJob>();
     }
 
     private static void AddDomainEventHandlers(this IServiceCollection services)

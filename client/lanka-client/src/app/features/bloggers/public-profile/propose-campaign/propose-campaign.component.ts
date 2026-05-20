@@ -10,6 +10,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 const CAMPAIGN_NAME_MAX_LENGTH = 50;
 
+function nextSelectableCampaignDate(): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
 @Component({
   selector: 'app-propose-campaign',
   standalone: true,
@@ -33,7 +40,7 @@ export class ProposeCampaignComponent {
 
   public form: FormGroup;
   public loading = false;
-  public minDate = new Date();
+  public minDate = nextSelectableCampaignDate();
 
   private readonly fb = inject(FormBuilder);
   private readonly campaignsApi = inject(CampaignsAgent);
@@ -55,6 +62,12 @@ export class ProposeCampaignComponent {
   public onSubmit(): void {
     if (this.form.invalid || !this.offerId) return;
 
+    const scheduledDate = this.form.value.scheduledDate as Date;
+    if (scheduledDate < this.minDate) {
+      this.form.get('scheduledDate')?.setErrors({ minDate: true });
+      return;
+    }
+
     this.loading = true;
     const offerName = (this.offerName ?? '').trim();
     const offerDescription = (this.offerDescription ?? '').trim();
@@ -68,7 +81,7 @@ export class ProposeCampaignComponent {
     const request: IPendCampaignRequest = {
       name,
       description,
-      scheduledOnUtc: (this.form.value.scheduledDate as Date).toISOString(),
+      scheduledOnUtc: scheduledDate.toISOString(),
       offerId: this.offerId
     };
 

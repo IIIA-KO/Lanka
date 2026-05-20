@@ -40,14 +40,20 @@ internal sealed class ConfirmCampaignCommandHandler
             return Result.Failure(CampaignErrors.NotFound);
         }
 
-        if (campaign.ScheduledOnUtc <= this._dateTimeProvider.UtcNow)
-        {
-            return Result.Failure(CampaignErrors.InvalidTime);
-        }
-
         if (campaign.CreatorId.Value != this._userContext.GetUserId())
         {
             return Result.Failure(Error.NotAuthorized);
+        }
+
+        if (campaign.ScheduledOnUtc <= this._dateTimeProvider.UtcNow)
+        {
+            Result expireResult = campaign.Expire(this._dateTimeProvider.UtcNow);
+            if (expireResult.IsSuccess)
+            {
+                await this._unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+
+            return Result.Failure(CampaignErrors.Expired);
         }
             
         Result result = campaign.Confirm(this._dateTimeProvider.UtcNow);

@@ -114,8 +114,13 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   public get stepContext(): { myTurn: boolean; icon: string; headlineKey: string; bodyKey: string } | null {
     if (!this.campaign) { return null; }
     const s = this.campaign.status as CampaignStatus;
+    const isExpiredPending = s === CampaignStatus.Pending && this.isScheduledInPast(this.campaign);
 
     if (this.isCreator) {
+      if (isExpiredPending) {
+        return { myTurn: true, icon: 'pi pi-clock', headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_EXPIRED_PENDING_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_EXPIRED_PENDING_BODY' };
+      }
+
       switch (s) {
         case CampaignStatus.Pending:
           return { myTurn: true,  icon: 'pi pi-inbox',        headlineKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CREATOR_PENDING_BODY' };
@@ -131,6 +136,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     }
 
     if (this.isClient) {
+      if (isExpiredPending) {
+        return { myTurn: false, icon: 'pi pi-clock', headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_EXPIRED_PENDING_HEADLINE', bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_EXPIRED_PENDING_BODY' };
+      }
+
       switch (s) {
         case CampaignStatus.Pending:
           return { myTurn: false, icon: 'pi pi-hourglass',    headlineKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_HEADLINE',   bodyKey: 'CAMPAIGNS.DETAIL.STEP_CLIENT_PENDING_BODY' };
@@ -236,7 +245,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   }
 
   // ── Actions ──────────────────────────────────────────────────────────────
-  public canConfirm():     boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
+  public canConfirm():     boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending && !this.isScheduledInPast(this.campaign); }
   public canReject():      boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Pending; }
   public canMarkDone():    boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Confirmed; }
   public canEditReport():  boolean { return this.isCreator && this.campaign?.status === CampaignStatus.Done; }
@@ -249,7 +258,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       message: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_CONFIRM_MSG'),
       header: this.translate.instant('CAMPAIGNS.DETAIL.CONFIRM_DIALOG_CONFIRM_HEADER'),
       icon: 'pi pi-check-circle',
-      acceptButtonStyleClass: 'p-button-success',
+      acceptButtonStyleClass: 'p-button-primary',
       accept: () => this.execute(() => this.campaignsAgent.confirmCampaign(this.campaign!.id), 'CAMPAIGNS.DETAIL.SUCCESS_CONFIRMED'),
     });
   }
@@ -293,10 +302,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         if (!isEdit) { this.reload(id); }
         this.loadReport(id);
       },
-      error: () => {
+      error: (err: Error) => {
         this.processingAction = false;
         this.reportDialog.resetSubmitting();
-        this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION'));
+        this.snackbarService.showError(err.message || this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION'));
       },
     });
   }
@@ -362,9 +371,9 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
           this.snackbarService.showSuccess(this.translate.instant(successMsgKey));
           this.reload(id);
         },
-        error: () => {
+        error: (err: Error) => {
           this.processingAction = false;
-          this.snackbarService.showError(this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION'));
+          this.snackbarService.showError(err.message || this.translate.instant('CAMPAIGNS.DETAIL.ERROR_ACTION'));
         },
       });
   }
@@ -377,5 +386,9 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         next: c => { this.campaign = c; this.loading = false; },
         error: () => { this.loading = false; },
       });
+  }
+
+  private isScheduledInPast(campaign: ICampaign | null): boolean {
+    return !!campaign?.scheduledOnUtc && new Date(campaign.scheduledOnUtc).getTime() <= Date.now();
   }
 }

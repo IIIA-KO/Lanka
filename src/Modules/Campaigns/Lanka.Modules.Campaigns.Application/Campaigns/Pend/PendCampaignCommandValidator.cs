@@ -19,5 +19,11 @@ internal sealed class PendCampaignCommandValidator : AbstractValidator<PendCampa
             .NotNull()
             .NotEmpty()
             .MaximumLength(Description.MaxLength);
+
+        this
+            .RuleFor(c => c.ScheduledOnUtc)
+            .Must(scheduledOnUtc => scheduledOnUtc > DateTimeOffset.UtcNow)
+            .WithErrorCode("Campaign.InvalidTime")
+            .WithMessage("Scheduled time cannot be in the past");
     }
 }

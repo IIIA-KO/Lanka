@@ -113,7 +113,7 @@ public class Campaign : Entity<CampaignId>, IChangeCaptured
             nm,
             desc,
             offer.Price,
-            utcNow,
+            scheduledOnUtc,
             offer.Id,
             clientId,
             creatorId,
@@ -165,6 +165,20 @@ public class Campaign : Entity<CampaignId>, IChangeCaptured
         this.RejectedOnUtc = utcNow;
 
         this.RaiseDomainEvent(new CampaignRejectedDomainEvent(this.Id));
+        return Result.Success();
+    }
+
+    public Result Expire(DateTimeOffset utcNow)
+    {
+        if (this.Status != CampaignStatus.Pending)
+        {
+            return Result.Failure(CampaignErrors.NotPending);
+        }
+
+        this.Status = CampaignStatus.Cancelled;
+        this.CancelledOnUtc = utcNow;
+
+        this.RaiseDomainEvent(new CampaignCancelledDomainEvent(this.Id));
         return Result.Success();
     }
 

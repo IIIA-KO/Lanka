@@ -8,6 +8,10 @@
       "IntervalInSeconds": 5,
       "BatchSize": 50
     },
+    "ExpiredCampaigns": {
+      "IntervalInSeconds": 300,
+      "BatchSize": 500
+    },
     "Cloudinary": {
       "CloudName": "<your-cloudinary-cloud-name>",
       "ApiKey": "<your-cloudinary-api-key>",
