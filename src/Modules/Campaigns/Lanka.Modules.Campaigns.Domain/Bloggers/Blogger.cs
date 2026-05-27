@@ -34,6 +34,10 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
 
     public PayoutAccount? PayoutAccount { get; private set; }
 
+    public bool IsDeleted { get; private set; }
+
+    public DateTimeOffset? DeletedOnUtc { get; private set; }
+
     private Blogger() { }
 
     private Blogger(
@@ -184,5 +188,20 @@ public class Blogger : Entity<BloggerId>, IChangeCaptured
     public void ClearPayoutAccount()
     {
         this.PayoutAccount = null;
+    }
+
+    public void Delete(DateTimeOffset utcNow)
+    {
+        this.FirstName = FirstName.Create("Deleted").Value;
+        this.LastName = LastName.Create("Profile").Value;
+        this.Email = Email.Create($"deleted-{this.Id.Value:N}@deleted.local").Value;
+        this.BirthDate = BirthDate.Create(new DateOnly(1970, 1, 1)).Value;
+        this.Bio = Bio.Create(string.Empty).Value;
+        this.ProfilePhoto = null;
+        this.InstagramMetadata = new InstagramMetadata(null, null, null);
+        this.PayoutAccount = null;
+        this.Category = Category.None;
+        this.IsDeleted = true;
+        this.DeletedOnUtc = utcNow;
     }
 }

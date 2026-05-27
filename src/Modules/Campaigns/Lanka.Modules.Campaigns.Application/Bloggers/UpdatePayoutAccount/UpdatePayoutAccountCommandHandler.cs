@@ -51,7 +51,7 @@ internal sealed class UpdatePayoutAccountCommandHandler : ICommandHandler<Update
 
         if (currencyChanging)
         {
-            bool hasActiveCampaigns = await this._campaignRepository.HasActiveCreatorCampaignsAsync(
+            bool hasActiveCampaigns = await this._campaignRepository.HasActiveCampaignsAsync(
                 new BloggerId(this._userContext.GetUserId()),
                 cancellationToken
             );

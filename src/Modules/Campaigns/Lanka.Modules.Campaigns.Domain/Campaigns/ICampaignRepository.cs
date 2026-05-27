@@ -13,7 +13,7 @@ public interface ICampaignRepository
         CancellationToken cancellationToken = default
     );
 
-    Task<bool> HasActiveCreatorCampaignsAsync(
+    Task<bool> HasActiveCampaignsAsync(
         BloggerId bloggerId,
         CancellationToken cancellationToken = default
     );

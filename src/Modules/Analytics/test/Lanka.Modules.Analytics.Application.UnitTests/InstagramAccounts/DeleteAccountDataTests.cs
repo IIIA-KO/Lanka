@@ -66,7 +66,7 @@ public class DeleteAccountDataTests
     }
     
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenInstagramAccountDoesNotExist()
+    public async Task Handle_ShouldReturnSuccess_WhenInstagramAccountDoesNotExist()
     {
         // Arrange
         this._instagramAccountRepositoryMock.GetByUserIdWithTokenAsync(
@@ -77,8 +77,9 @@ public class DeleteAccountDataTests
         // Act
         Result result = await this._handler.Handle(Command, CancellationToken.None);
 
-        // Assertå
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(InstagramAccountErrors.NotFound);
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        this._instagramAccountRepositoryMock.DidNotReceive().Remove(Arg.Any<InstagramAccount>());
+        await this._unitOfWorkMock.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }

@@ -43,7 +43,7 @@ internal sealed class CampaignRepository : ICampaignRepository
             );
     }
 
-    public async Task<bool> HasActiveCreatorCampaignsAsync(
+    public async Task<bool> HasActiveCampaignsAsync(
         BloggerId bloggerId,
         CancellationToken cancellationToken = default
     )
@@ -51,7 +51,8 @@ internal sealed class CampaignRepository : ICampaignRepository
         return await this._dbContext.Campaigns
             .AsNoTracking()
             .AnyAsync(
-                c => c.CreatorId == bloggerId && Campaign.ActiveCampaignStatuses.Contains(c.Status),
+                c => (c.CreatorId == bloggerId || c.ClientId == bloggerId)
+                     && Campaign.ActiveCampaignStatuses.Contains(c.Status),
                 cancellationToken
             );
     }

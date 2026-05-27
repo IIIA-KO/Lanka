@@ -54,6 +54,14 @@ public class BloggerConfiguration : IEntityTypeConfiguration<Blogger>
             .IsRequired(false);
 
         builder
+            .Property(blogger => blogger.IsDeleted)
+            .IsRequired();
+
+        builder
+            .Property(blogger => blogger.DeletedOnUtc)
+            .IsRequired(false);
+
+        builder
             .HasOne(blogger => blogger.Pact)
             .WithOne(pact => pact.Blogger)
             .HasForeignKey<Pact>(pact => pact.BloggerId)

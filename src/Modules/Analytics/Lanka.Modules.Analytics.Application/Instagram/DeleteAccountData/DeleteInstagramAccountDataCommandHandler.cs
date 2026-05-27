@@ -32,7 +32,7 @@ internal sealed class DeleteInstagramAccountDataCommandHandler
 
         if (instagramAccount is null)
         {
-            return Result.Failure(InstagramAccountErrors.NotFound);
+            return Result.Success();
         }
 
         this._instagramAccountRepository.Remove(instagramAccount);

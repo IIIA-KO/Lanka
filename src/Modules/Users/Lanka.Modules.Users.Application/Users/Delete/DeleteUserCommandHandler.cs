@@ -12,18 +12,21 @@ internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserComma
     private readonly IUserContext _userContext;
     private readonly IUserRepository _userRepository;
     private readonly IIdentityProviderService _identityProviderService;
+    private readonly IUserDeletionGuard _userDeletionGuard;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteUserCommandHandler(
         IUserContext userContext,
         IUserRepository userRepository,
         IIdentityProviderService identityProviderService,
+        IUserDeletionGuard userDeletionGuard,
         IUnitOfWork unitOfWork
     )
     {
         this._userContext = userContext;
         this._userRepository = userRepository;
         this._identityProviderService = identityProviderService;
+        this._userDeletionGuard = userDeletionGuard;
         this._unitOfWork = unitOfWork;
     }
 
@@ -33,6 +36,15 @@ internal sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserComma
             new UserId(this._userContext.GetUserId()),
             cancellationToken
         );
+
+        bool hasActiveCampaigns = await this._userDeletionGuard.HasActiveCampaignsAsync(
+            user!.Id.Value,
+            cancellationToken);
+
+        if (hasActiveCampaigns)
+        {
+            return Result.Failure(UserErrors.ActiveCampaignsExist);
+        }
 
         Result result = await this._identityProviderService.DeleteUserAsync(user!.IdentityId, cancellationToken);
         

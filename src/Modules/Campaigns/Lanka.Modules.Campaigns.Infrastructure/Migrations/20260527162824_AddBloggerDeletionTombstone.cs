@@ -1,0 +1,44 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Lanka.Modules.Campaigns.Infrastructure.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddBloggerDeletionTombstone : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<DateTimeOffset>(
+                name: "deleted_on_utc",
+                schema: "campaigns",
+                table: "bloggers",
+                type: "timestamp with time zone",
+                nullable: true);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "is_deleted",
+                schema: "campaigns",
+                table: "bloggers",
+                type: "boolean",
+                nullable: false,
+                defaultValue: false);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "deleted_on_utc",
+                schema: "campaigns",
+                table: "bloggers");
+
+            migrationBuilder.DropColumn(
+                name: "is_deleted",
+                schema: "campaigns",
+                table: "bloggers");
+        }
+    }
+}

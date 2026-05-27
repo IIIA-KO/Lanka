@@ -18,7 +18,7 @@ public static class BloggerErrors
     public static readonly Error ActiveCampaignsExist =
         Error.Conflict(
             "Blogger.ActiveCampaignsExist",
-            "Cannot change payout currency while active campaigns exist."
+            "Cannot delete profile or change payout currency while active campaigns exist."
         );
 
     public static readonly Error PayoutAccountRequired =

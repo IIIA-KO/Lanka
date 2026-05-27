@@ -192,6 +192,7 @@ public static class UsersModule
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserDeletionGuard, UserDeletionGuard>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
     }
