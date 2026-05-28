@@ -32,7 +32,7 @@ export class LinkInstagramComponent implements OnInit {
   }
 
   public handleInstagramLink(): void {
-    const authUrl = `https://www.facebook.com/v20.0/dialog/oauth?client_id=${instagramClientId}&redirect_uri=${instagramRedirectUri}&scope=${instagramScope}&response_type=${instagramResponseType}&config_id=${instagramConfigId}`;
+    const authUrl = `https://www.facebook.com/v24.0/dialog/oauth?client_id=${instagramClientId}&redirect_uri=${instagramRedirectUri}&scope=${instagramScope}&response_type=${instagramResponseType}&config_id=${instagramConfigId}`;
     window.location.href = authUrl;
   }
 
