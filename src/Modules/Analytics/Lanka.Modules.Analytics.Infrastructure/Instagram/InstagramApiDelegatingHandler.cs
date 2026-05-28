@@ -1,14 +1,20 @@
+using System.Text.RegularExpressions;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace Lanka.Modules.Analytics.Infrastructure.Instagram;
 
-public class InstagramApiDelegatingHandler : DelegatingHandler
+public partial class InstagramApiDelegatingHandler : DelegatingHandler
 {
     private readonly RateLimiter _rateLimiter;
+    private readonly ILogger<InstagramApiDelegatingHandler> _logger;
 
-    public InstagramApiDelegatingHandler(RateLimiter rateLimiter)
+    public InstagramApiDelegatingHandler(
+        RateLimiter rateLimiter,
+        ILogger<InstagramApiDelegatingHandler> logger)
     {
         this._rateLimiter = rateLimiter;
+        this._logger = logger;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -24,6 +30,30 @@ public class InstagramApiDelegatingHandler : DelegatingHandler
             throw new HttpRequestException("Instagram API rate limit exceeded. Try again later.");
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            string body = response.Content is null
+                ? string.Empty
+                : await response.Content.ReadAsStringAsync(cancellationToken);
+
+            string url = Sanitize(request.RequestUri?.ToString() ?? string.Empty);
+
+            this._logger.LogError(
+                "Instagram API {Method} {Url} failed: {Status} body={Body}",
+                request.Method,
+                url,
+                (int)response.StatusCode,
+                body);
+        }
+
+        return response;
     }
+
+    private static string Sanitize(string url) =>
+        AccessTokenRegex().Replace(url, "access_token=***");
+
+    [GeneratedRegex("access_token=[^&]*")]
+    private static partial Regex AccessTokenRegex();
 }
