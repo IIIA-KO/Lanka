@@ -13,7 +13,8 @@ public interface IChatThreadRepository
         BloggerId secondParticipantId,
         CampaignId? campaignId,
         OfferId? offerId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default
+    );
 
     void Add(ChatThread thread);
 }

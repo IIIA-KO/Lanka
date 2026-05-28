@@ -28,7 +28,8 @@ public class ChatThread : Entity<ChatThreadId>
         BloggerId secondParticipantId,
         DateTimeOffset utcNow,
         CampaignId? campaignId = null,
-        OfferId? offerId = null)
+        OfferId? offerId = null
+    )
     {
         if (firstParticipantId == secondParticipantId)
         {
