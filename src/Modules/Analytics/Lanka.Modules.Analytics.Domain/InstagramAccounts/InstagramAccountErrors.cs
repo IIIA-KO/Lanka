@@ -16,31 +16,31 @@ public static class InstagramAccountErrors
 
     public static Error FailedToGetFacebookPage => Error.Failure(
         "InstagramAccount.FailedToGetFacebookPage",
-        "Failed to retrieve the Facebook Business Page associated with the Instagram account."
+        "We couldn't read your Facebook Page. In the Facebook dialog, grant access to the Page that is connected to the Instagram account you want to link."
     );
 
     public static Error IncorrectFacebookPagesCount => Error.Failure(
         "InstagramAccount.IncorrectFacebookPagesCount",
-        "The number of selected Facebook Pages associated with the Instagram account is incorrect."
+        "Select exactly one Facebook Page during the Facebook dialog — the one linked to the Instagram account you want to connect. Granting more than one (or none) prevents us from identifying the right account."
     );
 
     public static Error FailedToGetAdAccount => Error.Failure(
         "InstagramAccount.FailedToGetAdAccount",
-        "Failed to retrieve the Advertisement Account associated with the Instagram account."
+        "We couldn't find an ad account for the selected business. Make sure the business you picked owns an ad account and that you granted ads access during the Facebook dialog."
     );
 
     public static Error FailedToGetExpirationForAccessToken => Error.Unauthorized(
         "InstagramAccount.FailedToGetExpirationForAccessToken",
-        "Failed to get expires_at property while retrieving access token"
+        "We couldn't validate your Facebook access token. Please try linking again."
     );
 
     public static Error Unexpected => Error.Failure(
         "InstagramAccount.Unexpected",
-        "An unexpected error occurred while processing the Instagram account."
+        "We couldn't read that Instagram account. Make sure the Facebook Page, business, and Instagram account you selected all belong together, and that the Instagram account is a Business or Creator account."
     );
 
     public static Error WrongInstagramAccount => Error.Failure(
         "InstagramAccount.WrongInstagramAccount",
-        "The provided Instagram account is not associated with the current user."
+        "The selected Instagram account isn't connected to the Facebook Page you chose. Pick the Page that is linked to your Instagram account."
     );
 }

@@ -85,7 +85,7 @@ public sealed class LinkInstagramSaga : MassTransitStateMachine<LinkInstagramSta
                         Guid.NewGuid(),
                         DateTime.UtcNow,
                         context.Saga.CorrelationId,
-                        "Instagram linking failed"
+                        context.Message.Reason
                     )
                 )
                 .Finalize(),

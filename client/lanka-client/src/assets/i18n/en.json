@@ -56,7 +56,49 @@
   },
   "PACT": {
     "TITLE": "My Pact",
-    "SUBTITLE": "Your Purposeful, Actionable, Collaborative Terms agreement."
+    "SUBTITLE": "Your Purposeful, Actionable, Collaborative Terms agreement.",
+    "LOADING": "Loading pact...",
+    "RETRY": "Retry",
+    "LOAD_FAIL": "Unable to load your partnership agreement",
+    "RESOLVE_FAIL": "Unable to resolve your blogger account.",
+    "PROFILE_FAIL": "Unable to load your blogger profile.",
+    "EMPTY": {
+      "TITLE": "Create Your Partnership Agreement",
+      "DESCRIPTION": "Define your standard terms and expectations for brand collaborations.",
+      "CREATE_BTN": "Create Pact"
+    },
+    "TERMS_TITLE": "Agreement Terms",
+    "EDIT": "Edit",
+    "EDIT_HEADER": "Edit Terms",
+    "DRAFT_HEADER": "Draft Terms",
+    "MODE": {
+      "WRITE": "Write",
+      "PREVIEW": "Preview"
+    },
+    "TOOLBAR": {
+      "BOLD": "Bold",
+      "ITALIC": "Italic",
+      "HEADING": "Heading",
+      "LIST": "List"
+    },
+    "PLACEHOLDER": "Start typing your terms...",
+    "CHARS": "chars",
+    "USE_TEMPLATE": "Use Template",
+    "CANCEL": "Cancel",
+    "SAVE": "Save Changes",
+    "CREATE": "Create Pact",
+    "NEW_OFFER_SR": "New Offer",
+    "EDIT_OFFER_SR": "Edit",
+    "MESSAGES": {
+      "CREATE_SUCCESS": "Pact created successfully",
+      "UPDATE_SUCCESS": "Pact updated successfully"
+    },
+    "VALIDATION": {
+      "REQUIRED": "Content is required",
+      "MIN_LENGTH": "Content must be at least {{count}} characters",
+      "MAX_LENGTH": "Content must not exceed {{count}} characters"
+    },
+    "SAMPLE": "# Partnership Agreement\n\nThis pact describes how I usually work with brands on sponsored Instagram content. Specific campaign details, dates, deliverables, and price are confirmed separately in each offer or campaign.\n\n## Collaboration Fit\n\nI accept campaigns that match my audience, content style, and personal standards. I may decline products or briefs that feel misleading, low quality, unsafe, or unrelated to my community.\n\n## Campaign Workflow\n\n1. The client shares the campaign goal, product details, key message, required mentions, and deadline.\n2. I confirm the scope, publication date, and deliverables before work begins.\n3. If a draft review is included, I send the concept or preview before publishing.\n4. After publishing, I provide the final content link and a short work report.\n\n## Deliverables\n\nEach offer defines the exact deliverable, such as a Reel, Story set, feed post, mention, or highlight. Unless agreed otherwise:\n\n* one deliverable includes one publication on my Instagram profile;\n* minor edits are included before publication;\n* major brief changes after approval may require a new campaign or extra fee;\n* publication timing may shift slightly because of platform issues or product delivery delays.\n\n## Content Review\n\nThe client may request changes that keep the content accurate and aligned with the approved brief. I keep final editorial control over tone, wording, visuals, and presentation so the content stays natural for my audience.\n\n## Usage Rights\n\nThe client may repost the published content organically with credit to my profile. Paid advertising, whitelisting, editing the content, or using it outside social media requires written approval and separate terms.\n\n## Payment\n\nPayment is made through Lanka according to the campaign price and currency. The campaign is considered ready for payment after the agreed content is delivered and the work report is submitted.\n\n## Cancellation\n\nEither side can cancel before work starts. If the campaign is cancelled after content planning, filming, or editing has begun, we should agree on fair compensation for completed work.\n\n## Communication\n\nPlease keep campaign requirements, deadlines, and feedback in Lanka chat so both sides have a clear record of the agreement."
   },
   "OFFERS": {
     "LIST_TITLE": "My Offers",

@@ -15,7 +15,7 @@ import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PactsAgent } from '../../../core/api/pacts.agent';
 import { IPact, ICreatePactRequest, IEditPactRequest } from '../../../core/models/campaigns';
@@ -54,10 +54,7 @@ export class PactComponent implements OnInit, OnDestroy {
   public isEditing = false;
   public error: string | null = null;
   
-  public editModeOptions = [
-    { label: 'Write', value: 'write', icon: 'pi pi-pencil' },
-    { label: 'Preview', value: 'preview', icon: 'pi pi-eye' }
-  ];
+  public editModeOptions: { label: string; value: string; icon: string }[] = [];
   public activeEditMode = 'write';
 
   private readonly fb = inject(FormBuilder);
@@ -66,12 +63,22 @@ export class PactComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly snackbarService = inject(SnackbarService);
   private readonly markdownService = inject(MarkdownService);
+  private readonly translate = inject(TranslateService);
   private bloggerId: string | null = null;
   private readonly destroy$ = new Subject<void>();
 
   public ngOnInit(): void {
     this.initializeForm();
+    this.refreshEditModeOptions();
+    this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => this.refreshEditModeOptions());
     this.loadPact();
+  }
+
+  private refreshEditModeOptions(): void {
+    this.editModeOptions = [
+      { label: this.translate.instant('PACT.MODE.WRITE'), value: 'write', icon: 'pi pi-pencil' },
+      { label: this.translate.instant('PACT.MODE.PREVIEW'), value: 'preview', icon: 'pi pi-eye' }
+    ];
   }
 
   public ngOnDestroy(): void {
@@ -96,7 +103,7 @@ export class PactComponent implements OnInit, OnDestroy {
               return of(null);
             }
 
-            this.error = 'Unable to load your partnership agreement';
+            this.error = this.translate.instant('PACT.LOAD_FAIL');
             return of(null);
           })
         );
@@ -163,7 +170,7 @@ export class PactComponent implements OnInit, OnDestroy {
             if (result) {
               this.pact = result;
               this.isEditing = false;
-              this.snackbarService.showSuccess('Pact updated successfully');
+              this.snackbarService.showSuccess(this.translate.instant('PACT.MESSAGES.UPDATE_SUCCESS'));
             }
           },
           complete: () => {
@@ -184,7 +191,7 @@ export class PactComponent implements OnInit, OnDestroy {
         ).subscribe({
           next: (result) => {
             if (result) {
-              this.snackbarService.showSuccess('Pact created successfully');
+              this.snackbarService.showSuccess(this.translate.instant('PACT.MESSAGES.CREATE_SUCCESS'));
               this.loadPact(); // Reload to get the full pact object
               this.isEditing = false;
             }
@@ -221,13 +228,13 @@ export class PactComponent implements OnInit, OnDestroy {
     const field = this.pactForm.get(fieldName);
     if (field && field.touched && field.errors) {
       if (field.errors['required']) {
-        return 'Content is required';
+        return this.translate.instant('PACT.VALIDATION.REQUIRED');
       }
       if (field.errors['minlength']) {
-        return `Content must be at least ${field.errors['minlength'].requiredLength} characters`;
+        return this.translate.instant('PACT.VALIDATION.MIN_LENGTH', { count: field.errors['minlength'].requiredLength });
       }
       if (field.errors['maxlength']) {
-        return `Content must not exceed ${field.errors['maxlength'].requiredLength} characters`;
+        return this.translate.instant('PACT.VALIDATION.MAX_LENGTH', { count: field.errors['maxlength'].requiredLength });
       }
     }
     return null;
@@ -237,49 +244,7 @@ export class PactComponent implements OnInit, OnDestroy {
    * Provides sample pact content for first-time users
    */
   public getSamplePactContent(): string {
-    return `# Partnership Agreement
-
-This pact describes how I usually work with brands on sponsored Instagram content. Specific campaign details, dates, deliverables, and price are confirmed separately in each offer or campaign.
-
-## Collaboration Fit
-
-I accept campaigns that match my audience, content style, and personal standards. I may decline products or briefs that feel misleading, low quality, unsafe, or unrelated to my community.
-
-## Campaign Workflow
-
-1. The client shares the campaign goal, product details, key message, required mentions, and deadline.
-2. I confirm the scope, publication date, and deliverables before work begins.
-3. If a draft review is included, I send the concept or preview before publishing.
-4. After publishing, I provide the final content link and a short work report.
-
-## Deliverables
-
-Each offer defines the exact deliverable, such as a Reel, Story set, feed post, mention, or highlight. Unless agreed otherwise:
-
-* one deliverable includes one publication on my Instagram profile;
-* minor edits are included before publication;
-* major brief changes after approval may require a new campaign or extra fee;
-* publication timing may shift slightly because of platform issues or product delivery delays.
-
-## Content Review
-
-The client may request changes that keep the content accurate and aligned with the approved brief. I keep final editorial control over tone, wording, visuals, and presentation so the content stays natural for my audience.
-
-## Usage Rights
-
-The client may repost the published content organically with credit to my profile. Paid advertising, whitelisting, editing the content, or using it outside social media requires written approval and separate terms.
-
-## Payment
-
-Payment is made through Lanka according to the campaign price and currency. The campaign is considered ready for payment after the agreed content is delivered and the work report is submitted.
-
-## Cancellation
-
-Either side can cancel before work starts. If the campaign is cancelled after content planning, filming, or editing has begun, we should agree on fair compensation for completed work.
-
-## Communication
-
-Please keep campaign requirements, deadlines, and feedback in Lanka chat so both sides have a clear record of the agreement.`;
+    return this.translate.instant('PACT.SAMPLE');
   }
 
   public getParsedContent(content: string): string {
@@ -321,11 +286,11 @@ Please keep campaign requirements, deadlines, and feedback in Lanka chat so both
           return profile.id;
         }
 
-        this.error = 'Unable to resolve your blogger account.';
+        this.error = this.translate.instant('PACT.RESOLVE_FAIL');
         return null;
       }),
       catchError(() => {
-        this.error = 'Unable to load your blogger profile.';
+        this.error = this.translate.instant('PACT.PROFILE_FAIL');
         return of(null);
       })
     );

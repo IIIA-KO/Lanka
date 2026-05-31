@@ -8,21 +8,21 @@
   </header>
 
   <div *ngIf="loading && !pact && !isEditing" class="loading-state text-color-secondary">
-    Loading pact...
+    {{ 'PACT.LOADING' | translate }}
   </div>
 
   <div *ngIf="error && !isEditing" class="error-banner mb-4">
     <p-message severity="error" [text]="error"></p-message>
-    <button pButton (click)="loadPact()" class="p-button-text">Retry</button>
+    <button pButton (click)="loadPact()" class="p-button-text">{{ 'PACT.RETRY' | translate }}</button>
   </div>
 
   <!-- Create State (No Pact) -->
   <div *ngIf="!loading && !pact && !isEditing && !error" class="empty-state">
     <div class="empty-card">
       <i class="pi pi-file-edit text-primary text-6xl mb-4"></i>
-      <h3>Create Your Partnership Agreement</h3>
-      <p>Define your standard terms and expectations for brand collaborations.</p>
-      <button pButton type="button" icon="pi pi-plus" (click)="startEditing()" class="mt-4">Create Pact</button>
+      <h3>{{ 'PACT.EMPTY.TITLE' | translate }}</h3>
+      <p>{{ 'PACT.EMPTY.DESCRIPTION' | translate }}</p>
+      <button pButton type="button" icon="pi pi-plus" (click)="startEditing()" class="mt-4">{{ 'PACT.EMPTY.CREATE_BTN' | translate }}</button>
         </div>
       </div>
 
@@ -35,13 +35,13 @@
 
         <!-- View Mode Header -->
         <div class="flex justify-content-between align-items-center mb-4" *ngIf="!isEditing">
-          <h3 class="text-xl font-bold m-0">Agreement Terms</h3>
-          <button pButton icon="pi pi-pencil" class="p-button-text" (click)="startEditing()">Edit</button>
+          <h3 class="text-xl font-bold m-0">{{ 'PACT.TERMS_TITLE' | translate }}</h3>
+          <button pButton icon="pi pi-pencil" class="p-button-text" (click)="startEditing()">{{ 'PACT.EDIT' | translate }}</button>
         </div>
 
         <!-- Edit Mode Header -->
         <div class="flex justify-content-between align-items-center mb-4" *ngIf="isEditing">
-          <h3 class="text-xl font-bold m-0">{{ pact ? 'Edit Terms' : 'Draft Terms' }}</h3>
+          <h3 class="text-xl font-bold m-0">{{ (pact ? 'PACT.EDIT_HEADER' : 'PACT.DRAFT_HEADER') | translate }}</h3>
           <p-selectButton [options]="editModeOptions" [(ngModel)]="activeEditMode" optionLabel="label"
             optionValue="value"></p-selectButton>
         </div>
@@ -54,27 +54,27 @@
           <!-- Write Mode -->
           <div class="field" *ngIf="activeEditMode === 'write'">
             <div class="markdown-toolbar">
-              <button type="button" class="tool-btn" (click)="insertMarkdown('**', '**')" pTooltip="Bold"
-                aria-label="Bold"><i class="pi pi-bold"></i></button>
-              <button type="button" class="tool-btn" (click)="insertMarkdown('*', '*')" pTooltip="Italic"
-                aria-label="Italic"><i class="pi pi-italic"></i></button>
+              <button type="button" class="tool-btn" (click)="insertMarkdown('**', '**')" [pTooltip]="'PACT.TOOLBAR.BOLD' | translate"
+                [attr.aria-label]="'PACT.TOOLBAR.BOLD' | translate"><i class="pi pi-bold"></i></button>
+              <button type="button" class="tool-btn" (click)="insertMarkdown('*', '*')" [pTooltip]="'PACT.TOOLBAR.ITALIC' | translate"
+                [attr.aria-label]="'PACT.TOOLBAR.ITALIC' | translate"><i class="pi pi-italic"></i></button>
               <div class="divider"></div>
-              <button type="button" class="tool-btn" (click)="insertMarkdown('## ')" pTooltip="Heading"
-                aria-label="Heading"><i class="pi pi-hashtag"></i></button>
-              <button type="button" class="tool-btn" (click)="insertMarkdown('* ')" pTooltip="List" aria-label="List"><i
+              <button type="button" class="tool-btn" (click)="insertMarkdown('## ')" [pTooltip]="'PACT.TOOLBAR.HEADING' | translate"
+                [attr.aria-label]="'PACT.TOOLBAR.HEADING' | translate"><i class="pi pi-hashtag"></i></button>
+              <button type="button" class="tool-btn" (click)="insertMarkdown('* ')" [pTooltip]="'PACT.TOOLBAR.LIST' | translate" [attr.aria-label]="'PACT.TOOLBAR.LIST' | translate"><i
                   class="pi pi-list"></i></button>
             </div>
 
             <textarea pTextarea id="content" formControlName="content" rows="20" class="editor-textarea"
-              maxlength="4000" placeholder="Start typing your terms..."></textarea>
+              maxlength="4000" [placeholder]="'PACT.PLACEHOLDER' | translate"></textarea>
 
             <small *ngIf="getFieldError('content') as errorMessage" class="field-error">
               {{ errorMessage }}
             </small>
 
             <div class="form-footer">
-              <span class="char-count">{{ pactForm.get('content')?.value?.length || 0 }} chars</span>
-              <button *ngIf="!pact" type="button" class="reset-link" (click)="resetToSample()">Use Template</button>
+              <span class="char-count">{{ pactForm.get('content')?.value?.length || 0 }} {{ 'PACT.CHARS' | translate }}</span>
+              <button *ngIf="!pact" type="button" class="reset-link" (click)="resetToSample()">{{ 'PACT.USE_TEMPLATE' | translate }}</button>
             </div>
           </div>
 
@@ -84,8 +84,8 @@
 
           <div class="form-actions">
             <button pButton type="button" class="p-button-text" (click)="cancelEditing()"
-              [disabled]="loading">Cancel</button>
-            <button pButton type="submit" [loading]="loading">{{ pact ? 'Save Changes' : 'Create Pact' }}</button>
+              [disabled]="loading">{{ 'PACT.CANCEL' | translate }}</button>
+            <button pButton type="submit" [loading]="loading">{{ (pact ? 'PACT.SAVE' : 'PACT.CREATE') | translate }}</button>
           </div>
         </form>
       </div>
@@ -97,7 +97,7 @@
         <div class="flex justify-content-between align-items-center mb-4">
           <h3 class="text-xl font-bold m-0">{{ 'OFFERS.LIST_TITLE' | translate }}</h3>
           <button pButton icon="pi pi-plus" class="p-button-rounded p-button-text" (click)="navigateToCreateOffer()"
-            [pTooltip]="'OFFERS.NEW' | translate"><span class="hidden">New Offer</span></button>
+            [pTooltip]="'OFFERS.NEW' | translate"><span class="hidden">{{ 'PACT.NEW_OFFER_SR' | translate }}</span></button>
         </div>
 
         <!-- Offer Item -->
@@ -109,7 +109,7 @@
               <span class="offer-price">{{ offer.priceAmount | currency:offer.priceCurrency }}</span>
             </div>
             <button pButton icon="pi pi-chevron-right" class="p-button-text p-button-sm action-btn"
-              [attr.aria-label]="'OFFERS.FORM.EDIT_TITLE' | translate"><span class="hidden">Edit</span></button>
+              [attr.aria-label]="'OFFERS.FORM.EDIT_TITLE' | translate"><span class="hidden">{{ 'PACT.EDIT_OFFER_SR' | translate }}</span></button>
           </div>
         </div>
 
