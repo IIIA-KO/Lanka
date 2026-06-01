@@ -74,13 +74,6 @@ export class PactComponent implements OnInit, OnDestroy {
     this.loadPact();
   }
 
-  private refreshEditModeOptions(): void {
-    this.editModeOptions = [
-      { label: this.translate.instant('PACT.MODE.WRITE'), value: 'write', icon: 'pi pi-pencil' },
-      { label: this.translate.instant('PACT.MODE.PREVIEW'), value: 'preview', icon: 'pi pi-eye' }
-    ];
-  }
-
   public ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -272,6 +265,13 @@ export class PactComponent implements OnInit, OnDestroy {
       const newCursorPos = start + prefix.length + selection.length + suffix.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     });
+  }
+
+  private refreshEditModeOptions(): void {
+    this.editModeOptions = [
+      { label: this.translate.instant('PACT.MODE.WRITE'), value: 'write', icon: 'pi pi-pencil' },
+      { label: this.translate.instant('PACT.MODE.PREVIEW'), value: 'preview', icon: 'pi pi-eye' }
+    ];
   }
 
   private ensureBloggerId(): Observable<string | null> {
