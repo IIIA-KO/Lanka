@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { IBloggerProfile } from '../models/blogger';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 const BASE_URL = environment.apiUrl;
 

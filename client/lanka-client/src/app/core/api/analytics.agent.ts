@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { IAgeDistribution, IGenderDistribution, ILocationDistribution, IReachDistribution, LocationType, StatisticsPeriod } from '../models/analytics/analytics.audience';
 import { IPostsResponse, IPostsQueryParams } from '../models/analytics/analytics.posts';
 import { IOverviewStatisticsResponse, IEngagementStatisticsResponse, IInteractionStatisticsResponse, IMetricsStatisticsResponse } from '../models/analytics/analytics.statistics';

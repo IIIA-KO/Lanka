@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { IReview, ICreateReviewRequest, IEditReviewRequest } from '../models/campaigns';
 
 const BASE_URL = environment.apiUrl;

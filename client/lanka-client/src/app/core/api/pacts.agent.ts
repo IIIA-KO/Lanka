@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { IPact, ICreatePactRequest, IEditPactRequest } from '../models/campaigns';
 import { AuthService } from '../services/auth/auth.service';
 

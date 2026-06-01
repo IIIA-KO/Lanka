@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { IChatMessage, IChatMessageDeletedEvent, IChatMessagesReadEvent } from '../api/chat.agent';
 
 export interface InstagramStatusNotification {

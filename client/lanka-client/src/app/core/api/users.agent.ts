@@ -9,7 +9,7 @@ import {
   ITokenResponse,
   IRegisterResponse,
 } from '../models/auth';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { IInstagramStatusResponse } from '../models/instagram';
 import { FriendlyErrorService } from '../services/friendly-error.service';
 
