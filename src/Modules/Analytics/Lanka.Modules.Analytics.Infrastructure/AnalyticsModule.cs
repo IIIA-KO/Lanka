@@ -190,7 +190,19 @@ public static class AnalyticsModule
     {
         if (!environment.IsDevelopment())
         {
-            services.AddScoped<TInterface, TReal>();
+            services.AddScoped<TReal>();
+            services.AddScoped<TInterface>(sp => sp.GetRequiredService<TReal>());
+
+            // Factory is also consumed in Production (e.g. background jobs). The factory
+            // short-circuits to the real service when not in Development, so the mock slot
+            // is unused — we pass the real service for both arguments.
+            services.AddScoped<IInstagramServiceFactory<TInterface>>(sp =>
+                new InstagramServiceFactory<TInterface>(
+                    sp.GetRequiredService<TReal>(),
+                    sp.GetRequiredService<TReal>(),
+                    environment: sp.GetRequiredService<IHostEnvironment>()
+                )
+            );
             return;
         }
 
