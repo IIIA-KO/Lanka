@@ -2,6 +2,14 @@ using Lanka.AppHost;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
+string targetEnv = builder.Configuration["AppEnvironment"]
+    ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+    ?? "Development";
+
+string clientScript = string.Equals(targetEnv, "Production", StringComparison.OrdinalIgnoreCase)
+    ? "start:prod"
+    : "start";
+
 // --- Parameters (stored in user secrets) ---
 
 IResourceBuilder<ParameterResource> pgPassword = builder.AddParameter("pg-password", secret: true);
@@ -46,7 +54,8 @@ IResourceBuilder<ProjectResource> api = builder
     .WaitFor(rabbitMq)
     .WaitFor(mongo)
     .WaitFor(elasticsearch)
-    .WaitFor(keycloak);
+    .WaitFor(keycloak)
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", targetEnv);
 
 if (shouldStartWayForPayTunnel)
 {
@@ -59,7 +68,8 @@ IResourceBuilder<ProjectResource> gateway = builder
     .WithReference(api)
     .WithReference(keycloak)
     .WaitFor(api)
-    .WaitFor(keycloak);
+    .WaitFor(keycloak)
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", targetEnv);
 
 if (shouldStartWayForPayTunnel)
 {
@@ -80,7 +90,7 @@ if (shouldStartWayForPayTunnel)
 
 // --- Frontend ---
 
-builder.AddJavaScriptApp("lanka-client", "../../../client/lanka-client", "start")
+builder.AddJavaScriptApp("lanka-client", "../../../client/lanka-client", clientScript)
     .WithReference(gateway)
     .WithHttpsEndpoint(port: 4200, targetPort: 4200, isProxied: false)
     .WaitFor(gateway);
