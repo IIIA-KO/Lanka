@@ -705,7 +705,7 @@
     "PROPOSE": {
       "HEADER": "Start Campaign: {{name}}",
       "NEW_CAMPAIGN": "New Campaign",
-      "DEFAULT_NAME": "Campaign for {{name}}",
+      "DEFAULT_NAME": "{{name}}",
       "HINT": "Pick a date to start a pending campaign on this offer. The creator will confirm or reject it.",
       "DATE_LABEL": "Proposed Date",
       "DATE_PLACEHOLDER": "Select a date",
