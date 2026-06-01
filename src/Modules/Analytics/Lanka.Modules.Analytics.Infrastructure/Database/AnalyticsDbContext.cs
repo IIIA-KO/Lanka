@@ -29,7 +29,10 @@ public class AnalyticsDbContext(
 
         modelBuilder.ApplyConfiguration(new TokenConfiguration(encryptionService));
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AnalyticsDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(AnalyticsDbContext).Assembly,
+            type => type != typeof(TokenConfiguration)
+        );
 
         base.OnModelCreating(modelBuilder);
     }

@@ -4,6 +4,7 @@ using Lanka.Modules.Campaigns.Domain.Campaigns.Descriptions;
 using Lanka.Modules.Campaigns.Domain.Campaigns.Names;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lanka.Modules.Campaigns.Infrastructure.Campaigns;
@@ -98,7 +99,14 @@ public class CampaignConfiguration : IEntityTypeConfiguration<Campaign>
                 .HasConversion(
                     v => v.ToArray(),
                     v => v.ToList().AsReadOnly()
-                );
+                )
+                .Metadata.SetValueComparer(new ValueComparer<IReadOnlyList<string>>(
+                    (a, b) => a == null ? b == null : b != null && a.SequenceEqual(b),
+                    v => v == null
+                        ? 0
+                        : v.Aggregate(0, (acc, item) => HashCode.Combine(acc, item == null ? 0 : item.GetHashCode(StringComparison.Ordinal))),
+                    v => v.ToList().AsReadOnly()
+                ));
 
             reportBuilder
                 .Property(r => r.SubmittedOnUtc)

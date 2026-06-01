@@ -31,6 +31,7 @@ using Lanka.Modules.Campaigns.Infrastructure.Reviews;
 using Lanka.Modules.Users.IntegrationEvents;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,6 +97,8 @@ public static class CampaignsModule
                 .AddInterceptors(
                     sp.GetRequiredService<ChangeCapture.CampaignsChangeCaptureInterceptor>(),
                     sp.GetRequiredService<InsertOutboxMessagesInterceptor>())
+                .ConfigureWarnings(w =>
+                    w.Ignore(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning))
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<ICampaignRepository, CampaignRepository>();
