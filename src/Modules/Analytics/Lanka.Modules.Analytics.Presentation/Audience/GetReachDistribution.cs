@@ -3,6 +3,7 @@ using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Analytics.Application.Instagram.Audience.GetReachDistribution;
 using Lanka.Modules.Analytics.Domain;
+using Lanka.Modules.Analytics.Presentation.Internal;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -37,6 +38,7 @@ internal sealed class GetReachDistribution : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetReachDistribution")
             .WithSummary("Get audience reach distribution")
-            .WithDescription("Retrieves reach distribution data for Instagram account audience within specified period");
+            .WithDescription("Retrieves reach distribution data for Instagram account audience within specified period")
+            .WithBrowserCache(60);
     }
 }

@@ -3,6 +3,7 @@ using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Analytics.Application.Instagram.Statistics.GetEngagementStatistics;
 using Lanka.Modules.Analytics.Domain;
+using Lanka.Modules.Analytics.Presentation.Internal;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,7 @@ internal sealed class GetEngagementStatistics : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetEngagementStatistics")
             .WithSummary("Get engagement statistics")
-            .WithDescription("Retrieves engagement statistics for Instagram account within specified period");
+            .WithDescription("Retrieves engagement statistics for Instagram account within specified period")
+            .WithBrowserCache(60);
     }
 }

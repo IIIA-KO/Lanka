@@ -1,7 +1,7 @@
 using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
-using Lanka.Modules.Analytics.Application.Instagram.Statistics.GetOverviewStatistics;
+using Lanka.Modules.Analytics.Application.Instagram.ProfileSummary;
 using Lanka.Modules.Analytics.Domain;
 using Lanka.Modules.Analytics.Presentation.Internal;
 using MediatR;
@@ -10,13 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Lanka.Modules.Analytics.Presentation.Statistics;
+namespace Lanka.Modules.Analytics.Presentation.ProfileSummary;
 
-internal sealed class GetOverviewStatistics : AnalyticsEndpointBase
+internal sealed class GetProfileSummary : AnalyticsEndpointBase
 {
     protected override RouteHandlerBuilder MapEndpointInternal(IEndpointRouteBuilder app)
     {
-        return app.MapGet(this.BuildRoute("overview-statistics"),
+        return app.MapGet(this.BuildRoute("profile-summary"),
                 async (
                     [FromQuery] StatisticsPeriod period,
                     [FromServices] ISender sender,
@@ -24,9 +24,9 @@ internal sealed class GetOverviewStatistics : AnalyticsEndpointBase
                     CancellationToken cancellationToken
                 ) =>
                 {
-                    Result<OverviewStatisticsResponse> result =
+                    Result<ProfileSummaryResponse> result =
                         await sender.Send(
-                            new GetOverviewStatisticsQuery(userContext.GetUserId(), period),
+                            new GetProfileSummaryQuery(userContext.GetUserId(), period),
                             cancellationToken
                         );
 
@@ -34,9 +34,10 @@ internal sealed class GetOverviewStatistics : AnalyticsEndpointBase
                 }
             )
             .WithTags(Tags.Analytics)
-            .WithName("GetOverviewStatistics")
-            .WithSummary("Get overview statistics")
-            .WithDescription("Retrieves overview statistics for Instagram account within specified period")
+            .WithName("GetProfileSummary")
+            .WithSummary("Get aggregated profile analytics summary")
+            .WithDescription(
+                "Returns overview/engagement/interaction statistics, audience distributions, and recent posts in a single response. Each section is independently cached.")
             .WithBrowserCache(60);
     }
 }

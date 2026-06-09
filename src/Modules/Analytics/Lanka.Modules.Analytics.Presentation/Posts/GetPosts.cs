@@ -3,6 +3,7 @@ using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Analytics.Application.Abstractions.Models.Posts;
 using Lanka.Modules.Analytics.Application.Instagram.GetPosts;
+using Lanka.Modules.Analytics.Presentation.Internal;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,7 @@ internal sealed class GetPosts : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetPosts")
             .WithSummary("Get Instagram posts")
-            .WithDescription("Retrieves Instagram posts with pagination support using cursor-based navigation");
+            .WithDescription("Retrieves Instagram posts with pagination support using cursor-based navigation")
+            .WithBrowserCache(60);
     }
 }

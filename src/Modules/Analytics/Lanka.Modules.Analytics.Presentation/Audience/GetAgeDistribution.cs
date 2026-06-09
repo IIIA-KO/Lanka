@@ -2,6 +2,7 @@ using Lanka.Common.Application.Authentication;
 using Lanka.Common.Domain;
 using Lanka.Common.Presentation.ApiResults;
 using Lanka.Modules.Analytics.Application.Instagram.Audience.GetAgeDistribution;
+using Lanka.Modules.Analytics.Presentation.Internal;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,7 @@ internal sealed class GetAgeDistribution : AnalyticsEndpointBase
             .WithTags(Tags.Analytics)
             .WithName("GetAgeDistribution")
             .WithSummary("Get audience age distribution")
-            .WithDescription("Retrieves age distribution data for Instagram account audience");
+            .WithDescription("Retrieves age distribution data for Instagram account audience")
+            .WithBrowserCache(60);
     }
 }
