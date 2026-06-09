@@ -226,7 +226,11 @@
             </div>
           }
           <div class="mt-4 mb-4">
-            <app-profile-calendar [bloggerId]="profile.id" [isOwnProfile]="true"></app-profile-calendar>
+            @defer (on idle) {
+              <app-profile-calendar [bloggerId]="profile.id" [isOwnProfile]="true"></app-profile-calendar>
+            } @placeholder {
+              <div class="calendar-skeleton" style="min-height: 240px;"></div>
+            }
           </div>
 
           <div class="grid">
@@ -309,14 +313,18 @@
                     styleClass="location-toggle"></p-selectButton>
                 </div>
                 @if (activeLocation.labels.length > 0) {
-                  <app-analytics-chart
-                    title=""
-                    type="bar"
-                    [labels]="activeLocation.labels"
-                    [values]="activeLocation.values"
-                    colorMode="saturation"
-                    baseColor="#FFA726">
-                  </app-analytics-chart>
+                  @defer (on viewport) {
+                    <app-analytics-chart
+                      title=""
+                      type="bar"
+                      [labels]="activeLocation.labels"
+                      [values]="activeLocation.values"
+                      colorMode="saturation"
+                      baseColor="#FFA726">
+                    </app-analytics-chart>
+                  } @placeholder {
+                    <div class="chart-skeleton" style="min-height: 240px;"></div>
+                  }
                 } @else {
                   <div class="audience-empty">
                     <i class="pi pi-map text-3xl text-color-secondary mb-2"></i>
@@ -334,14 +342,18 @@
                       {{ 'PROFILE.ANALYTICS.AGE' | translate }}
                     </span>
                     @if (age.labels.length > 0) {
-                      <app-analytics-chart
-                        title=""
-                        type="bar"
-                        [labels]="age.labels"
-                        [values]="age.values"
-                        colorMode="saturation"
-                        baseColor="#42A5F5">
-                      </app-analytics-chart>
+                      @defer (on viewport) {
+                        <app-analytics-chart
+                          title=""
+                          type="bar"
+                          [labels]="age.labels"
+                          [values]="age.values"
+                          colorMode="saturation"
+                          baseColor="#42A5F5">
+                        </app-analytics-chart>
+                      } @placeholder {
+                        <div class="chart-skeleton" style="min-height: 240px;"></div>
+                      }
                     } @else {
                       <div class="audience-empty">
                         <i class="pi pi-chart-bar text-3xl text-color-secondary mb-2"></i>
@@ -358,13 +370,17 @@
                       {{ 'PROFILE.ANALYTICS.GENDER' | translate }}
                     </span>
                     @if (gender.labels.length > 0) {
-                      <app-analytics-chart
-                        title=""
-                        [labels]="gender.labels"
-                        [values]="gender.values"
-                        [colorMapping]="genderColorMapping"
-                        [maxPieSegments]="100">
-                      </app-analytics-chart>
+                      @defer (on viewport) {
+                        <app-analytics-chart
+                          title=""
+                          [labels]="gender.labels"
+                          [values]="gender.values"
+                          [colorMapping]="genderColorMapping"
+                          [maxPieSegments]="100">
+                        </app-analytics-chart>
+                      } @placeholder {
+                        <div class="chart-skeleton" style="min-height: 240px;"></div>
+                      }
                     } @else {
                       <div class="audience-empty">
                         <i class="pi pi-chart-pie text-3xl text-color-secondary mb-2"></i>
@@ -461,13 +477,17 @@
                 <div class="col-12 lg:col-5">
                   @if (reach.labels.length > 0) {
                     <div class="analytics-card mb-4 h-full">
-                      <app-analytics-chart
-                        [title]="'PROFILE.ANALYTICS.REACH' | translate"
-                        [labels]="reach.labels"
-                        [values]="reach.values"
-                        [colorMapping]="reachColorMapping"
-                        [maxPieSegments]="100">
-                      </app-analytics-chart>
+                      @defer (on viewport) {
+                        <app-analytics-chart
+                          [title]="'PROFILE.ANALYTICS.REACH' | translate"
+                          [labels]="reach.labels"
+                          [values]="reach.values"
+                          [colorMapping]="reachColorMapping"
+                          [maxPieSegments]="100">
+                        </app-analytics-chart>
+                      } @placeholder {
+                        <div class="chart-skeleton" style="min-height: 240px;"></div>
+                      }
                     </div>
                   }
                 </div>
