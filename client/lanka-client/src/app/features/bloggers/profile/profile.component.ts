@@ -2,7 +2,7 @@ import { IBloggerProfile } from '../../../core/models/blogger';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Subject, forkJoin, takeUntil, catchError, of, finalize } from 'rxjs';
+import { Subject, takeUntil, catchError, of, finalize } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { AgentService } from '../../../core/api/agent';
 import { ReviewsAgent } from '../../../core/api/reviews.agent';
@@ -14,7 +14,7 @@ import {
   instagramResponseType,
   instagramConfigId,
 } from '../../../core/constants/instagram.constants';
-import { LocationType, StatisticsPeriod } from '../../../core/models/analytics/analytics.audience';
+import { StatisticsPeriod } from '../../../core/models/analytics/analytics.audience';
 import {
   IEngagementStatisticsResponse,
   IInteractionStatisticsResponse,
@@ -162,16 +162,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.instagramAccountLinked = Boolean(this.profile?.instagramUsername);
 
     if (this.profile) {
-      // Batch 1: lightweight data + statistics (5 requests)
       this.loadPact();
       this.loadReviews();
-      this.loadStatistics(this.statsPeriod, () => {
-        // Batch 2: after statistics complete, load distributions + posts (6 requests)
-        this.loadAnalyticsAndDistributions();
-        if (this.instagramAccountLinked) {
-          this.loadRecentPosts();
-        }
-      });
+      this.loadProfileAnalytics(this.statsPeriod);
 
       if (!this.instagramAccountLinked) {
         this.refreshInstagramLinkedState();
@@ -308,7 +301,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public getMetricStatusLabel(status: MetricStatus): string { return getMetricStatusLabel(status); }
 
   public onPeriodChange(): void {
-    this.loadStatistics(this.statsPeriod);
+    this.loadProfileAnalytics(this.statsPeriod);
   }
 
   private initTranslatedOptions(): void {
@@ -327,32 +320,54 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private loadAnalyticsAndDistributions(): void {
+  private loadProfileAnalytics(period: StatisticsPeriod): void {
+    this.loadingStatistics = true;
     this.loadingAnalytics = true;
-    forkJoin({
-      age: this.analyticsApi.getAgeDistribution().pipe(catchError(() => of(null))),
-      gender: this.analyticsApi.getGenderDistribution().pipe(catchError(() => of(null))),
-      locationCountry: this.analyticsApi.getLocationDistribution(LocationType.country).pipe(catchError(() => of(null))),
-      locationCity: this.analyticsApi.getLocationDistribution(LocationType.city).pipe(catchError(() => of(null))),
-      reach: this.analyticsApi.getReachDistribution(StatisticsPeriod.week).pipe(catchError(() => of(null)))
-    })
-      .pipe(takeUntil(this.destroy$))
+    this.loadingPosts = this.instagramAccountLinked;
+
+    this.analyticsApi.getProfileSummary(period)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of(null)),
+        finalize(() => {
+          this.loadingStatistics = false;
+          this.loadingAnalytics = false;
+          this.loadingPosts = false;
+        })
+      )
       .subscribe({
-        next: (result) => {
-          if (result.age?.agePercentages) {
+        next: (summary) => {
+          if (!summary) {
+            return;
+          }
+
+          this.overview = summary.overview;
+          this.engagement = summary.engagement;
+          this.interaction = summary.interaction;
+
+          if (summary.ageDistribution?.agePercentages) {
             this.age = {
-              labels: result.age.agePercentages.map(a => a.ageGroup),
-              values: result.age.agePercentages.map(a => a.percentage)
+              labels: summary.ageDistribution.agePercentages.map(a => a.ageGroup),
+              values: summary.ageDistribution.agePercentages.map(a => a.percentage)
             };
+            const sortedAge = [...summary.ageDistribution.agePercentages].sort((a, b) => b.percentage - a.percentage);
+            this.topAgeGroup = sortedAge.length > 0 ? sortedAge[0].ageGroup : null;
           }
-          if (result.gender?.genderPercentages) {
+
+          if (summary.genderDistribution?.genderPercentages) {
             this.gender = {
-              labels: result.gender.genderPercentages.map(g => expandGenderLabel(g.gender)),
-              values: result.gender.genderPercentages.map(g => g.percentage)
+              labels: summary.genderDistribution.genderPercentages.map(g => expandGenderLabel(g.gender)),
+              values: summary.genderDistribution.genderPercentages.map(g => g.percentage)
             };
+            const sortedGender = [...summary.genderDistribution.genderPercentages].sort((a, b) => b.percentage - a.percentage);
+            if (sortedGender.length > 0) {
+              this.topGender = expandGenderLabel(sortedGender[0].gender);
+              this.topGenderPct = sortedGender[0].percentage;
+            }
           }
-          if (result.locationCountry?.locationPercentages) {
-            const sortedCountry = [...result.locationCountry.locationPercentages].sort((a, b) => b.percentage - a.percentage);
+
+          if (summary.locationCountry?.locationPercentages) {
+            const sortedCountry = [...summary.locationCountry.locationPercentages].sort((a, b) => b.percentage - a.percentage);
             const top5Country = sortedCountry.slice(0, 5);
             this.locationCountry = {
               labels: top5Country.map(l => l.location),
@@ -363,55 +378,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
               this.topCountryPct = sortedCountry[0].percentage;
             }
           }
-          if (result.locationCity?.locationPercentages) {
-            const sortedCity = [...result.locationCity.locationPercentages].sort((a, b) => b.percentage - a.percentage);
+
+          if (summary.locationCity?.locationPercentages) {
+            const sortedCity = [...summary.locationCity.locationPercentages].sort((a, b) => b.percentage - a.percentage);
             const top5City = sortedCity.slice(0, 5);
             this.locationCity = {
               labels: top5City.map(l => l.location),
               values: top5City.map(l => l.percentage)
             };
           }
-          if (result.age?.agePercentages) {
-            const sortedAge = [...result.age.agePercentages].sort((a, b) => b.percentage - a.percentage);
-            this.topAgeGroup = sortedAge.length > 0 ? sortedAge[0].ageGroup : null;
-          }
-          if (result.gender?.genderPercentages) {
-            const sortedGender = [...result.gender.genderPercentages].sort((a, b) => b.percentage - a.percentage);
-            if (sortedGender.length > 0) {
-              this.topGender = expandGenderLabel(sortedGender[0].gender);
-              this.topGenderPct = sortedGender[0].percentage;
-            }
-          }
-          if (result.reach?.reachPercentages) {
+
+          if (summary.reachDistribution?.reachPercentages) {
             this.reach = {
-              labels: result.reach.reachPercentages.map(r => expandReachLabel(r.followType)),
-              values: result.reach.reachPercentages.map(r => r.percentage)
+              labels: summary.reachDistribution.reachPercentages.map(r => expandReachLabel(r.followType)),
+              values: summary.reachDistribution.reachPercentages.map(r => r.percentage)
             };
           }
-          this.loadingAnalytics = false;
-        }
-      });
-  }
 
-  private loadStatistics(period: StatisticsPeriod, onComplete?: () => void): void {
-    this.loadingStatistics = true;
-    forkJoin({
-      engagement: this.analyticsApi.getEngagementStatistics(period).pipe(catchError(() => of(null))),
-      interaction: this.analyticsApi.getInteractionStatistics(period).pipe(catchError(() => of(null))),
-      overview: this.analyticsApi.getOverviewStatistics(period).pipe(catchError(() => of(null)))
-    })
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.loadingStatistics = false;
-          onComplete?.();
-        })
-      )
-      .subscribe({
-        next: (result) => {
-          this.engagement = result.engagement;
-          this.interaction = result.interaction;
-          this.overview = result.overview;
+          this.recentPosts = summary.recentPosts?.posts ?? [];
         }
       });
   }
@@ -441,7 +425,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         next: (status) => {
           this.instagramAccountLinked = status?.status === 'completed';
           if (this.instagramAccountLinked) {
-            this.loadRecentPosts();
+            this.loadProfileAnalytics(this.statsPeriod);
           }
         },
         error: (error: unknown) => {
@@ -484,25 +468,4 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadRecentPosts(): void {
-    if (!this.instagramAccountLinked) {
-      return;
-    }
-
-    this.loadingPosts = true;
-    this.analyticsApi.getPosts({ limit: 6 })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.recentPosts = response?.posts || [];
-        },
-        error: (error: unknown) => {
-          console.error('[ProfileComponent] Error loading recent posts:', error);
-          this.recentPosts = [];
-        },
-        complete: () => {
-          this.loadingPosts = false;
-        }
-      });
-  }
 }

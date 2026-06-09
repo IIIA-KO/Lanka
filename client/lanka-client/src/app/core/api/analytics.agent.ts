@@ -4,6 +4,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IAgeDistribution, IGenderDistribution, ILocationDistribution, IReachDistribution, LocationType, StatisticsPeriod } from '../models/analytics/analytics.audience';
 import { IPostsResponse, IPostsQueryParams } from '../models/analytics/analytics.posts';
+import { IProfileSummaryResponse } from '../models/analytics/analytics.profile-summary';
 import { IOverviewStatisticsResponse, IEngagementStatisticsResponse, IInteractionStatisticsResponse, IMetricsStatisticsResponse } from '../models/analytics/analytics.statistics';
 
 const BASE_URL = environment.apiUrl;
@@ -159,6 +160,14 @@ export class AnalyticsAgent {
 
     return this.http
       .get<IInteractionStatisticsResponse>(`${BASE_URL}/analytics/interaction-statistics`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  public getProfileSummary(period: StatisticsPeriod): Observable<IProfileSummaryResponse> {
+    const params = new HttpParams().set('period', period.toString());
+
+    return this.http
+      .get<IProfileSummaryResponse>(`${BASE_URL}/analytics/profile-summary`, { params })
       .pipe(catchError(this.handleError));
   }
 
