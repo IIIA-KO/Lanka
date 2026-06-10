@@ -84,12 +84,13 @@ internal static class ApplicationExtensions
     {
         public async Task ConfigureMiddleware()
         {
+            app.ApplyMigrations();
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
                 app.MapScalarApiReference();
 
-                app.ApplyMigrations();
                 await app.SeedDevelopmentDataAsync();
             }
 
