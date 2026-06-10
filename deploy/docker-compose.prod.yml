@@ -1,0 +1,200 @@
+# Production stack for Hostinger KVM-1. See deploy/DEPLOY.md for full setup.
+# Required env vars: GHCR_OWNER, IMAGE_TAG, POSTGRES_PASSWORD, MONGO_PASSWORD,
+# REDIS_PASSWORD, RABBITMQ_PASSWORD, KEYCLOAK_ADMIN, KEYCLOAK_ADMIN_PASSWORD,
+# PUBLIC_API_URL, PUBLIC_AUTH_URL, PUBLIC_CLIENT_ORIGIN.
+
+x-restart: &restart
+  restart: unless-stopped
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+networks:
+  lanka:
+    driver: bridge
+
+volumes:
+  lanka-postgres-data:
+  lanka-mongo-data:
+  lanka-cache-data:
+  lanka-queue-data:
+  lanka-identity-data:
+  lanka-search-data:
+
+services:
+  # ---------- Infrastructure ----------
+
+  lanka-postgres:
+    <<: [*restart, *logging]
+    image: postgres:17.6
+    container_name: lanka-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: lanka
+    volumes:
+      - lanka-postgres-data:/var/lib/postgresql/data
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  lanka-mongo:
+    <<: [*restart, *logging]
+    image: mongo:8.2
+    container_name: lanka-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - lanka-mongo-data:/data/db
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  lanka-cache:
+    <<: [*restart, *logging]
+    image: redis:8.2
+    container_name: lanka-cache
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--save", "60", "1"]
+    volumes:
+      - lanka-cache-data:/data
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 96M
+
+  lanka-queue:
+    <<: [*restart, *logging]
+    image: rabbitmq:4.2-management
+    container_name: lanka-queue
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - lanka-queue-data:/var/lib/rabbitmq
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  lanka-search:
+    <<: [*restart, *logging]
+    image: elasticsearch:9.1.10
+    container_name: lanka-search
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.enrollment.enabled: "false"
+      ES_JAVA_OPTS: "-Xms256m -Xmx384m"
+    volumes:
+      - lanka-search-data:/usr/share/elasticsearch/data
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 640M
+
+  lanka-identity:
+    <<: [*restart, *logging]
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: lanka-identity
+    command: ["start", "--optimized", "--import-realm"]
+    environment:
+      KC_HOSTNAME_URL: ${PUBLIC_AUTH_URL}
+      KC_HOSTNAME_STRICT: "false"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://lanka-postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      JAVA_OPTS_KC_HEAP: "-Xms256m -Xmx384m"
+    volumes:
+      - lanka-identity-data:/opt/keycloak/data
+      - /etc/lanka/lanka-realm-export.json:/opt/keycloak/data/import/lanka-realm-export.json:ro
+    depends_on:
+      - lanka-postgres
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ---------- Application ----------
+
+  lanka-api:
+    <<: [*restart, *logging]
+    image: ghcr.io/${GHCR_OWNER}/lanka-api:${IMAGE_TAG}
+    container_name: lanka-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Database: Host=lanka-postgres;Port=5432;Database=lanka;Username=postgres;Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Cache: lanka-cache:6379,password=${REDIS_PASSWORD}
+      ConnectionStrings__Queue: amqp://guest:${RABBITMQ_PASSWORD}@lanka-queue:5672/
+      ConnectionStrings__Mongo: mongodb://admin:${MONGO_PASSWORD}@lanka-mongo:27017
+      ConnectionStrings__lanka-search: http://lanka-search:9200
+      KeyCloak__Realm: lanka
+      services__lanka-identity__http__0: ${PUBLIC_AUTH_URL}
+      Authentication__Audience: account
+      Authentication__RequireHttpsMetadata: "false"
+    depends_on:
+      - lanka-postgres
+      - lanka-mongo
+      - lanka-cache
+      - lanka-queue
+      - lanka-search
+      - lanka-identity
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  lanka-gateway:
+    <<: [*restart, *logging]
+    image: ghcr.io/${GHCR_OWNER}/lanka-gateway:${IMAGE_TAG}
+    container_name: lanka-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      KeyCloak__Realm: lanka
+      services__lanka-identity__http__0: ${PUBLIC_AUTH_URL}
+      Authentication__Audience: account
+      Authentication__RequireHttpsMetadata: "false"
+      Cors__AllowedOrigins__0: ${PUBLIC_CLIENT_ORIGIN}
+      ReverseProxy__Clusters__lanka-cluster__Destinations__destination1__Address: http://lanka-api:8080
+    depends_on:
+      - lanka-api
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 192M
+
+  lanka-client:
+    <<: [*restart, *logging]
+    image: ghcr.io/${GHCR_OWNER}/lanka-client:${IMAGE_TAG}
+    container_name: lanka-client
+    environment:
+      LANKA_API_URL: ${PUBLIC_API_URL}
+    depends_on:
+      - lanka-gateway
+    networks: [lanka]
+    deploy:
+      resources:
+        limits:
+          memory: 64M
