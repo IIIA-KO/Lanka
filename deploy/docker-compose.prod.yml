@@ -139,6 +139,7 @@ services:
   lanka-api:
     <<: [*restart, *logging]
     image: ghcr.io/${GHCR_OWNER}/lanka-api:${IMAGE_TAG}
+    pull_policy: always
     container_name: lanka-api
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -169,6 +170,7 @@ services:
   lanka-gateway:
     <<: [*restart, *logging]
     image: ghcr.io/${GHCR_OWNER}/lanka-gateway:${IMAGE_TAG}
+    pull_policy: always
     container_name: lanka-gateway
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -190,6 +192,7 @@ services:
   lanka-client:
     <<: [*restart, *logging]
     image: ghcr.io/${GHCR_OWNER}/lanka-client:${IMAGE_TAG}
+    pull_policy: always
     container_name: lanka-client
     environment:
       LANKA_API_URL: ${PUBLIC_API_URL}
