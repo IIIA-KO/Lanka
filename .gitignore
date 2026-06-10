@@ -21,8 +21,6 @@ dist/
 /src/environments/environment.prod.ts
 
 # Node.js specific
-package-lock.json
-yarn.lock
 npm-debug.log
 yarn-error.log
 
