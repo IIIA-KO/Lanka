@@ -13,6 +13,7 @@ permissions:
 env:
   DOTNET_VERSION: "10.0.x"
   REGISTRY: ghcr.io
+  IMAGE_OWNER: iiia-ko
 
 jobs:
   dotnet-images:
@@ -49,7 +50,7 @@ jobs:
             --os linux --arch x64 \
             /t:PublishContainer \
             -p ContainerRegistry=${{ env.REGISTRY }} \
-            -p ContainerRepository=${{ github.repository_owner }}/lanka-${{ matrix.name }} \
+            -p ContainerRepository=${{ env.IMAGE_OWNER }}/lanka-${{ matrix.name }} \
             -p ContainerImageTags='"latest;${{ github.sha }}"'
 
   client-image:
@@ -76,8 +77,8 @@ jobs:
           file: client/lanka-client/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/lanka-client:latest
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/lanka-client:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/lanka-client:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/lanka-client:${{ github.sha }}
 
   notify-dokploy:
     name: Trigger Dokploy redeploy
