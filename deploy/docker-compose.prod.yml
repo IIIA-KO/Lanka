@@ -148,6 +148,10 @@ services:
       Authentication__Audience: account
       Authentication__RequireHttpsMetadata: "false"
       Analytics__Encryption__Key: ${ANALYTICS_ENCRYPTION_KEY}
+      Users__KeyCloak__Realm: lanka
+      Users__KeyCloak__ConfidentialClientId: lanka-confidential-client
+      Users__KeyCloak__ConfidentialClientSecret: ${KEYCLOAK_CONFIDENTIAL_CLIENT_SECRET}
+      Users__KeyCloak__PublicClientId: lanka-public-client
     depends_on:
       - lanka-postgres
       - lanka-mongo
