@@ -34,11 +34,14 @@ sysctl -p
 curl -sSL https://dokploy.com/install.sh | sh
 ```
 
-Hostinger hPanel → VPS → Firewall: allow inbound TCP **22, 80, 8080, 8081, 3000**.
-- 80    — Angular client (`lanka-client`)
-- 8080  — Gateway public (`lanka-gateway`)
-- 8081  — Keycloak public (`lanka-identity`)
+Hostinger hPanel → VPS → Firewall: allow inbound TCP **22, 4200, 4308, 18080, 3000**.
+- 4200  — Angular client (`lanka-client`)
+- 4308  — Gateway public (`lanka-gateway`)
+- 18080 — Keycloak public (`lanka-identity`)
 - 3000  — Dokploy admin UI
+
+Host port 80 stays clear of Dokploy's bundled Traefik on purpose; the stack
+publishes on the non-conflicting ports above.
 
 Browse `http://<vps-ip>:3000` and create the first admin user.
 
@@ -61,9 +64,9 @@ REDIS_PASSWORD=<random-32-chars>
 RABBITMQ_PASSWORD=<random-32-chars>
 KEYCLOAK_ADMIN=admin
 KEYCLOAK_ADMIN_PASSWORD=<random-32-chars>
-PUBLIC_API_URL=http://<vps-ip>:8080
-PUBLIC_AUTH_URL=http://<vps-ip>:8081
-PUBLIC_CLIENT_ORIGIN=http://<vps-ip>
+PUBLIC_API_URL=http://<vps-ip>:4308
+PUBLIC_AUTH_URL=http://<vps-ip>:18080
+PUBLIC_CLIENT_ORIGIN=http://<vps-ip>:4200
 ```
 
 Generate randoms with `openssl rand -hex 24`. Replace `<vps-ip>` with the VPS public IP.
@@ -87,15 +90,17 @@ If the repo is private, scp instead:
 scp .files/lanka-realm-export.json root@<vps-ip>:/etc/lanka/
 ```
 
-**Domains tab — host port mapping:**
+**Port mapping** is baked into the compose file:
 
-| Service          | Container port | Published port |
-|------------------|---------------:|---------------:|
-| `lanka-client`   | 80             | 80             |
-| `lanka-gateway`  | 8080           | 8080           |
-| `lanka-identity` | 8080           | 8081           |
+| Service          | Container port | Host port |
+|------------------|---------------:|----------:|
+| `lanka-client`   | 80             | 4200      |
+| `lanka-gateway`  | 8080           | 4308      |
+| `lanka-identity` | 8080           | 18080     |
 
-No domain configured → Dokploy / Traefik passes traffic through on the published port. No TLS yet (Instagram OAuth linking saga will fail until a domain + HTTPS are added; everything else works).
+No domain configured → access via `http://<vps-ip>:<host-port>`. No TLS yet
+(Instagram OAuth linking saga will fail until a domain + HTTPS are added;
+everything else works).
 
 **Registry credentials:**
 
@@ -122,10 +127,10 @@ The workflow's `notify-dokploy` job no-ops until this secret is set, so first ma
 
 ```bash
 # Health
-curl -i http://<vps-ip>/                                         # 200, Angular index.html
-curl -i http://<vps-ip>:8080/healthz                             # 200 from gateway
-curl -i http://<vps-ip>:8081/realms/lanka/.well-known/openid-configuration | jq .issuer
-# → "http://<vps-ip>:8081/realms/lanka"
+curl -i http://<vps-ip>:4200                                     # 200, Angular index.html
+curl -i http://<vps-ip>:4308/healthz                             # 200 from gateway
+curl -i http://<vps-ip>:18080/realms/lanka/.well-known/openid-configuration | jq .issuer
+# → "http://<vps-ip>:18080/realms/lanka"
 
 # Migrations
 docker exec lanka-postgres psql -U postgres -d lanka -c '\dn'
@@ -133,8 +138,8 @@ docker exec lanka-postgres psql -U postgres -d lanka -c '\dn'
 
 # Wire-up
 # Browser: http://<vps-ip>
-# DevTools → Network → config.js carries apiUrl: 'http://<vps-ip>:8080'
-# Login form → POST http://<vps-ip>:8080/users/login → 200 + JWT
+# DevTools → Network → config.js carries apiUrl: 'http://<vps-ip>:4308'
+# Login form → POST http://<vps-ip>:4308/users/login → 200 + JWT
 ```
 
 ## 5. Subsequent deploys
